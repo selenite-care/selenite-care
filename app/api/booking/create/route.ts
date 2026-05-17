@@ -1,0 +1,75 @@
+import { db } from "@/lib/db";
+
+type CreateBookingPayload = {
+  userId?: unknown;
+  serviceId?: unknown;
+  stripePaymentId?: unknown;
+  appointmentTime?: unknown;
+};
+
+export async function POST(request: Request) {
+  const body = (await request.json()) as CreateBookingPayload;
+  const userId = typeof body.userId === "string" ? body.userId : "";
+  const serviceId = typeof body.serviceId === "string" ? body.serviceId : "";
+  const stripePaymentId =
+    typeof body.stripePaymentId === "string" ? body.stripePaymentId : "";
+  const appointmentTime =
+    typeof body.appointmentTime === "string" ? body.appointmentTime : "";
+
+  if (!userId || !serviceId || !stripePaymentId || !appointmentTime) {
+    return Response.json(
+      {
+        error:
+          "User ID, service ID, Stripe payment ID, and appointment time are required.",
+      },
+      { status: 400 },
+    );
+  }
+
+  const appointmentDate = new Date(appointmentTime);
+
+  if (Number.isNaN(appointmentDate.getTime())) {
+    return Response.json(
+      { error: "Appointment time must be a valid date." },
+      { status: 400 },
+    );
+  }
+
+  const service = await db.service.findUnique({
+    where: { id: serviceId },
+    select: {
+      price: true,
+    },
+  });
+
+  if (!service) {
+    return Response.json({ error: "Service not found." }, { status: 404 });
+  }
+
+  const booking = await db.$transaction(async (tx) => {
+    const createdBooking = await tx.booking.create({
+      data: {
+        userId,
+        serviceId,
+        appointmentTime: appointmentDate,
+        status: "CONFIRMED",
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    await tx.payment.create({
+      data: {
+        bookingId: createdBooking.id,
+        stripePaymentId,
+        amount: service.price,
+        status: "PAID",
+      },
+    });
+
+    return createdBooking;
+  });
+
+  return Response.json({ token: booking.id, bookingId: booking.id });
+}

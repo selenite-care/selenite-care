@@ -1,65 +1,118 @@
-import Image from "next/image";
+import Link from "next/link";
+
+const features = [
+  {
+    title: "Personalized Care",
+    description: "Support shaped around your needs, schedule, and goals.",
+  },
+  {
+    title: "Simple Booking",
+    description: "Choose a service, reserve a time, and get clear next steps.",
+  },
+  {
+    title: "Trusted Guidance",
+    description: "Thoughtful consultations focused on practical wellness.",
+  },
+];
+
+const steps = [
+  {
+    title: "Pay",
+    description: "Secure your appointment with a simple payment flow.",
+  },
+  {
+    title: "Fill Form",
+    description: "Share the details we need to prepare for your session.",
+  },
+  {
+    title: "Get Consultation",
+    description: "Meet with your consultant and receive personalized support.",
+  },
+];
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <div className="flex flex-1 flex-col bg-zinc-50 dark:bg-black">
+      <section className="px-6 py-20 sm:py-28">
+        <div className="mx-auto w-full max-w-6xl">
+          <div className="max-w-2xl">
+            <h1 className="text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
+              Compassionate care for your everyday wellness.
+            </h1>
+            <p className="mt-6 text-lg leading-8 text-foreground/70">
+              Schedule personalized support with Selenite Care and get the
+              attention you need, right when you need it.
+            </p>
+            <Link
+              href="/booking"
+              className="mt-8 inline-flex h-12 items-center justify-center rounded-md bg-foreground px-6 text-sm font-medium text-background transition-colors hover:bg-foreground/85"
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+              Book Appointment
+            </Link>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </section>
+
+      <section className="bg-background px-6 py-16">
+        <div className="mx-auto w-full max-w-6xl">
+          <div className="max-w-2xl">
+            <h2 className="text-3xl font-semibold tracking-tight text-foreground">
+              Why Choose Us
+            </h2>
+            <p className="mt-4 text-base leading-7 text-foreground/70">
+              Care should feel clear, calm, and easy to access.
+            </p>
+          </div>
+
+          <div className="mt-10 grid gap-5 md:grid-cols-3">
+            {features.map((feature) => (
+              <article
+                key={feature.title}
+                className="rounded-lg border border-black/10 bg-zinc-50 p-6 dark:border-white/10 dark:bg-white/5"
+              >
+                <h3 className="text-lg font-semibold text-foreground">
+                  {feature.title}
+                </h3>
+                <p className="mt-3 text-sm leading-6 text-foreground/70">
+                  {feature.description}
+                </p>
+              </article>
+            ))}
+          </div>
         </div>
-      </main>
+      </section>
+
+      <section className="px-6 py-16">
+        <div className="mx-auto w-full max-w-6xl">
+          <div className="max-w-2xl">
+            <h2 className="text-3xl font-semibold tracking-tight text-foreground">
+              How It Works
+            </h2>
+            <p className="mt-4 text-base leading-7 text-foreground/70">
+              Three simple steps from booking to consultation.
+            </p>
+          </div>
+
+          <div className="mt-10 grid gap-5 md:grid-cols-3">
+            {steps.map((step, index) => (
+              <article
+                key={step.title}
+                className="rounded-lg border border-black/10 bg-background p-6 dark:border-white/10"
+              >
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-foreground text-sm font-semibold text-background">
+                  {index + 1}
+                </div>
+                <h3 className="mt-5 text-lg font-semibold text-foreground">
+                  {step.title}
+                </h3>
+                <p className="mt-3 text-sm leading-6 text-foreground/70">
+                  {step.description}
+                </p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
