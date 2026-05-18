@@ -15,6 +15,7 @@ export default function RegisterPage() {
 
     const formData = new FormData(event.currentTarget);
     const name = String(formData.get("name") ?? "");
+    const phone = String(formData.get("phone") ?? "");
     const email = String(formData.get("email") ?? "");
     const password = String(formData.get("password") ?? "");
 
@@ -23,7 +24,7 @@ export default function RegisterPage() {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ name, email, password }),
+      body: JSON.stringify({ name, phone, email, password }),
     });
 
     if (!response.ok) {
@@ -67,6 +68,23 @@ export default function RegisterPage() {
               name="name"
               type="text"
               autoComplete="name"
+              required
+              className="mt-2 h-11 w-full rounded-md border border-black/10 bg-transparent px-3 text-sm outline-none transition-colors focus:border-foreground dark:border-white/10"
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="phone"
+              className="block text-sm font-medium text-foreground"
+            >
+              Phone
+            </label>
+            <input
+              id="phone"
+              name="phone"
+              type="tel"
+              autoComplete="tel"
               required
               className="mt-2 h-11 w-full rounded-md border border-black/10 bg-transparent px-3 text-sm outline-none transition-colors focus:border-foreground dark:border-white/10"
             />

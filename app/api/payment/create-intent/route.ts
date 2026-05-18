@@ -28,7 +28,7 @@ export async function POST(request: Request) {
 
   const paymentIntent = await stripe.paymentIntents.create({
     amount: Math.round(service.price * 100),
-    currency: "bdt",
+    currency: "usd",
     metadata: {
       serviceId: service.id,
       serviceName: service.name,

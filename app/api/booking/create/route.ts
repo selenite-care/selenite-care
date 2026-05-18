@@ -5,6 +5,7 @@ type CreateBookingPayload = {
   serviceId?: unknown;
   stripePaymentId?: unknown;
   appointmentTime?: unknown;
+  surveyId?: unknown;
 };
 
 export async function POST(request: Request) {
@@ -15,6 +16,7 @@ export async function POST(request: Request) {
     typeof body.stripePaymentId === "string" ? body.stripePaymentId : "";
   const appointmentTime =
     typeof body.appointmentTime === "string" ? body.appointmentTime : "";
+  const surveyId = typeof body.surveyId === "string" ? body.surveyId : null;
 
   if (!userId || !serviceId || !stripePaymentId || !appointmentTime) {
     return Response.json(
@@ -37,26 +39,27 @@ export async function POST(request: Request) {
 
   const service = await db.service.findUnique({
     where: { id: serviceId },
-    select: {
-      price: true,
-    },
+    select: { price: true },
   });
 
   if (!service) {
     return Response.json({ error: "Service not found." }, { status: 404 });
   }
 
+  // generate serial token: 001, 002, 003...
+  const count = await db.booking.count();
+  const token = String(count + 1).padStart(3, "0");
+
   const booking = await db.$transaction(async (tx) => {
     const createdBooking = await tx.booking.create({
       data: {
+        token,
         userId,
         serviceId,
         appointmentTime: appointmentDate,
         status: "CONFIRMED",
       },
-      select: {
-        id: true,
-      },
+      select: { id: true, token: true },
     });
 
     await tx.payment.create({
@@ -68,8 +71,16 @@ export async function POST(request: Request) {
       },
     });
 
+    // link survey to booking if surveyId provided
+    if (surveyId) {
+      await tx.surveyResponse.update({
+        where: { id: surveyId },
+        data: { bookingId: createdBooking.id },
+      });
+    }
+
     return createdBooking;
   });
 
-  return Response.json({ token: booking.id, bookingId: booking.id });
+  return Response.json({ token: booking.token, bookingId: booking.id });
 }

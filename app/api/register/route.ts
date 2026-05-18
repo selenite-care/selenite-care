@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 type RegisterPayload = {
   name?: unknown;
   email?: unknown;
+  phone?: unknown;
   password?: unknown;
 };
 
@@ -12,11 +13,12 @@ export async function POST(request: Request) {
   const name = typeof body.name === "string" ? body.name.trim() : "";
   const email =
     typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
+  const phone = typeof body.phone === "string" ? body.phone.trim() : "";
   const password = typeof body.password === "string" ? body.password : "";
 
-  if (!name || !email || !password) {
+  if (!name || !email || !phone || !password) {
     return Response.json(
-      { error: "Name, email, and password are required." },
+      { error: "Name, email, phone, and password are required." },
       { status: 400 },
     );
   }
@@ -39,6 +41,7 @@ export async function POST(request: Request) {
     data: {
       name,
       email,
+      phone,
       password: hashedPassword,
       role: "CLIENT",
     },
@@ -46,6 +49,7 @@ export async function POST(request: Request) {
       id: true,
       name: true,
       email: true,
+      phone: true,
       role: true,
     },
   });

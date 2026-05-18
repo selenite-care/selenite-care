@@ -1,5 +1,6 @@
 "use client";
 
+import { useSession } from "next-auth/react"
 import { FormEvent, Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
@@ -31,6 +32,7 @@ function PaymentForm({ service }: { service: Service }) {
   const router = useRouter();
   const stripe = useStripe();
   const elements = useElements();
+  const { data: session } = useSession()
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -82,15 +84,17 @@ function PaymentForm({ service }: { service: Service }) {
     }
 
     const bookingResponse = await fetch("/api/booking/create", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        serviceId: service.id,
-        paymentIntentId: paymentIntent.id,
-      }),
-    });
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    userId: session?.user?.id,
+    serviceId: service.id,
+    stripePaymentId: paymentIntent.id,
+    appointmentTime: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+  }),
+});
 
     if (!bookingResponse.ok) {
       const bookingData = (await bookingResponse.json().catch(() => null)) as
