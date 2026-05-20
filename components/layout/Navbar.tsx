@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { SessionProvider, signOut, useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -12,7 +12,7 @@ const navLinks = [
 ];
 
 function NavbarContent() {
-  const { status } = useSession();
+  const { data: session, status } = useSession();
   const isLoggedIn = status === "authenticated";
 
   return (
@@ -35,7 +35,27 @@ function NavbarContent() {
 
           <span className="hidden h-4 w-px bg-black/10 dark:bg-white/10 sm:block" />
 
-          {isLoggedIn ? (
+          {status === "loading" ? (
+            <div className="flex items-center gap-3">
+              <span className="h-8 w-20 rounded bg-neutral-200 dark:bg-neutral-800 animate-pulse" />
+              <span className="h-8 w-20 rounded bg-neutral-200 dark:bg-neutral-800 animate-pulse" />
+            </div>
+          ) : status === "unauthenticated" ? (
+            <>
+              <Link
+                href="/login"
+                className="font-medium text-foreground transition-colors hover:text-foreground/75"
+              >
+                Login
+              </Link>
+              <Link
+                href="/register"
+                className="font-medium text-foreground/70 transition-colors hover:text-foreground"
+              >
+                Register
+              </Link>
+            </>
+          ) : (
             <>
               <Link
                 href="/dashboard"
@@ -51,21 +71,6 @@ function NavbarContent() {
                 Logout
               </button>
             </>
-          ) : (
-            <>
-              <Link
-                href="/login"
-                className="font-medium text-foreground transition-colors hover:text-foreground/75"
-              >
-                Login
-              </Link>
-              <Link
-                href="/register"
-                className="font-medium text-foreground/70 transition-colors hover:text-foreground"
-              >
-                Register
-              </Link>
-            </>
           )}
         </div>
       </nav>
@@ -74,9 +79,5 @@ function NavbarContent() {
 }
 
 export function Navbar() {
-  return (
-    <SessionProvider>
-      <NavbarContent />
-    </SessionProvider>
-  );
+  return <NavbarContent />;
 }

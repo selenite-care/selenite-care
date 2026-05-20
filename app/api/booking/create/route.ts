@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 type CreateBookingPayload = {
   userId?: unknown;
   serviceId?: unknown;
+  doctorId?: unknown;
   stripePaymentId?: unknown;
   appointmentTime?: unknown;
   surveyId?: unknown;
@@ -12,6 +13,7 @@ export async function POST(request: Request) {
   const body = (await request.json()) as CreateBookingPayload;
   const userId = typeof body.userId === "string" ? body.userId : "";
   const serviceId = typeof body.serviceId === "string" ? body.serviceId : "";
+  const doctorId = typeof body.doctorId === "string" ? body.doctorId : null;
   const stripePaymentId =
     typeof body.stripePaymentId === "string" ? body.stripePaymentId : "";
   const appointmentTime =
@@ -56,6 +58,7 @@ export async function POST(request: Request) {
         token,
         userId,
         serviceId,
+        doctorId,
         appointmentTime: appointmentDate,
         status: "CONFIRMED",
       },

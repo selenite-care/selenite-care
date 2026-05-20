@@ -4,6 +4,13 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { Service } from "@/types";
 
+const featuredServiceNames = [
+  "Standard Consultation",
+  "Premium Consultation",
+  "Student Consultation",
+  "Online Consultation",
+] as const;
+
 export default function ServicesPage() {
   const [services, setServices] = useState<Service[]>([]);
   const [error, setError] = useState("");
@@ -30,6 +37,10 @@ export default function ServicesPage() {
     loadServices();
   }, []);
 
+  const featuredServices = featuredServiceNames
+    .map((name) => services.find((service) => service.name === name))
+    .filter((service): service is Service => Boolean(service));
+
   return (
     <section className="flex flex-1 bg-zinc-50 px-6 py-16 dark:bg-black">
       <div className="mx-auto w-full max-w-6xl">
@@ -49,15 +60,15 @@ export default function ServicesPage() {
 
         {error ? <p className="mt-10 text-sm text-red-600">{error}</p> : null}
 
-        {!isLoading && !error && services.length === 0 ? (
+        {!isLoading && !error && featuredServices.length === 0 ? (
           <p className="mt-10 text-sm text-foreground/70">
             No services are available yet.
           </p>
         ) : null}
 
-        {!isLoading && !error && services.length > 0 ? (
-          <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {services.map((service) => (
+        {!isLoading && !error && featuredServices.length > 0 ? (
+          <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+            {featuredServices.map((service) => (
               <article
                 key={service.id}
                 className="flex min-h-64 flex-col rounded-lg border border-black/10 bg-background p-6 dark:border-white/10"

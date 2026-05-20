@@ -28,7 +28,15 @@ type CreateBookingResponse = {
   error?: string;
 };
 
-function PaymentForm({ service }: { service: Service }) {
+function PaymentForm({
+  service,
+  surveyId,
+  doctorId,
+}: {
+  service: Service;
+  surveyId: string;
+  doctorId: string;
+}) {
   const router = useRouter();
   const stripe = useStripe();
   const elements = useElements();
@@ -84,17 +92,19 @@ function PaymentForm({ service }: { service: Service }) {
     }
 
     const bookingResponse = await fetch("/api/booking/create", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({
-    userId: session?.user?.id,
-    serviceId: service.id,
-    stripePaymentId: paymentIntent.id,
-    appointmentTime: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-  }),
-});
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId: session?.user?.id,
+        serviceId: service.id,
+        doctorId,
+        stripePaymentId: paymentIntent.id,
+        appointmentTime: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+        surveyId,
+      }),
+    });
 
     if (!bookingResponse.ok) {
       const bookingData = (await bookingResponse.json().catch(() => null)) as
@@ -107,11 +117,11 @@ function PaymentForm({ service }: { service: Service }) {
     }
 
     const bookingData = (await bookingResponse.json()) as CreateBookingResponse;
-    const bookingId = bookingData.bookingId ?? bookingData.token ?? "";
+    const token = bookingData.token ?? "";
     router.push(
-      bookingId
-        ? `/booking/form?bookingId=${encodeURIComponent(bookingId)}`
-        : "/booking/form",
+      token
+        ? `/booking/thank-you?token=${encodeURIComponent(token)}`
+        : "/booking/thank-you",
     );
   }
 
@@ -155,6 +165,8 @@ function PaymentForm({ service }: { service: Service }) {
 function PaymentContent() {
   const searchParams = useSearchParams();
   const serviceId = searchParams.get("serviceId");
+  const doctorId = searchParams.get("doctorId") ?? "";
+  const surveyId = searchParams.get("surveyId") ?? "";
   const [services, setServices] = useState<Service[]>([]);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
@@ -210,7 +222,11 @@ function PaymentContent() {
 
         {!isLoading && selectedService ? (
           <div className="mt-10 grid gap-8 lg:grid-cols-[1fr_24rem]">
-            <PaymentForm service={selectedService} />
+            <PaymentForm
+              service={selectedService}
+              surveyId={surveyId}
+              doctorId={doctorId}
+            />
 
             <aside className="h-fit rounded-lg border border-black/10 bg-background p-6 dark:border-white/10">
               <h2 className="text-lg font-semibold text-foreground">

@@ -44,8 +44,8 @@ export default async function BookingDetailsPage({ params }: BookingDetailsPageP
 
   const booking = await db.booking.findFirst({
     where: {
-      id: params.id,
-      userId: session.user.id,
+      id: params?.id,
+      userId: session.user?.id,
     },
     include: {
       service: {
