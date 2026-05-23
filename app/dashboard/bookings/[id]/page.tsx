@@ -5,9 +5,9 @@ import { authConfig } from "@/lib/auth";
 import { db } from "@/lib/db";
 
 type BookingDetailsPageProps = {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 };
 
 function DetailItem({
@@ -35,7 +35,36 @@ function joinValues(values?: string[]) {
   return values.join(", ");
 }
 
+function getBookingStatusBadgeClasses(status: string) {
+  switch (status) {
+    case "PENDING":
+      return "border-yellow-200 bg-yellow-50 text-yellow-700 dark:border-yellow-900/50 dark:bg-yellow-950/20 dark:text-yellow-300";
+    case "CONFIRMED":
+      return "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-900/50 dark:bg-blue-950/20 dark:text-blue-300";
+    case "COMPLETED":
+      return "border-green-200 bg-green-50 text-green-700 dark:border-green-900/50 dark:bg-green-950/20 dark:text-green-300";
+    case "CANCELLED":
+      return "border-red-200 bg-red-50 text-red-700 dark:border-red-900/50 dark:bg-red-950/20 dark:text-red-300";
+    default:
+      return "border-black/10 bg-zinc-50 text-foreground/70 dark:border-white/10 dark:bg-white/5";
+  }
+}
+
+function getPaymentStatusBadgeClasses(status: string) {
+  switch (status) {
+    case "UNPAID":
+      return "border-yellow-200 bg-yellow-50 text-yellow-700 dark:border-yellow-900/50 dark:bg-yellow-950/20 dark:text-yellow-300";
+    case "PAID":
+      return "border-green-200 bg-green-50 text-green-700 dark:border-green-900/50 dark:bg-green-950/20 dark:text-green-300";
+    case "REFUNDED":
+      return "border-zinc-200 bg-zinc-100 text-zinc-700 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300";
+    default:
+      return "border-black/10 bg-zinc-50 text-foreground/70 dark:border-white/10 dark:bg-white/5";
+  }
+}
+
 export default async function BookingDetailsPage({ params }: BookingDetailsPageProps) {
+  const { id } = await params
   const session = await auth();
 
   if (!session?.user?.id) {
@@ -44,7 +73,7 @@ export default async function BookingDetailsPage({ params }: BookingDetailsPageP
 
   const booking = await db.booking.findFirst({
     where: {
-      id: params?.id,
+      id: id,
       userId: session.user?.id,
     },
     include: {
@@ -103,7 +132,18 @@ export default async function BookingDetailsPage({ params }: BookingDetailsPageP
               value={booking.appointmentTime.toLocaleString()}
             />
             <DetailItem label="Booking Token" value={booking.id} />
-            <DetailItem label="Status" value={booking.status} />
+            <DetailItem
+              label="Status"
+              value={
+                <span
+                  className={`inline-flex rounded-full border px-3 py-1 text-xs font-medium ${getBookingStatusBadgeClasses(
+                    booking.status,
+                  )}`}
+                >
+                  {booking.status}
+                </span>
+              }
+            />
             <DetailItem
               label="Duration"
               value={`${booking.service.duration} minutes`}
@@ -123,7 +163,18 @@ export default async function BookingDetailsPage({ params }: BookingDetailsPageP
           <h2 className="text-lg font-semibold text-foreground">Payment Info</h2>
           {booking.payment ? (
             <div className="mt-5 grid gap-5 sm:grid-cols-2">
-              <DetailItem label="Payment Status" value={booking.payment.status} />
+              <DetailItem
+                label="Payment Status"
+                value={
+                  <span
+                    className={`inline-flex rounded-full border px-3 py-1 text-xs font-medium ${getPaymentStatusBadgeClasses(
+                      booking.payment.status,
+                    )}`}
+                  >
+                    {booking.payment.status}
+                  </span>
+                }
+              />
               <DetailItem
                 label="Amount"
                 value={`$${booking.payment.amount.toFixed(2)}`}

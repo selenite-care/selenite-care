@@ -8,12 +8,12 @@ const navLinks = [
   { href: "/services", label: "Services" },
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
-  { href: "/booking", label: "Book Appointment" },
 ];
 
 function NavbarContent() {
   const { data: session, status } = useSession();
-  const isLoggedIn = status === "authenticated";
+  const dashboardHref =
+    session?.user?.role === "ADMIN" ? "/admin" : "/dashboard";
 
   return (
     <header className="border-b border-black/10 bg-background px-6 py-4 dark:border-white/10">
@@ -58,7 +58,7 @@ function NavbarContent() {
           ) : (
             <>
               <Link
-                href="/dashboard"
+                href={dashboardHref}
                 className="font-medium text-foreground transition-colors hover:text-foreground/75"
               >
                 Dashboard

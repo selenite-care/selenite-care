@@ -17,12 +17,12 @@ const features = [
 
 const steps = [
   {
-    title: "Pay",
-    description: "Secure your appointment with a simple payment flow.",
-  },
-  {
     title: "Fill Form",
     description: "Share the details we need to prepare for your session.",
+  },
+    {
+    title: "Pay",
+    description: "Secure your appointment with a simple payment flow.",
   },
   {
     title: "Get Consultation",
@@ -44,7 +44,7 @@ export default function Home() {
               attention you need, right when you need it.
             </p>
             <Link
-              href="/booking"
+              href="/services"
               className="mt-8 inline-flex h-12 items-center justify-center rounded-md bg-foreground px-6 text-sm font-medium text-background transition-colors hover:bg-foreground/85"
             >
               Book Appointment

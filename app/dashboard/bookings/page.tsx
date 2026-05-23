@@ -15,6 +15,21 @@ type ClientBooking = {
   } | null;
 };
 
+function getStatusBadgeClasses(status: string) {
+  switch (status) {
+    case "PENDING":
+      return "border-yellow-200 bg-yellow-50 text-yellow-700 dark:border-yellow-900/50 dark:bg-yellow-950/20 dark:text-yellow-300";
+    case "CONFIRMED":
+      return "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-900/50 dark:bg-blue-950/20 dark:text-blue-300";
+    case "COMPLETED":
+      return "border-green-200 bg-green-50 text-green-700 dark:border-green-900/50 dark:bg-green-950/20 dark:text-green-300";
+    case "CANCELLED":
+      return "border-red-200 bg-red-50 text-red-700 dark:border-red-900/50 dark:bg-red-950/20 dark:text-red-300";
+    default:
+      return "border-black/10 bg-zinc-50 text-foreground/70 dark:border-white/10 dark:bg-white/5";
+  }
+}
+
 export default function DashboardBookingsPage() {
   const [bookings, setBookings] = useState<ClientBooking[]>([]);
   const [error, setError] = useState("");
@@ -93,8 +108,14 @@ export default function DashboardBookingsPage() {
                     <td className="px-4 py-4 text-foreground/70">
                       {new Date(booking.appointmentTime).toLocaleString()}
                     </td>
-                    <td className="px-4 py-4 text-foreground/70">
-                      {booking.status}
+                    <td className="px-4 py-4">
+                      <span
+                        className={`inline-flex rounded-full border px-3 py-1 text-xs font-medium ${getStatusBadgeClasses(
+                          booking.status,
+                        )}`}
+                      >
+                        {booking.status}
+                      </span>
                     </td>
                     <td className="px-4 py-4 text-foreground/70">
                       {booking.payment?.status ?? "UNPAID"}

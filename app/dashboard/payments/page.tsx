@@ -15,6 +15,19 @@ type ClientPayment = {
   };
 };
 
+function getPaymentStatusBadgeClasses(status: string) {
+  switch (status) {
+    case "UNPAID":
+      return "border-yellow-200 bg-yellow-50 text-yellow-700 dark:border-yellow-900/50 dark:bg-yellow-950/20 dark:text-yellow-300";
+    case "PAID":
+      return "border-green-200 bg-green-50 text-green-700 dark:border-green-900/50 dark:bg-green-950/20 dark:text-green-300";
+    case "REFUNDED":
+      return "border-zinc-200 bg-zinc-100 text-zinc-700 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300";
+    default:
+      return "border-black/10 bg-zinc-50 text-foreground/70 dark:border-white/10 dark:bg-white/5";
+  }
+}
+
 export default function DashboardPaymentsPage() {
   const [payments, setPayments] = useState<ClientPayment[]>([]);
   const [error, setError] = useState("");
@@ -95,8 +108,14 @@ export default function DashboardPaymentsPage() {
                     <td className="px-4 py-4 text-foreground/70">
                       ${payment.amount.toFixed(2)}
                     </td>
-                    <td className="px-4 py-4 text-foreground/70">
-                      {payment.status}
+                    <td className="px-4 py-4">
+                      <span
+                        className={`inline-flex rounded-full border px-3 py-1 text-xs font-medium ${getPaymentStatusBadgeClasses(
+                          payment.status,
+                        )}`}
+                      >
+                        {payment.status}
+                      </span>
                     </td>
                     <td className="px-4 py-4 text-foreground/70">
                       {new Date(payment.createdAt).toLocaleString()}

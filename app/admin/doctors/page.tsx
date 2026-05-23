@@ -12,10 +12,9 @@ type Doctor = {
   serviceId: string;
 };
 
-type ServiceGroup = {
+type Service = {
   id: string;
   name: string;
-  doctors: Doctor[];
 };
 
 type DoctorFormState = {
@@ -35,61 +34,95 @@ const emptyForm: DoctorFormState = {
 };
 
 export default function AdminDoctorsPage() {
-  const [services, setServices] = useState<ServiceGroup[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
+  const [doctors, setDoctors] = useState<Doctor[]>([]);
+  const [selectedServiceId, setSelectedServiceId] = useState("");
   const [form, setForm] = useState<DoctorFormState>(emptyForm);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  async function loadDoctors() {
+  async function loadInitialData() {
     setError("");
 
     try {
-      const response = await fetch("/api/admin/doctors");
+      const [servicesRes, doctorsRes] = await Promise.all([
+        fetch("/api/services"),
+        fetch("/api/admin/doctors"),
+      ]);
 
-      if (!response.ok) {
-        throw new Error("Unable to load doctors.");
+      if (!servicesRes.ok || !doctorsRes.ok) {
+        throw new Error("Unable to load data");
       }
 
-      const data = (await response.json()) as { services?: ServiceGroup[] };
-      const nextServices = data.services ?? [];
-      setServices(nextServices);
-      setForm((current) => ({
-        ...current,
-        serviceId:
-          current.serviceId || nextServices[0]?.id || "",
-      }));
+      const servicesJson = await servicesRes.json()
+      const doctorsJson = await doctorsRes.json()
+
+      const servicesData: Service[] = servicesJson.services ?? servicesJson ?? []
+
+// API returns services with nested doctors, flatten them into a single array
+      const doctorsData: Doctor[] = (doctorsJson.services ?? []).flatMap(
+      (s: { doctors: Doctor[] }) => s.doctors
+      )
+
+setServices(servicesData)
+setDoctors(doctorsData)
+
+      if (servicesData.length > 0) {
+        setSelectedServiceId(servicesData[0].id);
+        setForm((current) => ({
+          ...current,
+          serviceId: servicesData[0].id,
+        }));
+      }
     } catch {
-      setError("Doctors are not available right now.");
+      setError("Unable to load data right now.");
     } finally {
       setIsLoading(false);
     }
   }
 
   useEffect(() => {
-    async function loadInitialDoctors() {
-      try {
-        const response = await fetch("/api/admin/doctors");
+    async function loadDataOnMount() {
+      setError("");
 
-        if (!response.ok) {
-          throw new Error("Unable to load doctors.");
+      try {
+        const [servicesRes, doctorsRes] = await Promise.all([
+          fetch("/api/services"),
+          fetch("/api/admin/doctors"),
+        ]);
+
+        if (!servicesRes.ok || !doctorsRes.ok) {
+          throw new Error("Unable to load data");
         }
 
-        const data = (await response.json()) as { services?: ServiceGroup[] };
-        const nextServices = data.services ?? [];
-        setServices(nextServices);
-        setForm((current) => ({
-          ...current,
-          serviceId: nextServices[0]?.id || "",
-        }));
+        const servicesJson = await servicesRes.json();
+        const doctorsJson = await doctorsRes.json();
+
+        const servicesData: Service[] = servicesJson.services ?? servicesJson ?? [];
+
+        const doctorsData: Doctor[] = (doctorsJson.services ?? []).flatMap(
+          (serviceGroup: { doctors: Doctor[] }) => serviceGroup.doctors,
+        );
+
+        setServices(servicesData);
+        setDoctors(doctorsData);
+
+        if (servicesData.length > 0) {
+          setSelectedServiceId(servicesData[0].id);
+          setForm((current) => ({
+            ...current,
+            serviceId: servicesData[0].id,
+          }));
+        }
       } catch {
-        setError("Doctors are not available right now.");
+        setError("Unable to load data right now.");
       } finally {
         setIsLoading(false);
       }
     }
 
-    loadInitialDoctors();
+    loadDataOnMount();
   }, []);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -120,7 +153,7 @@ export default function AdminDoctorsPage() {
       serviceId: current.serviceId,
     }));
     setIsSubmitting(false);
-    await loadDoctors();
+    await loadInitialData();
   }
 
   async function handleDelete(doctorId: string) {
@@ -143,8 +176,12 @@ export default function AdminDoctorsPage() {
       return;
     }
 
-    await loadDoctors();
+    await loadInitialData();
   }
+
+  const filteredDoctors = doctors.filter(
+    (doc) => doc.serviceId === selectedServiceId
+  );
 
   return (
     <section className="space-y-8">
@@ -157,215 +194,232 @@ export default function AdminDoctorsPage() {
         </p>
       </div>
 
-      <div className="rounded-lg border border-black/10 bg-background p-6 dark:border-white/10">
-        <h2 className="text-lg font-semibold text-foreground">
-          Add Doctor
-        </h2>
-        <form onSubmit={handleSubmit} className="mt-5 space-y-5">
-          <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-            <div>
-              <label
-                htmlFor="serviceId"
-                className="block text-sm font-medium text-foreground"
-              >
-                Service
-              </label>
-              <select
-                id="serviceId"
-                value={form.serviceId}
-                onChange={(event) =>
-                  setForm((current) => ({
-                    ...current,
-                    serviceId: event.target.value,
-                  }))
-                }
-                required
-                className="mt-2 h-11 w-full rounded-md border border-black/10 bg-transparent px-3 text-sm outline-none transition-colors focus:border-foreground dark:border-white/10"
-              >
-                {services.map((service) => (
-                  <option key={service.id} value={service.id}>
-                    {service.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label
-                htmlFor="name"
-                className="block text-sm font-medium text-foreground"
-              >
-                Name
-              </label>
-              <input
-                id="name"
-                value={form.name}
-                onChange={(event) =>
-                  setForm((current) => ({
-                    ...current,
-                    name: event.target.value,
-                  }))
-                }
-                required
-                className="mt-2 h-11 w-full rounded-md border border-black/10 bg-transparent px-3 text-sm outline-none transition-colors focus:border-foreground dark:border-white/10"
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="designation"
-                className="block text-sm font-medium text-foreground"
-              >
-                Designation
-              </label>
-              <input
-                id="designation"
-                value={form.designation}
-                onChange={(event) =>
-                  setForm((current) => ({
-                    ...current,
-                    designation: event.target.value,
-                  }))
-                }
-                required
-                className="mt-2 h-11 w-full rounded-md border border-black/10 bg-transparent px-3 text-sm outline-none transition-colors focus:border-foreground dark:border-white/10"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label
-              htmlFor="availability"
-              className="block text-sm font-medium text-foreground"
-            >
-              Availability
-            </label>
-            <input
-              id="availability"
-              value={form.availability}
-              onChange={(event) =>
-                setForm((current) => ({
-                  ...current,
-                  availability: event.target.value,
-                }))
-              }
-              required
-              className="mt-2 h-11 w-full rounded-md border border-black/10 bg-transparent px-3 text-sm outline-none transition-colors focus:border-foreground dark:border-white/10"
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="bio"
-              className="block text-sm font-medium text-foreground"
-            >
-              Bio
-            </label>
-            <textarea
-              id="bio"
-              value={form.bio}
-              onChange={(event) =>
-                setForm((current) => ({
-                  ...current,
-                  bio: event.target.value,
-                }))
-              }
-              rows={4}
-              className="mt-2 w-full resize-none rounded-md border border-black/10 bg-transparent px-3 py-3 text-sm outline-none transition-colors focus:border-foreground dark:border-white/10"
-            />
-          </div>
-
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              {error ? <p className="text-sm text-red-600">{error}</p> : null}
-            </div>
-            <button
-              type="submit"
-              disabled={isSubmitting || services.length === 0}
-              className="inline-flex h-11 items-center justify-center rounded-md bg-foreground px-5 text-sm font-medium text-background transition-colors hover:bg-foreground/85 disabled:cursor-not-allowed disabled:opacity-70"
-            >
-              {isSubmitting ? "Saving..." : "Add Doctor"}
-            </button>
-          </div>
-        </form>
-      </div>
-
       {isLoading ? (
         <p className="text-sm text-foreground/70">Loading doctors...</p>
-      ) : null}
-
-      {!isLoading && services.length === 0 ? (
+      ) : services.length === 0 ? (
         <p className="text-sm text-foreground/70">
           No services found. Add services before adding doctors.
         </p>
-      ) : null}
-
-      {!isLoading && services.length > 0 ? (
-        <div className="space-y-6">
-          {services.map((service) => (
-            <section
-              key={service.id}
-              className="overflow-hidden rounded-lg border border-black/10 bg-background dark:border-white/10"
+      ) : (
+        <>
+          {/* Service Selector */}
+          <div className="rounded-lg border border-black/10 bg-background p-6 dark:border-white/10">
+            <label
+              htmlFor="service-filter"
+              className="block text-sm font-medium text-foreground"
             >
-              <div className="border-b border-black/10 bg-zinc-50 px-4 py-3 dark:border-white/10 dark:bg-white/5">
-                <h2 className="text-lg font-semibold text-foreground">
+              Select Service
+            </label>
+            <select
+              id="service-filter"
+              value={selectedServiceId}
+              onChange={(event) => {
+                setSelectedServiceId(event.target.value);
+              }}
+              className="mt-2 h-11 w-full max-w-sm rounded-md border border-black/10 bg-transparent px-3 text-sm outline-none transition-colors focus:border-foreground dark:border-white/10"
+            >
+              {services.map((service) => (
+                <option key={service.id} value={service.id}>
                   {service.name}
-                </h2>
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Doctors Table */}
+          <div className="rounded-lg border border-black/10 bg-background dark:border-white/10">
+            <div className="border-b border-black/10 bg-zinc-50 px-6 py-4 dark:border-white/10 dark:bg-white/5">
+              <h2 className="text-lg font-semibold text-foreground">
+                Doctors for {services.find((s) => s.id === selectedServiceId)?.name}
+              </h2>
+            </div>
+
+            {filteredDoctors.length === 0 ? (
+              <p className="px-6 py-6 text-sm text-foreground/70">
+                No doctors added for this service yet.
+              </p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[820px] text-left text-sm">
+                  <thead className="border-b border-black/10 text-foreground/70 dark:border-white/10">
+                    <tr>
+                      <th className="px-6 py-3 font-medium">Name</th>
+                      <th className="px-6 py-3 font-medium">Designation</th>
+                      <th className="px-6 py-3 font-medium">Availability</th>
+                      <th className="px-6 py-3 font-medium">Bio</th>
+                      <th className="px-6 py-3 font-medium">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredDoctors.map((doctor) => (
+                      <tr
+                        key={doctor.id}
+                        className="border-b border-black/10 last:border-0 dark:border-white/10"
+                      >
+                        <td className="px-6 py-4 font-medium text-foreground">
+                          {doctor.name}
+                        </td>
+                        <td className="px-6 py-4 text-foreground/70">
+                          {doctor.designation}
+                        </td>
+                        <td className="px-6 py-4 text-foreground/70">
+                          {doctor.availability}
+                        </td>
+                        <td className="max-w-sm px-6 py-4 text-foreground/70">
+                          {doctor.bio ?? "Not provided"}
+                        </td>
+                        <td className="px-6 py-4">
+                          <button
+                            type="button"
+                            onClick={() => handleDelete(doctor.id)}
+                            className="inline-flex h-9 items-center justify-center rounded-md border border-red-200 px-3 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 dark:border-red-900/60 dark:hover:bg-red-950/30"
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+
+          {/* Add Doctor Form */}
+          <div className="rounded-lg border border-black/10 bg-background p-6 dark:border-white/10">
+            <h2 className="text-lg font-semibold text-foreground">
+              Add Doctor
+            </h2>
+            <form onSubmit={handleSubmit} className="mt-5 space-y-5">
+              <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+                <div>
+                  <label
+                    htmlFor="serviceId"
+                    className="block text-sm font-medium text-foreground"
+                  >
+                    Service
+                  </label>
+                  <select
+                    id="serviceId"
+                    value={form.serviceId}
+                    onChange={(event) =>
+                      setForm((current) => ({
+                        ...current,
+                        serviceId: event.target.value,
+                      }))
+                    }
+                    required
+                    className="mt-2 h-11 w-full rounded-md border border-black/10 bg-transparent px-3 text-sm outline-none transition-colors focus:border-foreground dark:border-white/10"
+                  >
+                    {services.map((service) => (
+                      <option key={service.id} value={service.id}>
+                        {service.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="name"
+                    className="block text-sm font-medium text-foreground"
+                  >
+                    Name
+                  </label>
+                  <input
+                    id="name"
+                    value={form.name}
+                    onChange={(event) =>
+                      setForm((current) => ({
+                        ...current,
+                        name: event.target.value,
+                      }))
+                    }
+                    required
+                    className="mt-2 h-11 w-full rounded-md border border-black/10 bg-transparent px-3 text-sm outline-none transition-colors focus:border-foreground dark:border-white/10"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="designation"
+                    className="block text-sm font-medium text-foreground"
+                  >
+                    Designation
+                  </label>
+                  <input
+                    id="designation"
+                    value={form.designation}
+                    onChange={(event) =>
+                      setForm((current) => ({
+                        ...current,
+                        designation: event.target.value,
+                      }))
+                    }
+                    required
+                    className="mt-2 h-11 w-full rounded-md border border-black/10 bg-transparent px-3 text-sm outline-none transition-colors focus:border-foreground dark:border-white/10"
+                  />
+                </div>
               </div>
 
-              {service.doctors.length === 0 ? (
-                <p className="px-4 py-6 text-sm text-foreground/70">
-                  No doctors added for this service yet.
-                </p>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full min-w-[820px] text-left text-sm">
-                    <thead className="border-b border-black/10 text-foreground/70 dark:border-white/10">
-                      <tr>
-                        <th className="px-4 py-3 font-medium">Name</th>
-                        <th className="px-4 py-3 font-medium">Designation</th>
-                        <th className="px-4 py-3 font-medium">Availability</th>
-                        <th className="px-4 py-3 font-medium">Bio</th>
-                        <th className="px-4 py-3 font-medium">Action</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {service.doctors.map((doctor) => (
-                        <tr
-                          key={doctor.id}
-                          className="border-b border-black/10 last:border-0 dark:border-white/10"
-                        >
-                          <td className="px-4 py-4 font-medium text-foreground">
-                            {doctor.name}
-                          </td>
-                          <td className="px-4 py-4 text-foreground/70">
-                            {doctor.designation}
-                          </td>
-                          <td className="px-4 py-4 text-foreground/70">
-                            {doctor.availability}
-                          </td>
-                          <td className="max-w-sm px-4 py-4 text-foreground/70">
-                            {doctor.bio ?? "Not provided"}
-                          </td>
-                          <td className="px-4 py-4">
-                            <button
-                              type="button"
-                              onClick={() => handleDelete(doctor.id)}
-                              className="inline-flex h-9 items-center justify-center rounded-md border border-red-200 px-3 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 dark:border-red-900/60 dark:hover:bg-red-950/30"
-                            >
-                              Delete
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+              <div>
+                <label
+                  htmlFor="availability"
+                  className="block text-sm font-medium text-foreground"
+                >
+                  Availability
+                </label>
+                <input
+                  id="availability"
+                  value={form.availability}
+                  onChange={(event) =>
+                    setForm((current) => ({
+                      ...current,
+                      availability: event.target.value,
+                    }))
+                  }
+                  required
+                  className="mt-2 h-11 w-full rounded-md border border-black/10 bg-transparent px-3 text-sm outline-none transition-colors focus:border-foreground dark:border-white/10"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="bio"
+                  className="block text-sm font-medium text-foreground"
+                >
+                  Bio
+                </label>
+                <textarea
+                  id="bio"
+                  value={form.bio}
+                  onChange={(event) =>
+                    setForm((current) => ({
+                      ...current,
+                      bio: event.target.value,
+                    }))
+                  }
+                  rows={4}
+                  className="mt-2 w-full resize-none rounded-md border border-black/10 bg-transparent px-3 py-3 text-sm outline-none transition-colors focus:border-foreground dark:border-white/10"
+                />
+              </div>
+
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  {error ? <p className="text-sm text-red-600">{error}</p> : null}
                 </div>
-              )}
-            </section>
-          ))}
-        </div>
-      ) : null}
+                <button
+                  type="submit"
+                  disabled={isSubmitting || services.length === 0}
+                  className="inline-flex h-11 items-center justify-center rounded-md bg-foreground px-5 text-sm font-medium text-background transition-colors hover:bg-foreground/85 disabled:cursor-not-allowed disabled:opacity-70"
+                >
+                  {isSubmitting ? "Saving..." : "Add Doctor"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </>
+      )}
     </section>
   );
 }

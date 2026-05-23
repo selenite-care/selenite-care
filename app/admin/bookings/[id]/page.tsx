@@ -1,5 +1,7 @@
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
+import BookingStatusControls from "./BookingStatusControls";
+import PaymentStatusControls from "./PaymentStatusControls";
 
 type BookingDetailsPageProps = {
   params: Promise<{
@@ -20,6 +22,18 @@ function DetailItem({
       <div className="mt-1 text-sm text-foreground">{value}</div>
     </div>
   );
+}
+
+function joinValues(values?: string[]) {
+  if (!values || values.length === 0) {
+    return "None";
+  }
+
+  return values.join(", ");
+}
+
+function yesNo(value: boolean) {
+  return value ? "Yes" : "No";
 }
 
 export default async function BookingDetailsPage({
@@ -47,6 +61,15 @@ export default async function BookingDetailsPage({
           price: true,
         },
       },
+      doctor: {
+        select: {
+          id: true,
+          name: true,
+          designation: true,
+          availability: true,
+          bio: true,
+        },
+      },
       payment: {
         select: {
           id: true,
@@ -56,6 +79,7 @@ export default async function BookingDetailsPage({
           createdAt: true,
         },
       },
+      surveyResponse: true,
     },
   });
 
@@ -124,7 +148,7 @@ export default async function BookingDetailsPage({
               label="Created"
               value={booking.createdAt.toLocaleString()}
             />
-            <DetailItem label="Booking Token" value={booking.id} />
+            <DetailItem label="Booking Token" value={booking.token} />
           </div>
         </section>
 
@@ -162,13 +186,124 @@ export default async function BookingDetailsPage({
 
       <section className="mt-6 rounded-lg border border-black/10 bg-background p-6 dark:border-white/10">
         <h2 className="text-lg font-semibold text-foreground">
+          Selected Doctor
+        </h2>
+        {booking.doctor ? (
+          <div className="mt-5 grid gap-5 sm:grid-cols-2">
+            <DetailItem label="Name" value={booking.doctor.name} />
+            <DetailItem
+              label="Designation"
+              value={booking.doctor.designation}
+            />
+            <DetailItem
+              label="Availability"
+              value={booking.doctor.availability}
+            />
+            <DetailItem
+              label="Bio"
+              value={booking.doctor.bio ?? "Not provided"}
+            />
+          </div>
+        ) : (
+          <p className="mt-4 text-sm leading-6 text-foreground/70">
+            No doctor has been assigned to this booking.
+          </p>
+        )}
+      </section>
+
+      <BookingStatusControls bookingId={booking.id} currentStatus={booking.status} />
+
+      {booking.payment ? (
+        <PaymentStatusControls
+          paymentId={booking.payment.id}
+          currentStatus={booking.payment.status}
+        />
+      ) : null}
+
+      <section className="mt-6 rounded-lg border border-black/10 bg-background p-6 dark:border-white/10">
+        <h2 className="text-lg font-semibold text-foreground">
           Survey Form Responses
         </h2>
-        <p className="mt-4 text-sm leading-6 text-foreground/70">
-          Survey responses are not available yet because the current database
-          schema does not include fields or a related table for storing the
-          consultation form answers.
-        </p>
+        {booking.surveyResponse ? (
+          <div className="mt-5 grid gap-5 sm:grid-cols-2">
+            <DetailItem label="Name" value={booking.surveyResponse.name} />
+            <DetailItem label="Age" value={booking.surveyResponse.age} />
+            <DetailItem label="Phone" value={booking.surveyResponse.phone} />
+            <DetailItem label="Email" value={booking.surveyResponse.email} />
+            <DetailItem
+              label="Skin Type"
+              value={booking.surveyResponse.skinType}
+            />
+            <DetailItem
+              label="Skin Issues"
+              value={joinValues(booking.surveyResponse.skinIssues)}
+            />
+            <DetailItem
+              label="Current Products"
+              value={joinValues(booking.surveyResponse.currentProducts)}
+            />
+            <DetailItem
+              label="Allergic Ingredients"
+              value={joinValues(booking.surveyResponse.allergicIngredients)}
+            />
+            <DetailItem
+              label="Double Cleanse Preference"
+              value={booking.surveyResponse.doubleCleansePreference}
+            />
+            <DetailItem
+              label="Sleep Hours"
+              value={booking.surveyResponse.sleepHours}
+            />
+            <DetailItem
+              label="Water Intake"
+              value={joinValues(booking.surveyResponse.waterIntake)}
+            />
+            <DetailItem
+              label="Uses Korean Products"
+              value={yesNo(booking.surveyResponse.usesKoreanProducts)}
+            />
+            <DetailItem
+              label="Facing Skin Issues"
+              value={yesNo(booking.surveyResponse.facingSkinIssues)}
+            />
+            <DetailItem
+              label="Wants Consultation"
+              value={yesNo(booking.surveyResponse.wantsConsultation)}
+            />
+            <DetailItem
+              label="Applies Sunscreen"
+              value={yesNo(booking.surveyResponse.appliesSunscreen)}
+            />
+            <DetailItem
+              label="Regular Period Cycle"
+              value={yesNo(booking.surveyResponse.regularPeriodCycle)}
+            />
+            <DetailItem
+              label="Used IndoPak Night Cream"
+              value={yesNo(booking.surveyResponse.usedIndoPakNightCream)}
+            />
+            <DetailItem
+              label="Issue Duration"
+              value={booking.surveyResponse.skinIssueDuration ?? "Not specified"}
+            />
+            <DetailItem
+              label="Code ID"
+              value={booking.surveyResponse.codeId ?? "Not provided"}
+            />
+            <DetailItem
+              label="Additional Notes"
+              value={booking.surveyResponse.note ?? "No additional notes"}
+            />
+            <DetailItem
+              label="Submitted At"
+              value={booking.surveyResponse.createdAt.toLocaleString()}
+            />
+          </div>
+        ) : (
+          <p className="mt-4 text-sm leading-6 text-foreground/70">
+            No survey response was submitted for this booking.
+          </p>
+        )}
       </section>
     </section>
   );
