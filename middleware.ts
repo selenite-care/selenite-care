@@ -11,7 +11,17 @@ export default auth((req) => {
     return NextResponse.redirect(loginUrl)
   }
 
-  if (pathname.startsWith("/admin") && token.user?.role !== "ADMIN") {
+  const role = token.user?.role
+
+  if (pathname.startsWith("/admin") && role !== "ADMIN") {
+    return NextResponse.redirect(new URL("/dashboard", req.url))
+  }
+
+  if (pathname.startsWith("/doctor") && role !== "DOCTOR" && role !== "ADMIN") {
+    return NextResponse.redirect(new URL("/dashboard", req.url))
+  }
+
+  if (pathname.startsWith("/crm") && role !== "CRM" && role !== "ADMIN") {
     return NextResponse.redirect(new URL("/dashboard", req.url))
   }
 
@@ -19,5 +29,11 @@ export default auth((req) => {
 })
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/booking/:path*", "/admin/:path*"],
+  matcher: [
+    "/dashboard/:path*",
+    "/booking/:path*",
+    "/admin/:path*",
+    "/doctor/:path*",
+    "/crm/:path*",
+  ],
 }

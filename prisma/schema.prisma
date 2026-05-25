@@ -16,6 +16,7 @@ model User {
   role      Role      @default(CLIENT)
   createdAt DateTime  @default(now())
   bookings  Booking[]
+  doctor    Doctor?   // reverse relation
 }
 
 model Service {
@@ -35,9 +36,11 @@ model Doctor {
   bio           String?
   availability  String
   image         String?
-  slotDuration  Int       @default(15)  // in minutes
-  service       Service   @relation(fields: [serviceId], references: [id])
+  slotDuration  Int       @default(15)
   serviceId     String
+  service       Service   @relation(fields: [serviceId], references: [id])
+  userId        String?   @unique
+  user          User?     @relation(fields: [userId], references: [id])
   bookings      Booking[]
 }
 
@@ -95,7 +98,8 @@ model SurveyResponse {
 
 enum Role {
   CLIENT
-  CONSULTANT
+  DOCTOR
+  CRM
   ADMIN
 }
 

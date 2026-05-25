@@ -12,8 +12,12 @@ const navLinks = [
 
 function NavbarContent() {
   const { data: session, status } = useSession();
-  const dashboardHref =
-    session?.user?.role === "ADMIN" ? "/admin" : "/dashboard";
+  const role = session?.user?.role;
+
+  let dashboardHref = "/dashboard";
+  if (role === "ADMIN") dashboardHref = "/admin";
+  else if (role === "DOCTOR") dashboardHref = "/doctor";
+  else if (role === "CRM") dashboardHref = "/crm";
 
   return (
     <header className="border-b border-black/10 bg-background px-6 py-4 dark:border-white/10">

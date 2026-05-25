@@ -69,6 +69,8 @@ export default function BookingSurveyPage() {
   const searchParams = useSearchParams();
   const serviceId = searchParams?.get("serviceId") ?? "";
   const doctorId = searchParams?.get("doctorId") ?? "";
+  const slot = searchParams?.get("slot") ?? "";
+  const date = searchParams?.get("date") ?? "";
 
   const [formState, setFormState] = useState<SurveyFormState>({
     name: "",
@@ -203,7 +205,7 @@ typeof payload & { surveyId?: string; error?: string } | null;
       }
 
       router.push(
-        `/payment?serviceId=${encodeURIComponent(serviceId)}&doctorId=${encodeURIComponent(doctorId)}&surveyId=${encodeURIComponent(data.surveyId)}`,
+        `/payment?serviceId=${encodeURIComponent(serviceId)}&doctorId=${encodeURIComponent(doctorId)}&surveyId=${encodeURIComponent(data.surveyId)}&slot=${encodeURIComponent(slot)}&date=${encodeURIComponent(date)}`,
       );
     } catch {
       setError("Failed to submit survey.");

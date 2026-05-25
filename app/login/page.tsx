@@ -37,13 +37,12 @@ export default function LoginPage() {
     }
 
     const session = (await getSession()) as UserSession | null;
+    const role = session?.user?.role;
 
-    if (session?.user?.role === "ADMIN") {
-      router.push("/admin");
-      return;
-    }
-
-    router.push("/dashboard");
+    if (role === "ADMIN") router.push("/admin");
+    else if (role === "DOCTOR") router.push("/doctor");
+    else if (role === "CRM") router.push("/crm");
+    else router.push("/dashboard");
   }
 
   return (

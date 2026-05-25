@@ -32,10 +32,14 @@ function PaymentForm({
   service,
   surveyId,
   doctorId,
+  appointmentDate,
+  appointmentSlot,
 }: {
   service: Service;
   surveyId: string;
   doctorId: string;
+  appointmentDate: string;
+  appointmentSlot: string;
 }) {
   const router = useRouter();
   const stripe = useStripe();
@@ -51,6 +55,20 @@ function PaymentForm({
 
     if (!stripe || !elements) {
       setError("Payment form is still loading.");
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (!appointmentDate || !appointmentSlot) {
+      setError("Please select a date and slot before submitting payment.");
+      setIsSubmitting(false);
+      return;
+    }
+
+    const appointmentDateTime = new Date(`${appointmentDate}T${appointmentSlot}:00`);
+
+    if (Number.isNaN(appointmentDateTime.getTime())) {
+      setError("Selected appointment date or slot is invalid.");
       setIsSubmitting(false);
       return;
     }
@@ -101,7 +119,7 @@ function PaymentForm({
         serviceId: service.id,
         doctorId,
         stripePaymentId: paymentIntent.id,
-        appointmentTime: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+        appointmentTime: appointmentDateTime.toISOString(),
         surveyId,
       }),
     });
@@ -167,6 +185,8 @@ function PaymentContent() {
   const serviceId = searchParams.get("serviceId");
   const doctorId = searchParams.get("doctorId") ?? "";
   const surveyId = searchParams.get("surveyId") ?? "";
+  const selectedSlot = searchParams.get("slot") ?? "";
+  const selectedDate = searchParams.get("date") ?? "";
   const [services, setServices] = useState<Service[]>([]);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
@@ -194,6 +214,7 @@ function PaymentContent() {
 
   const selectedService =
     services.find((service) => service.id === serviceId) ?? null;
+  const [paymentMethod, setPaymentMethod] = useState<"card" | "bkash">("card");
 
   return (
     <section className="flex flex-1 bg-zinc-50 px-6 py-16 dark:bg-black">
@@ -203,8 +224,7 @@ function PaymentContent() {
             Complete Payment
           </h1>
           <p className="mt-4 text-base leading-7 text-foreground/70">
-            Review your selected service and enter your card details to
-            continue.
+            Review your selected service and choose your payment method.
           </p>
         </div>
 
@@ -221,12 +241,58 @@ function PaymentContent() {
         ) : null}
 
         {!isLoading && selectedService ? (
-          <div className="mt-10 grid gap-8 lg:grid-cols-[1fr_24rem]">
-            <PaymentForm
-              service={selectedService}
-              surveyId={surveyId}
-              doctorId={doctorId}
-            />
+          <div className="mt-10 space-y-8 lg:grid lg:grid-cols-[1fr_24rem] lg:gap-8">
+            <div className="space-y-6">
+              <div className="flex flex-wrap gap-2 rounded-xl border border-black/10 bg-background p-1 dark:border-white/10">
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod("card")}
+                  className={`rounded-lg px-4 py-3 text-sm font-medium transition ${
+                    paymentMethod === "card"
+                      ? "bg-foreground text-background"
+                      : "text-foreground/70 hover:text-foreground"
+                  }`}
+                >
+                  Pay with Card
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod("bkash")}
+                  className={`rounded-lg px-4 py-3 text-sm font-medium transition ${
+                    paymentMethod === "bkash"
+                      ? "bg-foreground text-background"
+                      : "text-foreground/70 hover:text-foreground"
+                  }`}
+                >
+                  Pay with bKash
+                </button>
+              </div>
+
+              {paymentMethod === "card" ? (
+                !selectedSlot || !selectedDate ? (
+                  <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-6 text-sm text-yellow-900">
+                    Selected appointment date and slot are missing. Please choose a slot before proceeding to payment.
+                  </div>
+                ) : (
+                  <PaymentForm
+                    service={selectedService}
+                    surveyId={surveyId}
+                    doctorId={doctorId}
+                    appointmentDate={selectedDate}
+                    appointmentSlot={selectedSlot}
+                  />
+                )
+              ) : (
+                <section className="rounded-lg border border-black/10 bg-background p-6 dark:border-white/10">
+                  <h2 className="text-lg font-semibold text-foreground">
+                    bKash Payment
+                  </h2>
+                  <p className="mt-4 text-sm leading-6 text-foreground/70">
+                    bKash payment coming soon. Please use card payment for now.
+                  </p>
+                </section>
+              )}
+            </div>
 
             <aside className="h-fit rounded-lg border border-black/10 bg-background p-6 dark:border-white/10">
               <h2 className="text-lg font-semibold text-foreground">
@@ -241,6 +307,14 @@ function PaymentContent() {
                     {selectedService.duration} minute consultation
                   </p>
                 </div>
+                {selectedDate && selectedSlot ? (
+                  <div className="rounded-lg border border-black/10 bg-slate-50 p-4 text-sm text-foreground/80 dark:border-white/10 dark:bg-slate-950/30">
+                    <p className="font-medium text-foreground">Appointment</p>
+                    <p className="mt-2 text-foreground/70">
+                      {selectedDate} at {selectedSlot}
+                    </p>
+                  </div>
+                ) : null}
                 <div className="border-t border-black/10 pt-4 dark:border-white/10">
                   <div className="flex items-center justify-between">
                     <span className="text-foreground/70">Total</span>

@@ -33,12 +33,33 @@ export async function POST(request: Request) {
   }
 
   const appointmentDate = new Date(appointmentTime);
+  appointmentDate.setSeconds(0, 0);
 
   if (Number.isNaN(appointmentDate.getTime())) {
     return Response.json(
       { error: "Appointment time must be a valid date." },
       { status: 400 },
     );
+  }
+
+  if (doctorId) {
+    const existingBooking = await db.booking.findFirst({
+      where: {
+        doctorId,
+        appointmentTime: appointmentDate,
+        status: {
+          not: "CANCELLED",
+        },
+      },
+      select: { id: true },
+    });
+
+    if (existingBooking) {
+      return Response.json(
+        { error: "This doctor is already booked at the selected time." },
+        { status: 409 },
+      );
+    }
   }
 
   const service = await db.service.findUnique({

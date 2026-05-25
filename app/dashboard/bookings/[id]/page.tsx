@@ -128,7 +128,11 @@ export default async function BookingDetailsPage({ params }: BookingDetailsPageP
           <div className="mt-5 grid gap-5 sm:grid-cols-2">
             <DetailItem label="Service Name" value={booking.service.name} />
             <DetailItem
-              label="Appointment Time"
+              label="Appointment Creation Time"
+              value={booking.createdAt.toLocaleString()}
+            />
+            <DetailItem
+              label="Appointment Taken Time"
               value={booking.appointmentTime.toLocaleString()}
             />
             <DetailItem label="Booking Token" value={booking.id} />

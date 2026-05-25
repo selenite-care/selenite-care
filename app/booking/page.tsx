@@ -136,28 +136,20 @@ export default function BookingPage() {
                       <span className="mt-6 block text-sm font-medium text-foreground">
                         {isSelected ? "Selected" : "Select doctor"}
                       </span>
+                      {isSelected ? (
+                        <Link
+                          href={`/booking/slots?serviceId=${encodeURIComponent(serviceId)}&doctorId=${encodeURIComponent(doctor.id)}`}
+                          className="mt-4 inline-flex h-11 w-full items-center justify-center rounded-md bg-foreground px-5 text-sm font-medium text-background transition-colors hover:bg-foreground/85"
+                        >
+                          Proceed to Survey
+                        </Link>
+                      ) : null}
                     </div>
                   </button>
                 );
               })}
             </div>
 
-            {selectedDoctor ? (
-              <div className="mt-8 rounded-lg border border-black/10 bg-background p-6 dark:border-white/10">
-                <p className="text-sm text-foreground/70">
-                  Selected doctor:{" "}
-                  <span className="font-medium text-foreground">
-                    {selectedDoctor.name}
-                  </span>
-                </p>
-                <Link
-                  href={`/booking/survey?serviceId=${encodeURIComponent(serviceId)}&doctorId=${encodeURIComponent(selectedDoctor.id)}`}
-                  className="mt-5 inline-flex h-11 items-center justify-center rounded-md bg-foreground px-5 text-sm font-medium text-background transition-colors hover:bg-foreground/85"
-                >
-                  Proceed to Survey
-                </Link>
-              </div>
-            ) : null}
           </>
         ) : null}
       </div>
