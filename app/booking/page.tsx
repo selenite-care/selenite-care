@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -97,27 +98,45 @@ export default function BookingPage() {
                     key={doctor.id}
                     type="button"
                     onClick={() => setSelectedDoctor(doctor)}
-                    className={`rounded-lg border bg-background p-6 text-left transition-colors ${
+                    className={`overflow-hidden rounded-lg border-2 bg-background text-left transition-all ${
                       isSelected
-                        ? "border-foreground"
+                        ? "border-foreground shadow-sm ring-1 ring-foreground/10"
                         : "border-black/10 hover:border-foreground/40 dark:border-white/10"
                     }`}
                   >
-                    <span className="text-lg font-semibold text-foreground">
-                      {doctor.name}
-                    </span>
-                    <span className="mt-2 block text-sm font-medium text-foreground/70">
-                      {doctor.designation}
-                    </span>
-                    <span className="mt-4 block text-sm text-foreground/70">
-                      {doctor.availability}
-                    </span>
-                    <p className="mt-4 text-sm leading-6 text-foreground/70">
-                      {doctor.bio ?? "Doctor profile coming soon."}
-                    </p>
-                    <span className="mt-6 block text-sm font-medium text-foreground">
-                      {isSelected ? "Selected" : "Select doctor"}
-                    </span>
+                    {doctor.image ? (
+                      <div className="relative aspect-[4/3] w-full overflow-hidden bg-zinc-100 dark:bg-zinc-900">
+                        <Image
+                          src={doctor.image}
+                          alt={doctor.name}
+                          fill
+                          sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                          className="object-cover"
+                        />
+                      </div>
+                    ) : (
+                      <div className="flex aspect-[4/3] w-full items-center justify-center bg-zinc-200 text-sm font-medium text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400">
+                        No image available
+                      </div>
+                    )}
+
+                    <div className="p-6">
+                      <span className="text-lg font-semibold text-foreground">
+                        {doctor.name}
+                      </span>
+                      <span className="mt-2 block text-sm font-medium text-foreground/70">
+                        {doctor.designation}
+                      </span>
+                      <span className="mt-4 block text-sm text-foreground/70">
+                        {doctor.availability}
+                      </span>
+                      <p className="mt-4 text-sm leading-6 text-foreground/70">
+                        {doctor.bio ?? "Doctor profile coming soon."}
+                      </p>
+                      <span className="mt-6 block text-sm font-medium text-foreground">
+                        {isSelected ? "Selected" : "Select doctor"}
+                      </span>
+                    </div>
                   </button>
                 );
               })}

@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 const skinIssuesOptions = [
@@ -53,11 +53,11 @@ type SurveyFormState = {
   skinIssues: string[];
   skinIssueDuration: string;
   currentProducts: string[];
-  allergicIngredients: string;
+  allergicIngredients: string[];
+  allergicIngredientsOther: string;
   doubleCleansePreference: string;
   sleepHours: string;
-  waterIntake: string[];
-  wantsConsultation: string;
+  waterIntake: string;
   appliesSunscreen: string;
   regularPeriodCycle: string;
   usedIndoPakNightCream: string;
@@ -81,11 +81,11 @@ export default function BookingSurveyPage() {
     skinIssues: [],
     skinIssueDuration: "",
     currentProducts: [],
-    allergicIngredients: "",
+    allergicIngredients: [],
+    allergicIngredientsOther: "",
     doubleCleansePreference: "No",
     sleepHours: "6-8 Hours",
-    waterIntake: [],
-    wantsConsultation: "no",
+    waterIntake: "1-2 Litres",
     appliesSunscreen: "no",
     regularPeriodCycle: "no",
     usedIndoPakNightCream: "no",
@@ -94,11 +94,45 @@ export default function BookingSurveyPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
 
+  useEffect(() => {
+    async function loadProfile() {
+      try {
+        const response = await fetch("/api/client/profile");
+
+        if (!response.ok) {
+          return;
+        }
+
+        const data = (await response.json()) as {
+          user?: {
+            name?: string | null;
+            email?: string | null;
+            phone?: string | null;
+          };
+        };
+
+        setFormState((current) => ({
+          ...current,
+          name: current.name || data.user?.name || "",
+          email: current.email || data.user?.email || "",
+          phone: current.phone || data.user?.phone || "",
+        }));
+      } catch {
+        // Leave the form editable even if profile prefill fails.
+      }
+    }
+
+    loadProfile();
+  }, []);
+
   function updateField<K extends keyof SurveyFormState>(field: K, value: SurveyFormState[K]) {
     setFormState((current) => ({ ...current, [field]: value }));
   }
 
-  function toggleArrayField(field: "skinIssues" | "currentProducts" | "waterIntake", value: string) {
+  function toggleArrayField(
+    field: "skinIssues" | "currentProducts" | "allergicIngredients",
+    value: string,
+  ) {
     setFormState((current) => {
       const currentValues = current[field];
       const nextValues = currentValues.includes(value)
@@ -120,6 +154,14 @@ export default function BookingSurveyPage() {
       return;
     }
 
+    const allergicIngredients = formState.allergicIngredients
+      .filter((item) => item !== "Others")
+      .concat(
+        formState.allergicIngredients.includes("Others") && formState.allergicIngredientsOther.trim()
+          ? [formState.allergicIngredientsOther.trim()]
+          : [],
+      );
+
     const payload = {
       serviceId,
       doctorId,
@@ -134,11 +176,10 @@ export default function BookingSurveyPage() {
       skinIssues: formState.skinIssues,
       skinIssueDuration: formState.skinIssueDuration,
       currentProducts: formState.currentProducts,
-      allergicIngredients: formState.allergicIngredients,
+      allergicIngredients,
       doubleCleansePreference: formState.doubleCleansePreference,
       sleepHours: formState.sleepHours,
       waterIntake: formState.waterIntake,
-      wantsConsultation: formState.wantsConsultation === "yes",
       appliesSunscreen: formState.appliesSunscreen === "yes",
       regularPeriodCycle: formState.regularPeriodCycle === "yes",
       usedIndoPakNightCream: formState.usedIndoPakNightCream === "yes",
@@ -354,17 +395,29 @@ typeof payload & { surveyId?: string; error?: string } | null;
             {allergicOptions.map((opt) => (
               <label key={opt} className="inline-flex items-center">
                 <input
-                  type="radio"
+                  type="checkbox"
                   name="allergicIngredients"
                   value={opt}
-                  checked={formState.allergicIngredients === opt}
-                  onChange={() => updateField("allergicIngredients", opt)}
+                  checked={formState.allergicIngredients.includes(opt)}
+                  onChange={() => toggleArrayField("allergicIngredients", opt)}
                   className="mr-2"
                 />
                 {opt}
               </label>
             ))}
           </div>
+          {formState.allergicIngredients.includes("Others") ? (
+            <div className="mt-3">
+              <label className="block text-sm font-medium text-foreground">Other Allergic Ingredients</label>
+              <input
+                name="allergicIngredientsOther"
+                value={formState.allergicIngredientsOther}
+                onChange={(event) => updateField("allergicIngredientsOther", event.target.value)}
+                placeholder="Type custom allergic ingredients"
+                className="mt-2 h-11 w-full rounded-md border border-black/10 px-3"
+              />
+            </div>
+          ) : null}
         </div>
 
         <div>
@@ -424,11 +477,11 @@ typeof payload & { surveyId?: string; error?: string } | null;
             ].map((opt) => (
               <label key={opt} className="inline-flex items-center">
                 <input
-                  type="checkbox"
+                  type="radio"
                   name="waterIntake"
                   value={opt}
-                  checked={formState.waterIntake.includes(opt)}
-                  onChange={() => toggleArrayField("waterIntake", opt)}
+                  checked={formState.waterIntake === opt}
+                  onChange={() => updateField("waterIntake", opt)}
                   className="mr-2"
                 />
                 {opt}
@@ -438,34 +491,6 @@ typeof payload & { surveyId?: string; error?: string } | null;
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
-          <div>
-            <label className="block text-sm font-medium text-foreground">Wants Consultation</label>
-            <div className="mt-2 flex gap-4">
-              <label className="inline-flex items-center">
-                <input
-                  type="radio"
-                  name="wantsConsultation"
-                  value="yes"
-                  checked={formState.wantsConsultation === "yes"}
-                  onChange={() => updateField("wantsConsultation", "yes")}
-                  className="mr-2"
-                />
-                <span className="ml-2">Yes</span>
-              </label>
-              <label className="inline-flex items-center">
-                <input
-                  type="radio"
-                  name="wantsConsultation"
-                  value="no"
-                  checked={formState.wantsConsultation === "no"}
-                  onChange={() => updateField("wantsConsultation", "no")}
-                  className="mr-2"
-                />
-                <span className="ml-2">No</span>
-              </label>
-            </div>
-          </div>
-
           <div>
             <label className="block text-sm font-medium text-foreground">Applies Sunscreen</label>
             <div className="mt-2 flex gap-4">

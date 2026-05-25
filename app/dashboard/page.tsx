@@ -48,7 +48,7 @@ export default async function DashboardPage() {
         </div>
 
         <Link
-          href="/booking"
+          href="/services"
           className="inline-flex h-11 items-center justify-center rounded-md bg-foreground px-5 text-sm font-medium text-background transition-colors hover:bg-foreground/85"
         >
           Book New Appointment

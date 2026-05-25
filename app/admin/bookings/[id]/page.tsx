@@ -256,7 +256,13 @@ export default async function BookingDetailsPage({
             />
             <DetailItem
               label="Water Intake"
-              value={joinValues(booking.surveyResponse.waterIntake)}
+              value={
+                booking.surveyResponse.waterIntake
+                  ? Array.isArray(booking.surveyResponse.waterIntake)
+                    ? booking.surveyResponse.waterIntake.join(", ")
+                    : booking.surveyResponse.waterIntake
+                  : "Not specified"
+              }
             />
             <DetailItem
               label="Uses Korean Products"
@@ -267,10 +273,6 @@ export default async function BookingDetailsPage({
               value={yesNo(booking.surveyResponse.facingSkinIssues)}
             />
             <DetailItem
-              label="Wants Consultation"
-              value={yesNo(booking.surveyResponse.wantsConsultation)}
-            />
-            <DetailItem
               label="Applies Sunscreen"
               value={yesNo(booking.surveyResponse.appliesSunscreen)}
             />
@@ -279,7 +281,7 @@ export default async function BookingDetailsPage({
               value={yesNo(booking.surveyResponse.regularPeriodCycle)}
             />
             <DetailItem
-              label="Used IndoPak Night Cream"
+              label="Used Ind/Pak Night Cream"
               value={yesNo(booking.surveyResponse.usedIndoPakNightCream)}
             />
             <DetailItem

@@ -29,15 +29,16 @@ model Service {
 }
 
 model Doctor {
-  id           String    @id @default(cuid())
-  name         String
-  designation  String
-  bio          String?
-  availability String
-  image        String?
-  service      Service   @relation(fields: [serviceId], references: [id])
-  serviceId    String
-  bookings     Booking[]
+  id            String    @id @default(cuid())
+  name          String
+  designation   String
+  bio           String?
+  availability  String
+  image         String?
+  slotDuration  Int       @default(15)  // in minutes
+  service       Service   @relation(fields: [serviceId], references: [id])
+  serviceId     String
+  bookings      Booking[]
 }
 
 model Booking {
@@ -84,8 +85,7 @@ model SurveyResponse {
   allergicIngredients     String[]
   doubleCleansePreference String
   sleepHours              String
-  waterIntake             String[]
-  wantsConsultation       Boolean
+  waterIntake             String      // changed from String[] to String
   appliesSunscreen        Boolean
   regularPeriodCycle      Boolean
   usedIndoPakNightCream   Boolean

@@ -1,4 +1,11 @@
 import { db } from "@/lib/db";
+import { sendEmail } from "@/lib/email";
+
+const adminEmail = process.env.ADMIN_EMAIL ?? "";
+
+if (!adminEmail) {
+  throw new Error("ADMIN_EMAIL is not set.");
+}
 
 type SurveyPayload = {
   serviceId?: unknown;
@@ -17,7 +24,6 @@ type SurveyPayload = {
   doubleCleansePreference?: unknown;
   sleepHours?: unknown;
   waterIntake?: unknown;
-  wantsConsultation?: unknown;
   appliesSunscreen?: unknown;
   regularPeriodCycle?: unknown;
   usedIndoPakNightCream?: unknown;
@@ -28,6 +34,15 @@ function asStringArray(value: unknown): string[] {
   if (Array.isArray(value)) return value.map((v) => String(v));
   if (typeof value === "string" && value.length > 0) return [value];
   return [];
+}
+
+function asOptionalString(value: unknown): string | null {
+  if (typeof value !== "string") {
+    return null;
+  }
+
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : null;
 }
 
 export async function POST(request: Request) {
@@ -62,12 +77,12 @@ export async function POST(request: Request) {
   const doubleCleansePreference =
     typeof body.doubleCleansePreference === "string" ? body.doubleCleansePreference : "";
   const sleepHours = typeof body.sleepHours === "string" ? body.sleepHours : "";
-  const wantsConsultation = body.wantsConsultation === true || String(body.wantsConsultation) === "true";
   const appliesSunscreen = body.appliesSunscreen === true || String(body.appliesSunscreen) === "true";
   const regularPeriodCycle = body.regularPeriodCycle === true || String(body.regularPeriodCycle) === "true";
   const usedIndoPakNightCream =
     body.usedIndoPakNightCream === true || String(body.usedIndoPakNightCream) === "true";
   const note = typeof body.note === "string" ? body.note.trim() : null;
+  const waterIntake = asOptionalString(body.waterIntake) ?? "";
 
   try {
     const survey = await db.surveyResponse.create({
@@ -86,8 +101,7 @@ export async function POST(request: Request) {
         allergicIngredients,
         doubleCleansePreference,
         sleepHours,
-        waterIntake: asStringArray(body.waterIntake), // keep as array
-        wantsConsultation,
+        waterIntake,
         appliesSunscreen,
         regularPeriodCycle,
         usedIndoPakNightCream,
@@ -95,9 +109,60 @@ export async function POST(request: Request) {
       },
     });
 
+    const formattedSkinIssues = skinIssues.length ? skinIssues.join(", ") : "None";
+    const formattedCurrentProducts = currentProducts.length ? currentProducts.join(", ") : "None";
+    const formattedNote = note || "None";
+
+    const emailHtml = `
+      <table style="width:100%; border-collapse:collapse; font-family:Arial, sans-serif;">
+        <thead>
+          <tr>
+            <th style="text-align:left; padding:10px; border-bottom:1px solid #ddd;">Field</th>
+            <th style="text-align:left; padding:10px; border-bottom:1px solid #ddd;">Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="padding:10px; border-bottom:1px solid #eee;">Client Name</td>
+            <td style="padding:10px; border-bottom:1px solid #eee;">${name}</td>
+          </tr>
+          <tr>
+            <td style="padding:10px; border-bottom:1px solid #eee;">Phone</td>
+            <td style="padding:10px; border-bottom:1px solid #eee;">${phone}</td>
+          </tr>
+          <tr>
+            <td style="padding:10px; border-bottom:1px solid #eee;">Email</td>
+            <td style="padding:10px; border-bottom:1px solid #eee;">${email}</td>
+          </tr>
+          <tr>
+            <td style="padding:10px; border-bottom:1px solid #eee;">Skin Type</td>
+            <td style="padding:10px; border-bottom:1px solid #eee;">${skinType}</td>
+          </tr>
+          <tr>
+            <td style="padding:10px; border-bottom:1px solid #eee;">Skin Issues</td>
+            <td style="padding:10px; border-bottom:1px solid #eee;">${formattedSkinIssues}</td>
+          </tr>
+          <tr>
+            <td style="padding:10px; border-bottom:1px solid #eee;">Current Products</td>
+            <td style="padding:10px; border-bottom:1px solid #eee;">${formattedCurrentProducts}</td>
+          </tr>
+          <tr>
+            <td style="padding:10px; border-bottom:1px solid #eee;">Note</td>
+            <td style="padding:10px; border-bottom:1px solid #eee;">${formattedNote}</td>
+          </tr>
+        </tbody>
+      </table>
+    `;
+
+    await sendEmail({
+      to: adminEmail,
+      subject: "New Survey Submission - Selenite Care",
+      html: emailHtml,
+    });
+
     return Response.json({ ok: true, surveyId: survey.id });
   } catch (err) {
-    console.error("Survey save error:", err)
+    console.error("Survey save error:", err);
     return Response.json({ error: "Failed to save survey response." }, { status: 500 });
   }
 }

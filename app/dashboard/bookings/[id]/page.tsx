@@ -249,11 +249,13 @@ export default async function BookingDetailsPage({ params }: BookingDetailsPageP
             />
             <DetailItem
               label="Water Intake"
-              value={booking.surveyResponse.waterIntake}
-            />
-            <DetailItem
-              label="Wants Consultation"
-              value={booking.surveyResponse.wantsConsultation ? "Yes" : "No"}
+              value={
+                booking.surveyResponse.waterIntake
+                  ? Array.isArray(booking.surveyResponse.waterIntake)
+                    ? booking.surveyResponse.waterIntake.join(", ")
+                    : booking.surveyResponse.waterIntake
+                  : "Not specified"
+              }
             />
             <DetailItem
               label="Applies Sunscreen"
