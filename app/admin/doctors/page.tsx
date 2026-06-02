@@ -1,6 +1,7 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import Image from "next/image";
+import { FormEvent, useEffect, useRef, useState } from "react";
 
 type Doctor = {
   id: string;
@@ -38,6 +39,9 @@ export default function AdminDoctorsPage() {
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [selectedServiceId, setSelectedServiceId] = useState("");
   const [form, setForm] = useState<DoctorFormState>(emptyForm);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState("");
+  const imagePreviewRef = useRef("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -125,35 +129,91 @@ setDoctors(doctorsData)
     loadDataOnMount();
   }, []);
 
+  useEffect(() => {
+    return () => {
+      if (imagePreviewRef.current) {
+        URL.revokeObjectURL(imagePreviewRef.current);
+      }
+    };
+  }, []);
+
+  function updateImageFile(file: File | null) {
+    if (imagePreviewRef.current) {
+      URL.revokeObjectURL(imagePreviewRef.current);
+      imagePreviewRef.current = "";
+    }
+
+    setImageFile(file);
+
+    if (!file) {
+      setImagePreview("");
+      return;
+    }
+
+    const previewUrl = URL.createObjectURL(file);
+    imagePreviewRef.current = previewUrl;
+    setImagePreview(previewUrl);
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
     setIsSubmitting(true);
 
-    const response = await fetch("/api/admin/doctors", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(form),
-    });
+    let image = "";
 
-    if (!response.ok) {
-      const data = (await response.json().catch(() => null)) as {
-        error?: string;
-      } | null;
+    try {
+      if (imageFile) {
+        const uploadFormData = new FormData();
+        uploadFormData.append("file", imageFile);
 
-      setError(data?.error ?? "Unable to save doctor.");
+        const uploadResponse = await fetch("/api/admin/upload", {
+          method: "POST",
+          body: uploadFormData,
+        });
+
+        const uploadData = (await uploadResponse.json().catch(() => null)) as {
+          secure_url?: string;
+          error?: string;
+        } | null;
+
+        if (!uploadResponse.ok || !uploadData?.secure_url) {
+          throw new Error(uploadData?.error ?? "Unable to upload doctor image.");
+        }
+
+        image = uploadData.secure_url;
+      }
+
+      const response = await fetch("/api/admin/doctors", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...form,
+          image,
+        }),
+      });
+
+      if (!response.ok) {
+        const data = (await response.json().catch(() => null)) as {
+          error?: string;
+        } | null;
+
+        throw new Error(data?.error ?? "Unable to save doctor.");
+      }
+
+      setForm((current) => ({
+        ...emptyForm,
+        serviceId: current.serviceId,
+      }));
+      updateImageFile(null);
       setIsSubmitting(false);
-      return;
+      await loadInitialData();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unable to save doctor.");
+      setIsSubmitting(false);
     }
-
-    setForm((current) => ({
-      ...emptyForm,
-      serviceId: current.serviceId,
-    }));
-    setIsSubmitting(false);
-    await loadInitialData();
   }
 
   async function handleDelete(doctorId: string) {
@@ -402,6 +462,35 @@ setDoctors(doctorsData)
                   rows={4}
                   className="mt-2 w-full resize-none rounded-md border border-black/10 bg-transparent px-3 py-3 text-sm outline-none transition-colors focus:border-foreground dark:border-white/10"
                 />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="doctor-image"
+                  className="block text-sm font-medium text-foreground"
+                >
+                  Image
+                </label>
+                <input
+                  id="doctor-image"
+                  type="file"
+                  accept="image/*"
+                  onChange={(event) => {
+                    updateImageFile(event.target.files?.[0] ?? null);
+                  }}
+                  className="mt-2 block w-full rounded-md border border-black/10 bg-transparent px-3 py-2 text-sm text-foreground file:mr-4 file:rounded-md file:border-0 file:bg-foreground file:px-3 file:py-2 file:text-sm file:font-medium file:text-background dark:border-white/10"
+                />
+                {imagePreview ? (
+                  <div className="relative mt-4 h-48 overflow-hidden rounded-md border border-black/10 bg-zinc-100 dark:border-white/10 dark:bg-zinc-900">
+                    <Image
+                      src={imagePreview}
+                      alt="Doctor preview"
+                      fill
+                      unoptimized
+                      className="object-cover"
+                    />
+                  </div>
+                ) : null}
               </div>
 
               <div className="flex items-center justify-between gap-4">

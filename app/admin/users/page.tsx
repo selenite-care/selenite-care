@@ -13,10 +13,21 @@ type AdminUser = {
   };
 };
 
+const ROLES = ["CLIENT", "DOCTOR", "CRM", "ADMIN"];
+
+const roleColors: Record<string, { badge: string; text: string }> = {
+  CLIENT: { badge: "bg-blue-100 dark:bg-blue-900/20", text: "text-blue-800 dark:text-blue-300" },
+  DOCTOR: { badge: "bg-purple-100 dark:bg-purple-900/20", text: "text-purple-800 dark:text-purple-300" },
+  CRM: { badge: "bg-emerald-100 dark:bg-emerald-900/20", text: "text-emerald-800 dark:text-emerald-300" },
+  ADMIN: { badge: "bg-red-100 dark:bg-red-900/20", text: "text-red-800 dark:text-red-300" },
+};
+
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [updateError, setUpdateError] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadUsers() {
@@ -39,6 +50,39 @@ export default function AdminUsersPage() {
     loadUsers();
   }, []);
 
+  async function handleRoleChange(userId: string, newRole: string) {
+    if (updatingId) return; // Prevent concurrent updates
+
+    setUpdatingId(userId);
+    setUpdateError(null);
+
+    try {
+      const response = await fetch(`/api/admin/users/${userId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ role: newRole }),
+      });
+
+      if (!response.ok) {
+        const data = (await response.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(data?.error ?? "Failed to update user role.");
+      }
+
+      const data = (await response.json()) as { user?: AdminUser };
+      if (data.user) {
+        setUsers((prevUsers) =>
+          prevUsers.map((u) => (u.id === userId ? data.user! : u))
+        );
+      }
+    } catch (err) {
+      setUpdateError(err instanceof Error ? err.message : "Failed to update user role.");
+    } finally {
+      setUpdatingId(null);
+    }
+  }
+
   return (
     <section>
       <div>
@@ -55,6 +99,12 @@ export default function AdminUsersPage() {
       ) : null}
 
       {error ? <p className="mt-8 text-sm text-red-600">{error}</p> : null}
+
+      {updateError ? (
+        <p className="mt-8 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+          {updateError}
+        </p>
+      ) : null}
 
       {!isLoading && !error && users.length === 0 ? (
         <p className="mt-8 text-sm text-foreground/70">No users found.</p>
@@ -74,28 +124,42 @@ export default function AdminUsersPage() {
                 </tr>
               </thead>
               <tbody>
-                {users.map((user) => (
-                  <tr
-                    key={user.id}
-                    className="border-b border-black/10 last:border-0 dark:border-white/10"
-                  >
-                    <td className="px-4 py-4 text-foreground">
-                      {user.name ?? "Not set"}
-                    </td>
-                    <td className="px-4 py-4 text-foreground/70">
-                      {user.email}
-                    </td>
-                    <td className="px-4 py-4 text-foreground/70">
-                      {user.role}
-                    </td>
-                    <td className="px-4 py-4 text-foreground/70">
-                      {new Date(user.createdAt).toLocaleDateString()}
-                    </td>
-                    <td className="px-4 py-4 text-foreground/70">
-                      {user._count.bookings}
-                    </td>
-                  </tr>
-                ))}
+                {users.map((user) => {
+                  const colors = roleColors[user.role] || roleColors.CLIENT;
+                  return (
+                    <tr
+                      key={user.id}
+                      className="border-b border-black/10 last:border-0 dark:border-white/10"
+                    >
+                      <td className="px-4 py-4 text-foreground">
+                        {user.name ?? "Not set"}
+                      </td>
+                      <td className="px-4 py-4 text-foreground/70">
+                        {user.email}
+                      </td>
+                      <td className="px-4 py-4">
+                        <select
+                          value={user.role}
+                          onChange={(e) => handleRoleChange(user.id, e.target.value)}
+                          disabled={updatingId === user.id}
+                          className={`rounded-lg px-3 py-2 text-sm font-medium outline-none transition-colors ${colors.badge} ${colors.text} disabled:opacity-50 disabled:cursor-not-allowed`}
+                        >
+                          {ROLES.map((role) => (
+                            <option key={role} value={role}>
+                              {role}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+                      <td className="px-4 py-4 text-foreground/70">
+                        {new Date(user.createdAt).toLocaleDateString()}
+                      </td>
+                      <td className="px-4 py-4 text-foreground/70">
+                        {user._count.bookings}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

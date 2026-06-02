@@ -7,6 +7,12 @@ type BookingStatusButtonsProps = {
   currentStatus: string;
 };
 
+type BookingStatusResponse = {
+  booking?: {
+    status?: string;
+  };
+};
+
 export default function BookingStatusButtons({ bookingId, currentStatus }: BookingStatusButtonsProps) {
   const [status, setStatus] = useState(currentStatus);
   const [loading, setLoading] = useState(false);
@@ -29,10 +35,10 @@ export default function BookingStatusButtons({ bookingId, currentStatus }: Booki
         throw new Error(text || "Failed to update status");
       }
 
-      const data = await response.json();
-      setStatus(data.booking.status);
-    } catch (err: any) {
-      setError(err?.message ?? "Unable to update status");
+      const data = (await response.json()) as BookingStatusResponse;
+      setStatus(data.booking?.status ?? newStatus);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unable to update status");
     } finally {
       setLoading(false);
     }

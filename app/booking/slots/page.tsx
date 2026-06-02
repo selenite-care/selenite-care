@@ -9,6 +9,55 @@ type SlotsResponse = {
   error?: string;
 };
 
+type Doctor = {
+  id: string;
+  name: string;
+  availability: string;
+};
+
+type DoctorsResponse = {
+  doctors: Doctor[];
+  error?: string;
+};
+
+const dayMap: Record<string, number> = {
+  Sun: 0,
+  Mon: 1,
+  Tue: 2,
+  Wed: 3,
+  Thu: 4,
+  Fri: 5,
+  Sat: 6,
+};
+
+function getDayRange(start: number, end: number) {
+  const days: number[] = [];
+  let current = start;
+  while (true) {
+    days.push(current);
+    if (current === end) break;
+    current = (current + 1) % 7;
+  }
+  return days;
+}
+
+function parseAvailability(availability: string) {
+  const match = availability.match(/^([A-Za-z]{3})–([A-Za-z]{3}),\s*(\d{1,2}(?:AM|PM))–(\d{1,2}(?:AM|PM))$/);
+  if (!match) return null;
+
+  const [, startDay, endDay] = match;
+  const startDayIndex = dayMap[startDay as keyof typeof dayMap];
+  const endDayIndex = dayMap[endDay as keyof typeof dayMap];
+
+  if (startDayIndex === undefined || endDayIndex === undefined) {
+    return null;
+  }
+
+  return {
+    dayRange: getDayRange(startDayIndex, endDayIndex),
+  };
+}
+
 function formatDateInput(date: Date) {
   return date.toISOString().split("T")[0];
 }
@@ -21,7 +70,8 @@ function getDateRange() {
     max: formatDateInput(maxDate),
   };
 }
- function formatTo12Hour(time: string): string {
+
+function formatTo12Hour(time: string): string {
   const [hourStr, minuteStr] = time.split(":")
   const hour = parseInt(hourStr)
   const minute = minuteStr
@@ -43,6 +93,47 @@ export default function BookingSlotsPage() {
   const [selectedSlot, setSelectedSlot] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>("");
+  const [doctor, setDoctor] = useState<Doctor | null>(null);
+  const [doctorLoading, setDoctorLoading] = useState(true);
+
+  // Fetch doctor details
+  useEffect(() => {
+    if (!doctorId || !serviceId) {
+      setDoctorLoading(false);
+      return;
+    }
+
+    async function loadDoctor() {
+      try {
+        const response = await fetch(`/api/services/${encodeURIComponent(serviceId)}/doctors`);
+        if (!response.ok) return;
+
+        const data = (await response.json()) as DoctorsResponse;
+        const foundDoctor = data.doctors?.find((d) => d.id === doctorId);
+        if (foundDoctor) {
+          setDoctor(foundDoctor);
+        }
+      } catch {
+        // Silent fail - doctor details are optional
+      } finally {
+        setDoctorLoading(false);
+      }
+    }
+
+    loadDoctor();
+  }, [doctorId, serviceId]);
+
+  const isDateOnWorkingDay = useMemo(() => {
+    if (!doctor) return true;
+    const parsed = parseAvailability(doctor.availability);
+    if (!parsed) return true;
+    
+    const date = new Date(`${selectedDate}T00:00:00`);
+    const dayIndex = date.getDay();
+    
+    return parsed.dayRange.includes(dayIndex);
+  }, [selectedDate, doctor]);
+
 
   useEffect(() => {
     if (!doctorId) return;
@@ -75,8 +166,15 @@ export default function BookingSlotsPage() {
       }
     }
 
-    loadSlots();
-  }, [doctorId, selectedDate]);
+    // Only load slots if on a working day
+    if (isDateOnWorkingDay) {
+      loadSlots();
+    } else {
+      setAvailableSlots([]);
+      setBookedSlots([]);
+      setIsLoading(false);
+    }
+  }, [doctorId, selectedDate, isDateOnWorkingDay]);
 
   function handleProceed() {
     if (!selectedSlot) return;
@@ -138,38 +236,48 @@ export default function BookingSlotsPage() {
               </p>
             ) : null}
 
-            <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-4">
-              {allSlots.length === 0 && !isLoading ? (
-                <div className="rounded-lg border border-black/10 bg-background p-6 text-sm text-foreground/70">
-                  No slots are available for this date.
-                </div>
-              ) : (
-                allSlots.map((slot) => {
-                  const isBooked = bookedSlots.includes(slot);
-                  const isSelected = selectedSlot === slot;
-                  return (
-                    <button
-                      key={slot}
-                      type="button"
-                      disabled={isBooked}
-                      onClick={() => !isBooked && setSelectedSlot(slot)}
-                      className={`rounded-xl border px-4 py-3 text-left text-sm font-medium transition-all ${
-                        isBooked
-                          ? "cursor-not-allowed border-gray-200 bg-gray-100 text-gray-500"
-                          : isSelected
-                          ? "border-emerald-700 bg-emerald-600 text-white shadow-sm"
-                          : "border-emerald-200 bg-emerald-50 text-emerald-800 hover:border-emerald-400 hover:bg-emerald-100"
-                      }`}
-                    >
-                      <span>{formatTo12Hour(slot)}</span>
-                      {isBooked ? <span className="mt-1 block text-xs text-foreground/60">Booked</span> : null}
-                    </button>
-                  );
-                })
-              )}
-            </div>
+            {!isDateOnWorkingDay && !doctorLoading ? (
+              <div className="rounded-lg border border-orange-200 bg-orange-50 p-6 text-sm text-orange-900">
+                <p className="font-medium">
+                  Dr. {doctor?.name ?? "Selected doctor"} is not available on this day. Please select a different date.
+                </p>
+              </div>
+            ) : null}
 
-            {selectedSlot ? (
+            {isDateOnWorkingDay && (
+              <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-4">
+                {allSlots.length === 0 && !isLoading ? (
+                  <div className="rounded-lg border border-black/10 bg-background p-6 text-sm text-foreground/70">
+                    No slots are available for this date.
+                  </div>
+                ) : (
+                  allSlots.map((slot) => {
+                    const isBooked = bookedSlots.includes(slot);
+                    const isSelected = selectedSlot === slot;
+                    return (
+                      <button
+                        key={slot}
+                        type="button"
+                        disabled={isBooked}
+                        onClick={() => !isBooked && setSelectedSlot(slot)}
+                        className={`rounded-xl border px-4 py-3 text-left text-sm font-medium transition-all ${
+                          isBooked
+                            ? "cursor-not-allowed border-gray-200 bg-gray-100 text-gray-500"
+                            : isSelected
+                            ? "border-emerald-700 bg-emerald-600 text-white shadow-sm"
+                            : "border-emerald-200 bg-emerald-50 text-emerald-800 hover:border-emerald-400 hover:bg-emerald-100"
+                        }`}
+                      >
+                        <span>{formatTo12Hour(slot)}</span>
+                        {isBooked ? <span className="mt-1 block text-xs text-foreground/60">Booked</span> : null}
+                      </button>
+                    );
+                  })
+                )}
+              </div>
+            )}
+
+            {selectedSlot && isDateOnWorkingDay ? (
               <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <p className="text-sm text-foreground/70">Selected slot:</p>

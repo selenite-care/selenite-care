@@ -1,35 +1,38 @@
-type CrmClient = {
-  id: string;
-  name: string | null;
-  email: string;
-  phone: string | null;
-  createdAt: string;
-  _count: {
-    bookings: number;
-  };
-};
-
-type CrmClientsResponse = {
-  clients: CrmClient[];
-  error?: string;
-};
+import { redirect } from "next/navigation";
+import { auth } from "@/auth";
+import db from "@/lib/db";
 
 export default async function CrmClientsPage() {
-  const response = await fetch("/api/crm/clients", { cache: "no-store" });
-  const data = (await response.json()) as CrmClientsResponse;
+  const session = await auth();
 
-  if (!response.ok) {
-    return (
-      <section className="flex min-h-screen items-center justify-center bg-zinc-50 px-6 py-16 dark:bg-black">
-        <div className="rounded-3xl border border-red-200 bg-red-50 p-10 text-center text-red-700 dark:border-red-700/40 dark:bg-red-950/40">
-          <h1 className="text-2xl font-semibold">Unable to load clients</h1>
-          <p className="mt-4 text-sm text-current/70">
-            {data.error ?? "An error occurred while fetching client data."}
-          </p>
-        </div>
-      </section>
-    );
+  if (!session?.user) {
+    redirect("/login");
   }
+
+  if (session.user.role !== "CRM") {
+    redirect("/dashboard");
+  }
+
+  const clients = await db.user.findMany({
+    where: {
+      role: "CLIENT",
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      phone: true,
+      createdAt: true,
+      _count: {
+        select: {
+          bookings: true,
+        },
+      },
+    },
+  });
 
   return (
     <section className="min-h-screen bg-zinc-50 px-6 py-10 dark:bg-black">
@@ -53,20 +56,20 @@ export default async function CrmClientsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-black/10 bg-white text-sm dark:divide-white/10 dark:bg-zinc-900">
-              {data.clients.length === 0 ? (
+              {clients.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="px-4 py-8 text-center text-foreground/70">
                     No clients found.
                   </td>
                 </tr>
               ) : (
-                data.clients.map((client) => (
+                clients.map((client) => (
                   <tr key={client.id}>
-                    <td className="px-4 py-4 font-medium text-foreground">{client.name ?? "—"}</td>
+                    <td className="px-4 py-4 font-medium text-foreground">{client.name ?? "-"}</td>
                     <td className="px-4 py-4 text-foreground/70">{client.email}</td>
-                    <td className="px-4 py-4 text-foreground/70">{client.phone ?? "—"}</td>
+                    <td className="px-4 py-4 text-foreground/70">{client.phone ?? "-"}</td>
                     <td className="px-4 py-4 text-foreground/70">
-                      {new Date(client.createdAt).toLocaleDateString("en-US", {
+                      {client.createdAt.toLocaleDateString("en-US", {
                         year: "numeric",
                         month: "short",
                         day: "numeric",

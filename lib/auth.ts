@@ -27,6 +27,7 @@ declare module "@auth/core/jwt" {
 export const authConfig = {
   session: {
     strategy: "jwt",
+    maxAge: 60 * 30,
   },
   providers: [
     Credentials({

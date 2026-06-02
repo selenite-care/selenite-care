@@ -55,8 +55,6 @@ export default async function DoctorProfilePage() {
         <section className="rounded-lg border border-black/10 bg-background p-6 dark:border-white/10">
           <h2 className="text-lg font-semibold text-foreground">Edit Name</h2>
           <div className="mt-4">
-            {/* client component to handle name update */}
-            {/* @ts-ignore */}
             <ProfileEditForm currentName={user.name ?? ""} />
           </div>
         </section>
@@ -64,8 +62,6 @@ export default async function DoctorProfilePage() {
         <section className="rounded-lg border border-black/10 bg-background p-6 dark:border-white/10 md:col-span-2">
           <h2 className="text-lg font-semibold text-foreground">Change Password</h2>
           <div className="mt-4">
-            {/* client component to handle password change */}
-            {/* @ts-ignore */}
             <ChangePasswordForm />
           </div>
         </section>

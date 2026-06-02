@@ -1,4 +1,6 @@
 import NextAuth from "next-auth";
+import { NextRequest } from "next/server";
+import type { BookingStatus } from "@prisma/client";
 import { authConfig } from "@/lib/auth";
 import { db } from "@/lib/db";
 
@@ -18,13 +20,25 @@ async function findDoctorForSession() {
   return doctor;
 }
 
-export async function GET(_request: Request, { params }: { params: { id: string } }) {
+type BookingRouteContext = {
+  params: Promise<{
+    id: string;
+  }>;
+};
+
+type BookingStatusPayload = {
+  status?: unknown;
+};
+
+const allowedStatuses = new Set<BookingStatus>(["PENDING", "COMPLETED"]);
+
+export async function GET(_request: NextRequest, { params }: BookingRouteContext) {
   const doctor = await findDoctorForSession();
   if (!doctor) {
     return new Response(JSON.stringify({ error: "Unauthorized or doctor not found" }), { status: 403, headers: { "Content-Type": "application/json" } });
   }
 
-  const { id } = params;
+  const { id } = await params;
   const booking = await db.booking.findUnique({
     where: { id },
     include: {
@@ -43,22 +57,20 @@ export async function GET(_request: Request, { params }: { params: { id: string 
   return new Response(JSON.stringify({ booking }), { status: 200, headers: { "Content-Type": "application/json" } });
 }
 
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: NextRequest, { params }: BookingRouteContext) {
   const doctor = await findDoctorForSession();
   if (!doctor) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 403, headers: { "Content-Type": "application/json" } });
   }
 
-  const { id } = params;
-  const body = await request.json().catch(() => ({}));
-  const newStatus = body?.status as string | undefined;
+  const { id } = await params;
+  const body = (await request.json().catch(() => ({}))) as BookingStatusPayload;
+  const newStatus = typeof body.status === "string" ? body.status : "";
   if (!newStatus) {
     return new Response(JSON.stringify({ error: "Missing status" }), { status: 400, headers: { "Content-Type": "application/json" } });
   }
 
-  // Only allow PENDING or COMPLETED to be set by doctors
-  const allowed = new Set(["PENDING", "COMPLETED"]);
-  if (!allowed.has(newStatus)) {
+  if (!allowedStatuses.has(newStatus as BookingStatus)) {
     return new Response(JSON.stringify({ error: "Invalid status" }), { status: 400, headers: { "Content-Type": "application/json" } });
   }
 
@@ -67,7 +79,10 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     return new Response(JSON.stringify({ error: "Booking not found or not assigned to you" }), { status: 404, headers: { "Content-Type": "application/json" } });
   }
 
-  const booking = await db.booking.update({ where: { id }, data: { status: newStatus as any } });
+  const booking = await db.booking.update({
+    where: { id },
+    data: { status: newStatus as BookingStatus },
+  });
 
   return new Response(JSON.stringify({ booking }), { status: 200, headers: { "Content-Type": "application/json" } });
 }

@@ -22,6 +22,15 @@ type DoctorsResponse = {
   error?: string;
 };
 
+function getInitials(name: string): string {
+  return name
+    .split(" ")
+    .map((word) => word[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+}
+
 export default function BookingPage() {
   const searchParams = useSearchParams();
   const serviceId = searchParams.get("serviceId") ?? "";
@@ -115,8 +124,10 @@ export default function BookingPage() {
                         />
                       </div>
                     ) : (
-                      <div className="flex aspect-[4/3] w-full items-center justify-center bg-zinc-200 text-sm font-medium text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400">
-                        No image available
+                      <div className="flex aspect-[4/3] w-full items-center justify-center bg-gray-300 dark:bg-gray-700">
+                        <span className="text-3xl font-semibold text-gray-700 dark:text-gray-300">
+                          {getInitials(doctor.name)}
+                        </span>
                       </div>
                     )}
 
