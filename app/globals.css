@@ -1,26 +1,87 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  --color-brand-ivory: #F8F5F0;
+  --color-brand-nude: #D8C7B5;
+  --color-brand-taupe: #B8A89A;
+  --color-brand-charcoal: #2B2B2B;
+  --color-brand-gold: #C6A56B;
+
+  --font-sans: var(--font-geist-sans), sans-serif;
+  --font-mono: var(--font-geist-mono), monospace;
+  --font-serif: var(--font-playfair), serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #F8F5F0;
+    --foreground: #2B2B2B;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+  }
+
+  h1, h2, h3 {
+    font-family: var(--font-playfair);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+  .btn-primary {
+    @apply bg-brand-charcoal text-brand-ivory px-6 py-3 rounded-md text-sm font-medium hover:bg-brand-taupe transition-colors duration-200;
+  }
+
+  .btn-secondary {
+    @apply bg-transparent border border-brand-gold text-brand-gold px-6 py-3 rounded-md text-sm font-medium hover:bg-brand-gold hover:text-brand-ivory transition-colors duration-200;
+  }
+
+  .btn-ghost {
+    @apply bg-transparent text-brand-charcoal px-6 py-3 rounded-md text-sm font-medium hover:bg-brand-nude transition-colors duration-200;
+  }
+
+  .card {
+    @apply bg-white border border-brand-nude rounded-xl p-6 shadow-sm;
+  }
+
+  .badge-pending {
+    @apply bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-1 rounded-full;
+  }
+
+  .badge-confirmed {
+    @apply bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-1 rounded-full;
+  }
+
+  .badge-completed {
+    @apply bg-green-100 text-green-800 text-xs font-medium px-2.5 py-1 rounded-full;
+  }
+
+  .badge-cancelled {
+    @apply bg-red-100 text-red-800 text-xs font-medium px-2.5 py-1 rounded-full;
+  }
+
+  .badge-paid {
+    @apply bg-green-100 text-green-800 text-xs font-medium px-2.5 py-1 rounded-full;
+  }
+
+  .badge-unpaid {
+    @apply bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-1 rounded-full;
+  }
+
+  .badge-refunded {
+    @apply bg-gray-100 text-gray-600 text-xs font-medium px-2.5 py-1 rounded-full;
+  }
+
+  .input-field {
+    @apply h-11 w-full rounded-md border border-brand-nude bg-white px-3 text-sm text-brand-charcoal placeholder:text-brand-taupe focus:border-brand-gold focus:outline-none transition-colors;
+  }
+
+  .section-title {
+    @apply font-serif text-3xl font-semibold text-brand-charcoal;
+  }
+
+  .section-subtitle {
+    @apply text-brand-taupe text-base leading-7;
+  }
 }

@@ -72,33 +72,39 @@ export default function BookingPage() {
   }, [serviceId]);
 
   return (
-    <section className="flex flex-1 bg-zinc-50 px-6 py-16 dark:bg-black">
+    <section style={{ backgroundColor: "#F8F5F0" }} className="flex flex-1 px-6 py-16">
       <div className="mx-auto w-full max-w-6xl">
         <div className="max-w-2xl">
-          <h1 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+          <h1
+            style={{
+              fontFamily: "Playfair Display, serif",
+              color: "#2B2B2B",
+            }}
+            className="text-3xl font-bold tracking-tight sm:text-4xl"
+          >
             {service?.name ?? "Book an Appointment"}
           </h1>
-          <p className="mt-4 text-base leading-7 text-foreground/70">
+          <p style={{ color: "#B8A89A" }} className="mt-4 text-base leading-7">
             Choose a doctor for this service and continue to the consultation
             survey.
           </p>
         </div>
 
         {isLoading ? (
-          <p className="mt-10 text-sm text-foreground/70">Loading doctors...</p>
+          <p style={{ color: "#B8A89A" }} className="mt-10 text-sm">Loading doctors...</p>
         ) : null}
 
         {error ? <p className="mt-10 text-sm text-red-600">{error}</p> : null}
 
         {!isLoading && !error && doctors.length === 0 ? (
-          <p className="mt-10 text-sm text-foreground/70">
+          <p style={{ color: "#B8A89A" }} className="mt-10 text-sm">
             No doctors are available for this service right now.
           </p>
         ) : null}
 
         {!isLoading && !error && doctors.length > 0 ? (
           <>
-            <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+            <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
               {doctors.map((doctor) => {
                 const isSelected = selectedDoctor?.id === doctor.id;
 
@@ -107,14 +113,18 @@ export default function BookingPage() {
                     key={doctor.id}
                     type="button"
                     onClick={() => setSelectedDoctor(doctor)}
-                    className={`overflow-hidden rounded-lg border-2 bg-background text-left transition-all ${
-                      isSelected
-                        ? "border-foreground shadow-sm ring-1 ring-foreground/10"
-                        : "border-black/10 hover:border-foreground/40 dark:border-white/10"
-                    }`}
+                    style={{
+                      backgroundColor: "#FFFFFF",
+                      borderColor: isSelected ? "#C6A56B" : "#D8C7B5",
+                      borderWidth: "2px",
+                      boxShadow: isSelected
+                        ? "0 0 0 3px rgba(198, 165, 107, 0.1)"
+                        : "none",
+                    }}
+                    className="overflow-hidden rounded-xl text-left transition-all duration-200"
                   >
                     {doctor.image ? (
-                      <div className="relative aspect-[4/3] w-full overflow-hidden bg-zinc-100 dark:bg-zinc-900">
+                      <div className="relative aspect-[4/3] w-full overflow-hidden bg-zinc-100">
                         <Image
                           src={doctor.image}
                           alt={doctor.name}
@@ -124,33 +134,50 @@ export default function BookingPage() {
                         />
                       </div>
                     ) : (
-                      <div className="flex aspect-[4/3] w-full items-center justify-center bg-gray-300 dark:bg-gray-700">
-                        <span className="text-3xl font-semibold text-gray-700 dark:text-gray-300">
+                      <div
+                        style={{ backgroundColor: "#E8DDD3" }}
+                        className="flex aspect-[4/3] w-full items-center justify-center"
+                      >
+                        <span
+                          style={{ color: "#2B2B2B" }}
+                          className="text-3xl font-semibold"
+                        >
                           {getInitials(doctor.name)}
                         </span>
                       </div>
                     )}
 
                     <div className="p-6">
-                      <span className="text-lg font-semibold text-foreground">
+                      <h2
+                        style={{
+                          fontFamily: "Playfair Display, serif",
+                          color: "#2B2B2B",
+                        }}
+                        className="text-lg font-bold"
+                      >
                         {doctor.name}
-                      </span>
-                      <span className="mt-2 block text-sm font-medium text-foreground/70">
+                      </h2>
+                      <span style={{ color: "#B8A89A" }} className="mt-2 block text-sm font-medium">
                         {doctor.designation}
                       </span>
-                      <span className="mt-4 block text-sm text-foreground/70">
-                        {doctor.availability}
-                      </span>
-                      <p className="mt-4 text-sm leading-6 text-foreground/70">
+                      <div style={{ color: "#B8A89A" }} className="mt-4 flex items-center gap-2 text-sm">
+                        <span style={{ color: "#C6A56B", fontSize: "16px" }}>📅</span>
+                        <span>{doctor.availability}</span>
+                      </div>
+                      <p style={{ color: "#B8A89A" }} className="mt-4 text-sm leading-6">
                         {doctor.bio ?? "Doctor profile coming soon."}
                       </p>
-                      <span className="mt-6 block text-sm font-medium text-foreground">
-                        {isSelected ? "Selected" : "Select doctor"}
+                      <span style={{ color: "#2B2B2B" }} className="mt-6 block text-sm font-medium">
+                        {isSelected ? "✓ Selected" : "Select doctor"}
                       </span>
                       {isSelected ? (
                         <Link
                           href={`/booking/slots?serviceId=${encodeURIComponent(serviceId)}&doctorId=${encodeURIComponent(doctor.id)}`}
-                          className="mt-4 inline-flex h-11 w-full items-center justify-center rounded-md bg-foreground px-5 text-sm font-medium text-background transition-colors hover:bg-foreground/85"
+                          style={{
+                            backgroundColor: "#2B2B2B",
+                            color: "#F8F5F0",
+                          }}
+                          className="mt-4 inline-flex h-11 w-full items-center justify-center rounded-md px-5 text-sm font-medium transition-colors duration-200 hover:bg-[#B8A89A]"
                         >
                           Proceed to Survey
                         </Link>

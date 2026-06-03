@@ -46,25 +46,66 @@ export default function LoginPage() {
   }
 
   return (
-    <section className="flex flex-1 items-center bg-zinc-50 px-6 py-16 dark:bg-black">
-      <div className="mx-auto w-full max-w-md">
-        <div className="mb-8">
-          <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-            Welcome back
+    <section style={{
+      display: 'flex',
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: '#F8F5F0',
+      paddingLeft: '24px',
+      paddingRight: '24px',
+      paddingTop: '0px',
+      paddingBottom: '64px',
+      minHeight: '100vh',
+    }}>
+      <div style={{
+        marginLeft: 'auto',
+        marginRight: 'auto',
+        width: '100%',
+        maxWidth: '384px',
+      }}>
+        <div style={{ marginBottom: '32px', textAlign: 'center' }}>
+          <h1 style={{
+            fontSize: '28px',
+            fontWeight: '600',
+            letterSpacing: '-0.015em',
+            color: '#2B2B2B',
+            fontFamily: '"Playfair Display", serif',
+          }}>
+            Selenite Care
           </h1>
-          <p className="mt-3 text-sm leading-6 text-foreground/70">
+          <p style={{
+            marginTop: '12px',
+            fontSize: '14px',
+            lineHeight: '1.5',
+            color: '#B8A89A',
+          }}>
             Sign in to manage your appointments and care plan.
           </p>
         </div>
 
         <form
           onSubmit={handleSubmit}
-          className="space-y-5 rounded-lg border border-black/10 bg-background p-6 dark:border-white/10"
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '20px',
+            borderRadius: '12px',
+            border: '1px solid #D8C7B5',
+            backgroundColor: '#FFFFFF',
+            padding: '24px',
+          }}
         >
           <div>
             <label
               htmlFor="email"
-              className="block text-sm font-medium text-foreground"
+              style={{
+                display: 'block',
+                fontSize: '14px',
+                fontWeight: '500',
+                color: '#2B2B2B',
+                marginBottom: '8px',
+              }}
             >
               Email
             </label>
@@ -74,14 +115,38 @@ export default function LoginPage() {
               type="email"
               autoComplete="email"
               required
-              className="mt-2 h-11 w-full rounded-md border border-black/10 bg-transparent px-3 text-sm outline-none transition-colors focus:border-foreground dark:border-white/10"
+              style={{
+                height: '44px',
+                width: '100%',
+                borderRadius: '8px',
+                border: '1px solid #D8C7B5',
+                backgroundColor: '#FFFFFF',
+                paddingLeft: '12px',
+                paddingRight: '12px',
+                fontSize: '14px',
+                color: '#2B2B2B',
+                outline: 'none',
+                transition: 'border-color 0.2s ease',
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = '#C6A56B';
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = '#D8C7B5';
+              }}
             />
           </div>
 
           <div>
             <label
               htmlFor="password"
-              className="block text-sm font-medium text-foreground"
+              style={{
+                display: 'block',
+                fontSize: '14px',
+                fontWeight: '500',
+                color: '#2B2B2B',
+                marginBottom: '8px',
+              }}
             >
               Password
             </label>
@@ -91,19 +156,86 @@ export default function LoginPage() {
               type="password"
               autoComplete="current-password"
               required
-              className="mt-2 h-11 w-full rounded-md border border-black/10 bg-transparent px-3 text-sm outline-none transition-colors focus:border-foreground dark:border-white/10"
+              style={{
+                height: '44px',
+                width: '100%',
+                borderRadius: '8px',
+                border: '1px solid #D8C7B5',
+                backgroundColor: '#FFFFFF',
+                paddingLeft: '12px',
+                paddingRight: '12px',
+                fontSize: '14px',
+                color: '#2B2B2B',
+                outline: 'none',
+                transition: 'border-color 0.2s ease',
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = '#C6A56B';
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = '#D8C7B5';
+              }}
             />
           </div>
 
-          {error ? <p className="text-sm text-red-600">{error}</p> : null}
+          {error ? <p style={{
+            fontSize: '14px',
+            color: '#dc2626',
+          }}>{error}</p> : null}
 
           <button
             type="submit"
             disabled={isSubmitting}
-            className="flex h-11 w-full items-center justify-center rounded-md bg-foreground px-4 text-sm font-medium text-background transition-colors hover:bg-foreground/85 disabled:cursor-not-allowed disabled:opacity-70"
+            style={{
+              display: 'flex',
+              height: '44px',
+              width: '100%',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: '8px',
+              backgroundColor: isSubmitting ? '#D8C7B5' : '#2B2B2B',
+              paddingLeft: '16px',
+              paddingRight: '16px',
+              fontSize: '14px',
+              fontWeight: '500',
+              color: '#F8F5F0',
+              border: 'none',
+              cursor: isSubmitting ? 'not-allowed' : 'pointer',
+              opacity: isSubmitting ? 0.7 : 1,
+              transition: 'background-color 0.2s ease',
+            }}
+            onMouseEnter={(e) => {
+              if (!isSubmitting) {
+                e.currentTarget.style.backgroundColor = '#B8A89A';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!isSubmitting) {
+                e.currentTarget.style.backgroundColor = '#2B2B2B';
+              }
+            }}
           >
             {isSubmitting ? "Signing in..." : "Sign in"}
           </button>
+          <p style={{
+            marginTop: '12px',
+            fontSize: '14px',
+            lineHeight: '1.5',
+            textAlign: 'center',
+            color: '#B8A89A',
+          }}>
+            Not an User? 
+            <a 
+            href="/register"
+            style={{
+            marginTop: '12px',
+            fontSize: '14px',
+            lineHeight: '1.5',
+            textAlign: 'center',
+            color: '#2B2B2B',
+            textDecoration: 'underline',
+          }}> Register </a>here.
+          </p>
         </form>
       </div>
     </section>
