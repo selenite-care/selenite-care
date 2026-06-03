@@ -73,7 +73,7 @@ export default function Home() {
                 fontFamily: "Playfair Display, serif",
                 color: "#2B2B2B",
               }}
-              className="text-3xl font-bold tracking-tight"
+              className="horizontal-nudge text-3xl font-bold tracking-tight"
             >
               Why Choose Us
             </h2>
@@ -138,7 +138,7 @@ export default function Home() {
                 fontFamily: "Playfair Display, serif",
                 color: "#2B2B2B",
               }}
-              className="text-3xl font-bold tracking-tight"
+              className="horizontal-nudge text-3xl font-bold tracking-tight"
             >
               How It Works
             </h2>

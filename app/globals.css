@@ -29,6 +29,22 @@
 }
 
 @layer components {
+  @keyframes horizontal-nudge {
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+
+    50% {
+      transform: translateX(30px);
+    }
+  }
+
+  .horizontal-nudge {
+    display: inline-block;
+    animation: horizontal-nudge 1.8s ease-in-out;
+  }
+
   @keyframes glitter-text-shimmer {
     from {
       background-position:
