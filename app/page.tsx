@@ -83,15 +83,16 @@ export default function Home() {
           </div>
 
           <div className="mt-10 grid gap-5 md:grid-cols-3">
-            {features.map((feature) => (
+            {features.map((feature, index) => (
               <article
                 key={feature.title}
                 style={{
                   backgroundColor: "#FFFFFF",
                   borderColor: "#D8C7B5",
                   borderWidth: "1px",
+                  animationDelay: `${(features.length - 1 - index) * 400}ms`,
                 }}
-                className="rounded-lg p-6 transition-all duration-200 hover:shadow-lg"
+                className="feature-card-slide-in rounded-lg p-6 transition-all duration-200 hover:shadow-lg"
               >
                 <div
                   style={{
