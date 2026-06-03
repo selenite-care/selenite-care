@@ -13,6 +13,6 @@ const nextConfig = {
       },
     ],
   },
-}
+} satisfies NextConfig;
 
-export default nextConfig
+export default nextConfig;

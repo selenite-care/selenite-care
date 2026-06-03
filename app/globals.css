@@ -29,6 +29,57 @@
 }
 
 @layer components {
+  @keyframes feature-card-slide-in {
+    from {
+      opacity: 0;
+      transform: translateX(-48px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .feature-card-trigger .feature-card-slide-in {
+    opacity: 0;
+    transform: translateX(-48px);
+  }
+
+  .feature-card-trigger.is-visible .feature-card-slide-in {
+    animation: feature-card-slide-in 520ms ease-in both;
+  }
+
+  @keyframes step-card-slide-in {
+    from {
+      opacity: 0;
+      transform: translateX(48px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .step-card-trigger .step-card-slide-in {
+    opacity: 0;
+    transform: translateX(48px);
+  }
+
+  .step-card-trigger.is-visible .step-card-slide-in {
+    animation: step-card-slide-in 520ms ease-in both;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .feature-card-slide-in,
+    .step-card-slide-in {
+      animation: none;
+      opacity: 1;
+      transform: none;
+    }
+  }
+
   .btn-primary {
     @apply bg-brand-charcoal text-brand-ivory px-6 py-3 rounded-md text-sm font-medium hover:bg-brand-taupe transition-colors duration-200;
   }

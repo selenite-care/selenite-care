@@ -1,4 +1,5 @@
 import Link from "next/link";
+import ViewportAnimatedSection from "@/components/ui/ViewportAnimatedSection";
 
 const features = [
   {
@@ -82,16 +83,17 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="mt-10 grid gap-5 md:grid-cols-3">
-            {features.map((feature) => (
+          <ViewportAnimatedSection className="feature-card-trigger mt-10 grid gap-5 md:grid-cols-3">
+            {features.map((feature, index) => (
               <article
                 key={feature.title}
                 style={{
                   backgroundColor: "#FFFFFF",
                   borderColor: "#D8C7B5",
                   borderWidth: "1px",
+                  animationDelay: `${(features.length - 1 - index) * 400}ms`,
                 }}
-                className="rounded-lg p-6 transition-all duration-200 hover:shadow-lg"
+                className="feature-card-slide-in rounded-lg p-6 transition-all duration-200 hover:shadow-lg"
               >
                 <div
                   style={{
@@ -124,7 +126,7 @@ export default function Home() {
                 </p>
               </article>
             ))}
-          </div>
+          </ViewportAnimatedSection>
         </div>
       </section>
 
@@ -146,7 +148,7 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="mt-10 grid gap-5 md:grid-cols-3">
+          <ViewportAnimatedSection className="step-card-trigger mt-10 grid gap-5 md:grid-cols-3">
             {steps.map((step, index) => (
               <article
                 key={step.title}
@@ -154,8 +156,9 @@ export default function Home() {
                   backgroundColor: "#FFFFFF",
                   borderColor: "#C6A56B",
                   borderWidth: "1px",
+                  animationDelay: `${index * 400}ms`,
                 }}
-                className="rounded-lg p-6"
+                className="step-card-slide-in rounded-lg p-6"
               >
                 <div
                   style={{
@@ -184,7 +187,7 @@ export default function Home() {
                 </p>
               </article>
             ))}
-          </div>
+          </ViewportAnimatedSection>
         </div>
       </section>
     </div>
