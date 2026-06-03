@@ -1,4 +1,5 @@
 import Link from "next/link";
+import ViewportAnimatedSection from "@/components/ui/ViewportAnimatedSection";
 
 const features = [
   {
@@ -82,7 +83,7 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="mt-10 grid gap-5 md:grid-cols-3">
+          <ViewportAnimatedSection className="feature-card-trigger mt-10 grid gap-5 md:grid-cols-3">
             {features.map((feature, index) => (
               <article
                 key={feature.title}
@@ -125,7 +126,7 @@ export default function Home() {
                 </p>
               </article>
             ))}
-          </div>
+          </ViewportAnimatedSection>
         </div>
       </section>
 
@@ -147,7 +148,7 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="mt-10 grid gap-5 md:grid-cols-3">
+          <ViewportAnimatedSection className="step-card-trigger mt-10 grid gap-5 md:grid-cols-3">
             {steps.map((step, index) => (
               <article
                 key={step.title}
@@ -186,7 +187,7 @@ export default function Home() {
                 </p>
               </article>
             ))}
-          </div>
+          </ViewportAnimatedSection>
         </div>
       </section>
     </div>
