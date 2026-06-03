@@ -45,8 +45,25 @@
     animation: feature-card-slide-in 520ms ease-in both;
   }
 
+  @keyframes step-card-slide-in {
+    from {
+      opacity: 0;
+      transform: translateX(48px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .step-card-slide-in {
+    animation: step-card-slide-in 520ms ease-in both;
+  }
+
   @media (prefers-reduced-motion: reduce) {
-    .feature-card-slide-in {
+    .feature-card-slide-in,
+    .step-card-slide-in {
       animation: none;
     }
   }

@@ -155,8 +155,9 @@ export default function Home() {
                   backgroundColor: "#FFFFFF",
                   borderColor: "#C6A56B",
                   borderWidth: "1px",
+                  animationDelay: `${index * 400}ms`,
                 }}
-                className="rounded-lg p-6"
+                className="step-card-slide-in rounded-lg p-6"
               >
                 <div
                   style={{
