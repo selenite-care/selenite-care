@@ -29,6 +29,69 @@
 }
 
 @layer components {
+  @keyframes horizontal-nudge {
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+
+    50% {
+      transform: translateX(30px);
+    }
+  }
+
+  .horizontal-nudge {
+    display: inline-block;
+    animation: horizontal-nudge 1.8s ease-in-out;
+  }
+
+  @keyframes glitter-text-shimmer {
+    from {
+      background-position:
+        0 50%,
+        0 0,
+        12px 18px,
+        32px 8px;
+    }
+
+    to {
+      background-position:
+        180px 50%,
+        180px 0,
+        192px 18px,
+        212px 8px;
+    }
+  }
+
+  .glitter-text {
+    display: inline-block;
+    background-image:
+      repeating-linear-gradient(
+        110deg,
+        #2B2B2B 0,
+        #2B2B2B 72px,
+        #D8C7B5 84px,
+        #FFFFFF 90px,
+        #D8C7B5 96px,
+        #2B2B2B 108px,
+        #2B2B2B 180px
+      ),
+      radial-gradient(circle, #FFFFFF 0 1px, transparent 1.5px),
+      radial-gradient(circle, #D8C7B5 0 1.5px, transparent 2px),
+      radial-gradient(circle, #FFFFFF 0 1px, transparent 1.5px);
+    background-size:
+      180px 100%,
+      45px 45px,
+      60px 60px,
+      90px 90px;
+    color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 8px rgb(216 199 181 / 0.35));
+    animation: glitter-text-shimmer 3.6s linear infinite;
+  }
+
   @keyframes feature-card-slide-in {
     from {
       opacity: 0;
