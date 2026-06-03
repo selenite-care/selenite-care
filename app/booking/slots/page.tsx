@@ -190,13 +190,19 @@ export default function BookingSlotsPage() {
   }, [availableSlots, bookedSlots]);
 
   return (
-    <section className="flex min-h-screen flex-col bg-zinc-50 px-6 py-16 dark:bg-black">
+    <section style={{ backgroundColor: "#F8F5F0" }} className="flex min-h-screen flex-col px-6 py-16">
       <div className="mx-auto w-full max-w-6xl">
         <div className="max-w-3xl">
-          <h1 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+          <h1
+            style={{
+              fontFamily: "Playfair Display, serif",
+              color: "#2B2B2B",
+            }}
+            className="text-3xl font-bold tracking-tight sm:text-4xl"
+          >
             Select a Slot
           </h1>
-          <p className="mt-4 text-base leading-7 text-foreground/70">
+          <p style={{ color: "#B8A89A" }} className="mt-4 text-base leading-7">
             Pick a date and time for your appointment. Booked slots are disabled.
           </p>
         </div>
@@ -209,10 +215,17 @@ export default function BookingSlotsPage() {
           <div className="mt-10 space-y-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <p className="text-sm font-medium text-foreground/60">Choose a date</p>
+                <p style={{ color: "#B8A89A" }} className="text-sm font-medium">
+                  Choose a date
+                </p>
                 <input
                   type="date"
-                  className="mt-2 h-11 rounded-md border border-black/10 bg-background px-3 text-sm text-foreground shadow-sm focus:border-foreground/70 focus:outline-none"
+                  style={{
+                    borderColor: "#C6A56B",
+                    color: "#2B2B2B",
+                    backgroundColor: "#FFFFFF",
+                  }}
+                  className="mt-2 h-11 rounded-md border px-3 text-sm shadow-sm focus:outline-none focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
                   value={selectedDate}
                   min={dateRange.min}
                   max={dateRange.max}
@@ -220,14 +233,27 @@ export default function BookingSlotsPage() {
                 />
               </div>
 
-              <div className="rounded-lg border border-black/10 bg-background p-4 text-sm text-foreground/70 shadow-sm">
-                <p className="font-medium text-foreground">Selected Date</p>
-                <p className="mt-2">{selectedDate}</p>
+              <div
+                style={{
+                  backgroundColor: "#FFFFFF",
+                  borderColor: "#D8C7B5",
+                  borderWidth: "1px",
+                }}
+                className="rounded-lg p-4 text-sm shadow-sm"
+              >
+                <p style={{ color: "#2B2B2B" }} className="font-medium">
+                  Selected Date
+                </p>
+                <p style={{ color: "#B8A89A" }} className="mt-2">
+                  {selectedDate}
+                </p>
               </div>
             </div>
 
             {isLoading ? (
-              <p className="text-sm text-foreground/70">Loading slots...</p>
+              <p style={{ color: "#B8A89A" }} className="text-sm">
+                Loading slots...
+              </p>
             ) : null}
 
             {error ? (
@@ -247,8 +273,15 @@ export default function BookingSlotsPage() {
             {isDateOnWorkingDay && (
               <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-4">
                 {allSlots.length === 0 && !isLoading ? (
-                  <div className="rounded-lg border border-black/10 bg-background p-6 text-sm text-foreground/70">
-                    No slots are available for this date.
+                  <div
+                    style={{
+                      backgroundColor: "#FFFFFF",
+                      borderColor: "#D8C7B5",
+                      borderWidth: "1px",
+                    }}
+                    className="rounded-lg p-6 text-sm"
+                  >
+                    <p style={{ color: "#B8A89A" }}>No slots are available for this date.</p>
                   </div>
                 ) : (
                   allSlots.map((slot) => {
@@ -260,16 +293,33 @@ export default function BookingSlotsPage() {
                         type="button"
                         disabled={isBooked}
                         onClick={() => !isBooked && setSelectedSlot(slot)}
-                        className={`rounded-xl border px-4 py-3 text-left text-sm font-medium transition-all ${
-                          isBooked
-                            ? "cursor-not-allowed border-gray-200 bg-gray-100 text-gray-500"
+                        style={{
+                          backgroundColor: isBooked
+                            ? "#D8C7B5"
                             : isSelected
-                            ? "border-emerald-700 bg-emerald-600 text-white shadow-sm"
-                            : "border-emerald-200 bg-emerald-50 text-emerald-800 hover:border-emerald-400 hover:bg-emerald-100"
-                        }`}
+                            ? "#2B2B2B"
+                            : "#F8F5F0",
+                          borderColor: isBooked
+                            ? "#D8C7B5"
+                            : isSelected
+                            ? "#2B2B2B"
+                            : "#C6A56B",
+                          color: isBooked
+                            ? "#B8A89A"
+                            : isSelected
+                            ? "#F8F5F0"
+                            : "#2B2B2B",
+                          borderWidth: "2px",
+                          cursor: isBooked ? "not-allowed" : "pointer",
+                        }}
+                        className="rounded-xl px-4 py-3 text-left text-sm font-medium transition-all duration-200"
                       >
                         <span>{formatTo12Hour(slot)}</span>
-                        {isBooked ? <span className="mt-1 block text-xs text-foreground/60">Booked</span> : null}
+                        {isBooked ? (
+                          <span style={{ color: "#B8A89A" }} className="mt-1 block text-xs">
+                            Booked
+                          </span>
+                        ) : null}
                       </button>
                     );
                   })
@@ -280,13 +330,21 @@ export default function BookingSlotsPage() {
             {selectedSlot && isDateOnWorkingDay ? (
               <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <p className="text-sm text-foreground/70">Selected slot:</p>
-                  <p className="text-lg font-semibold text-foreground">{formatTo12Hour(selectedSlot)}</p>
+                  <p style={{ color: "#B8A89A" }} className="text-sm">
+                    Selected slot:
+                  </p>
+                  <p style={{ color: "#2B2B2B" }} className="text-lg font-semibold">
+                    {formatTo12Hour(selectedSlot)}
+                  </p>
                 </div>
                 <button
                   type="button"
                   onClick={handleProceed}
-                  className="inline-flex h-11 items-center justify-center rounded-md bg-foreground px-5 text-sm font-medium text-background transition-colors hover:bg-foreground/90"
+                  style={{
+                    backgroundColor: "#2B2B2B",
+                    color: "#F8F5F0",
+                  }}
+                  className="inline-flex h-11 items-center justify-center rounded-md px-5 text-sm font-medium transition-colors duration-200 hover:bg-[#B8A89A]"
                 >
                   Proceed to Survey
                 </button>

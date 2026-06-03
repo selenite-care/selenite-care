@@ -20,7 +20,7 @@ const steps = [
     title: "Fill Form",
     description: "Share the details we need to prepare for your session.",
   },
-    {
+  {
     title: "Pay",
     description: "Secure your appointment with a simple payment flow.",
   },
@@ -32,20 +32,31 @@ const steps = [
 
 export default function Home() {
   return (
-    <div className="flex flex-1 flex-col bg-zinc-50 dark:bg-black">
-      <section className="px-6 py-20 sm:py-28">
+    <div className="flex flex-1 flex-col">
+      {/* Hero Section */}
+      <section style={{ backgroundColor: "#F8F5F0" }} className="px-6 py-20 sm:py-28">
         <div className="mx-auto w-full max-w-6xl">
           <div className="max-w-2xl">
-            <h1 className="text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
+            <h1
+              style={{
+                fontFamily: "Playfair Display, serif",
+                color: "#2B2B2B",
+              }}
+              className="text-4xl font-bold tracking-tight sm:text-5xl"
+            >
               Compassionate care for your everyday wellness.
             </h1>
-            <p className="mt-6 text-lg leading-8 text-foreground/70">
+            <p style={{ color: "#B8A89A" }} className="mt-6 text-lg leading-8">
               Schedule personalized support with Selenite Care and get the
               attention you need, right when you need it.
             </p>
             <Link
-              href="/services"
-              className="mt-8 inline-flex h-12 items-center justify-center rounded-md bg-foreground px-6 text-sm font-medium text-background transition-colors hover:bg-foreground/85"
+              href="/booking"
+              style={{
+                backgroundColor: "#2B2B2B",
+                color: "#F8F5F0",
+              }}
+              className="mt-8 inline-flex h-12 items-center justify-center rounded-md px-6 text-sm font-medium transition-colors duration-200 hover:bg-[#B8A89A]"
             >
               Book Appointment
             </Link>
@@ -53,13 +64,20 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="bg-background px-6 py-16">
+      {/* Why Choose Us Section */}
+      <section style={{ backgroundColor: "#FFFFFF" }} className="px-6 py-16">
         <div className="mx-auto w-full max-w-6xl">
           <div className="max-w-2xl">
-            <h2 className="text-3xl font-semibold tracking-tight text-foreground">
+            <h2
+              style={{
+                fontFamily: "Playfair Display, serif",
+                color: "#2B2B2B",
+              }}
+              className="text-3xl font-bold tracking-tight"
+            >
               Why Choose Us
             </h2>
-            <p className="mt-4 text-base leading-7 text-foreground/70">
+            <p style={{ color: "#B8A89A" }} className="mt-4 text-base leading-7">
               Care should feel clear, calm, and easy to access.
             </p>
           </div>
@@ -68,12 +86,40 @@ export default function Home() {
             {features.map((feature) => (
               <article
                 key={feature.title}
-                className="rounded-lg border border-black/10 bg-zinc-50 p-6 dark:border-white/10 dark:bg-white/5"
+                style={{
+                  backgroundColor: "#FFFFFF",
+                  borderColor: "#D8C7B5",
+                  borderWidth: "1px",
+                }}
+                className="rounded-lg p-6 transition-all duration-200 hover:shadow-lg"
               >
-                <h3 className="text-lg font-semibold text-foreground">
+                <div
+                  style={{
+                    width: "40px",
+                    height: "40px",
+                    backgroundColor: "#C6A56B",
+                    borderRadius: "50%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <span
+                    style={{
+                      color: "#F8F5F0",
+                      fontSize: "20px",
+                    }}
+                  >
+                    ✓
+                  </span>
+                </div>
+                <h3
+                  style={{ color: "#2B2B2B" }}
+                  className="mt-4 text-lg font-semibold"
+                >
                   {feature.title}
                 </h3>
-                <p className="mt-3 text-sm leading-6 text-foreground/70">
+                <p style={{ color: "#B8A89A" }} className="mt-3 text-sm leading-6">
                   {feature.description}
                 </p>
               </article>
@@ -82,13 +128,20 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="px-6 py-16">
+      {/* How It Works Section */}
+      <section style={{ backgroundColor: "#F8F5F0" }} className="px-6 py-16">
         <div className="mx-auto w-full max-w-6xl">
           <div className="max-w-2xl">
-            <h2 className="text-3xl font-semibold tracking-tight text-foreground">
+            <h2
+              style={{
+                fontFamily: "Playfair Display, serif",
+                color: "#2B2B2B",
+              }}
+              className="text-3xl font-bold tracking-tight"
+            >
               How It Works
             </h2>
-            <p className="mt-4 text-base leading-7 text-foreground/70">
+            <p style={{ color: "#B8A89A" }} className="mt-4 text-base leading-7">
               Three simple steps from booking to consultation.
             </p>
           </div>
@@ -97,15 +150,36 @@ export default function Home() {
             {steps.map((step, index) => (
               <article
                 key={step.title}
-                className="rounded-lg border border-black/10 bg-background p-6 dark:border-white/10"
+                style={{
+                  backgroundColor: "#FFFFFF",
+                  borderColor: "#C6A56B",
+                  borderWidth: "1px",
+                }}
+                className="rounded-lg p-6"
               >
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-foreground text-sm font-semibold text-background">
+                <div
+                  style={{
+                    width: "48px",
+                    height: "48px",
+                    backgroundColor: "#C6A56B",
+                    borderRadius: "50%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "#F8F5F0",
+                    fontSize: "24px",
+                    fontWeight: "bold",
+                  }}
+                >
                   {index + 1}
                 </div>
-                <h3 className="mt-5 text-lg font-semibold text-foreground">
+                <h3
+                  style={{ color: "#2B2B2B" }}
+                  className="mt-5 text-lg font-semibold"
+                >
                   {step.title}
                 </h3>
-                <p className="mt-3 text-sm leading-6 text-foreground/70">
+                <p style={{ color: "#B8A89A" }} className="mt-3 text-sm leading-6">
                   {step.description}
                 </p>
               </article>
@@ -116,3 +190,4 @@ export default function Home() {
     </div>
   );
 }
+

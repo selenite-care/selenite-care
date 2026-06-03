@@ -214,390 +214,610 @@ typeof payload & { surveyId?: string; error?: string } | null;
   }
 
   return (
-    <section>
-        <center>
-      <div>
-        <h1 className="text-3xl font-semibold tracking-tight text-foreground">Consultation Survey</h1>
-        <p className="mt-2 text-sm text-foreground/70">Please fill out the form to help us prepare for your appointment.</p>
-      </div>
-
-      <form onSubmit={handleSubmit} className="mt-6 space-y-6 max-w-3xl">
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div>
-            <label className="block text-sm font-medium text-foreground">Name</label>
-            <input
-              name="name"
-              value={formState.name}
-              onChange={(event) => updateField("name", event.target.value)}
-              required
-              className="mt-2 h-11 w-full rounded-md border border-black/10 px-3"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-foreground">Age</label>
-            <input
-              name="age"
-              value={formState.age}
-              onChange={(event) => updateField("age", event.target.value)}
-              className="mt-2 h-11 w-full rounded-md border border-black/10 px-3"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-foreground">Phone</label>
-            <input
-              name="phone"
-              type="tel"
-              value={formState.phone}
-              onChange={(event) => updateField("phone", event.target.value)}
-              required
-              className="mt-2 h-11 w-full rounded-md border border-black/10 px-3"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-foreground">Email</label>
-            <input
-              name="email"
-              type="email"
-              value={formState.email}
-              onChange={(event) => updateField("email", event.target.value)}
-              required
-              className="mt-2 h-11 w-full rounded-md border border-black/10 px-3"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-foreground">Skin Type</label>
-            <input
-              name="skinType"
-              value={formState.skinType}
-              onChange={(event) => updateField("skinType", event.target.value)}
-              className="mt-2 h-11 w-full rounded-md border border-black/10 px-3"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-foreground">Code ID (service token)</label>
-            <input
-              name="codeId"
-              readOnly
-              value={serviceId}
-              className="mt-2 h-11 w-full rounded-md border border-black/10 px-3 bg-gray-50"
-            />
-          </div>
+    <section style={{ backgroundColor: "#F8F5F0" }} className="flex min-h-screen flex-col px-6 py-16">
+      <div style={{ maxWidth: "48rem" }} className="mx-auto w-full">
+        <div>
+          <h1
+            style={{
+              fontFamily: "Playfair Display, serif",
+              color: "#2B2B2B",
+            }}
+            className="text-3xl font-bold tracking-tight"
+          >
+            Consultation Survey
+          </h1>
+          <p style={{ color: "#B8A89A" }} className="mt-2 text-sm">
+            Please fill out the form to help us prepare for your appointment.
+          </p>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div>
-            <label className="block text-sm font-medium text-foreground">Uses Korean Products</label>
-            <div className="mt-2 flex gap-4">
-              <label className="inline-flex items-center">
-                <input
-                  type="radio"
-                  name="usesKoreanProducts"
-                  value="yes"
-                  checked={formState.usesKoreanProducts === "yes"}
-                  onChange={() => updateField("usesKoreanProducts", "yes")}
-                />
-                <span className="ml-2">Yes</span>
-              </label>
-              <label className="inline-flex items-center">
-                <input
-                  type="radio"
-                  name="usesKoreanProducts"
-                  value="no"
-                  checked={formState.usesKoreanProducts === "no"}
-                  onChange={() => updateField("usesKoreanProducts", "no")}
-                />
-                <span className="ml-2">No</span>
-              </label>
+        <form
+          onSubmit={handleSubmit}
+          style={{
+            backgroundColor: "#FFFFFF",
+            borderColor: "#D8C7B5",
+            borderWidth: "1px",
+          }}
+          className="mt-6 space-y-6 rounded-xl p-6"
+        >
+          {error && (
+            <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+              {error}
             </div>
-          </div>
+          )}
 
-          <div>
-            <label className="block text-sm font-medium text-foreground">Facing Skin Issues</label>
-            <div className="mt-2 flex gap-4">
-              <label className="inline-flex items-center">
-                <input
-                  type="radio"
-                  name="facingSkinIssues"
-                  value="yes"
-                  checked={formState.facingSkinIssues === "yes"}
-                  onChange={() => updateField("facingSkinIssues", "yes")}
-                />
-                <span className="ml-2">Yes</span>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label
+                style={{ color: "#2B2B2B" }}
+                className="block text-sm font-medium"
+              >
+                Name
               </label>
-              <label className="inline-flex items-center">
-                <input
-                  type="radio"
-                  name="facingSkinIssues"
-                  value="no"
-                  checked={formState.facingSkinIssues === "no"}
-                  onChange={() => updateField("facingSkinIssues", "no")}
-                />
-                <span className="ml-2">No</span>
-              </label>
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <p className="block text-sm font-medium text-foreground">Skin Issues (select all that apply)</p>
-          <div className="mt-2 grid gap-2 sm:grid-cols-2">
-            {skinIssuesOptions.map((opt) => (
-              <label key={opt} className="inline-flex items-center">
-                <input
-                  type="checkbox"
-                  name="skinIssues"
-                  value={opt}
-                  checked={formState.skinIssues.includes(opt)}
-                  onChange={() => toggleArrayField("skinIssues", opt)}
-                  className="mr-2"
-                />
-                {opt}
-              </label>
-            ))}
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-foreground">How long have you had these issues?</label>
-          <input
-            name="skinIssueDuration"
-            value={formState.skinIssueDuration}
-            onChange={(event) => updateField("skinIssueDuration", event.target.value)}
-            className="mt-2 h-11 w-full rounded-md border border-black/10 px-3"
-          />
-        </div>
-
-        <div>
-          <p className="block text-sm font-medium text-foreground">Current Products (select all that apply)</p>
-          <div className="mt-2 grid gap-2 sm:grid-cols-2">
-            {currentProductsOptions.map((opt) => (
-              <label key={opt} className="inline-flex items-center">
-                <input
-                  type="checkbox"
-                  name="currentProducts"
-                  value={opt}
-                  checked={formState.currentProducts.includes(opt)}
-                  onChange={() => toggleArrayField("currentProducts", opt)}
-                  className="mr-2"
-                />
-                {opt}
-              </label>
-            ))}
-          </div>
-        </div>
-
-        <div>
-          <p className="block text-sm font-medium text-foreground">Allergic Ingredients</p>
-          <div className="mt-2 flex flex-col gap-2">
-            {allergicOptions.map((opt) => (
-              <label key={opt} className="inline-flex items-center">
-                <input
-                  type="checkbox"
-                  name="allergicIngredients"
-                  value={opt}
-                  checked={formState.allergicIngredients.includes(opt)}
-                  onChange={() => toggleArrayField("allergicIngredients", opt)}
-                  className="mr-2"
-                />
-                {opt}
-              </label>
-            ))}
-          </div>
-          {formState.allergicIngredients.includes("Others") ? (
-            <div className="mt-3">
-              <label className="block text-sm font-medium text-foreground">Other Allergic Ingredients</label>
               <input
-                name="allergicIngredientsOther"
-                value={formState.allergicIngredientsOther}
-                onChange={(event) => updateField("allergicIngredientsOther", event.target.value)}
-                placeholder="Type custom allergic ingredients"
-                className="mt-2 h-11 w-full rounded-md border border-black/10 px-3"
+                name="name"
+                value={formState.name}
+                onChange={(event) => updateField("name", event.target.value)}
+                required
+                style={{
+                  borderColor: "#D8C7B5",
+                  color: "#2B2B2B",
+                }}
+                className="mt-2 h-11 w-full rounded-md border px-3 focus:outline-none focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
               />
             </div>
-          ) : null}
-        </div>
 
-        <div>
-          <p className="block text-sm font-medium text-foreground">Double Cleanse Preference</p>
-          <div className="mt-2 flex gap-4 flex-wrap">
-            {[
-              "No",
-              "Cleansing Oil",
-              "Cleansing Balm",
-              "Micellar Water",
-            ].map((opt) => (
-              <label key={opt} className="inline-flex items-center">
-                <input
-                  type="radio"
-                  name="doubleCleansePreference"
-                  value={opt}
-                  checked={formState.doubleCleansePreference === opt}
-                  onChange={() => updateField("doubleCleansePreference", opt)}
-                  className="mr-2"
-                />
-                {opt}
+            <div>
+              <label
+                style={{ color: "#2B2B2B" }}
+                className="block text-sm font-medium"
+              >
+                Age
               </label>
-            ))}
-          </div>
-        </div>
-
-        <div>
-          <p className="block text-sm font-medium text-foreground">Sleep Hours</p>
-          <div className="mt-2 flex flex-col gap-2">
-            {[
-              "Less than 5-6 Hours",
-              "6-8 Hours",
-              "More than 8 Hours",
-            ].map((opt) => (
-              <label key={opt} className="inline-flex items-center">
-                <input
-                  type="radio"
-                  name="sleepHours"
-                  value={opt}
-                  checked={formState.sleepHours === opt}
-                  onChange={() => updateField("sleepHours", opt)}
-                  className="mr-2"
-                />
-                {opt}
-              </label>
-            ))}
-          </div>
-        </div>
-
-        <div>
-          <p className="block text-sm font-medium text-foreground">Water Intake</p>
-          <div className="mt-2 grid gap-2 sm:grid-cols-2">
-            {[
-              "Less than 1-2 Litres",
-              "1-2 Litres",
-              "More than 2 Litres",
-            ].map((opt) => (
-              <label key={opt} className="inline-flex items-center">
-                <input
-                  type="radio"
-                  name="waterIntake"
-                  value={opt}
-                  checked={formState.waterIntake === opt}
-                  onChange={() => updateField("waterIntake", opt)}
-                  className="mr-2"
-                />
-                {opt}
-              </label>
-            ))}
-          </div>
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div>
-            <label className="block text-sm font-medium text-foreground">Applies Sunscreen</label>
-            <div className="mt-2 flex gap-4">
-              <label className="inline-flex items-center">
-                <input
-                  type="radio"
-                  name="appliesSunscreen"
-                  value="yes"
-                  checked={formState.appliesSunscreen === "yes"}
-                  onChange={() => updateField("appliesSunscreen", "yes")}
-                  className="mr-2"
-                />
-                <span className="ml-2">Yes</span>
-              </label>
-              <label className="inline-flex items-center">
-                <input
-                  type="radio"
-                  name="appliesSunscreen"
-                  value="no"
-                  checked={formState.appliesSunscreen === "no"}
-                  onChange={() => updateField("appliesSunscreen", "no")}
-                  className="mr-2"
-                />
-                <span className="ml-2">No</span>
-              </label>
+              <input
+                name="age"
+                value={formState.age}
+                onChange={(event) => updateField("age", event.target.value)}
+                style={{
+                  borderColor: "#D8C7B5",
+                  color: "#2B2B2B",
+                }}
+                className="mt-2 h-11 w-full rounded-md border px-3 focus:outline-none focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
+              />
             </div>
-          </div>
-        </div>
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div>
-            <label className="block text-sm font-medium text-foreground">Regular Period Cycle</label>
-            <div className="mt-2 flex gap-4">
-              <label className="inline-flex items-center">
-                <input
-                  type="radio"
-                  name="regularPeriodCycle"
-                  value="yes"
-                  checked={formState.regularPeriodCycle === "yes"}
-                  onChange={() => updateField("regularPeriodCycle", "yes")}
-                  className="mr-2"
-                />
-                <span className="ml-2">Yes</span>
+            <div>
+              <label
+                style={{ color: "#2B2B2B" }}
+                className="block text-sm font-medium"
+              >
+                Phone
               </label>
-              <label className="inline-flex items-center">
-                <input
-                  type="radio"
-                  name="regularPeriodCycle"
-                  value="no"
-                  checked={formState.regularPeriodCycle === "no"}
-                  onChange={() => updateField("regularPeriodCycle", "no")}
-                  className="mr-2"
-                />
-                <span className="ml-2">No</span>
+              <input
+                name="phone"
+                type="tel"
+                value={formState.phone}
+                onChange={(event) => updateField("phone", event.target.value)}
+                required
+                style={{
+                  borderColor: "#D8C7B5",
+                  color: "#2B2B2B",
+                }}
+                className="mt-2 h-11 w-full rounded-md border px-3 focus:outline-none focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
+              />
+            </div>
+
+            <div>
+              <label
+                style={{ color: "#2B2B2B" }}
+                className="block text-sm font-medium"
+              >
+                Email
               </label>
+              <input
+                name="email"
+                type="email"
+                value={formState.email}
+                onChange={(event) => updateField("email", event.target.value)}
+                required
+                style={{
+                  borderColor: "#D8C7B5",
+                  color: "#2B2B2B",
+                }}
+                className="mt-2 h-11 w-full rounded-md border px-3 focus:outline-none focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
+              />
+            </div>
+
+            <div>
+              <label
+                style={{ color: "#2B2B2B" }}
+                className="block text-sm font-medium"
+              >
+                Skin Type
+              </label>
+              <input
+                name="skinType"
+                value={formState.skinType}
+                onChange={(event) => updateField("skinType", event.target.value)}
+                style={{
+                  borderColor: "#D8C7B5",
+                  color: "#2B2B2B",
+                }}
+                className="mt-2 h-11 w-full rounded-md border px-3 focus:outline-none focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
+              />
+            </div>
+
+            <div>
+              <label
+                style={{ color: "#2B2B2B" }}
+                className="block text-sm font-medium"
+              >
+                Code ID (service token)
+              </label>
+              <input
+                name="codeId"
+                readOnly
+                value={serviceId}
+                style={{
+                  borderColor: "#D8C7B5",
+                  color: "#B8A89A",
+                  backgroundColor: "#F8F5F0",
+                }}
+                className="mt-2 h-11 w-full rounded-md border px-3"
+              />
             </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-foreground">Used IndoPak Night Cream</label>
-            <div className="mt-2 flex gap-4">
-              <label className="inline-flex items-center">
-                <input
-                  type="radio"
-                  name="usedIndoPakNightCream"
-                  value="yes"
-                  checked={formState.usedIndoPakNightCream === "yes"}
-                  onChange={() => updateField("usedIndoPakNightCream", "yes")}
-                  className="mr-2"
-                />
-                <span className="ml-2">Yes</span>
-              </label>
-              <label className="inline-flex items-center">
-                <input
-                  type="radio"
-                  name="usedIndoPakNightCream"
-                  value="no"
-                  checked={formState.usedIndoPakNightCream === "no"}
-                  onChange={() => updateField("usedIndoPakNightCream", "no")}
-                  className="mr-2"
-                />
-                <span className="ml-2">No</span>
-              </label>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <p
+                style={{ color: "#2B2B2B" }}
+                className="block text-sm font-medium"
+              >
+                Uses Korean Products
+              </p>
+              <div className="mt-2 flex gap-4">
+                <label className="inline-flex items-center">
+                  <input
+                    type="radio"
+                    name="usesKoreanProducts"
+                    value="yes"
+                    checked={formState.usesKoreanProducts === "yes"}
+                    onChange={() => updateField("usesKoreanProducts", "yes")}
+                    style={{
+                      accentColor: "#C6A56B",
+                    }}
+                    className="mr-2"
+                  />
+                  <span style={{ color: "#2B2B2B" }}>Yes</span>
+                </label>
+                <label className="inline-flex items-center">
+                  <input
+                    type="radio"
+                    name="usesKoreanProducts"
+                    value="no"
+                    checked={formState.usesKoreanProducts === "no"}
+                    onChange={() => updateField("usesKoreanProducts", "no")}
+                    style={{
+                      accentColor: "#C6A56B",
+                    }}
+                    className="mr-2"
+                  />
+                  <span style={{ color: "#2B2B2B" }}>No</span>
+                </label>
+              </div>
+            </div>
+
+            <div>
+              <p
+                style={{ color: "#2B2B2B" }}
+                className="block text-sm font-medium"
+              >
+                Facing Skin Issues
+              </p>
+              <div className="mt-2 flex gap-4">
+                <label className="inline-flex items-center">
+                  <input
+                    type="radio"
+                    name="facingSkinIssues"
+                    value="yes"
+                    checked={formState.facingSkinIssues === "yes"}
+                    onChange={() => updateField("facingSkinIssues", "yes")}
+                    style={{
+                      accentColor: "#C6A56B",
+                    }}
+                    className="mr-2"
+                  />
+                  <span style={{ color: "#2B2B2B" }}>Yes</span>
+                </label>
+                <label className="inline-flex items-center">
+                  <input
+                    type="radio"
+                    name="facingSkinIssues"
+                    value="no"
+                    checked={formState.facingSkinIssues === "no"}
+                    onChange={() => updateField("facingSkinIssues", "no")}
+                    style={{
+                      accentColor: "#C6A56B",
+                    }}
+                    className="mr-2"
+                  />
+                  <span style={{ color: "#2B2B2B" }}>No</span>
+                </label>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div>
-          <label className="block text-sm font-medium text-foreground">Additional Notes</label>
-          <textarea
-            name="note"
-            rows={4}
-            value={formState.note}
-            onChange={(event) => updateField("note", event.target.value)}
-            className="mt-2 w-full rounded-md border border-black/10 px-3 py-2"
-          />
-        </div>
+          <div>
+            <p
+              style={{ color: "#2B2B2B" }}
+              className="block text-sm font-medium"
+            >
+              Skin Issues (select all that apply)
+            </p>
+            <div className="mt-2 grid gap-2 sm:grid-cols-2">
+              {skinIssuesOptions.map((opt) => (
+                <label key={opt} className="inline-flex items-center">
+                  <input
+                    type="checkbox"
+                    name="skinIssues"
+                    value={opt}
+                    checked={formState.skinIssues.includes(opt)}
+                    onChange={() => toggleArrayField("skinIssues", opt)}
+                    style={{
+                      accentColor: "#C6A56B",
+                    }}
+                    className="mr-2"
+                  />
+                  <span style={{ color: "#2B2B2B" }}>{opt}</span>
+                </label>
+              ))}
+            </div>
+          </div>
 
-        {error ? <p className="text-sm text-red-600">{error}</p> : null}
+          <div>
+            <label
+              style={{ color: "#2B2B2B" }}
+              className="block text-sm font-medium"
+            >
+              How long have you had these issues?
+            </label>
+            <input
+              name="skinIssueDuration"
+              value={formState.skinIssueDuration}
+              onChange={(event) => updateField("skinIssueDuration", event.target.value)}
+              style={{
+                borderColor: "#D8C7B5",
+                color: "#2B2B2B",
+              }}
+              className="mt-2 h-11 w-full rounded-md border px-3 focus:outline-none focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
+            />
+          </div>
 
-        <button type="submit" disabled={isSubmitting} className="inline-flex h-11 items-center justify-center rounded-md bg-foreground px-4 text-sm font-medium text-background">
-          {isSubmitting ? "Submitting..." : "Submit Survey"}
-        </button>
-      </form>
-      </center>
+          <div>
+            <p
+              style={{ color: "#2B2B2B" }}
+              className="block text-sm font-medium"
+            >
+              Current Products (select all that apply)
+            </p>
+            <div className="mt-2 grid gap-2 sm:grid-cols-2">
+              {currentProductsOptions.map((opt) => (
+                <label key={opt} className="inline-flex items-center">
+                  <input
+                    type="checkbox"
+                    name="currentProducts"
+                    value={opt}
+                    checked={formState.currentProducts.includes(opt)}
+                    onChange={() => toggleArrayField("currentProducts", opt)}
+                    style={{
+                      accentColor: "#C6A56B",
+                    }}
+                    className="mr-2"
+                  />
+                  <span style={{ color: "#2B2B2B" }}>{opt}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <p
+              style={{ color: "#2B2B2B" }}
+              className="block text-sm font-medium"
+            >
+              Allergic Ingredients
+            </p>
+            <div className="mt-2 flex flex-col gap-2">
+              {allergicOptions.map((opt) => (
+                <label key={opt} className="inline-flex items-center">
+                  <input
+                    type="checkbox"
+                    name="allergicIngredients"
+                    value={opt}
+                    checked={formState.allergicIngredients.includes(opt)}
+                    onChange={() => toggleArrayField("allergicIngredients", opt)}
+                    style={{
+                      accentColor: "#C6A56B",
+                    }}
+                    className="mr-2"
+                  />
+                  <span style={{ color: "#2B2B2B" }}>{opt}</span>
+                </label>
+              ))}
+            </div>
+            {formState.allergicIngredients.includes("Others") ? (
+              <div className="mt-3">
+                <label
+                  style={{ color: "#2B2B2B" }}
+                  className="block text-sm font-medium"
+                >
+                  Other Allergic Ingredients
+                </label>
+                <input
+                  name="allergicIngredientsOther"
+                  value={formState.allergicIngredientsOther}
+                  onChange={(event) => updateField("allergicIngredientsOther", event.target.value)}
+                  placeholder="Type custom allergic ingredients"
+                  style={{
+                    borderColor: "#D8C7B5",
+                    color: "#2B2B2B",
+                  }}
+                  className="mt-2 h-11 w-full rounded-md border px-3 focus:outline-none focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
+                />
+              </div>
+            ) : null}
+          </div>
+
+          <div>
+            <p
+              style={{ color: "#2B2B2B" }}
+              className="block text-sm font-medium"
+            >
+              Double Cleanse Preference
+            </p>
+            <div className="mt-2 flex gap-4 flex-wrap">
+              {[
+                "No",
+                "Cleansing Oil",
+                "Cleansing Balm",
+                "Micellar Water",
+              ].map((opt) => (
+                <label key={opt} className="inline-flex items-center">
+                  <input
+                    type="radio"
+                    name="doubleCleansePreference"
+                    value={opt}
+                    checked={formState.doubleCleansePreference === opt}
+                    onChange={() => updateField("doubleCleansePreference", opt)}
+                    style={{
+                      accentColor: "#C6A56B",
+                    }}
+                    className="mr-2"
+                  />
+                  <span style={{ color: "#2B2B2B" }}>{opt}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <p
+              style={{ color: "#2B2B2B" }}
+              className="block text-sm font-medium"
+            >
+              Sleep Hours
+            </p>
+            <div className="mt-2 flex flex-col gap-2">
+              {[
+                "Less than 5-6 Hours",
+                "6-8 Hours",
+                "More than 8 Hours",
+              ].map((opt) => (
+                <label key={opt} className="inline-flex items-center">
+                  <input
+                    type="radio"
+                    name="sleepHours"
+                    value={opt}
+                    checked={formState.sleepHours === opt}
+                    onChange={() => updateField("sleepHours", opt)}
+                    style={{
+                      accentColor: "#C6A56B",
+                    }}
+                    className="mr-2"
+                  />
+                  <span style={{ color: "#2B2B2B" }}>{opt}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <p
+              style={{ color: "#2B2B2B" }}
+              className="block text-sm font-medium"
+            >
+              Water Intake
+            </p>
+            <div className="mt-2 grid gap-2 sm:grid-cols-2">
+              {[
+                "Less than 1-2 Litres",
+                "1-2 Litres",
+                "More than 2 Litres",
+              ].map((opt) => (
+                <label key={opt} className="inline-flex items-center">
+                  <input
+                    type="radio"
+                    name="waterIntake"
+                    value={opt}
+                    checked={formState.waterIntake === opt}
+                    onChange={() => updateField("waterIntake", opt)}
+                    style={{
+                      accentColor: "#C6A56B",
+                    }}
+                    className="mr-2"
+                  />
+                  <span style={{ color: "#2B2B2B" }}>{opt}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <p
+                style={{ color: "#2B2B2B" }}
+                className="block text-sm font-medium"
+              >
+                Applies Sunscreen
+              </p>
+              <div className="mt-2 flex gap-4">
+                <label className="inline-flex items-center">
+                  <input
+                    type="radio"
+                    name="appliesSunscreen"
+                    value="yes"
+                    checked={formState.appliesSunscreen === "yes"}
+                    onChange={() => updateField("appliesSunscreen", "yes")}
+                    style={{
+                      accentColor: "#C6A56B",
+                    }}
+                    className="mr-2"
+                  />
+                  <span style={{ color: "#2B2B2B" }}>Yes</span>
+                </label>
+                <label className="inline-flex items-center">
+                  <input
+                    type="radio"
+                    name="appliesSunscreen"
+                    value="no"
+                    checked={formState.appliesSunscreen === "no"}
+                    onChange={() => updateField("appliesSunscreen", "no")}
+                    style={{
+                      accentColor: "#C6A56B",
+                    }}
+                    className="mr-2"
+                  />
+                  <span style={{ color: "#2B2B2B" }}>No</span>
+                </label>
+              </div>
+            </div>
+
+            <div>
+              <p
+                style={{ color: "#2B2B2B" }}
+                className="block text-sm font-medium"
+              >
+                Regular Period Cycle
+              </p>
+              <div className="mt-2 flex gap-4">
+                <label className="inline-flex items-center">
+                  <input
+                    type="radio"
+                    name="regularPeriodCycle"
+                    value="yes"
+                    checked={formState.regularPeriodCycle === "yes"}
+                    onChange={() => updateField("regularPeriodCycle", "yes")}
+                    style={{
+                      accentColor: "#C6A56B",
+                    }}
+                    className="mr-2"
+                  />
+                  <span style={{ color: "#2B2B2B" }}>Yes</span>
+                </label>
+                <label className="inline-flex items-center">
+                  <input
+                    type="radio"
+                    name="regularPeriodCycle"
+                    value="no"
+                    checked={formState.regularPeriodCycle === "no"}
+                    onChange={() => updateField("regularPeriodCycle", "no")}
+                    style={{
+                      accentColor: "#C6A56B",
+                    }}
+                    className="mr-2"
+                  />
+                  <span style={{ color: "#2B2B2B" }}>No</span>
+                </label>
+              </div>
+            </div>
+
+            <div>
+              <p
+                style={{ color: "#2B2B2B" }}
+                className="block text-sm font-medium"
+              >
+                Used IndoPak Night Cream
+              </p>
+              <div className="mt-2 flex gap-4">
+                <label className="inline-flex items-center">
+                  <input
+                    type="radio"
+                    name="usedIndoPakNightCream"
+                    value="yes"
+                    checked={formState.usedIndoPakNightCream === "yes"}
+                    onChange={() => updateField("usedIndoPakNightCream", "yes")}
+                    style={{
+                      accentColor: "#C6A56B",
+                    }}
+                    className="mr-2"
+                  />
+                  <span style={{ color: "#2B2B2B" }}>Yes</span>
+                </label>
+                <label className="inline-flex items-center">
+                  <input
+                    type="radio"
+                    name="usedIndoPakNightCream"
+                    value="no"
+                    checked={formState.usedIndoPakNightCream === "no"}
+                    onChange={() => updateField("usedIndoPakNightCream", "no")}
+                    style={{
+                      accentColor: "#C6A56B",
+                    }}
+                    className="mr-2"
+                  />
+                  <span style={{ color: "#2B2B2B" }}>No</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label
+              style={{ color: "#2B2B2B" }}
+              className="block text-sm font-medium"
+            >
+              Additional Notes
+            </label>
+            <textarea
+              name="note"
+              value={formState.note}
+              onChange={(event) => updateField("note", event.target.value)}
+              placeholder="Any additional information..."
+              rows={4}
+              style={{
+                borderColor: "#D8C7B5",
+                color: "#2B2B2B",
+              }}
+              className="mt-2 w-full rounded-md border px-3 py-2 focus:outline-none focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
+            />
+          </div>
+
+          <div className="flex gap-3 pt-4">
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              style={{
+                backgroundColor: "#2B2B2B",
+                color: "#F8F5F0",
+              }}
+              className="flex-1 h-11 rounded-md text-sm font-medium transition-colors duration-200 hover:bg-[#B8A89A] disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isSubmitting ? "Submitting..." : "Submit Survey"}
+            </button>
+          </div>
+        </form>
+      </div>
     </section>
   );
 }

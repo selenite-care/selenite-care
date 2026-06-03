@@ -146,20 +146,47 @@ function PaymentForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="rounded-lg border border-black/10 bg-background p-6 dark:border-white/10"
+      style={{
+        borderRadius: '12px',
+        border: '1px solid #D8C7B5',
+        backgroundColor: '#FFFFFF',
+        padding: '24px',
+      }}
     >
-      <h2 className="text-lg font-semibold text-foreground">Payment Details</h2>
-      <div className="mt-5 rounded-md border border-black/10 px-3 py-4 dark:border-white/10">
+      <h2 style={{
+        fontSize: '18px',
+        fontWeight: '600',
+        color: '#2B2B2B',
+        fontFamily: '"Playfair Display", serif',
+      }}>Payment Details</h2>
+      <div style={{
+        marginTop: '20px',
+        borderRadius: '8px',
+        border: '2px solid #D8C7B5',
+        padding: '12px',
+        transition: 'border-color 0.2s ease',
+      }}
+      onFocus={(e) => {
+        if (e.currentTarget === e.currentTarget.parentElement) {
+          e.currentTarget.style.borderColor = '#C6A56B';
+        }
+      }}
+      onBlur={(e) => {
+        if (e.currentTarget === e.currentTarget.parentElement) {
+          e.currentTarget.style.borderColor = '#D8C7B5';
+        }
+      }}
+      >
         <CardElement
           options={{
             hidePostalCode: true,
             style: {
               base: {
-                color: "#171717",
+                color: "#2B2B2B",
                 fontFamily: "Arial, Helvetica, sans-serif",
                 fontSize: "16px",
                 "::placeholder": {
-                  color: "#71717a",
+                  color: "#B8A89A",
                 },
               },
             },
@@ -167,12 +194,44 @@ function PaymentForm({
         />
       </div>
 
-      {error ? <p className="mt-4 text-sm text-red-600">{error}</p> : null}
+      {error ? <p style={{
+        marginTop: '16px',
+        fontSize: '14px',
+        color: '#dc2626',
+      }}>{error}</p> : null}
 
       <button
         type="submit"
         disabled={!stripe || isSubmitting}
-        className="mt-6 flex h-11 w-full items-center justify-center rounded-md bg-foreground px-5 text-sm font-medium text-background transition-colors hover:bg-foreground/85 disabled:cursor-not-allowed disabled:opacity-70"
+        style={{
+          marginTop: '24px',
+          display: 'flex',
+          height: '44px',
+          width: '100%',
+          alignItems: 'center',
+          justifyContent: 'center',
+          borderRadius: '8px',
+          backgroundColor: !stripe || isSubmitting ? '#D8C7B5' : '#2B2B2B',
+          paddingLeft: '20px',
+          paddingRight: '20px',
+          fontSize: '14px',
+          fontWeight: '500',
+          color: '#F8F5F0',
+          border: 'none',
+          cursor: !stripe || isSubmitting ? 'not-allowed' : 'pointer',
+          opacity: !stripe || isSubmitting ? 0.7 : 1,
+          transition: 'background-color 0.2s ease',
+        }}
+        onMouseEnter={(e) => {
+          if (!(!stripe || isSubmitting)) {
+            e.currentTarget.style.backgroundColor = '#B8A89A';
+          }
+        }}
+        onMouseLeave={(e) => {
+          if (!(!stripe || isSubmitting)) {
+            e.currentTarget.style.backgroundColor = '#2B2B2B';
+          }
+        }}
       >
         {isSubmitting ? "Processing..." : `Pay $${service.price.toFixed(2)}`}
       </button>
@@ -217,52 +276,139 @@ function PaymentContent() {
   const [paymentMethod, setPaymentMethod] = useState<"card" | "bkash">("card");
 
   return (
-    <section className="flex flex-1 bg-zinc-50 px-6 py-16 dark:bg-black">
-      <div className="mx-auto w-full max-w-6xl">
-        <div className="max-w-2xl">
-          <h1 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+    <section style={{
+      display: 'flex',
+      flex: 1,
+      backgroundColor: '#F8F5F0',
+      paddingLeft: '24px',
+      paddingRight: '24px',
+      paddingTop: '64px',
+      paddingBottom: '64px',
+    }}>
+      <div style={{
+        marginLeft: 'auto',
+        marginRight: 'auto',
+        width: '100%',
+        maxWidth: '1280px',
+      }}>
+        <div style={{ maxWidth: '512px' }}>
+          <h1 style={{
+            fontSize: '30px',
+            fontWeight: '600',
+            letterSpacing: '-0.015em',
+            color: '#2B2B2B',
+            fontFamily: '"Playfair Display", serif',
+          }}>
             Complete Payment
           </h1>
-          <p className="mt-4 text-base leading-7 text-foreground/70">
+          <p style={{
+            marginTop: '16px',
+            fontSize: '16px',
+            lineHeight: '1.75',
+            color: '#B8A89A',
+          }}>
             Review your selected service and choose your payment method.
           </p>
         </div>
 
         {isLoading ? (
-          <p className="mt-10 text-sm text-foreground/70">Loading payment...</p>
+          <p style={{
+            marginTop: '40px',
+            fontSize: '14px',
+            color: '#B8A89A',
+          }}>Loading payment...</p>
         ) : null}
 
-        {error ? <p className="mt-10 text-sm text-red-600">{error}</p> : null}
+        {error ? <p style={{
+          marginTop: '40px',
+          fontSize: '14px',
+          color: '#dc2626',
+        }}>{error}</p> : null}
 
         {!isLoading && !error && !selectedService ? (
-          <p className="mt-10 text-sm text-foreground/70">
+          <p style={{
+            marginTop: '40px',
+            fontSize: '14px',
+            color: '#B8A89A',
+          }}>
             Please choose a service before continuing to payment.
           </p>
         ) : null}
 
         {!isLoading && selectedService ? (
-          <div className="mt-10 space-y-8 lg:grid lg:grid-cols-[1fr_24rem] lg:gap-8">
-            <div className="space-y-6">
-              <div className="flex flex-wrap gap-2 rounded-xl border border-black/10 bg-background p-1 dark:border-white/10">
+          <div style={{
+            marginTop: '40px',
+            display: 'grid',
+            gridTemplateColumns: '1fr 384px',
+            gap: '32px',
+          }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+              <div style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: '8px',
+                borderRadius: '12px',
+                border: '1px solid #D8C7B5',
+                backgroundColor: '#FFFFFF',
+                padding: '4px',
+              }}>
                 <button
                   type="button"
                   onClick={() => setPaymentMethod("card")}
-                  className={`rounded-lg px-4 py-3 text-sm font-medium transition ${
-                    paymentMethod === "card"
-                      ? "bg-foreground text-background"
-                      : "text-foreground/70 hover:text-foreground"
-                  }`}
+                  style={{
+                    borderRadius: '8px',
+                    paddingLeft: '16px',
+                    paddingRight: '16px',
+                    paddingTop: '12px',
+                    paddingBottom: '12px',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    transition: 'all 0.2s ease',
+                    border: 'none',
+                    cursor: 'pointer',
+                    backgroundColor: paymentMethod === "card" ? '#2B2B2B' : 'transparent',
+                    color: paymentMethod === "card" ? '#F8F5F0' : '#B8A89A',
+                  }}
+                  onMouseEnter={(e) => {
+                    if (paymentMethod !== "card") {
+                      e.currentTarget.style.color = '#2B2B2B';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (paymentMethod !== "card") {
+                      e.currentTarget.style.color = '#B8A89A';
+                    }
+                  }}
                 >
                   Pay with Card
                 </button>
                 <button
                   type="button"
                   onClick={() => setPaymentMethod("bkash")}
-                  className={`rounded-lg px-4 py-3 text-sm font-medium transition ${
-                    paymentMethod === "bkash"
-                      ? "bg-foreground text-background"
-                      : "text-foreground/70 hover:text-foreground"
-                  }`}
+                  style={{
+                    borderRadius: '8px',
+                    paddingLeft: '16px',
+                    paddingRight: '16px',
+                    paddingTop: '12px',
+                    paddingBottom: '12px',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    transition: 'all 0.2s ease',
+                    border: 'none',
+                    cursor: 'pointer',
+                    backgroundColor: paymentMethod === "bkash" ? '#2B2B2B' : 'transparent',
+                    color: paymentMethod === "bkash" ? '#F8F5F0' : '#B8A89A',
+                  }}
+                  onMouseEnter={(e) => {
+                    if (paymentMethod !== "bkash") {
+                      e.currentTarget.style.color = '#2B2B2B';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (paymentMethod !== "bkash") {
+                      e.currentTarget.style.color = '#B8A89A';
+                    }
+                  }}
                 >
                   Pay with bKash
                 </button>
@@ -270,7 +416,14 @@ function PaymentContent() {
 
               {paymentMethod === "card" ? (
                 !selectedSlot || !selectedDate ? (
-                  <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-6 text-sm text-yellow-900">
+                  <div style={{
+                    borderRadius: '8px',
+                    border: '1px solid #FFD700',
+                    backgroundColor: '#FFFBEA',
+                    padding: '24px',
+                    fontSize: '14px',
+                    color: '#8B6914',
+                  }}>
                     Selected appointment date and slot are missing. Please choose a slot before proceeding to payment.
                   </div>
                 ) : (
@@ -283,42 +436,103 @@ function PaymentContent() {
                   />
                 )
               ) : (
-                <section className="rounded-lg border border-black/10 bg-background p-6 dark:border-white/10">
-                  <h2 className="text-lg font-semibold text-foreground">
+                <section style={{
+                  borderRadius: '8px',
+                  border: '1px solid #D8C7B5',
+                  backgroundColor: '#FFFFFF',
+                  padding: '24px',
+                }}>
+                  <h2 style={{
+                    fontSize: '18px',
+                    fontWeight: '600',
+                    color: '#2B2B2B',
+                    fontFamily: '"Playfair Display", serif',
+                  }}>
                     bKash Payment
                   </h2>
-                  <p className="mt-4 text-sm leading-6 text-foreground/70">
+                  <p style={{
+                    marginTop: '16px',
+                    fontSize: '14px',
+                    lineHeight: '1.5',
+                    color: '#B8A89A',
+                  }}>
                     bKash payment coming soon. Please use card payment for now.
                   </p>
                 </section>
               )}
             </div>
 
-            <aside className="h-fit rounded-lg border border-black/10 bg-background p-6 dark:border-white/10">
-              <h2 className="text-lg font-semibold text-foreground">
+            <aside style={{
+              height: 'fit-content',
+              borderRadius: '8px',
+              border: '1px solid #D8C7B5',
+              backgroundColor: '#FFFFFF',
+              padding: '24px',
+            }}>
+              <h2 style={{
+                fontSize: '18px',
+                fontWeight: '600',
+                color: '#2B2B2B',
+                fontFamily: '"Playfair Display", serif',
+              }}>
                 Order Summary
               </h2>
-              <div className="mt-5 space-y-4 text-sm">
+              <div style={{
+                marginTop: '20px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '16px',
+                fontSize: '14px',
+              }}>
                 <div>
-                  <p className="font-medium text-foreground">
+                  <p style={{
+                    fontWeight: '500',
+                    color: '#2B2B2B',
+                  }}>
                     {selectedService.name}
                   </p>
-                  <p className="mt-1 text-foreground/70">
+                  <p style={{
+                    marginTop: '4px',
+                    color: '#B8A89A',
+                  }}>
                     {selectedService.duration} minute consultation
                   </p>
                 </div>
                 {selectedDate && selectedSlot ? (
-                  <div className="rounded-lg border border-black/10 bg-slate-50 p-4 text-sm text-foreground/80 dark:border-white/10 dark:bg-slate-950/30">
-                    <p className="font-medium text-foreground">Appointment</p>
-                    <p className="mt-2 text-foreground/70">
+                  <div style={{
+                    borderRadius: '8px',
+                    border: '1px solid #D8C7B5',
+                    backgroundColor: '#F8F5F0',
+                    padding: '16px',
+                    fontSize: '14px',
+                    color: '#2B2B2B',
+                  }}>
+                    <p style={{
+                      fontWeight: '500',
+                      color: '#2B2B2B',
+                    }}>Appointment</p>
+                    <p style={{
+                      marginTop: '8px',
+                      color: '#B8A89A',
+                    }}>
                       {selectedDate} at {selectedSlot}
                     </p>
                   </div>
                 ) : null}
-                <div className="border-t border-black/10 pt-4 dark:border-white/10">
-                  <div className="flex items-center justify-between">
-                    <span className="text-foreground/70">Total</span>
-                    <span className="font-semibold text-foreground">
+                <div style={{
+                  borderTop: '1px solid #D8C7B5',
+                  paddingTop: '16px',
+                }}>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                  }}>
+                    <span style={{ color: '#B8A89A' }}>Total</span>
+                    <span style={{
+                      fontWeight: '600',
+                      color: '#2B2B2B',
+                    }}>
                       ${selectedService.price.toFixed(2)}
                     </span>
                   </div>
@@ -335,12 +549,35 @@ function PaymentContent() {
 export default function PaymentPage() {
   if (!stripePublishableKey || !stripePromise) {
     return (
-      <section className="flex flex-1 bg-zinc-50 px-6 py-16 dark:bg-black">
-        <div className="mx-auto w-full max-w-6xl">
-          <h1 className="text-3xl font-semibold tracking-tight text-foreground">
+      <section style={{
+        display: 'flex',
+        flex: 1,
+        backgroundColor: '#F8F5F0',
+        paddingLeft: '24px',
+        paddingRight: '24px',
+        paddingTop: '64px',
+        paddingBottom: '64px',
+      }}>
+        <div style={{
+          marginLeft: 'auto',
+          marginRight: 'auto',
+          width: '100%',
+          maxWidth: '1280px',
+        }}>
+          <h1 style={{
+            fontSize: '30px',
+            fontWeight: '600',
+            letterSpacing: '-0.015em',
+            color: '#2B2B2B',
+            fontFamily: '"Playfair Display", serif',
+          }}>
             Payment Unavailable
           </h1>
-          <p className="mt-4 text-sm text-foreground/70">
+          <p style={{
+            marginTop: '16px',
+            fontSize: '14px',
+            color: '#B8A89A',
+          }}>
             Stripe publishable key is not configured.
           </p>
         </div>
@@ -352,9 +589,25 @@ export default function PaymentPage() {
     <Elements stripe={stripePromise}>
       <Suspense
         fallback={
-          <section className="flex flex-1 bg-zinc-50 px-6 py-16 dark:bg-black">
-            <div className="mx-auto w-full max-w-6xl">
-              <p className="text-sm text-foreground/70">Loading payment...</p>
+          <section style={{
+            display: 'flex',
+            flex: 1,
+            backgroundColor: '#F8F5F0',
+            paddingLeft: '24px',
+            paddingRight: '24px',
+            paddingTop: '64px',
+            paddingBottom: '64px',
+          }}>
+            <div style={{
+              marginLeft: 'auto',
+              marginRight: 'auto',
+              width: '100%',
+              maxWidth: '1280px',
+            }}>
+              <p style={{
+                fontSize: '14px',
+                color: '#B8A89A',
+              }}>Loading payment...</p>
             </div>
           </section>
         }
