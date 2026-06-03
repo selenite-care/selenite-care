@@ -41,9 +41,8 @@ export default function Home() {
             <h1
               style={{
                 fontFamily: "Playfair Display, serif",
-                color: "#2B2B2B",
               }}
-              className="text-4xl font-bold tracking-tight sm:text-5xl"
+              className="glitter-text text-4xl font-bold tracking-tight sm:text-5xl"
             >
               Compassionate care for your everyday wellness.
             </h1>
