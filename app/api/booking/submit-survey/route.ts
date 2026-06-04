@@ -26,8 +26,9 @@ type SurveyPayload = {
   waterIntake?: unknown;
   appliesSunscreen?: unknown;
   regularPeriodCycle?: unknown;
-  usedIndoPakNightCream?: unknown;
+  usedSteroidBasedNightCream?: unknown;
   note?: unknown;
+  skinImages?: unknown;
 };
 
 function asStringArray(value: unknown): string[] {
@@ -79,10 +80,11 @@ export async function POST(request: Request) {
   const sleepHours = typeof body.sleepHours === "string" ? body.sleepHours : "";
   const appliesSunscreen = body.appliesSunscreen === true || String(body.appliesSunscreen) === "true";
   const regularPeriodCycle = body.regularPeriodCycle === true || String(body.regularPeriodCycle) === "true";
-  const usedIndoPakNightCream =
-    body.usedIndoPakNightCream === true || String(body.usedIndoPakNightCream) === "true";
+  const usedSteroidBasedNightCream =
+    body.usedSteroidBasedNightCream === true || String(body.usedSteroidBasedNightCream) === "true";
   const note = typeof body.note === "string" ? body.note.trim() : null;
   const waterIntake = asOptionalString(body.waterIntake) ?? "";
+  const skinImages = asStringArray(body.skinImages).slice(0, 4);
 
   try {
     const survey = await db.surveyResponse.create({
@@ -104,8 +106,9 @@ export async function POST(request: Request) {
         waterIntake,
         appliesSunscreen,
         regularPeriodCycle,
-        usedIndoPakNightCream,
+        usedSteroidBasedNightCream,
         note,
+        skinImages,
       },
     });
 

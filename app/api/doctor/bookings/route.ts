@@ -80,7 +80,7 @@ export async function GET() {
           waterIntake: true,
           appliesSunscreen: true,
           regularPeriodCycle: true,
-          usedIndoPakNightCream: true,
+          usedSteroidBasedNightCream: true,
           note: true,
         },
       },

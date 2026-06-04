@@ -272,8 +272,8 @@ export default async function BookingDetailsPage({ params }: BookingDetailsPageP
               value={booking.surveyResponse.regularPeriodCycle ? "Yes" : "No"}
             />
             <DetailItem
-              label="Used IndoPak Night Cream"
-              value={booking.surveyResponse.usedIndoPakNightCream ? "Yes" : "No"}
+              label="Used Steroid Based Night Cream"
+              value={booking.surveyResponse.usedSteroidBasedNightCream ? "Yes" : "No"}
             />
             <DetailItem
               label="Additional Notes"

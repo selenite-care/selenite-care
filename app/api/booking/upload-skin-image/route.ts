@@ -1,20 +1,13 @@
+import { auth } from "@/auth";
 import { v2 as cloudinary } from "cloudinary";
-import NextAuth from "next-auth";
-import { authConfig } from "@/lib/auth";
-
-const { auth } = NextAuth(authConfig);
 
 export const runtime = "nodejs";
 
-async function requireAdmin() {
+async function requireSession() {
   const session = await auth();
 
   if (!session?.user) {
     return Response.json({ error: "Unauthorized." }, { status: 401 });
-  }
-
-  if (session.user.role !== "ADMIN") {
-    return Response.json({ error: "Forbidden." }, { status: 403 });
   }
 
   return null;
@@ -48,18 +41,15 @@ async function uploadToCloudinary(file: File) {
   return new Promise<{ secure_url: string }>((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
       {
-        folder: "selenite-care/doctors",
+        folder: "selenite-care/skin-images",
         resource_type: "image",
         transformation: [
-        {
-           width: 400,
-           height: 400,
-           crop: "fill",
-           gravity: "face",
-           quality: "auto",
-           fetch_format: "auto",
-        }
-    ]
+          {
+            width: 800,
+            quality: "auto",
+            fetch_format: "auto",
+          },
+        ],
       },
       (error, result) => {
         if (error) {
@@ -81,10 +71,10 @@ async function uploadToCloudinary(file: File) {
 }
 
 export async function POST(request: Request) {
-  const adminError = await requireAdmin();
+  const sessionError = await requireSession();
 
-  if (adminError) {
-    return adminError;
+  if (sessionError) {
+    return sessionError;
   }
 
   const configError = configureCloudinary();
@@ -109,7 +99,7 @@ export async function POST(request: Request) {
 
     return Response.json({ secure_url: uploaded.secure_url });
   } catch (error) {
-    console.error("Cloudinary upload failed:", error);
+    console.error("Skin image upload failed:", error);
     return Response.json({ error: "Failed to upload image." }, { status: 500 });
   }
 }
