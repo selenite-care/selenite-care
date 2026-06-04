@@ -93,7 +93,7 @@ function NavbarContent() {
           ))}
 
           <Link
-            href="/booking"
+            href="/services"
             style={{ color: "#C6A56B", borderColor: "#C6A56B" }}
             className="border px-4 py-2 font-medium rounded transition-all duration-200 hover:bg-[#000000] hover:text-[#F8F5F0]"
           >
