@@ -29,12 +29,29 @@ export default async function DoctorProfilePage() {
 
   return (
     <section>
+      <div className="mb-6 rounded-lg border border-yellow-300 bg-yellow-50 p-5 text-yellow-900 shadow-sm dark:border-yellow-700/60 dark:bg-yellow-950/30 dark:text-yellow-100">
+        <p className="text-base font-semibold">Temporary password in use</p>
+        <p className="mt-2 text-sm leading-6">
+          You are using a temporary password. Please change it now for security.
+        </p>
+      </div>
+
       <div>
         <h1 className="text-3xl font-semibold tracking-tight text-foreground">My Profile</h1>
         <p className="mt-2 text-sm text-foreground/70">View and update your profile information.</p>
       </div>
 
       <div className="mt-8 grid gap-6 md:grid-cols-2">
+        <section className="rounded-lg border-2 border-yellow-300 bg-yellow-50/60 p-6 shadow-sm dark:border-yellow-700/70 dark:bg-yellow-950/20 md:col-span-2">
+          <h2 className="text-xl font-semibold text-foreground">Change Password</h2>
+          <p className="mt-2 text-sm leading-6 text-foreground/70">
+            Set a private password before continuing to use your doctor account.
+          </p>
+          <div className="mt-5">
+            <ChangePasswordForm />
+          </div>
+        </section>
+
         <section className="rounded-lg border border-black/10 bg-background p-6 dark:border-white/10">
           <h2 className="text-lg font-semibold text-foreground">Account</h2>
           <div className="mt-4 space-y-3">
@@ -56,13 +73,6 @@ export default async function DoctorProfilePage() {
           <h2 className="text-lg font-semibold text-foreground">Edit Name</h2>
           <div className="mt-4">
             <ProfileEditForm currentName={user.name ?? ""} />
-          </div>
-        </section>
-
-        <section className="rounded-lg border border-black/10 bg-background p-6 dark:border-white/10 md:col-span-2">
-          <h2 className="text-lg font-semibold text-foreground">Change Password</h2>
-          <div className="mt-4">
-            <ChangePasswordForm />
           </div>
         </section>
       </div>
