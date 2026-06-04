@@ -21,7 +21,10 @@ type Service = {
 type DoctorFormState = {
   name: string;
   designation: string;
-  availability: string;
+  startDay: string;
+  endDay: string;
+  startTime: string;
+  endTime: string;
   bio: string;
   serviceId: string;
 };
@@ -29,10 +32,39 @@ type DoctorFormState = {
 const emptyForm: DoctorFormState = {
   name: "",
   designation: "",
-  availability: "",
+  startDay: "Wed",
+  endDay: "Fri",
+  startTime: "1PM",
+  endTime: "5PM",
   bio: "",
   serviceId: "",
 };
+
+const dayOptions = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+const timeOptions = [
+  "6AM",
+  "7AM",
+  "8AM",
+  "9AM",
+  "10AM",
+  "11AM",
+  "12PM",
+  "1PM",
+  "2PM",
+  "3PM",
+  "4PM",
+  "5PM",
+  "6PM",
+  "7PM",
+  "8PM",
+  "9PM",
+  "10PM",
+];
+
+function formatAvailability(form: DoctorFormState) {
+  return `${form.startDay}–${form.endDay}, ${form.startTime}–${form.endTime}`;
+}
 
 export default function AdminDoctorsPage() {
   const [services, setServices] = useState<Service[]>([]);
@@ -190,7 +222,11 @@ setDoctors(doctorsData)
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          ...form,
+          name: form.name,
+          designation: form.designation,
+          availability: formatAvailability(form),
+          bio: form.bio,
+          serviceId: form.serviceId,
           image,
         }),
       });
@@ -423,24 +459,121 @@ setDoctors(doctorsData)
               </div>
 
               <div>
-                <label
-                  htmlFor="availability"
-                  className="block text-sm font-medium text-foreground"
-                >
+                <p className="block text-sm font-medium text-foreground">
                   Availability
-                </label>
-                <input
-                  id="availability"
-                  value={form.availability}
-                  onChange={(event) =>
-                    setForm((current) => ({
-                      ...current,
-                      availability: event.target.value,
-                    }))
-                  }
-                  required
-                  className="mt-2 h-11 w-full rounded-md border border-black/10 bg-transparent px-3 text-sm outline-none transition-colors focus:border-foreground dark:border-white/10"
-                />
+                </p>
+                <div className="mt-2 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+                  <div>
+                    <label
+                      htmlFor="startDay"
+                      className="block text-sm font-medium text-foreground/70"
+                    >
+                      Start Day
+                    </label>
+                    <select
+                      id="startDay"
+                      value={form.startDay}
+                      onChange={(event) =>
+                        setForm((current) => ({
+                          ...current,
+                          startDay: event.target.value,
+                        }))
+                      }
+                      required
+                      className="mt-2 h-11 w-full rounded-md border border-black/10 bg-transparent px-3 text-sm outline-none transition-colors focus:border-foreground dark:border-white/10"
+                    >
+                      {dayOptions.map((day) => (
+                        <option key={day} value={day}>
+                          {day}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="endDay"
+                      className="block text-sm font-medium text-foreground/70"
+                    >
+                      End Day
+                    </label>
+                    <select
+                      id="endDay"
+                      value={form.endDay}
+                      onChange={(event) =>
+                        setForm((current) => ({
+                          ...current,
+                          endDay: event.target.value,
+                        }))
+                      }
+                      required
+                      className="mt-2 h-11 w-full rounded-md border border-black/10 bg-transparent px-3 text-sm outline-none transition-colors focus:border-foreground dark:border-white/10"
+                    >
+                      {dayOptions.map((day) => (
+                        <option key={day} value={day}>
+                          {day}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="startTime"
+                      className="block text-sm font-medium text-foreground/70"
+                    >
+                      Start Time
+                    </label>
+                    <select
+                      id="startTime"
+                      value={form.startTime}
+                      onChange={(event) =>
+                        setForm((current) => ({
+                          ...current,
+                          startTime: event.target.value,
+                        }))
+                      }
+                      required
+                      className="mt-2 h-11 w-full rounded-md border border-black/10 bg-transparent px-3 text-sm outline-none transition-colors focus:border-foreground dark:border-white/10"
+                    >
+                      {timeOptions.map((time) => (
+                        <option key={time} value={time}>
+                          {time}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="endTime"
+                      className="block text-sm font-medium text-foreground/70"
+                    >
+                      End Time
+                    </label>
+                    <select
+                      id="endTime"
+                      value={form.endTime}
+                      onChange={(event) =>
+                        setForm((current) => ({
+                          ...current,
+                          endTime: event.target.value,
+                        }))
+                      }
+                      required
+                      className="mt-2 h-11 w-full rounded-md border border-black/10 bg-transparent px-3 text-sm outline-none transition-colors focus:border-foreground dark:border-white/10"
+                    >
+                      {timeOptions.map((time) => (
+                        <option key={time} value={time}>
+                          {time}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+                <p className="mt-2 text-sm text-foreground/60">
+                  Preview: {formatAvailability(form)}
+                </p>
               </div>
 
               <div>
