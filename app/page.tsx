@@ -1,5 +1,6 @@
 import Link from "next/link";
 import ViewportAnimatedSection from "@/components/ui/ViewportAnimatedSection";
+import HeroSlider from "@/components/ui/HeroSlider";
 
 const features = [
   {
@@ -35,34 +36,34 @@ export default function Home() {
   return (
     <div className="flex flex-1 flex-col">
       {/* Hero Section */}
-      <section style={{ backgroundColor: "#F8F5F0" }} className="px-6 py-20 sm:py-28">
-        <div className="mx-auto w-full max-w-6xl">
-          <div className="max-w-2xl">
-            <h1
-              style={{
-                fontFamily: "Playfair Display, serif",
-              }}
-              className="glitter-text text-4xl font-bold tracking-tight sm:text-5xl"
-            >
-              Compassionate care for your everyday wellness.
-            </h1>
-            <p style={{ color: "#B8A89A" }} className="mt-6 text-lg leading-8">
-              Schedule personalized support with Selenite Care and get the
-              attention you need, right when you need it.
-            </p>
-            <Link
-              href="/booking"
-              style={{
-                backgroundColor: "#2B2B2B",
-                color: "#F8F5F0",
-              }}
-              className="mt-8 inline-flex h-12 items-center justify-center rounded-md px-6 text-sm font-medium transition-colors duration-200 hover:bg-[#B8A89A]"
-            >
-              Book Appointment
-            </Link>
-          </div>
+      <section className="relative min-h-[85vh] overflow-hidden">
+  <HeroSlider />
+
+  <div className="relative z-10 px-6 py-32">
+    <div className="mx-auto w-full max-w-6xl">
+      <div className="max-w-2xl">
+        <h1 style={{ fontFamily: "Playfair Display, serif" }} className="glitter-text text-4xl font-bold tracking-tight sm:text-5xl 
+        [-webkit-text-stroke:0.1px_white]">
+          Compassionate care for your everyday wellness.
+        </h1>
+        <p style={{ color: "#B8A89A" }} className="mt-6 text-lg leading-8">
+          Schedule personalized support with Selenite Care and receive
+          professional guidance tailored to your needs.
+        </p>
+
+        <div className="mt-10 flex gap-4">
+          <Link 
+            href="/services" 
+            style={{ backgroundColor: "#2B2B2B", color: "#F8F5F0" }} 
+            className="mt-8 inline-flex h-12 items-center justify-center rounded-md border border-white px-6 text-sm font-medium animate-pulse transition-all duration-300 hover:animate-none hover:bg-[#B8A89A] hover:scale-105"
+          >
+  Book Appointment
+</Link>
         </div>
-      </section>
+      </div>
+    </div>
+  </div>
+</section>
 
       {/* Why Choose Us Section */}
       <section style={{ backgroundColor: "#FFFFFF" }} className="px-6 py-16">
