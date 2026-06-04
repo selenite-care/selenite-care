@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import NextAuth from "next-auth";
 import { notFound, redirect } from "next/navigation";
 import { authConfig } from "@/lib/auth";
@@ -263,67 +264,98 @@ export default async function CrmBookingDetailsPage({
       <section className="mt-6 rounded-lg border border-black/10 bg-background p-6 dark:border-white/10">
         <h2 className="text-lg font-semibold text-foreground">Survey Responses</h2>
         {booking.surveyResponse ? (
-          <div className="mt-5 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-            <DetailItem label="Name" value={booking.surveyResponse.name} />
-            <DetailItem label="Age" value={booking.surveyResponse.age} />
-            <DetailItem label="Phone" value={booking.surveyResponse.phone} />
-            <DetailItem label="Email" value={booking.surveyResponse.email} />
-            <DetailItem label="Skin Type" value={booking.surveyResponse.skinType} />
-            <DetailItem
-              label="Skin Issues"
-              value={joinValues(booking.surveyResponse.skinIssues)}
-            />
-            <DetailItem
-              label="Issue Duration"
-              value={booking.surveyResponse.skinIssueDuration ?? "Not specified"}
-            />
-            <DetailItem
-              label="Current Products"
-              value={joinValues(booking.surveyResponse.currentProducts)}
-            />
-            <DetailItem
-              label="Allergic Ingredients"
-              value={joinValues(booking.surveyResponse.allergicIngredients)}
-            />
-            <DetailItem
-              label="Double Cleanse Preference"
-              value={booking.surveyResponse.doubleCleansePreference}
-            />
-            <DetailItem label="Sleep Hours" value={booking.surveyResponse.sleepHours} />
-            <DetailItem
-              label="Water Intake"
-              value={formatWaterIntake(booking.surveyResponse.waterIntake)}
-            />
-            <DetailItem
-              label="Uses Korean Products"
-              value={yesNo(booking.surveyResponse.usesKoreanProducts)}
-            />
-            <DetailItem
-              label="Facing Skin Issues"
-              value={yesNo(booking.surveyResponse.facingSkinIssues)}
-            />
-            <DetailItem
-              label="Applies Sunscreen"
-              value={yesNo(booking.surveyResponse.appliesSunscreen)}
-            />
-            <DetailItem
-              label="Regular Period Cycle"
-              value={yesNo(booking.surveyResponse.regularPeriodCycle)}
-            />
-            <DetailItem
-              label="Used Ind/Pak Night Cream"
-              value={yesNo(booking.surveyResponse.usedIndoPakNightCream)}
-            />
-            <DetailItem label="Code ID" value={booking.surveyResponse.codeId ?? "Not provided"} />
-            <DetailItem
-              label="Additional Notes"
-              value={booking.surveyResponse.note ?? "No additional notes"}
-            />
-            <DetailItem
-              label="Submitted At"
-              value={booking.surveyResponse.createdAt.toLocaleString()}
-            />
-          </div>
+          <>
+            <div className="mt-5 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+              <DetailItem label="Name" value={booking.surveyResponse.name} />
+              <DetailItem label="Age" value={booking.surveyResponse.age} />
+              <DetailItem label="Phone" value={booking.surveyResponse.phone} />
+              <DetailItem label="Email" value={booking.surveyResponse.email} />
+              <DetailItem label="Skin Type" value={booking.surveyResponse.skinType} />
+              <DetailItem
+                label="Skin Issues"
+                value={joinValues(booking.surveyResponse.skinIssues)}
+              />
+              <DetailItem
+                label="Issue Duration"
+                value={booking.surveyResponse.skinIssueDuration ?? "Not specified"}
+              />
+              <DetailItem
+                label="Current Products"
+                value={joinValues(booking.surveyResponse.currentProducts)}
+              />
+              <DetailItem
+                label="Allergic Ingredients"
+                value={joinValues(booking.surveyResponse.allergicIngredients)}
+              />
+              <DetailItem
+                label="Double Cleanse Preference"
+                value={booking.surveyResponse.doubleCleansePreference}
+              />
+              <DetailItem label="Sleep Hours" value={booking.surveyResponse.sleepHours} />
+              <DetailItem
+                label="Water Intake"
+                value={formatWaterIntake(booking.surveyResponse.waterIntake)}
+              />
+              <DetailItem
+                label="Uses Korean Products"
+                value={yesNo(booking.surveyResponse.usesKoreanProducts)}
+              />
+              <DetailItem
+                label="Facing Skin Issues"
+                value={yesNo(booking.surveyResponse.facingSkinIssues)}
+              />
+              <DetailItem
+                label="Applies Sunscreen"
+                value={yesNo(booking.surveyResponse.appliesSunscreen)}
+              />
+              <DetailItem
+                label="Regular Period Cycle"
+                value={yesNo(booking.surveyResponse.regularPeriodCycle)}
+              />
+              <DetailItem
+                label="Used Steroid Based Night Cream"
+                value={yesNo(booking.surveyResponse.usedSteroidBasedNightCream)}
+              />
+              <DetailItem label="Code ID" value={booking.surveyResponse.codeId ?? "Not provided"} />
+              <DetailItem
+                label="Additional Notes"
+                value={booking.surveyResponse.note ?? "No additional notes"}
+              />
+              <DetailItem
+                label="Submitted At"
+                value={booking.surveyResponse.createdAt.toLocaleString()}
+              />
+            </div>
+
+            {booking.surveyResponse.skinImages.length > 0 ? (
+              <div className="mt-8">
+                <h3 className="text-base font-semibold text-foreground">
+                  Client Skin Photos
+                </h3>
+                <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                  {booking.surveyResponse.skinImages.map((imageUrl, index) => (
+                    <a
+                      key={imageUrl}
+                      href={imageUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="block overflow-hidden rounded-lg border border-black/10 bg-background transition-opacity hover:opacity-90 dark:border-white/10"
+                    >
+                      <div className="relative aspect-[4/3] w-full">
+                        <Image
+                          src={imageUrl}
+                          alt={`Client skin concern photo ${index + 1}`}
+                          fill
+                          sizes="(min-width: 640px) 50vw, 100vw"
+                          className="object-cover"
+                        />
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+          </>
         ) : (
           <p className="mt-4 text-sm leading-6 text-foreground/70">
             No survey response was submitted for this booking.

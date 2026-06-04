@@ -20,7 +20,7 @@ CREATE TABLE "SurveyResponse" (
     "wantsConsultation" BOOLEAN NOT NULL,
     "appliesSunscreen" BOOLEAN NOT NULL,
     "regularPeriodCycle" BOOLEAN NOT NULL,
-    "usedIndoPakNightCream" BOOLEAN NOT NULL,
+    "usedSteroidBasedNightCream" BOOLEAN NOT NULL,
     "note" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 

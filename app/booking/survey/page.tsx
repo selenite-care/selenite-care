@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 
 const skinIssuesOptions = [
@@ -60,8 +61,9 @@ type SurveyFormState = {
   waterIntake: string;
   appliesSunscreen: string;
   regularPeriodCycle: string;
-  usedIndoPakNightCream: string;
+  usedSteroidBasedNightCream: string;
   note: string;
+  skinImages: string[];
 };
 
 export default function BookingSurveyPage() {
@@ -90,10 +92,13 @@ export default function BookingSurveyPage() {
     waterIntake: "1-2 Litres",
     appliesSunscreen: "no",
     regularPeriodCycle: "no",
-    usedIndoPakNightCream: "no",
+    usedSteroidBasedNightCream: "no",
     note: "",
+    skinImages: [],
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isOnlineConsultation, setIsOnlineConsultation] = useState(false);
+  const [isUploadingSkinImage, setIsUploadingSkinImage] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -127,6 +132,35 @@ export default function BookingSurveyPage() {
     loadProfile();
   }, []);
 
+  useEffect(() => {
+    async function loadSelectedService() {
+      if (!serviceId) {
+        return;
+      }
+
+      try {
+        const response = await fetch("/api/services");
+
+        if (!response.ok) {
+          return;
+        }
+
+        const data = (await response.json()) as {
+          services?: Array<{ id: string; name: string }>;
+        };
+        const selectedService = data.services?.find((service) => service.id === serviceId);
+
+        setIsOnlineConsultation(
+          selectedService?.name.trim().toLowerCase() === "online consultation",
+        );
+      } catch {
+        // Keep the form usable if service lookup fails.
+      }
+    }
+
+    loadSelectedService();
+  }, [serviceId]);
+
   function updateField<K extends keyof SurveyFormState>(field: K, value: SurveyFormState[K]) {
     setFormState((current) => ({ ...current, [field]: value }));
   }
@@ -143,6 +177,54 @@ export default function BookingSurveyPage() {
 
       return { ...current, [field]: nextValues };
     });
+  }
+
+  async function handleSkinImageUpload(files: FileList | null) {
+    if (!files?.length) {
+      return;
+    }
+
+    setError("");
+    setIsUploadingSkinImage(true);
+
+    const remainingSlots = 4 - formState.skinImages.length;
+    const filesToUpload = Array.from(files).slice(0, remainingSlots);
+
+    try {
+      for (const file of filesToUpload) {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const response = await fetch("/api/booking/upload-skin-image", {
+          method: "POST",
+          body: formData,
+        });
+        const data = (await response.json().catch(() => null)) as {
+          secure_url?: string;
+          error?: string;
+        } | null;
+
+        if (!response.ok || !data?.secure_url) {
+          throw new Error(data?.error ?? "Failed to upload skin image.");
+        }
+
+        setFormState((current) => ({
+          ...current,
+          skinImages: [...current.skinImages, data.secure_url as string].slice(0, 4),
+        }));
+      }
+    } catch (uploadError) {
+      setError(uploadError instanceof Error ? uploadError.message : "Failed to upload skin image.");
+    } finally {
+      setIsUploadingSkinImage(false);
+    }
+  }
+
+  function removeSkinImage(url: string) {
+    setFormState((current) => ({
+      ...current,
+      skinImages: current.skinImages.filter((imageUrl) => imageUrl !== url),
+    }));
   }
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
@@ -184,8 +266,9 @@ export default function BookingSurveyPage() {
       waterIntake: formState.waterIntake,
       appliesSunscreen: formState.appliesSunscreen === "yes",
       regularPeriodCycle: formState.regularPeriodCycle === "yes",
-      usedIndoPakNightCream: formState.usedIndoPakNightCream === "yes",
+      usedSteroidBasedNightCream: formState.usedSteroidBasedNightCream === "yes",
       note: formState.note,
+      skinImages: formState.skinImages,
     };
 
     try {
@@ -747,16 +830,16 @@ typeof payload & { surveyId?: string; error?: string } | null;
                 style={{ color: "#2B2B2B" }}
                 className="block text-sm font-medium"
               >
-                Used IndoPak Night Cream
+                Used Steroid Based Night Cream
               </p>
               <div className="mt-2 flex gap-4">
                 <label className="inline-flex items-center">
                   <input
                     type="radio"
-                    name="usedIndoPakNightCream"
+                    name="usedSteroidBasedNightCream"
                     value="yes"
-                    checked={formState.usedIndoPakNightCream === "yes"}
-                    onChange={() => updateField("usedIndoPakNightCream", "yes")}
+                    checked={formState.usedSteroidBasedNightCream === "yes"}
+                    onChange={() => updateField("usedSteroidBasedNightCream", "yes")}
                     style={{
                       accentColor: "#C6A56B",
                     }}
@@ -767,10 +850,10 @@ typeof payload & { surveyId?: string; error?: string } | null;
                 <label className="inline-flex items-center">
                   <input
                     type="radio"
-                    name="usedIndoPakNightCream"
+                    name="usedSteroidBasedNightCream"
                     value="no"
-                    checked={formState.usedIndoPakNightCream === "no"}
-                    onChange={() => updateField("usedIndoPakNightCream", "no")}
+                    checked={formState.usedSteroidBasedNightCream === "no"}
+                    onChange={() => updateField("usedSteroidBasedNightCream", "no")}
                     style={{
                       accentColor: "#C6A56B",
                     }}
@@ -802,6 +885,82 @@ typeof payload & { surveyId?: string; error?: string } | null;
               className="mt-2 w-full rounded-md border px-3 py-2 focus:outline-none focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
             />
           </div>
+
+          {isOnlineConsultation ? (
+            <div
+              style={{
+                borderColor: "#D8C7B5",
+                backgroundColor: "#F8F5F0",
+              }}
+              className="rounded-lg border p-4"
+            >
+              <label
+                style={{ color: "#2B2B2B" }}
+                className="block text-sm font-medium"
+              >
+                Skin Photos
+              </label>
+              <p style={{ color: "#B8A89A" }} className="mt-2 text-sm leading-6">
+                Please upload clear photos of your skin concerns to help our doctor assess your condition remotely.
+              </p>
+
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                disabled={isUploadingSkinImage || formState.skinImages.length >= 4}
+                onChange={(event) => {
+                  void handleSkinImageUpload(event.target.files);
+                  event.target.value = "";
+                }}
+                style={{
+                  borderColor: "#D8C7B5",
+                  color: "#2B2B2B",
+                  backgroundColor: "#FFFFFF",
+                }}
+                className="mt-4 block w-full rounded-md border px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-50"
+              />
+
+              <div className="mt-3 flex items-center justify-between gap-3 text-sm">
+                <span style={{ color: "#B8A89A" }}>
+                  {formState.skinImages.length}/4 images uploaded
+                </span>
+                {isUploadingSkinImage ? (
+                  <span style={{ color: "#C6A56B" }}>Uploading...</span>
+                ) : null}
+              </div>
+
+              {formState.skinImages.length > 0 ? (
+                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                  {formState.skinImages.map((imageUrl) => (
+                    <div
+                      key={imageUrl}
+                      style={{ borderColor: "#D8C7B5", backgroundColor: "#FFFFFF" }}
+                      className="overflow-hidden rounded-lg border"
+                    >
+                      <div className="relative h-40 w-full">
+                        <Image
+                          src={imageUrl}
+                          alt="Uploaded skin concern"
+                          fill
+                          sizes="(min-width: 640px) 50vw, 100vw"
+                          className="object-cover"
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => removeSkinImage(imageUrl)}
+                        style={{ color: "#2B2B2B" }}
+                        className="w-full px-3 py-2 text-sm font-medium hover:bg-[#F8F5F0]"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+          ) : null}
 
           <div className="flex gap-3 pt-4">
             <button
