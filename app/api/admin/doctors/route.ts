@@ -1,12 +1,15 @@
 import NextAuth from "next-auth";
+import bcrypt from "bcryptjs";
 import { authConfig } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { sendEmail } from "@/lib/email";
 
 const { auth } = NextAuth(authConfig);
 
 type DoctorPayload = {
   id?: unknown;
   name?: unknown;
+  email?: unknown;
   designation?: unknown;
   availability?: unknown;
   bio?: unknown;
@@ -30,6 +33,8 @@ async function requireAdmin() {
 
 function parseDoctorPayload(body: DoctorPayload) {
   const name = typeof body.name === "string" ? body.name.trim() : "";
+  const email =
+    typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
   const designation =
     typeof body.designation === "string" ? body.designation.trim() : "";
   const availability =
@@ -39,15 +44,22 @@ function parseDoctorPayload(body: DoctorPayload) {
   const serviceId =
     typeof body.serviceId === "string" ? body.serviceId.trim() : "";
 
-  if (!name || !designation || !availability || !serviceId) {
+  if (!name || !email || !designation || !availability || !serviceId) {
     return {
-      error: "Name, designation, availability, and service are required.",
+      error: "Name, email, designation, availability, and service are required.",
+    };
+  }
+
+  if (!email.includes("@")) {
+    return {
+      error: "A valid email is required.",
     };
   }
 
   return {
     data: {
       name,
+      email,
       designation,
       availability,
       serviceId,
@@ -55,6 +67,39 @@ function parseDoctorPayload(body: DoctorPayload) {
       image: image || null,
     },
   };
+}
+
+function generateTemporaryPassword(length = 10) {
+  const characters =
+    "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
+  let password = "";
+
+  for (let i = 0; i < length; i += 1) {
+    password += characters[Math.floor(Math.random() * characters.length)];
+  }
+
+  return password;
+}
+
+function getDoctorWelcomeEmailHtml(email: string, temporaryPassword: string) {
+  return `
+    <div style="font-family: Arial, sans-serif; color: #2B2B2B; line-height: 1.6;">
+      <h1 style="color: #2B2B2B;">Welcome to Selenite Care</h1>
+      <p>Your doctor account has been created.</p>
+      <p>You can log in using the credentials below:</p>
+      <table style="border-collapse: collapse; margin-top: 16px;">
+        <tr>
+          <td style="padding: 8px 12px; border: 1px solid #D8C7B5; font-weight: bold;">Email</td>
+          <td style="padding: 8px 12px; border: 1px solid #D8C7B5;">${email}</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 12px; border: 1px solid #D8C7B5; font-weight: bold;">Temporary Password</td>
+          <td style="padding: 8px 12px; border: 1px solid #D8C7B5;">${temporaryPassword}</td>
+        </tr>
+      </table>
+      <p style="margin-top: 16px;">Please change your password after logging in.</p>
+    </div>
+  `;
 }
 
 export async function GET() {
@@ -83,6 +128,11 @@ export async function GET() {
           bio: true,
           image: true,
           serviceId: true,
+          user: {
+            select: {
+              email: true,
+            },
+          },
         },
       },
     },
@@ -105,8 +155,55 @@ export async function POST(request: Request) {
     return Response.json({ error: parsed.error }, { status: 400 });
   }
 
-  const doctor = await db.doctor.create({
-    data: parsed.data,
+  const existingUser = await db.user.findUnique({
+    where: {
+      email: parsed.data.email,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (existingUser) {
+    return Response.json(
+      { error: "A user with this email already exists." },
+      { status: 409 },
+    );
+  }
+
+  const temporaryPassword = generateTemporaryPassword();
+  const hashedPassword = await bcrypt.hash(temporaryPassword, 10);
+
+  const doctor = await db.$transaction(async (tx) => {
+    const user = await tx.user.create({
+      data: {
+        name: parsed.data.name,
+        email: parsed.data.email,
+        password: hashedPassword,
+        role: "DOCTOR",
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    return tx.doctor.create({
+      data: {
+        name: parsed.data.name,
+        designation: parsed.data.designation,
+        availability: parsed.data.availability,
+        serviceId: parsed.data.serviceId,
+        bio: parsed.data.bio,
+        image: parsed.data.image,
+        userId: user.id,
+      },
+    });
+  });
+
+  await sendEmail({
+    to: parsed.data.email,
+    subject: "Welcome to Selenite Care - Your Login Credentials",
+    html: getDoctorWelcomeEmailHtml(parsed.data.email, temporaryPassword),
   });
 
   return Response.json({ doctor }, { status: 201 });

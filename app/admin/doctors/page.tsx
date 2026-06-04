@@ -20,6 +20,7 @@ type Service = {
 
 type DoctorFormState = {
   name: string;
+  email: string;
   designation: string;
   startDay: string;
   endDay: string;
@@ -31,6 +32,7 @@ type DoctorFormState = {
 
 const emptyForm: DoctorFormState = {
   name: "",
+  email: "",
   designation: "",
   startDay: "Wed",
   endDay: "Fri",
@@ -223,6 +225,7 @@ setDoctors(doctorsData)
         },
         body: JSON.stringify({
           name: form.name,
+          email: form.email,
           designation: form.designation,
           availability: formatAvailability(form),
           bio: form.bio,
@@ -429,6 +432,28 @@ setDoctors(doctorsData)
                       setForm((current) => ({
                         ...current,
                         name: event.target.value,
+                      }))
+                    }
+                    required
+                    className="mt-2 h-11 w-full rounded-md border border-black/10 bg-transparent px-3 text-sm outline-none transition-colors focus:border-foreground dark:border-white/10"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-medium text-foreground"
+                  >
+                    Email
+                  </label>
+                  <input
+                    id="email"
+                    type="email"
+                    value={form.email}
+                    onChange={(event) =>
+                      setForm((current) => ({
+                        ...current,
+                        email: event.target.value,
                       }))
                     }
                     required
