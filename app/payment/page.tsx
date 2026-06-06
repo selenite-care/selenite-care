@@ -239,7 +239,7 @@ function PaymentForm({
   );
 }
 
-function PaymentContent() {
+function PaymentPageContent() {
   const searchParams = useSearchParams();
   const serviceId = searchParams.get("serviceId");
   const doctorId = searchParams.get("doctorId") ?? "";
@@ -607,12 +607,12 @@ export default function PaymentPage() {
               <p style={{
                 fontSize: '14px',
                 color: '#B8A89A',
-              }}>Loading payment...</p>
+              }}>Loading...</p>
             </div>
           </section>
         }
       >
-        <PaymentContent />
+        <PaymentPageContent />
       </Suspense>
     </Elements>
   );

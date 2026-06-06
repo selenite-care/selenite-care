@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, Suspense, useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -66,7 +66,7 @@ type SurveyFormState = {
   skinImages: string[];
 };
 
-export default function BookingSurveyPage() {
+function BookingSurveyPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const serviceId = searchParams?.get("serviceId") ?? "";
@@ -978,5 +978,28 @@ typeof payload & { surveyId?: string; error?: string } | null;
         </form>
       </div>
     </section>
+  );
+}
+
+function BookingSurveyLoadingFallback() {
+  return (
+    <section
+      className="flex min-h-screen flex-col px-6 py-16"
+      style={{ backgroundColor: "#F8F5F0" }}
+    >
+      <div className="mx-auto w-full" style={{ maxWidth: "48rem" }}>
+        <p className="text-sm" style={{ color: "#B8A89A" }}>
+          Loading...
+        </p>
+      </div>
+    </section>
+  );
+}
+
+export default function BookingSurveyPage() {
+  return (
+    <Suspense fallback={<BookingSurveyLoadingFallback />}>
+      <BookingSurveyPageContent />
+    </Suspense>
   );
 }
