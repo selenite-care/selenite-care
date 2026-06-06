@@ -174,7 +174,7 @@ export async function POST(request: Request) {
   const temporaryPassword = generateTemporaryPassword();
   const hashedPassword = await bcrypt.hash(temporaryPassword, 10);
 
-  const doctor = await db.$transaction(async (tx) => {
+  const { doctor, user } = await db.$transaction(async (tx) => {
     const user = await tx.user.create({
       data: {
         name: parsed.data.name,
@@ -184,10 +184,14 @@ export async function POST(request: Request) {
       },
       select: {
         id: true,
+        name: true,
+        email: true,
+        role: true,
+        createdAt: true,
       },
     });
 
-    return tx.doctor.create({
+    const doctor = await tx.doctor.create({
       data: {
         name: parsed.data.name,
         designation: parsed.data.designation,
@@ -198,6 +202,8 @@ export async function POST(request: Request) {
         userId: user.id,
       },
     });
+
+    return { doctor, user };
   });
 
   await sendEmail({
@@ -206,7 +212,18 @@ export async function POST(request: Request) {
     html: getDoctorWelcomeEmailHtml(parsed.data.email, temporaryPassword),
   });
 
-  return Response.json({ doctor }, { status: 201 });
+  return Response.json(
+    {
+      doctor,
+      user,
+      credentials: {
+        name: parsed.data.name,
+        email: parsed.data.email,
+        temporaryPassword,
+      },
+    },
+    { status: 201 },
+  );
 }
 
 export async function DELETE(request: Request) {

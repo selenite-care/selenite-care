@@ -30,6 +30,12 @@ type DoctorFormState = {
   serviceId: string;
 };
 
+type DoctorCredentials = {
+  name: string;
+  email: string;
+  temporaryPassword: string;
+};
+
 const emptyForm: DoctorFormState = {
   name: "",
   email: "",
@@ -79,6 +85,8 @@ export default function AdminDoctorsPage() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [doctorCredentials, setDoctorCredentials] = useState<DoctorCredentials | null>(null);
+  const [isPasswordCopied, setIsPasswordCopied] = useState(false);
 
   async function loadInitialData() {
     setError("");
@@ -234,12 +242,18 @@ setDoctors(doctorsData)
         }),
       });
 
-      if (!response.ok) {
-        const data = (await response.json().catch(() => null)) as {
-          error?: string;
-        } | null;
+      const data = (await response.json().catch(() => null)) as {
+        credentials?: DoctorCredentials;
+        error?: string;
+      } | null;
 
+      if (!response.ok) {
         throw new Error(data?.error ?? "Unable to save doctor.");
+      }
+
+      if (data?.credentials) {
+        setDoctorCredentials(data.credentials);
+        setIsPasswordCopied(false);
       }
 
       setForm((current) => ({
@@ -278,12 +292,94 @@ setDoctors(doctorsData)
     await loadInitialData();
   }
 
+  async function copyTemporaryPassword() {
+    if (!doctorCredentials?.temporaryPassword) {
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(doctorCredentials.temporaryPassword);
+      setIsPasswordCopied(true);
+    } catch {
+      setError("Unable to copy password. Please select and copy it manually.");
+    }
+  }
+
   const filteredDoctors = doctors.filter(
     (doc) => doc.serviceId === selectedServiceId
   );
 
   return (
     <section className="space-y-8">
+      {doctorCredentials ? (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="doctor-created-title"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4"
+        >
+          <div className="w-full max-w-lg rounded-lg border border-black/10 bg-background p-6 shadow-xl dark:border-white/10">
+            <h2
+              id="doctor-created-title"
+              className="text-xl font-semibold text-foreground"
+            >
+              Doctor Added Successfully
+            </h2>
+            <p className="mt-3 text-sm leading-6 text-foreground/70">
+              Share these credentials with the doctor securely. This password will not be shown again after closing this dialog.
+            </p>
+
+            <div className="mt-5 space-y-4 rounded-lg border border-black/10 bg-zinc-50 p-4 dark:border-white/10 dark:bg-white/5">
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wide text-foreground/50">
+                  Doctor Name
+                </p>
+                <p className="mt-1 break-all font-mono text-sm text-foreground">
+                  {doctorCredentials.name}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wide text-foreground/50">
+                  Email
+                </p>
+                <p className="mt-1 break-all font-mono text-sm text-foreground">
+                  {doctorCredentials.email}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wide text-foreground/50">
+                  Temporary Password
+                </p>
+                <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-center">
+                  <code className="flex-1 rounded-md border border-black/10 bg-background px-3 py-2 text-sm font-semibold text-foreground dark:border-white/10">
+                    {doctorCredentials.temporaryPassword}
+                  </code>
+                  <button
+                    type="button"
+                    onClick={copyTemporaryPassword}
+                    className="inline-flex h-10 items-center justify-center rounded-md bg-foreground px-4 text-sm font-medium text-background transition-colors hover:bg-foreground/85"
+                  >
+                    {isPasswordCopied ? "Copied" : "Copy Password"}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-6 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setDoctorCredentials(null)}
+                className="inline-flex h-10 items-center justify-center rounded-md border border-black/10 px-4 text-sm font-medium text-foreground transition-colors hover:bg-zinc-50 dark:border-white/10 dark:hover:bg-white/5"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
       <div>
         <h1 className="text-3xl font-semibold tracking-tight text-foreground">
           Doctors
