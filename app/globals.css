@@ -45,6 +45,19 @@
     animation: horizontal-nudge 1.8s ease-in-out;
   }
 
+@keyframes marquee {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.announcement-track {
+  animation: marquee 25s linear infinite;
+}
+
   @keyframes glitter-text-shimmer {
     from {
       background-position:

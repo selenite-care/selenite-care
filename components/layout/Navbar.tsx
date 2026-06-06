@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
 import { useState } from "react";
@@ -29,12 +30,27 @@ function NavbarContent() {
       <nav className="mx-auto flex w-full max-w-6xl items-center justify-between">
         {/* Logo */}
         <Link
-          href="/"
-          style={{ fontFamily: "Playfair Display, serif", color: "#2B2B2B" }}
-          className="text-2xl font-bold tracking-tight"
+        href="/"
+        className="flex items-center gap-3 transition-opacity hover:opacity-80"
         >
-          Selenite Care
-        </Link>
+        <Image
+    className="object-contain"
+    src="/logo1.png"
+    alt="Selenite Care Logo"
+    width={40}
+    height={40}
+    priority
+  />
+
+  <span
+    style={{
+      fontFamily: "Playfair Display, serif",
+    }}
+    className="text-3xl font-semibold text-[#2B2B2B]"
+  >
+    Selenite Care
+  </span>
+</Link>
 
         {/* Hamburger Menu Button */}
         <button

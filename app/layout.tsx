@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Playfair_Display } from "next/font/google";
 import { Footer } from "@/components/layout/Footer";
+import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
 import { Navbar } from "@/components/layout/Navbar";
 import { SessionProvider } from "next-auth/react"
 import "./globals.css";
@@ -37,6 +38,7 @@ export default function RootLayout({
     >
       <body className="flex min-h-full flex-col bg-brand-ivory text-brand-charcoal">
         <SessionProvider>
+          <AnnouncementBar />
           <Navbar />
           <main className="flex flex-1 flex-col">{children}</main>
           <Footer />
