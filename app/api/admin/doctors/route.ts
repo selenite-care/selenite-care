@@ -180,6 +180,7 @@ export async function POST(request: Request) {
         name: parsed.data.name,
         email: parsed.data.email,
         password: hashedPassword,
+        isTemporaryPassword: true,
         role: "DOCTOR",
       },
       select: {

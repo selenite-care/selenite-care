@@ -12,6 +12,13 @@ const statusOptions = [
 
 type BookingStatus = (typeof statusOptions)[number]["value"];
 
+type BookingStatusResponse = {
+  booking?: {
+    status?: BookingStatus;
+  };
+  error?: string;
+};
+
 export default function BookingStatusControls({
   bookingId,
   currentStatus,
@@ -20,32 +27,39 @@ export default function BookingStatusControls({
   currentStatus: BookingStatus;
 }) {
   const router = useRouter();
+  const [status, setStatus] = useState<BookingStatus>(currentStatus);
   const [pendingStatus, setPendingStatus] = useState<BookingStatus | null>(null);
   const [error, setError] = useState("");
 
-  async function updateStatus(status: BookingStatus) {
-    setError("");
-    setPendingStatus(status);
-
-    const response = await fetch(`/api/admin/bookings/${bookingId}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ status }),
-    });
-
-    if (!response.ok) {
-      const data = (await response.json().catch(() => null)) as
-        | { error?: string }
-        | null;
-
-      setError(data?.error ?? "Unable to update booking status.");
-      setPendingStatus(null);
+  async function updateStatus(nextStatus: BookingStatus) {
+    if (nextStatus === status) {
       return;
     }
 
-    router.refresh();
+    setError("");
+    setPendingStatus(nextStatus);
+
+    try {
+      const response = await fetch(`/api/admin/bookings/${bookingId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status: nextStatus }),
+      });
+      const data = (await response.json().catch(() => null)) as BookingStatusResponse | null;
+
+      if (!response.ok) {
+        throw new Error(data?.error ?? "Unable to update booking status.");
+      }
+
+      setStatus(data?.booking?.status ?? nextStatus);
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unable to update booking status.");
+    } finally {
+      setPendingStatus(null);
+    }
   }
 
   return (
@@ -55,12 +69,12 @@ export default function BookingStatusControls({
       </h2>
       <p className="mt-4 text-sm text-foreground/70">
         Current status:{" "}
-        <span className="font-medium text-foreground">{currentStatus}</span>
+        <span className="font-medium text-foreground">{status}</span>
       </p>
 
       <div className="mt-5 flex flex-wrap gap-3">
         {statusOptions.map((statusOption) => {
-          const isCurrent = currentStatus === statusOption.value;
+          const isCurrent = status === statusOption.value;
           const isPending = pendingStatus === statusOption.value;
 
           return (

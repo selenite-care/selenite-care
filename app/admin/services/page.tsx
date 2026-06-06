@@ -236,21 +236,42 @@ export default function AdminServicesPage() {
       ) : null}
 
       {isModalOpen ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
-          <div className="w-full max-w-lg rounded-lg bg-background p-6 shadow-xl">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center px-4 py-6"
+          style={{ backgroundColor: "rgba(43, 43, 43, 0.72)" }}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="service-modal-title"
+            className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg border p-6 shadow-2xl"
+            style={{
+              backgroundColor: "#FFFFFF",
+              borderColor: "#D8C7B5",
+              boxShadow: "0 24px 80px rgba(43, 43, 43, 0.28)",
+            }}
+          >
             <div className="flex items-start justify-between gap-4">
               <div>
-                <h2 className="text-xl font-semibold text-foreground">
+                <h2
+                  id="service-modal-title"
+                  className="text-xl font-semibold"
+                  style={{
+                    color: "#2B2B2B",
+                    fontFamily: "Playfair Display, serif",
+                  }}
+                >
                   {editingService ? "Edit Service" : "Add Service"}
                 </h2>
-                <p className="mt-2 text-sm text-foreground/70">
+                <p className="mt-2 text-sm" style={{ color: "#B8A89A" }}>
                   Enter the details clients will see when choosing a service.
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => setIsModalOpen(false)}
-                className="text-sm font-medium text-foreground/70 transition-colors hover:text-foreground"
+                className="rounded-md px-2 py-1 text-sm font-medium transition-colors hover:bg-[#F8F5F0]"
+                style={{ color: "#2B2B2B" }}
               >
                 Close
               </button>
@@ -260,7 +281,8 @@ export default function AdminServicesPage() {
               <div>
                 <label
                   htmlFor="name"
-                  className="block text-sm font-medium text-foreground"
+                  className="block text-sm font-medium"
+                  style={{ color: "#2B2B2B" }}
                 >
                   Name
                 </label>
@@ -274,14 +296,19 @@ export default function AdminServicesPage() {
                     }))
                   }
                   required
-                  className="mt-2 h-11 w-full rounded-md border border-black/10 bg-transparent px-3 text-sm outline-none transition-colors focus:border-foreground dark:border-white/10"
+                  className="mt-2 h-11 w-full rounded-md border bg-white px-3 text-sm outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
+                  style={{
+                    borderColor: "#D8C7B5",
+                    color: "#2B2B2B",
+                  }}
                 />
               </div>
 
               <div>
                 <label
                   htmlFor="description"
-                  className="block text-sm font-medium text-foreground"
+                  className="block text-sm font-medium"
+                  style={{ color: "#2B2B2B" }}
                 >
                   Description
                 </label>
@@ -295,7 +322,11 @@ export default function AdminServicesPage() {
                     }))
                   }
                   rows={4}
-                  className="mt-2 w-full resize-none rounded-md border border-black/10 bg-transparent px-3 py-3 text-sm outline-none transition-colors focus:border-foreground dark:border-white/10"
+                  className="mt-2 w-full resize-none rounded-md border bg-white px-3 py-3 text-sm outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
+                  style={{
+                    borderColor: "#D8C7B5",
+                    color: "#2B2B2B",
+                  }}
                 />
               </div>
 
@@ -303,7 +334,8 @@ export default function AdminServicesPage() {
                 <div>
                   <label
                     htmlFor="duration"
-                    className="block text-sm font-medium text-foreground"
+                    className="block text-sm font-medium"
+                    style={{ color: "#2B2B2B" }}
                   >
                     Duration
                   </label>
@@ -319,14 +351,19 @@ export default function AdminServicesPage() {
                       }))
                     }
                     required
-                    className="mt-2 h-11 w-full rounded-md border border-black/10 bg-transparent px-3 text-sm outline-none transition-colors focus:border-foreground dark:border-white/10"
+                    className="mt-2 h-11 w-full rounded-md border bg-white px-3 text-sm outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
+                    style={{
+                      borderColor: "#D8C7B5",
+                      color: "#2B2B2B",
+                    }}
                   />
                 </div>
 
                 <div>
                   <label
                     htmlFor="price"
-                    className="block text-sm font-medium text-foreground"
+                    className="block text-sm font-medium"
+                    style={{ color: "#2B2B2B" }}
                   >
                     Price
                   </label>
@@ -343,7 +380,11 @@ export default function AdminServicesPage() {
                       }))
                     }
                     required
-                    className="mt-2 h-11 w-full rounded-md border border-black/10 bg-transparent px-3 text-sm outline-none transition-colors focus:border-foreground dark:border-white/10"
+                    className="mt-2 h-11 w-full rounded-md border bg-white px-3 text-sm outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
+                    style={{
+                      borderColor: "#D8C7B5",
+                      color: "#2B2B2B",
+                    }}
                   />
                 </div>
               </div>
@@ -352,14 +393,23 @@ export default function AdminServicesPage() {
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="inline-flex h-11 items-center justify-center rounded-md border border-black/10 px-5 text-sm font-medium text-foreground transition-colors hover:bg-zinc-50 dark:border-white/10 dark:hover:bg-white/5"
+                  className="inline-flex h-11 items-center justify-center rounded-md border px-5 text-sm font-medium transition-colors hover:bg-[#C6A56B]/10"
+                  style={{
+                    borderColor: "#C6A56B",
+                    color: "#2B2B2B",
+                    backgroundColor: "#FFFFFF",
+                  }}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="inline-flex h-11 items-center justify-center rounded-md bg-foreground px-5 text-sm font-medium text-background transition-colors hover:bg-foreground/85 disabled:cursor-not-allowed disabled:opacity-70"
+                  className="inline-flex h-11 items-center justify-center rounded-md px-5 text-sm font-medium transition-colors hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70"
+                  style={{
+                    backgroundColor: "#2B2B2B",
+                    color: "#F8F5F0",
+                  }}
                 >
                   {isSubmitting ? "Saving..." : "Save Service"}
                 </button>

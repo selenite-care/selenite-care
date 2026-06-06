@@ -316,50 +316,87 @@ setDoctors(doctorsData)
           role="dialog"
           aria-modal="true"
           aria-labelledby="doctor-created-title"
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4"
+          className="fixed inset-0 z-50 flex items-center justify-center px-4 py-6"
+          style={{ backgroundColor: "rgba(43, 43, 43, 0.72)" }}
         >
-          <div className="w-full max-w-lg rounded-lg border border-black/10 bg-background p-6 shadow-xl dark:border-white/10">
+          <div
+            className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg border p-6 shadow-2xl"
+            style={{
+              backgroundColor: "#FFFFFF",
+              borderColor: "#D8C7B5",
+              boxShadow: "0 24px 80px rgba(43, 43, 43, 0.28)",
+            }}
+          >
             <h2
               id="doctor-created-title"
-              className="text-xl font-semibold text-foreground"
+              className="text-xl font-semibold"
+              style={{
+                color: "#2B2B2B",
+                fontFamily: "Playfair Display, serif",
+              }}
             >
               Doctor Added Successfully
             </h2>
-            <p className="mt-3 text-sm leading-6 text-foreground/70">
+            <p className="mt-3 text-sm leading-6" style={{ color: "#B8A89A" }}>
               Share these credentials with the doctor securely. This password will not be shown again after closing this dialog.
             </p>
 
-            <div className="mt-5 space-y-4 rounded-lg border border-black/10 bg-zinc-50 p-4 dark:border-white/10 dark:bg-white/5">
+            <div
+              className="mt-5 space-y-4 rounded-lg border p-4"
+              style={{
+                backgroundColor: "#F8F5F0",
+                borderColor: "#D8C7B5",
+              }}
+            >
               <div>
-                <p className="text-xs font-medium uppercase tracking-wide text-foreground/50">
+                <p
+                  className="text-xs font-medium uppercase tracking-wide"
+                  style={{ color: "#B8A89A" }}
+                >
                   Doctor Name
                 </p>
-                <p className="mt-1 break-all font-mono text-sm text-foreground">
+                <p className="mt-1 break-all font-mono text-sm" style={{ color: "#2B2B2B" }}>
                   {doctorCredentials.name}
                 </p>
               </div>
 
               <div>
-                <p className="text-xs font-medium uppercase tracking-wide text-foreground/50">
+                <p
+                  className="text-xs font-medium uppercase tracking-wide"
+                  style={{ color: "#B8A89A" }}
+                >
                   Email
                 </p>
-                <p className="mt-1 break-all font-mono text-sm text-foreground">
+                <p className="mt-1 break-all font-mono text-sm" style={{ color: "#2B2B2B" }}>
                   {doctorCredentials.email}
                 </p>
               </div>
 
               <div>
-                <p className="text-xs font-medium uppercase tracking-wide text-foreground/50">
+                <p
+                  className="text-xs font-medium uppercase tracking-wide"
+                  style={{ color: "#B8A89A" }}
+                >
                   Temporary Password
                 </p>
                 <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-center">
-                  <code className="flex-1 rounded-md border border-black/10 bg-background px-3 py-2 text-sm font-semibold text-foreground dark:border-white/10">
+                  <code
+                    className="flex-1 rounded-md border bg-white px-3 py-2 text-sm font-semibold"
+                    style={{
+                      borderColor: "#D8C7B5",
+                      color: "#2B2B2B",
+                    }}
+                  >
                     {doctorCredentials.temporaryPassword}
                   </code>
                   <button
                     type="button"
                     onClick={copyTemporaryPassword}
-                    className="inline-flex h-10 items-center justify-center rounded-md bg-foreground px-4 text-sm font-medium text-background transition-colors hover:bg-foreground/85"
+                    className="inline-flex h-10 items-center justify-center rounded-md px-4 text-sm font-medium transition-colors hover:opacity-90"
+                    style={{
+                      backgroundColor: "#2B2B2B",
+                      color: "#F8F5F0",
+                    }}
                   >
                     {isPasswordCopied ? "Copied" : "Copy Password"}
                   </button>
@@ -371,7 +408,12 @@ setDoctors(doctorsData)
               <button
                 type="button"
                 onClick={() => setDoctorCredentials(null)}
-                className="inline-flex h-10 items-center justify-center rounded-md border border-black/10 px-4 text-sm font-medium text-foreground transition-colors hover:bg-zinc-50 dark:border-white/10 dark:hover:bg-white/5"
+                className="inline-flex h-10 items-center justify-center rounded-md border px-4 text-sm font-medium transition-colors hover:bg-[#C6A56B]/10"
+                style={{
+                  borderColor: "#C6A56B",
+                  color: "#2B2B2B",
+                  backgroundColor: "#FFFFFF",
+                }}
               >
                 Close
               </button>

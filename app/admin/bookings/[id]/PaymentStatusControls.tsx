@@ -11,6 +11,13 @@ const statusOptions = [
 
 type PaymentStatus = (typeof statusOptions)[number]["value"];
 
+type PaymentStatusResponse = {
+  payment?: {
+    status?: PaymentStatus;
+  };
+  error?: string;
+};
+
 export default function PaymentStatusControls({
   paymentId,
   currentStatus,
@@ -19,32 +26,39 @@ export default function PaymentStatusControls({
   currentStatus: PaymentStatus;
 }) {
   const router = useRouter();
+  const [status, setStatus] = useState<PaymentStatus>(currentStatus);
   const [pendingStatus, setPendingStatus] = useState<PaymentStatus | null>(null);
   const [error, setError] = useState("");
 
-  async function updateStatus(status: PaymentStatus) {
-    setError("");
-    setPendingStatus(status);
-
-    const response = await fetch(`/api/admin/payments/${paymentId}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ status }),
-    });
-
-    if (!response.ok) {
-      const data = (await response.json().catch(() => null)) as
-        | { error?: string }
-        | null;
-
-      setError(data?.error ?? "Unable to update payment status.");
-      setPendingStatus(null);
+  async function updateStatus(nextStatus: PaymentStatus) {
+    if (nextStatus === status) {
       return;
     }
 
-    router.refresh();
+    setError("");
+    setPendingStatus(nextStatus);
+
+    try {
+      const response = await fetch(`/api/admin/payments/${paymentId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status: nextStatus }),
+      });
+      const data = (await response.json().catch(() => null)) as PaymentStatusResponse | null;
+
+      if (!response.ok) {
+        throw new Error(data?.error ?? "Unable to update payment status.");
+      }
+
+      setStatus(data?.payment?.status ?? nextStatus);
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unable to update payment status.");
+    } finally {
+      setPendingStatus(null);
+    }
   }
 
   return (
@@ -54,12 +68,12 @@ export default function PaymentStatusControls({
       </h2>
       <p className="mt-4 text-sm text-foreground/70">
         Current payment status:{" "}
-        <span className="font-medium text-foreground">{currentStatus}</span>
+        <span className="font-medium text-foreground">{status}</span>
       </p>
 
       <div className="mt-5 flex flex-wrap gap-3">
         {statusOptions.map((statusOption) => {
-          const isCurrent = currentStatus === statusOption.value;
+          const isCurrent = status === statusOption.value;
           const isPending = pendingStatus === statusOption.value;
 
           return (

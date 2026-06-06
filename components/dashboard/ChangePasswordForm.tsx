@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function ChangePasswordForm() {
+  const router = useRouter();
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [isSaving, setIsSaving] = useState(false);
@@ -30,6 +32,7 @@ export default function ChangePasswordForm() {
     setCurrentPassword("");
     setNewPassword("");
     setIsSaving(false);
+    router.refresh();
   }
 
   return (

@@ -20,7 +20,14 @@ export default async function DoctorProfilePage() {
 
   const user = await db.user.findUnique({
     where: { id: session.user.id },
-    select: { id: true, name: true, email: true, phone: true, role: true },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      phone: true,
+      role: true,
+      isTemporaryPassword: true,
+    },
   });
 
   if (!user) {
@@ -29,12 +36,14 @@ export default async function DoctorProfilePage() {
 
   return (
     <section>
-      <div className="mb-6 rounded-lg border border-yellow-300 bg-yellow-50 p-5 text-yellow-900 shadow-sm dark:border-yellow-700/60 dark:bg-yellow-950/30 dark:text-yellow-100">
-        <p className="text-base font-semibold">Temporary password in use</p>
-        <p className="mt-2 text-sm leading-6">
-          You are using a temporary password. Please change it now for security.
-        </p>
-      </div>
+      {user.isTemporaryPassword ? (
+        <div className="mb-6 rounded-lg border border-yellow-300 bg-yellow-50 p-5 text-yellow-900 shadow-sm dark:border-yellow-700/60 dark:bg-yellow-950/30 dark:text-yellow-100">
+          <p className="text-base font-semibold">Temporary password in use</p>
+          <p className="mt-2 text-sm leading-6">
+            You are using a temporary password. Please change it now for security.
+          </p>
+        </div>
+      ) : null}
 
       <div>
         <h1 className="text-3xl font-semibold tracking-tight text-foreground">My Profile</h1>
