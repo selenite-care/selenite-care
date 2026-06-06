@@ -8,8 +8,9 @@ type ServicePayload = {
   id?: unknown;
   name?: unknown;
   description?: unknown;
-  duration?: unknown;
+  details?: unknown;
   price?: unknown;
+  originalPrice?: unknown;
 };
 
 async function requireAdmin() {
@@ -30,12 +31,18 @@ function parseServicePayload(body: ServicePayload) {
   const name = typeof body.name === "string" ? body.name.trim() : "";
   const description =
     typeof body.description === "string" ? body.description.trim() : "";
-  const duration = Number(body.duration);
+  const details = typeof body.details === "string" ? body.details.trim() : "";
   const price = Number(body.price);
+  const originalPrice =
+    body.originalPrice === undefined ||
+    body.originalPrice === null ||
+    body.originalPrice === ""
+      ? null
+      : Number(body.originalPrice);
 
-  if (!name || !Number.isFinite(duration) || duration <= 0) {
+  if (!name) {
     return {
-      error: "Name and a valid duration are required.",
+      error: "Name is required.",
     };
   }
 
@@ -45,12 +52,22 @@ function parseServicePayload(body: ServicePayload) {
     };
   }
 
+  if (
+    originalPrice !== null &&
+    (!Number.isFinite(originalPrice) || originalPrice < 0)
+  ) {
+    return {
+      error: "Original price must be a valid number.",
+    };
+  }
+
   return {
     data: {
       name,
       description: description || null,
-      duration,
+      details: details || null,
       price,
+      originalPrice,
     },
   };
 }

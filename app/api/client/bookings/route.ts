@@ -23,7 +23,6 @@ export async function GET() {
         select: {
           id: true,
           name: true,
-          duration: true,
           price: true,
         },
       },

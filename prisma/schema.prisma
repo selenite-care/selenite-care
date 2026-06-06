@@ -22,13 +22,14 @@ model User {
 }
 
 model Service {
-  id          String    @id @default(cuid())
-  name        String
-  description String?
-  duration    Int
-  price       Float
-  doctors     Doctor[]
-  bookings    Booking[]
+  id            String    @id @default(cuid())
+  name          String
+  description   String?
+  details       String?   // detailed description for modal
+  price         Float     // discounted price in BDT
+  originalPrice Float?    // original price in BDT (shown crossed out)
+  doctors       Doctor[]
+  bookings      Booking[]
 }
 
 model Doctor {

@@ -77,6 +77,10 @@ function formatWaterIntake(value: string | string[] | null | undefined) {
   return Array.isArray(value) ? value.join(", ") : value;
 }
 
+function formatBdt(amount: number) {
+  return `${Math.round(amount)} BDT`;
+}
+
 export default async function CrmBookingDetailsPage({
   params,
 }: CrmBookingDetailsPageProps) {
@@ -109,7 +113,6 @@ export default async function CrmBookingDetailsPage({
           id: true,
           name: true,
           description: true,
-          duration: true,
           price: true,
         },
       },
@@ -178,8 +181,7 @@ export default async function CrmBookingDetailsPage({
           <h2 className="text-lg font-semibold text-foreground">Service</h2>
           <div className="mt-5 grid gap-5 sm:grid-cols-2">
             <DetailItem label="Name" value={booking.service.name} />
-            <DetailItem label="Duration" value={`${booking.service.duration} minutes`} />
-            <DetailItem label="Price" value={`$${booking.service.price.toFixed(2)}`} />
+            <DetailItem label="Price" value={formatBdt(booking.service.price)} />
             <DetailItem
               label="Description"
               value={booking.service.description ?? "Not provided"}
@@ -240,7 +242,7 @@ export default async function CrmBookingDetailsPage({
                   </span>
                 }
               />
-              <DetailItem label="Amount" value={`$${booking.payment.amount.toFixed(2)}`} />
+              <DetailItem label="Amount" value={formatBdt(booking.payment.amount)} />
               <DetailItem
                 label="Stripe Payment ID"
                 value={

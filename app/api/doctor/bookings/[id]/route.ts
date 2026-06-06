@@ -43,7 +43,7 @@ export async function GET(_request: NextRequest, { params }: BookingRouteContext
     where: { id },
     include: {
       user: { select: { id: true, name: true, email: true, role: true, createdAt: true } },
-      service: { select: { id: true, name: true, description: true, duration: true, price: true } },
+      service: { select: { id: true, name: true, description: true, price: true } },
       doctor: { select: { id: true, name: true, designation: true, availability: true, bio: true } },
       payment: { select: { id: true, stripePaymentId: true, amount: true, status: true, createdAt: true } },
       surveyResponse: true,

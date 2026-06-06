@@ -2,6 +2,10 @@ import { db } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
 const adminEmail = process.env.ADMIN_EMAIL ?? "";
 
+function formatBdt(amount: number) {
+  return `${Math.round(amount)} BDT`;
+}
+
 type CreateBookingPayload = {
   userId?: unknown;
   serviceId?: unknown;
@@ -151,7 +155,7 @@ export async function POST(request: Request) {
         </tr>
         <tr>
           <td style="padding:10px; border-bottom:1px solid #eee;">Amount Paid</td>
-          <td style="padding:10px; border-bottom:1px solid #eee;">$${service.price.toFixed(2)}</td>
+          <td style="padding:10px; border-bottom:1px solid #eee;">${formatBdt(service.price)}</td>
         </tr>
         <tr>
           <td style="padding:10px; border-bottom:1px solid #eee;">Message</td>
@@ -204,7 +208,7 @@ export async function POST(request: Request) {
           </tr>
           <tr>
             <td style="padding:10px; border-bottom:1px solid #eee;">Amount Paid</td>
-            <td style="padding:10px; border-bottom:1px solid #eee;">$${service.price.toFixed(2)}</td>
+            <td style="padding:10px; border-bottom:1px solid #eee;">${formatBdt(service.price)}</td>
           </tr>
         </tbody>
       </table>
