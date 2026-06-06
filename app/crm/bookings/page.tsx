@@ -96,12 +96,13 @@ export default async function CrmBookingsPage() {
                   <th className="px-4 py-4">Doctor</th>
                   <th className="px-4 py-4">Appointment Time</th>
                   <th className="px-4 py-4">Status</th>
+                  <th className="px-4 py-4">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-black/10 bg-white text-sm dark:divide-white/10 dark:bg-zinc-900">
                 {bookings.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="px-4 py-8 text-center text-foreground/70">
+                    <td colSpan={8} className="px-4 py-8 text-center text-foreground/70">
                       No bookings found.
                     </td>
                   </tr>
@@ -139,6 +140,14 @@ export default async function CrmBookingsPage() {
                         >
                           {booking.status}
                         </span>
+                      </td>
+                      <td className="px-4 py-4">
+                        <Link
+                          href={`/crm/bookings/${booking.id}`}
+                          className="inline-flex h-9 items-center justify-center rounded-md border border-black/10 bg-background px-3 text-xs font-medium text-foreground transition-colors hover:bg-zinc-50 dark:border-white/10 dark:hover:bg-white/5"
+                        >
+                          View Details
+                        </Link>
                       </td>
                     </tr>
                   ))

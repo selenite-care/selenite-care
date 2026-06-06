@@ -91,7 +91,13 @@ export async function PUT(req: Request) {
 
     const hashed = await bcrypt.hash(newPassword, 10);
 
-    await db.user.update({ where: { id: session.user.id }, data: { password: hashed } });
+    await db.user.update({
+      where: { id: session.user.id },
+      data: {
+        password: hashed,
+        isTemporaryPassword: false,
+      },
+    });
 
     return Response.json({ ok: true });
   }

@@ -56,16 +56,24 @@ export default function AdminPage() {
   return (
     <section>
       <div>
-        <h1 className="text-3xl font-semibold tracking-tight text-foreground">
+        <h1
+          className="text-3xl font-semibold tracking-tight"
+          style={{
+            color: "#2B2B2B",
+            fontFamily: "Playfair Display, serif",
+          }}
+        >
           Dashboard Overview
         </h1>
-        <p className="mt-3 text-sm leading-6 text-foreground/70">
+        <p className="mt-3 text-sm leading-6" style={{ color: "#B8A89A" }}>
           A quick snapshot of Selenite Care activity.
         </p>
       </div>
 
       {isLoading ? (
-        <p className="mt-8 text-sm text-foreground/70">Loading stats...</p>
+        <p className="mt-8 text-sm" style={{ color: "#B8A89A" }}>
+          Loading stats...
+        </p>
       ) : null}
 
       {error ? <p className="mt-8 text-sm text-red-600">{error}</p> : null}
@@ -75,12 +83,21 @@ export default function AdminPage() {
           {statLabels.map((stat) => (
             <article
               key={stat.key}
-              className="rounded-lg border border-black/10 bg-background p-6 dark:border-white/10"
+              className="rounded-lg border p-6"
+              style={{
+                backgroundColor: "#FFFFFF",
+                borderColor: "#D8C7B5",
+                borderLeftColor: "#C6A56B",
+                borderLeftWidth: "4px",
+              }}
             >
-              <p className="text-sm font-medium text-foreground/60">
+              <p className="text-sm font-medium" style={{ color: "#B8A89A" }}>
                 {stat.label}
               </p>
-              <p className="mt-4 text-3xl font-semibold tracking-tight text-foreground">
+              <p
+                className="mt-4 text-3xl font-semibold tracking-tight"
+                style={{ color: "#2B2B2B" }}
+              >
                 {formatStat(stat.key, stats[stat.key])}
               </p>
             </article>

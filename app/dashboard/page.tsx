@@ -36,49 +36,92 @@ export default async function DashboardPage() {
     <section>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-sm font-medium uppercase text-foreground/60">
+          <p
+            className="text-sm font-medium uppercase"
+            style={{ color: "#B8A89A" }}
+          >
             Client Dashboard
           </p>
-          <h1 className="mt-2 text-3xl font-semibold tracking-tight text-foreground">
+          <h1
+            className="mt-2 text-3xl font-semibold tracking-tight"
+            style={{
+              color: "#2B2B2B",
+              fontFamily: "Playfair Display, serif",
+            }}
+          >
             Welcome, {session.user.name ?? "Client"}
           </h1>
-          <p className="mt-3 text-sm leading-6 text-foreground/70">
+          <p className="mt-3 text-sm leading-6" style={{ color: "#B8A89A" }}>
             Here is a quick look at your recent booking activity.
           </p>
         </div>
 
         <Link
           href="/services"
-          className="inline-flex h-11 items-center justify-center rounded-md bg-foreground px-5 text-sm font-medium text-background transition-colors hover:bg-foreground/85"
+          className="inline-flex h-11 items-center justify-center rounded-md px-5 text-sm font-medium transition-colors hover:opacity-90"
+          style={{ backgroundColor: "#2B2B2B", color: "#F8F5F0" }}
         >
           Book New Appointment
         </Link>
       </div>
 
       <div className="mt-8 grid gap-5 md:grid-cols-3">
-        <article className="rounded-lg border border-black/10 bg-background p-6 dark:border-white/10">
-          <p className="text-sm font-medium text-foreground/60">
+        <article
+          className="rounded-lg border p-6"
+          style={{
+            backgroundColor: "#FFFFFF",
+            borderColor: "#D8C7B5",
+            borderLeftColor: "#C6A56B",
+            borderLeftWidth: "4px",
+          }}
+        >
+          <p className="text-sm font-medium" style={{ color: "#B8A89A" }}>
             Logged-in Client
           </p>
-          <p className="mt-4 text-2xl font-semibold tracking-tight text-foreground">
+          <p
+            className="mt-4 text-2xl font-semibold tracking-tight"
+            style={{ color: "#2B2B2B" }}
+          >
             {session.user.name ?? "Client"}
           </p>
         </article>
 
-        <article className="rounded-lg border border-black/10 bg-background p-6 dark:border-white/10">
-          <p className="text-sm font-medium text-foreground/60">
+        <article
+          className="rounded-lg border p-6"
+          style={{
+            backgroundColor: "#FFFFFF",
+            borderColor: "#D8C7B5",
+            borderLeftColor: "#C6A56B",
+            borderLeftWidth: "4px",
+          }}
+        >
+          <p className="text-sm font-medium" style={{ color: "#B8A89A" }}>
             Total Bookings
           </p>
-          <p className="mt-4 text-2xl font-semibold tracking-tight text-foreground">
+          <p
+            className="mt-4 text-2xl font-semibold tracking-tight"
+            style={{ color: "#2B2B2B" }}
+          >
             {totalBookings}
           </p>
         </article>
 
-        <article className="rounded-lg border border-black/10 bg-background p-6 dark:border-white/10">
-          <p className="text-sm font-medium text-foreground/60">
+        <article
+          className="rounded-lg border p-6"
+          style={{
+            backgroundColor: "#FFFFFF",
+            borderColor: "#D8C7B5",
+            borderLeftColor: "#C6A56B",
+            borderLeftWidth: "4px",
+          }}
+        >
+          <p className="text-sm font-medium" style={{ color: "#B8A89A" }}>
             Last Booking Status
           </p>
-          <p className="mt-4 text-2xl font-semibold tracking-tight text-foreground">
+          <p
+            className="mt-4 text-2xl font-semibold tracking-tight"
+            style={{ color: "#2B2B2B" }}
+          >
             {lastBooking?.status ?? "No bookings yet"}
           </p>
         </article>

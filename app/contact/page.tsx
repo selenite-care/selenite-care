@@ -12,14 +12,27 @@ export default function ContactPage() {
   }
 
   return (
-    <section className="flex flex-1 bg-zinc-50 px-6 py-16 dark:bg-black">
+    <section
+      className="flex flex-1 px-6 py-16"
+      style={{ backgroundColor: "#F8F5F0" }}
+    >
       <div className="mx-auto grid w-full max-w-6xl gap-8 lg:grid-cols-[1fr_22rem]">
         <div>
           <div className="max-w-2xl">
-            <h1 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+            <div
+              className="mb-5 h-1 w-16 rounded-full"
+              style={{ backgroundColor: "#C6A56B" }}
+            />
+            <h1
+              className="text-3xl font-semibold tracking-tight sm:text-4xl"
+              style={{
+                color: "#2B2B2B",
+                fontFamily: "Playfair Display, serif",
+              }}
+            >
               Contact Us
             </h1>
-            <p className="mt-4 text-base leading-7 text-foreground/70">
+            <p className="mt-4 text-base leading-7" style={{ color: "#B8A89A" }}>
               Send us a message and the Selenite Care team will follow up with
               you.
             </p>
@@ -27,12 +40,14 @@ export default function ContactPage() {
 
           <form
             onSubmit={handleSubmit}
-            className="mt-10 space-y-5 rounded-lg border border-black/10 bg-background p-6 dark:border-white/10"
+            className="mt-10 space-y-5 rounded-lg border bg-white p-6"
+            style={{ borderColor: "#D8C7B5" }}
           >
             <div>
               <label
                 htmlFor="name"
-                className="block text-sm font-medium text-foreground"
+                className="block text-sm font-medium"
+                style={{ color: "#2B2B2B" }}
               >
                 Name
               </label>
@@ -42,14 +57,19 @@ export default function ContactPage() {
                 type="text"
                 autoComplete="name"
                 required
-                className="mt-2 h-11 w-full rounded-md border border-black/10 bg-transparent px-3 text-sm outline-none transition-colors focus:border-foreground dark:border-white/10"
+                className="mt-2 h-11 w-full rounded-md border bg-white px-3 text-sm outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
+                style={{
+                  borderColor: "#D8C7B5",
+                  color: "#2B2B2B",
+                }}
               />
             </div>
 
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-foreground"
+                className="block text-sm font-medium"
+                style={{ color: "#2B2B2B" }}
               >
                 Email
               </label>
@@ -59,14 +79,19 @@ export default function ContactPage() {
                 type="email"
                 autoComplete="email"
                 required
-                className="mt-2 h-11 w-full rounded-md border border-black/10 bg-transparent px-3 text-sm outline-none transition-colors focus:border-foreground dark:border-white/10"
+                className="mt-2 h-11 w-full rounded-md border bg-white px-3 text-sm outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
+                style={{
+                  borderColor: "#D8C7B5",
+                  color: "#2B2B2B",
+                }}
               />
             </div>
 
             <div>
               <label
                 htmlFor="message"
-                className="block text-sm font-medium text-foreground"
+                className="block text-sm font-medium"
+                style={{ color: "#2B2B2B" }}
               >
                 Message
               </label>
@@ -75,38 +100,60 @@ export default function ContactPage() {
                 name="message"
                 rows={6}
                 required
-                className="mt-2 w-full resize-none rounded-md border border-black/10 bg-transparent px-3 py-3 text-sm outline-none transition-colors focus:border-foreground dark:border-white/10"
+                className="mt-2 w-full resize-none rounded-md border bg-white px-3 py-3 text-sm outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
+                style={{
+                  borderColor: "#D8C7B5",
+                  color: "#2B2B2B",
+                }}
               />
             </div>
 
-            {status ? <p className="text-sm text-foreground/70">{status}</p> : null}
+            {status ? (
+              <p className="text-sm" style={{ color: "#B8A89A" }}>
+                {status}
+              </p>
+            ) : null}
 
             <button
               type="submit"
-              className="inline-flex h-11 items-center justify-center rounded-md bg-foreground px-5 text-sm font-medium text-background transition-colors hover:bg-foreground/85"
+              className="inline-flex h-11 items-center justify-center rounded-md px-5 text-sm font-medium transition-colors hover:opacity-90"
+              style={{ backgroundColor: "#2B2B2B", color: "#F8F5F0" }}
             >
               Send Message
             </button>
           </form>
         </div>
 
-        <aside className="h-fit rounded-lg border border-black/10 bg-background p-6 dark:border-white/10">
-          <h2 className="text-lg font-semibold text-foreground">
+        <aside
+          className="h-fit rounded-lg border bg-white p-6"
+          style={{ borderColor: "#D8C7B5" }}
+        >
+          <div
+            className="mb-4 h-1 w-14 rounded-full"
+            style={{ backgroundColor: "#C6A56B" }}
+          />
+          <h2
+            className="text-lg font-semibold"
+            style={{
+              color: "#2B2B2B",
+              fontFamily: "Playfair Display, serif",
+            }}
+          >
             Contact Details
           </h2>
           <div className="mt-6 space-y-5 text-sm">
             <div>
-              <p className="font-medium text-foreground">Email</p>
-              <p className="mt-1 text-foreground/70">careselenite@gmail.com</p>
+              <p className="font-medium" style={{ color: "#2B2B2B" }}>Email</p>
+              <p className="mt-1" style={{ color: "#B8A89A" }}>careselenite@gmail.com</p>
             </div>
             <div>
-              <p className="font-medium text-foreground">Phone</p>
-              <p className="mt-1 text-foreground/70">+88 (01) 00000-0000</p>
+              <p className="font-medium" style={{ color: "#2B2B2B" }}>Phone</p>
+              <p className="mt-1" style={{ color: "#B8A89A" }}>+88 (01) 681517169</p>
             </div>
             <div>
-              <p className="font-medium text-foreground">Location</p>
-              <p className="mt-1 text-foreground/70">
-                Dhaka, Bangladesh
+              <p className="font-medium" style={{ color: "#2B2B2B" }}>Location</p>
+              <p className="mt-1" style={{ color: "#B8A89A" }}>
+                Level-6, Building-1, Golden Shower, Mazar Road, Dhaka, Bangladesh
               </p>
             </div>
           </div>
