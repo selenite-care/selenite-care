@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import type { Service } from "@/types";
 
 type Doctor = {
@@ -31,7 +31,7 @@ function getInitials(name: string): string {
     .slice(0, 2);
 }
 
-export default function BookingPage() {
+function BookingPageContent() {
   const searchParams = useSearchParams();
   const serviceId = searchParams.get("serviceId") ?? "";
   const [service, setService] = useState<Service | null>(null);
@@ -192,5 +192,28 @@ export default function BookingPage() {
         ) : null}
       </div>
     </section>
+  );
+}
+
+function BookingLoadingFallback() {
+  return (
+    <section
+      className="flex min-h-screen flex-col px-6 py-16"
+      style={{ backgroundColor: "#F8F5F0" }}
+    >
+      <div className="mx-auto w-full max-w-6xl">
+        <p className="text-sm" style={{ color: "#B8A89A" }}>
+          Loading...
+        </p>
+      </div>
+    </section>
+  );
+}
+
+export default function BookingPage() {
+  return (
+    <Suspense fallback={<BookingLoadingFallback />}>
+      <BookingPageContent />
+    </Suspense>
   );
 }

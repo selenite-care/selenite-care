@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 
 type SlotsResponse = {
@@ -80,7 +80,7 @@ function formatTo12Hour(time: string): string {
   return `${hour12}:${minute} ${period}`
 }
 
-export default function BookingSlotsPage() {
+function BookingSlotsPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const doctorId = searchParams.get("doctorId") ?? "";
@@ -354,5 +354,28 @@ export default function BookingSlotsPage() {
         )}
       </div>
     </section>
+  );
+}
+
+function BookingSlotsLoadingFallback() {
+  return (
+    <section
+      className="flex min-h-screen flex-col px-6 py-16"
+      style={{ backgroundColor: "#F8F5F0" }}
+    >
+      <div className="mx-auto w-full max-w-6xl">
+        <p className="text-sm" style={{ color: "#B8A89A" }}>
+          Loading...
+        </p>
+      </div>
+    </section>
+  );
+}
+
+export default function BookingSlotsPage() {
+  return (
+    <Suspense fallback={<BookingSlotsLoadingFallback />}>
+      <BookingSlotsPageContent />
+    </Suspense>
   );
 }

@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 
-export default function BookingThankYouPage() {
+function BookingThankYouPageContent() {
   const searchParams = useSearchParams();
   const bookingId =
     searchParams?.get("token") ??
@@ -130,5 +131,39 @@ export default function BookingThankYouPage() {
         </div>
       </div>
     </section>
+  );
+}
+
+function BookingThankYouLoadingFallback() {
+  return (
+    <section style={{
+      display: 'flex',
+      minHeight: '100vh',
+      backgroundColor: '#F8F5F0',
+      paddingLeft: '24px',
+      paddingRight: '24px',
+      paddingTop: '64px',
+      paddingBottom: '64px',
+    }}>
+      <div style={{
+        marginLeft: 'auto',
+        marginRight: 'auto',
+        width: '100%',
+        maxWidth: '512px',
+      }}>
+        <p style={{
+          fontSize: '14px',
+          color: '#B8A89A',
+        }}>Loading...</p>
+      </div>
+    </section>
+  );
+}
+
+export default function BookingThankYouPage() {
+  return (
+    <Suspense fallback={<BookingThankYouLoadingFallback />}>
+      <BookingThankYouPageContent />
+    </Suspense>
   );
 }
