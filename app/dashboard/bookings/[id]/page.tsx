@@ -63,6 +63,10 @@ function getPaymentStatusBadgeClasses(status: string) {
   }
 }
 
+function formatBdt(amount: number) {
+  return `${Math.round(amount)} BDT`;
+}
+
 export default async function BookingDetailsPage({ params }: BookingDetailsPageProps) {
   const { id } = await params
   const session = await auth();
@@ -81,7 +85,6 @@ export default async function BookingDetailsPage({ params }: BookingDetailsPageP
         select: {
           name: true,
           description: true,
-          duration: true,
           price: true,
         },
       },
@@ -151,12 +154,8 @@ export default async function BookingDetailsPage({ params }: BookingDetailsPageP
               }
             />
             <DetailItem
-              label="Duration"
-              value={`${booking.service.duration} minutes`}
-            />
-            <DetailItem
               label="Price"
-              value={`$${booking.service.price.toFixed(2)}`}
+              value={formatBdt(booking.service.price)}
             />
             <DetailItem
               label="Description"
@@ -183,7 +182,7 @@ export default async function BookingDetailsPage({ params }: BookingDetailsPageP
               />
               <DetailItem
                 label="Amount"
-                value={`$${booking.payment.amount.toFixed(2)}`}
+                value={formatBdt(booking.payment.amount)}
               />
               <DetailItem
                 label="Stripe Payment ID"

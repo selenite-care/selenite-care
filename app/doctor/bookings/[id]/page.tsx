@@ -27,6 +27,10 @@ function joinValues(values?: string[]) {
   return values.join(", ");
 }
 
+function formatBdt(amount: number) {
+  return `${Math.round(amount)} BDT`;
+}
+
 export default async function BookingDetailsPage({ params }: BookingDetailsPageProps) {
   const { id } = await params;
 
@@ -53,7 +57,7 @@ export default async function BookingDetailsPage({ params }: BookingDetailsPageP
     where: { id },
     include: {
       user: { select: { id: true, name: true, email: true, role: true, createdAt: true } },
-      service: { select: { id: true, name: true, description: true, duration: true, price: true } },
+      service: { select: { id: true, name: true, description: true, price: true } },
       doctor: { select: { id: true, name: true, designation: true, availability: true, bio: true } },
       payment: { select: { id: true, stripePaymentId: true, amount: true, status: true, createdAt: true } },
       surveyResponse: true,
@@ -87,8 +91,7 @@ export default async function BookingDetailsPage({ params }: BookingDetailsPageP
           <h2 className="text-lg font-semibold text-foreground">Service</h2>
           <div className="mt-5 grid gap-5 sm:grid-cols-2">
             <DetailItem label="Name" value={booking.service.name} />
-            <DetailItem label="Duration" value={`${booking.service.duration} minutes`} />
-            <DetailItem label="Price" value={`$${booking.service.price.toFixed(2)}`} />
+            <DetailItem label="Price" value={formatBdt(booking.service.price)} />
             <DetailItem label="Description" value={booking.service.description ?? "Not provided"} />
           </div>
         </section>
@@ -108,7 +111,7 @@ export default async function BookingDetailsPage({ params }: BookingDetailsPageP
           {booking.payment ? (
             <div className="mt-5 grid gap-5 sm:grid-cols-2">
               <DetailItem label="Payment Status" value={booking.payment.status} />
-              <DetailItem label="Amount" value={`$${booking.payment.amount.toFixed(2)}`} />
+              <DetailItem label="Amount" value={formatBdt(booking.payment.amount)} />
               <DetailItem label="Stripe Payment ID" value={<span className="break-all font-mono text-xs">{booking.payment.stripePaymentId}</span>} />
               <DetailItem label="Paid At" value={booking.payment.createdAt.toLocaleString()} />
             </div>

@@ -52,7 +52,6 @@ export async function GET(_request: Request, context: RouteContext) {
           id: true,
           name: true,
           description: true,
-          duration: true,
           price: true,
         },
       },

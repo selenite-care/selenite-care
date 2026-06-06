@@ -37,6 +37,10 @@ function yesNo(value: boolean) {
   return value ? "Yes" : "No";
 }
 
+function formatBdt(amount: number) {
+  return `${Math.round(amount)} BDT`;
+}
+
 export default async function BookingDetailsPage({
   params,
 }: BookingDetailsPageProps) {
@@ -58,7 +62,6 @@ export default async function BookingDetailsPage({
           id: true,
           name: true,
           description: true,
-          duration: true,
           price: true,
         },
       },
@@ -121,12 +124,8 @@ export default async function BookingDetailsPage({
           <div className="mt-5 grid gap-5 sm:grid-cols-2">
             <DetailItem label="Name" value={booking.service.name} />
             <DetailItem
-              label="Duration"
-              value={`${booking.service.duration} minutes`}
-            />
-            <DetailItem
               label="Price"
-              value={`$${booking.service.price.toFixed(2)}`}
+              value={formatBdt(booking.service.price)}
             />
             <DetailItem
               label="Description"
@@ -162,7 +161,7 @@ export default async function BookingDetailsPage({
               <DetailItem label="Payment Status" value={booking.payment.status} />
               <DetailItem
                 label="Amount"
-                value={`$${booking.payment.amount.toFixed(2)}`}
+                value={formatBdt(booking.payment.amount)}
               />
               <DetailItem
                 label="Stripe Payment ID"

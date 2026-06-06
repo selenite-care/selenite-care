@@ -28,6 +28,10 @@ type CreateBookingResponse = {
   error?: string;
 };
 
+function formatBdt(amount: number) {
+  return `${Math.round(amount)} BDT`;
+}
+
 function PaymentForm({
   service,
   surveyId,
@@ -233,7 +237,7 @@ function PaymentForm({
           }
         }}
       >
-        {isSubmitting ? "Processing..." : `Pay $${service.price.toFixed(2)}`}
+        {isSubmitting ? "Processing..." : `Pay ${formatBdt(service.price)}`}
       </button>
     </form>
   );
@@ -491,12 +495,6 @@ function PaymentPageContent() {
                   }}>
                     {selectedService.name}
                   </p>
-                  <p style={{
-                    marginTop: '4px',
-                    color: '#B8A89A',
-                  }}>
-                    {selectedService.duration} minute consultation
-                  </p>
                 </div>
                 {selectedDate && selectedSlot ? (
                   <div style={{
@@ -533,7 +531,7 @@ function PaymentPageContent() {
                       fontWeight: '600',
                       color: '#2B2B2B',
                     }}>
-                      ${selectedService.price.toFixed(2)}
+                      {formatBdt(selectedService.price)}
                     </span>
                   </div>
                 </div>

@@ -17,6 +17,10 @@ type AdminPayment = {
   };
 };
 
+function formatBdt(amount: number) {
+  return `${Math.round(amount)} BDT`;
+}
+
 export default function AdminPaymentsPage() {
   const [payments, setPayments] = useState<AdminPayment[]>([]);
   const [error, setError] = useState("");
@@ -93,7 +97,7 @@ export default function AdminPaymentsPage() {
                       {payment.booking.user.name ?? payment.booking.user.email}
                     </td>
                     <td className="px-4 py-4 text-foreground/70">
-                      ${payment.amount.toFixed(2)}
+                      {formatBdt(payment.amount)}
                     </td>
                     <td className="px-4 py-4 text-foreground/70">
                       {payment.status}

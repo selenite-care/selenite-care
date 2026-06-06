@@ -28,6 +28,10 @@ function getPaymentStatusBadgeClasses(status: string) {
   }
 }
 
+function formatBdt(amount: number) {
+  return `${Math.round(amount)} BDT`;
+}
+
 export default function DashboardPaymentsPage() {
   const [payments, setPayments] = useState<ClientPayment[]>([]);
   const [error, setError] = useState("");
@@ -106,7 +110,7 @@ export default function DashboardPaymentsPage() {
                       {payment.booking.service.name}
                     </td>
                     <td className="px-4 py-4 text-foreground/70">
-                      ${payment.amount.toFixed(2)}
+                      {formatBdt(payment.amount)}
                     </td>
                     <td className="px-4 py-4">
                       <span

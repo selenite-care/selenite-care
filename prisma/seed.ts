@@ -11,7 +11,6 @@ async function main() {
     data: {
       name: "Standard Consultation",
       description: "Basic skin analysis and personalized skincare routine.",
-      duration: 30,
       price: 29.99,
       doctors: {
         create: [
@@ -29,7 +28,6 @@ async function main() {
     data: {
       name: "Premium Consultation",
       description: "In-depth skin analysis with a full personalized care plan.",
-      duration: 60,
       price: 59.99,
       doctors: {
         create: [
@@ -47,7 +45,6 @@ async function main() {
     data: {
       name: "Student Consultation",
       description: "Affordable skincare consultation specially designed for students.",
-      duration: 20,
       price: 14.99,
       doctors: {
         create: [
@@ -65,7 +62,6 @@ async function main() {
     data: {
       name: "Online Consultation",
       description: "Remote skincare consultation from the comfort of your home.",
-      duration: 30,
       price: 19.99,
       doctors: {
         create: [

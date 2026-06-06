@@ -6,16 +6,22 @@ import type { Service } from "@/types";
 type ServiceFormState = {
   name: string;
   description: string;
-  duration: string;
+  details: string;
   price: string;
+  originalPrice: string;
 };
 
 const emptyForm: ServiceFormState = {
   name: "",
   description: "",
-  duration: "",
+  details: "",
   price: "",
+  originalPrice: "",
 };
+
+function formatBdt(amount: number) {
+  return `${Math.round(amount)} BDT`;
+}
 
 export default function AdminServicesPage() {
   const [services, setServices] = useState<Service[]>([]);
@@ -78,8 +84,9 @@ export default function AdminServicesPage() {
     setForm({
       name: service.name,
       description: service.description ?? "",
-      duration: String(service.duration),
+      details: service.details ?? "",
       price: String(service.price),
+      originalPrice: service.originalPrice ? String(service.originalPrice) : "",
     });
     setError("");
     setIsModalOpen(true);
@@ -93,8 +100,9 @@ export default function AdminServicesPage() {
     const payload = {
       name: form.name,
       description: form.description,
-      duration: Number(form.duration),
+      details: form.details,
       price: Number(form.price),
+      originalPrice: form.originalPrice ? Number(form.originalPrice) : null,
     };
 
     const response = await fetch("/api/admin/services", {
@@ -186,7 +194,6 @@ export default function AdminServicesPage() {
                 <tr>
                   <th className="px-4 py-3 font-medium">Name</th>
                   <th className="px-4 py-3 font-medium">Description</th>
-                  <th className="px-4 py-3 font-medium">Duration</th>
                   <th className="px-4 py-3 font-medium">Price</th>
                   <th className="px-4 py-3 font-medium">Actions</th>
                 </tr>
@@ -204,10 +211,16 @@ export default function AdminServicesPage() {
                       {service.description ?? "Not provided"}
                     </td>
                     <td className="px-4 py-4 text-foreground/70">
-                      {service.duration} minutes
-                    </td>
-                    <td className="px-4 py-4 text-foreground/70">
-                      ${service.price.toFixed(2)}
+                      <div className="flex flex-col gap-1">
+                        {service.originalPrice ? (
+                          <span className="text-xs line-through">
+                            {formatBdt(service.originalPrice)}
+                          </span>
+                        ) : null}
+                        <span className="font-medium text-foreground">
+                          {formatBdt(service.price)}
+                        </span>
+                      </div>
                     </td>
                     <td className="px-4 py-4">
                       <div className="flex flex-wrap gap-2">
@@ -330,63 +343,87 @@ export default function AdminServicesPage() {
                 />
               </div>
 
-              <div className="grid gap-5 sm:grid-cols-2">
-                <div>
-                  <label
-                    htmlFor="duration"
-                    className="block text-sm font-medium"
-                    style={{ color: "#2B2B2B" }}
-                  >
-                    Duration
-                  </label>
-                  <input
-                    id="duration"
-                    type="number"
-                    min="1"
-                    value={form.duration}
-                    onChange={(event) =>
-                      setForm((current) => ({
-                        ...current,
-                        duration: event.target.value,
-                      }))
-                    }
-                    required
-                    className="mt-2 h-11 w-full rounded-md border bg-white px-3 text-sm outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
-                    style={{
-                      borderColor: "#D8C7B5",
-                      color: "#2B2B2B",
-                    }}
-                  />
-                </div>
+              <div>
+                <label
+                  htmlFor="details"
+                  className="block text-sm font-medium"
+                  style={{ color: "#2B2B2B" }}
+                >
+                  Details
+                </label>
+                <textarea
+                  id="details"
+                  value={form.details}
+                  onChange={(event) =>
+                    setForm((current) => ({
+                      ...current,
+                      details: event.target.value,
+                    }))
+                  }
+                  rows={5}
+                  className="mt-2 w-full resize-none rounded-md border bg-white px-3 py-3 text-sm outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
+                  style={{
+                    borderColor: "#D8C7B5",
+                    color: "#2B2B2B",
+                  }}
+                />
+              </div>
 
-                <div>
-                  <label
-                    htmlFor="price"
-                    className="block text-sm font-medium"
-                    style={{ color: "#2B2B2B" }}
-                  >
-                    Price
-                  </label>
-                  <input
-                    id="price"
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value={form.price}
-                    onChange={(event) =>
-                      setForm((current) => ({
-                        ...current,
-                        price: event.target.value,
-                      }))
-                    }
-                    required
-                    className="mt-2 h-11 w-full rounded-md border bg-white px-3 text-sm outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
-                    style={{
-                      borderColor: "#D8C7B5",
-                      color: "#2B2B2B",
-                    }}
-                  />
-                </div>
+              <div>
+                <label
+                  htmlFor="price"
+                  className="block text-sm font-medium"
+                  style={{ color: "#2B2B2B" }}
+                >
+                  Price
+                </label>
+                <input
+                  id="price"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={form.price}
+                  onChange={(event) =>
+                    setForm((current) => ({
+                      ...current,
+                      price: event.target.value,
+                    }))
+                  }
+                  required
+                  className="mt-2 h-11 w-full rounded-md border bg-white px-3 text-sm outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
+                  style={{
+                    borderColor: "#D8C7B5",
+                    color: "#2B2B2B",
+                  }}
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="originalPrice"
+                  className="block text-sm font-medium"
+                  style={{ color: "#2B2B2B" }}
+                >
+                  Original Price
+                </label>
+                <input
+                  id="originalPrice"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={form.originalPrice}
+                  onChange={(event) =>
+                    setForm((current) => ({
+                      ...current,
+                      originalPrice: event.target.value,
+                    }))
+                  }
+                  className="mt-2 h-11 w-full rounded-md border bg-white px-3 text-sm outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
+                  style={{
+                    borderColor: "#D8C7B5",
+                    color: "#2B2B2B",
+                  }}
+                />
               </div>
 
               <div className="flex justify-end gap-3">

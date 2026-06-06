@@ -5,6 +5,8 @@ type CreateIntentPayload = {
   serviceId?: unknown;
 };
 
+const BDT_PER_USD = 123;
+
 export async function POST(request: Request) {
   const body = (await request.json()) as CreateIntentPayload;
   const serviceId = typeof body.serviceId === "string" ? body.serviceId : "";
@@ -26,8 +28,10 @@ export async function POST(request: Request) {
     return Response.json({ error: "Service not found." }, { status: 404 });
   }
 
+  const amountInUsdCents = Math.round((service.price / BDT_PER_USD) * 100);
+
   const paymentIntent = await stripe.paymentIntents.create({
-    amount: Math.round(service.price * 100),
+    amount: amountInUsdCents,
     currency: "usd",
     metadata: {
       serviceId: service.id,
