@@ -32,6 +32,7 @@ export const config = {
   matcher: [
     "/dashboard/:path*",
     "/booking/:path*",
+    "/payment/:path*",
     "/admin/:path*",
     "/doctor/:path*",
     "/crm/:path*",

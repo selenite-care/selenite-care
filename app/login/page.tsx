@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { getSession, signIn } from "next-auth/react";
 
 type UserSession = {
@@ -12,6 +12,8 @@ type UserSession = {
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -39,7 +41,8 @@ export default function LoginPage() {
     const session = (await getSession()) as UserSession | null;
     const role = session?.user?.role;
 
-    if (role === "ADMIN") router.push("/admin");
+    if (callbackUrl?.startsWith("/")) router.push(callbackUrl);
+    else if (role === "ADMIN") router.push("/admin");
     else if (role === "DOCTOR") router.push("/doctor");
     else if (role === "CRM") router.push("/crm");
     else router.push("/dashboard");
