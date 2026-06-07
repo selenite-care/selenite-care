@@ -25,6 +25,7 @@ export async function GET() {
           id: true,
           name: true,
           email: true,
+          phone: true,
         },
       },
       service: {
@@ -32,6 +33,12 @@ export async function GET() {
           id: true,
           name: true,
           price: true,
+        },
+      },
+      doctor: {
+        select: {
+          id: true,
+          name: true,
         },
       },
       payment: {

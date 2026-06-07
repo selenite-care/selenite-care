@@ -1,5 +1,6 @@
 "use client";
 
+import Papa from "papaparse";
 import { useEffect, useMemo, useState } from "react";
 
 type AdminUser = {
@@ -103,6 +104,39 @@ export default function AdminUsersPage() {
     });
   }, [roleFilter, searchQuery, users]);
 
+  function handleExportCsv() {
+    const csv = Papa.unparse(
+      filteredUsers.map((user) => ({
+        Name: user.name ?? "",
+        Email: user.email,
+        Phone: user.phone ?? "",
+        Role: user.role,
+        "Registration Date": new Date(user.createdAt).toLocaleDateString(),
+        "Total Bookings": user._count.bookings,
+      })),
+      {
+        columns: [
+          "Name",
+          "Email",
+          "Phone",
+          "Role",
+          "Registration Date",
+          "Total Bookings",
+        ],
+      },
+    );
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = "selenite-care-clients.csv";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
+
   return (
     <section>
       <div>
@@ -133,7 +167,7 @@ export default function AdminUsersPage() {
       {!isLoading && !error && users.length > 0 ? (
         <>
           <div className="mt-8 rounded-lg border border-[#D8C7B5] bg-white p-4">
-            <div className="grid gap-4 md:grid-cols-[1fr_220px] md:items-end">
+            <div className="grid gap-4 md:grid-cols-[1fr_220px_auto] md:items-end">
               <div>
                 <label
                   htmlFor="user-search"
@@ -175,6 +209,19 @@ export default function AdminUsersPage() {
                   ))}
                 </select>
               </div>
+
+              <button
+                type="button"
+                onClick={handleExportCsv}
+                disabled={filteredUsers.length === 0}
+                className="inline-flex h-11 items-center justify-center rounded-md px-5 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+                style={{
+                  backgroundColor: "#2B2B2B",
+                  color: "#F8F5F0",
+                }}
+              >
+                Export CSV
+              </button>
             </div>
           </div>
 
