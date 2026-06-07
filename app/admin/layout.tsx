@@ -19,7 +19,7 @@ export default async function AdminLayout({
   return (
     <div className="flex flex-1" style={{ backgroundColor: "#F8F5F0" }}>
       <aside
-        className="hidden w-72 px-6 py-8 lg:block"
+        className="hidden w-72 px-6 py-8 md:block"
         style={{ backgroundColor: "#2B2B2B" }}
       >
         <div>
@@ -42,7 +42,7 @@ export default async function AdminLayout({
 
       <div className="flex min-w-0 flex-1 flex-col">
         <div
-          className="px-6 py-4 lg:hidden"
+          className="flex items-center justify-between px-6 py-4 md:hidden"
           style={{ backgroundColor: "#2B2B2B" }}
         >
           <p className="text-sm font-medium" style={{ color: "#F8F5F0" }}>

@@ -113,6 +113,9 @@ export default function AdminPaymentsPage() {
               </tbody>
             </table>
           </div>
+          <p className="px-4 pb-4 text-xs text-foreground/60 md:hidden">
+            Scroll to see more
+          </p>
         </div>
       ) : null}
     </section>

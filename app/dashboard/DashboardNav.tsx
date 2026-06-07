@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { CalendarCheck, CreditCard, LayoutDashboard, UserRound } from "lucide-react";
 
 const dashboardLinks = [
-  { href: "/dashboard", label: "Overview" },
-  { href: "/dashboard/bookings", label: "My Bookings" },
-  { href: "/dashboard/payments", label: "Payment History" },
-  { href: "/dashboard/profile", label: "My Profile" },
+  { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
+  { href: "/dashboard/bookings", label: "Bookings", icon: CalendarCheck },
+  { href: "/dashboard/payments", label: "Payments", icon: CreditCard },
+  { href: "/dashboard/profile", label: "Profile", icon: UserRound },
 ];
 
 function isActiveLink(pathname: string, href: string) {
@@ -50,20 +51,28 @@ export function DashboardMobileNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="mt-3 flex flex-wrap gap-2 text-sm">
+    <nav
+      className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-4 border-t px-2 py-2 md:hidden"
+      style={{
+        backgroundColor: "#2B2B2B",
+        borderColor: "#C6A56B",
+      }}
+    >
       {dashboardLinks.map((link) => {
         const isActive = isActiveLink(pathname, link.href);
+        const Icon = link.icon;
 
         return (
           <Link
             key={link.href}
             href={link.href}
-            className="rounded-md px-3 py-2 font-medium transition-colors hover:text-[#B8A89A]"
+            className="flex min-h-14 flex-col items-center justify-center gap-1 rounded-md px-2 py-1 text-xs font-medium transition-colors hover:text-[#B8A89A]"
             style={{
               backgroundColor: isActive ? "rgba(198, 165, 107, 0.12)" : "transparent",
               color: isActive ? "#C6A56B" : "#D8C7B5",
             }}
           >
+            <Icon aria-hidden="true" className="h-5 w-5" />
             {link.label}
           </Link>
         );

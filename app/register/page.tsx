@@ -47,8 +47,8 @@ function RegisterPageContent() {
       alignItems: 'center',
       justifyContent: 'center',
       backgroundColor: '#F8F5F0',
-      paddingLeft: '24px',
-      paddingRight: '24px',
+      paddingLeft: '16px',
+      paddingRight: '16px',
       paddingTop: '64px',
       paddingBottom: '64px',
       minHeight: '100vh',
@@ -58,6 +58,7 @@ function RegisterPageContent() {
         marginRight: 'auto',
         width: '100%',
         maxWidth: '384px',
+        boxSizing: 'border-box',
       }}>
         <div style={{ marginBottom: '32px', textAlign: 'center' }}>
           <h1 style={{
@@ -88,7 +89,9 @@ function RegisterPageContent() {
             borderRadius: '12px',
             border: '1px solid #D8C7B5',
             backgroundColor: '#FFFFFF',
-            padding: '24px',
+            padding: '20px',
+            width: '100%',
+            boxSizing: 'border-box',
           }}
         >
           <div>

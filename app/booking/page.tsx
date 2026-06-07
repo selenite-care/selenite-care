@@ -104,7 +104,7 @@ function BookingPageContent() {
 
         {!isLoading && !error && doctors.length > 0 ? (
           <>
-            <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
               {doctors.map((doctor) => {
                 const isSelected = selectedDoctor?.id === doctor.id;
 
@@ -124,7 +124,7 @@ function BookingPageContent() {
                     className="overflow-hidden rounded-xl text-left transition-all duration-200"
                   >
                     {doctor.image ? (
-                      <div className="relative aspect-[4/3] w-full overflow-hidden bg-zinc-100">
+                      <div className="relative h-64 w-full overflow-hidden bg-zinc-100 sm:h-72 md:h-64">
                         <Image
                           src={doctor.image}
                           alt={doctor.name}
@@ -136,7 +136,7 @@ function BookingPageContent() {
                     ) : (
                       <div
                         style={{ backgroundColor: "#E8DDD3" }}
-                        className="flex aspect-[4/3] w-full items-center justify-center"
+                        className="flex h-64 w-full items-center justify-center sm:h-72 md:h-64"
                       >
                         <span
                           style={{ color: "#2B2B2B" }}
@@ -177,7 +177,7 @@ function BookingPageContent() {
                             backgroundColor: "#2B2B2B",
                             color: "#F8F5F0",
                           }}
-                          className="mt-4 inline-flex h-11 w-full items-center justify-center rounded-md px-5 text-sm font-medium transition-colors duration-200 hover:bg-[#B8A89A]"
+                          className="mt-4 inline-flex h-12 w-full items-center justify-center rounded-md px-5 text-sm font-medium transition-colors duration-200 hover:bg-[#B8A89A] md:h-11"
                         >
                           Proceed to Survey
                         </Link>
