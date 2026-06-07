@@ -30,7 +30,7 @@ export default function ServicesClient({ services }: ServicesClientProps) {
       style={{ backgroundColor: "#F8F5F0" }}
       className="flex flex-1 px-6 py-16"
     >
-    <div className="relative">
+    <div className="relative w-full">
     <div className="mx-auto w-full max-w-7xl">
         <div className="max-w-2xl">
           <h1
@@ -53,7 +53,7 @@ export default function ServicesClient({ services }: ServicesClientProps) {
             No services are available yet.
           </p>
         ) : (
-          <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+          <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
             {services.map((service) => (
               <article
                 key={service.id}
@@ -100,7 +100,7 @@ export default function ServicesClient({ services }: ServicesClientProps) {
                       borderColor: "#C6A56B",
                       color: "#2B2B2B",
                     }}
-                    className="inline-flex h-11 items-center justify-center rounded-md border px-4 text-sm font-medium transition-colors duration-200 hover:bg-[#D8C7B5]"
+                    className="inline-flex h-12 w-full items-center justify-center rounded-md border px-4 text-sm font-medium transition-colors duration-200 hover:bg-[#D8C7B5] md:h-11"
                   >
                     View Details
                   </button>
@@ -111,7 +111,7 @@ export default function ServicesClient({ services }: ServicesClientProps) {
                       backgroundColor: "#2B2B2B",
                       color: "#F8F5F0",
                     }}
-                    className="inline-flex h-11 items-center justify-center rounded-md px-4 text-sm font-medium transition-colors duration-200 hover:bg-[#B8A89A]"
+                    className="inline-flex h-12 w-full items-center justify-center rounded-md px-4 text-sm font-medium transition-colors duration-200 hover:bg-[#B8A89A] md:h-11"
                   >
                     Book Now
                   </Link>
@@ -124,14 +124,14 @@ export default function ServicesClient({ services }: ServicesClientProps) {
 
       {selectedService ? (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center px-4 py-6"
+          className="fixed inset-0 z-50 flex items-stretch justify-center p-0 sm:items-center sm:px-4 sm:py-6"
           style={{ backgroundColor: "rgba(43, 43, 43, 0.72)" }}
         >
           <div
             role="dialog"
             aria-modal="true"
             aria-labelledby="service-details-title"
-            className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-lg border p-6 shadow-2xl"
+            className="relative h-full w-full overflow-y-auto border p-6 pt-20 shadow-2xl sm:h-auto sm:max-h-[90vh] sm:max-w-xl sm:rounded-lg sm:pt-6"
             style={{
               backgroundColor: "#FFFFFF",
               borderColor: "#D8C7B5",
@@ -171,8 +171,8 @@ export default function ServicesClient({ services }: ServicesClientProps) {
               <button
                 type="button"
                 onClick={() => setSelectedService(null)}
-                className="rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-[#F8F5F0]"
-                style={{ color: "#2B2B2B" }}
+                className="fixed right-4 top-4 z-10 rounded-md border px-4 py-2 text-sm font-medium shadow-sm transition-colors hover:bg-[#F8F5F0] sm:static sm:border-0 sm:px-3 sm:shadow-none"
+                style={{ color: "#2B2B2B", borderColor: "#D8C7B5", backgroundColor: "#FFFFFF" }}
               >
                 Close
               </button>

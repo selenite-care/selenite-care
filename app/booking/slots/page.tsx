@@ -214,7 +214,7 @@ function BookingSlotsPageContent() {
         ) : (
           <div className="mt-10 space-y-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div>
+              <div className="w-full sm:w-auto">
                 <p style={{ color: "#B8A89A" }} className="text-sm font-medium">
                   Choose a date
                 </p>
@@ -225,7 +225,7 @@ function BookingSlotsPageContent() {
                     color: "#2B2B2B",
                     backgroundColor: "#FFFFFF",
                   }}
-                  className="mt-2 h-11 rounded-md border px-3 text-sm shadow-sm focus:outline-none focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
+                  className="mt-2 h-11 w-full rounded-md border px-3 text-sm shadow-sm focus:outline-none focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B] sm:w-auto"
                   value={selectedDate}
                   min={dateRange.min}
                   max={dateRange.max}
@@ -239,7 +239,7 @@ function BookingSlotsPageContent() {
                   borderColor: "#D8C7B5",
                   borderWidth: "1px",
                 }}
-                className="rounded-lg p-4 text-sm shadow-sm"
+                className="w-full rounded-lg p-4 text-sm shadow-sm sm:w-auto"
               >
                 <p style={{ color: "#2B2B2B" }} className="font-medium">
                   Selected Date
@@ -271,7 +271,7 @@ function BookingSlotsPageContent() {
             ) : null}
 
             {isDateOnWorkingDay && (
-              <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-4">
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
                 {allSlots.length === 0 && !isLoading ? (
                   <div
                     style={{
@@ -312,7 +312,7 @@ function BookingSlotsPageContent() {
                           borderWidth: "2px",
                           cursor: isBooked ? "not-allowed" : "pointer",
                         }}
-                        className="rounded-xl px-4 py-3 text-left text-sm font-medium transition-all duration-200"
+                        className="min-h-[60px] rounded-xl px-4 py-3 text-left text-sm font-medium transition-all duration-200"
                       >
                         <span>{formatTo12Hour(slot)}</span>
                         {isBooked ? (
@@ -344,7 +344,7 @@ function BookingSlotsPageContent() {
                     backgroundColor: "#2B2B2B",
                     color: "#F8F5F0",
                   }}
-                  className="inline-flex h-11 items-center justify-center rounded-md px-5 text-sm font-medium transition-colors duration-200 hover:bg-[#B8A89A]"
+                  className="inline-flex h-12 w-full items-center justify-center rounded-md px-5 text-sm font-medium transition-colors duration-200 hover:bg-[#B8A89A] sm:h-11 sm:w-auto"
                 >
                   Proceed to Survey
                 </button>

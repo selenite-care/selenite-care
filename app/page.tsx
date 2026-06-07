@@ -39,10 +39,10 @@ export default function Home() {
       <section className="relative min-h-[85vh] overflow-hidden">
   <HeroSlider />
 
-  <div className="relative z-10 px-6 py-32">
+  <div className="relative z-10 px-4 py-24 sm:px-6 sm:py-32">
     <div className="mx-auto w-full max-w-6xl">
       <div className="max-w-2xl">
-        <h1 style={{ fontFamily: "Playfair Display, serif" }} className="glitter-text text-4xl font-bold tracking-tight sm:text-5xl 
+        <h1 style={{ fontFamily: "Playfair Display, serif" }} className="glitter-text text-3xl font-bold tracking-tight md:text-5xl 
         [-webkit-text-stroke:0.1px_white]">
           Compassionate care for your everyday wellness.
         </h1>
@@ -51,11 +51,11 @@ export default function Home() {
           professional guidance tailored to your needs.
         </p>
 
-        <div className="mt-10 flex gap-4">
+        <div className="mt-10 flex flex-col gap-4 sm:flex-row">
           <Link 
             href="/services" 
             style={{ backgroundColor: "#2B2B2B", color: "#F8F5F0" }} 
-            className="mt-8 inline-flex h-12 items-center justify-center rounded-md border border-white px-6 text-sm font-medium animate-pulse transition-all duration-300 hover:animate-none hover:bg-[#B8A89A] hover:scale-105"
+            className="mt-2 inline-flex h-12 w-full items-center justify-center rounded-md border border-white px-6 text-sm font-medium animate-pulse transition-all duration-300 hover:animate-none hover:bg-[#B8A89A] hover:scale-105 sm:mt-8 sm:w-auto"
           >
   Book Appointment
 </Link>
@@ -83,7 +83,7 @@ export default function Home() {
             </p>
           </div>
 
-          <ViewportAnimatedSection className="feature-card-trigger mt-10 grid gap-5 md:grid-cols-3">
+          <ViewportAnimatedSection className="feature-card-trigger mt-10 grid grid-cols-1 gap-5 md:grid-cols-3">
             {features.map((feature, index) => (
               <article
                 key={feature.title}
@@ -148,7 +148,7 @@ export default function Home() {
             </p>
           </div>
 
-          <ViewportAnimatedSection className="step-card-trigger mt-10 grid gap-5 md:grid-cols-3">
+          <ViewportAnimatedSection className="step-card-trigger mt-10 grid grid-cols-1 gap-5 md:grid-cols-3">
             {steps.map((step, index) => (
               <article
                 key={step.title}

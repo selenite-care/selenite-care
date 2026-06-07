@@ -340,13 +340,16 @@ function PaymentPageContent() {
         ) : null}
 
         {!isLoading && selectedService ? (
-          <div style={{
-            marginTop: '40px',
-            display: 'grid',
-            gridTemplateColumns: '1fr 384px',
-            gap: '32px',
-          }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <div
+            className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_384px] lg:gap-8"
+            style={{
+              marginTop: '40px',
+            }}
+          >
+            <div
+              className="order-2 lg:order-1"
+              style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}
+            >
               <div style={{
                 display: 'flex',
                 flexWrap: 'wrap',
@@ -373,6 +376,7 @@ function PaymentPageContent() {
                     backgroundColor: paymentMethod === "card" ? '#2B2B2B' : 'transparent',
                     color: paymentMethod === "card" ? '#F8F5F0' : '#B8A89A',
                   }}
+                  className="w-full sm:w-auto"
                   onMouseEnter={(e) => {
                     if (paymentMethod !== "card") {
                       e.currentTarget.style.color = '#2B2B2B';
@@ -403,6 +407,7 @@ function PaymentPageContent() {
                     backgroundColor: paymentMethod === "bkash" ? '#2B2B2B' : 'transparent',
                     color: paymentMethod === "bkash" ? '#F8F5F0' : '#B8A89A',
                   }}
+                  className="w-full sm:w-auto"
                   onMouseEnter={(e) => {
                     if (paymentMethod !== "bkash") {
                       e.currentTarget.style.color = '#2B2B2B';
@@ -466,13 +471,16 @@ function PaymentPageContent() {
               )}
             </div>
 
-            <aside style={{
-              height: 'fit-content',
-              borderRadius: '8px',
-              border: '1px solid #D8C7B5',
-              backgroundColor: '#FFFFFF',
-              padding: '24px',
-            }}>
+            <aside
+              className="order-1 lg:order-2"
+              style={{
+                height: 'fit-content',
+                borderRadius: '8px',
+                border: '1px solid #D8C7B5',
+                backgroundColor: '#FFFFFF',
+                padding: '24px',
+              }}
+            >
               <h2 style={{
                 fontSize: '18px',
                 fontWeight: '600',

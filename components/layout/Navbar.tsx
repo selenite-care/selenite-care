@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import { useState } from "react";
 
@@ -14,6 +15,7 @@ const navLinks = [
 
 function NavbarContent() {
   const { data: session, status } = useSession();
+  const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const role = session?.user?.role;
 
@@ -21,6 +23,18 @@ function NavbarContent() {
   if (role === "ADMIN") dashboardHref = "/admin";
   else if (role === "DOCTOR") dashboardHref = "/doctor";
   else if (role === "CRM") dashboardHref = "/crm";
+
+  function isActiveLink(href: string) {
+    if (href === "/") {
+      return pathname === "/";
+    }
+
+    return pathname === href || pathname.startsWith(`${href}/`);
+  }
+
+  function closeMobileMenu() {
+    setMobileMenuOpen(false);
+  }
 
   return (
     <header
@@ -56,8 +70,9 @@ function NavbarContent() {
         <button
           type="button"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="flex flex-col gap-1 sm:hidden"
+          className="flex h-10 w-10 flex-col items-center justify-center gap-1 rounded-md border border-[#C6A56B] md:hidden"
           aria-label="Toggle menu"
+          aria-expanded={mobileMenuOpen}
         >
           <span
             style={{
@@ -96,7 +111,7 @@ function NavbarContent() {
         </button>
 
         {/* Desktop Navigation */}
-        <div className="hidden sm:flex flex-wrap items-center gap-x-6 gap-y-3 text-sm">
+        <div className="hidden md:flex flex-wrap items-center gap-x-6 gap-y-3 text-sm">
           {navLinks.map((link) => (
             <Link
               key={link.href}
@@ -168,16 +183,16 @@ function NavbarContent() {
       {/* Mobile Navigation Menu */}
       {mobileMenuOpen && (
         <nav
-          style={{ backgroundColor: "#F8F5F0" }}
-          className="mt-4 flex flex-col gap-4 border-t border-[#C6A56B] pt-4 sm:hidden"
+          style={{ backgroundColor: "#2B2B2B" }}
+          className="mt-4 flex w-full flex-col gap-1 border-t border-[#C6A56B] px-4 py-4 md:hidden"
         >
           {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              style={{ color: "#B8A89A" }}
-              className="transition-colors duration-200 hover:text-[#C6A56B]"
-              onClick={() => setMobileMenuOpen(false)}
+              style={{ color: isActiveLink(link.href) ? "#C6A56B" : "#D8C7B5" }}
+              className="rounded-md px-3 py-3 text-sm font-medium transition-colors duration-200 hover:bg-[#B8A89A]/20 hover:text-[#C6A56B]"
+              onClick={closeMobileMenu}
             >
               {link.label}
             </Link>
@@ -185,9 +200,12 @@ function NavbarContent() {
 
           <Link
             href="/booking"
-            style={{ color: "#C6A56B", borderColor: "#C6A56B" }}
-            className="border px-4 py-2 font-medium rounded transition-all duration-200 hover:bg-[#C6A56B] hover:text-[#F8F5F0] inline-block w-fit"
-            onClick={() => setMobileMenuOpen(false)}
+            style={{
+              color: isActiveLink("/booking") ? "#C6A56B" : "#D8C7B5",
+              borderColor: "#C6A56B",
+            }}
+            className="mt-2 rounded-md border px-3 py-3 text-sm font-medium transition-all duration-200 hover:bg-[#C6A56B] hover:text-[#F8F5F0]"
+            onClick={closeMobileMenu}
           >
             Book Appointment
           </Link>
@@ -198,35 +216,35 @@ function NavbarContent() {
           >
             {status === "loading" ? (
               <div className="flex flex-col gap-3">
-                <span className="h-8 w-20 rounded bg-neutral-200 animate-pulse" />
-                <span className="h-8 w-20 rounded bg-neutral-200 animate-pulse" />
+                <span className="h-9 w-24 rounded bg-[#D8C7B5]/30 animate-pulse" />
+                <span className="h-9 w-24 rounded bg-[#D8C7B5]/30 animate-pulse" />
               </div>
             ) : status === "unauthenticated" ? (
-              <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-1">
                 <Link
                   href="/login"
-                  style={{ color: "#2B2B2B" }}
-                  className="font-medium transition-colors duration-200 hover:text-[#C6A56B]"
-                  onClick={() => setMobileMenuOpen(false)}
+                  style={{ color: isActiveLink("/login") ? "#C6A56B" : "#D8C7B5" }}
+                  className="rounded-md px-3 py-3 text-sm font-medium transition-colors duration-200 hover:bg-[#B8A89A]/20 hover:text-[#C6A56B]"
+                  onClick={closeMobileMenu}
                 >
                   Login
                 </Link>
                 <Link
                   href="/register"
-                  style={{ color: "#2B2B2B" }}
-                  className="font-medium transition-colors duration-200 hover:text-[#C6A56B]"
-                  onClick={() => setMobileMenuOpen(false)}
+                  style={{ color: isActiveLink("/register") ? "#C6A56B" : "#D8C7B5" }}
+                  className="rounded-md px-3 py-3 text-sm font-medium transition-colors duration-200 hover:bg-[#B8A89A]/20 hover:text-[#C6A56B]"
+                  onClick={closeMobileMenu}
                 >
                   Register
                 </Link>
               </div>
             ) : (
-              <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-1">
                 <Link
                   href={dashboardHref}
-                  style={{ color: "#2B2B2B" }}
-                  className="font-medium transition-colors duration-200 hover:text-[#C6A56B]"
-                  onClick={() => setMobileMenuOpen(false)}
+                  style={{ color: isActiveLink(dashboardHref) ? "#C6A56B" : "#D8C7B5" }}
+                  className="rounded-md px-3 py-3 text-sm font-medium transition-colors duration-200 hover:bg-[#B8A89A]/20 hover:text-[#C6A56B]"
+                  onClick={closeMobileMenu}
                 >
                   Dashboard
                 </Link>
@@ -234,10 +252,10 @@ function NavbarContent() {
                   type="button"
                   onClick={() => {
                     signOut({ callbackUrl: "/" });
-                    setMobileMenuOpen(false);
+                    closeMobileMenu();
                   }}
-                  style={{ color: "#2B2B2B" }}
-                  className="font-medium transition-colors duration-200 hover:text-[#C6A56B] text-left"
+                  style={{ color: "#D8C7B5" }}
+                  className="rounded-md px-3 py-3 text-left text-sm font-medium transition-colors duration-200 hover:bg-[#B8A89A]/20 hover:text-[#C6A56B]"
                 >
                   Logout
                 </button>

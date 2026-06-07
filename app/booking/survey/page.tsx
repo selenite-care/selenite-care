@@ -321,8 +321,50 @@ typeof payload & { surveyId?: string; error?: string } | null;
             borderColor: "#D8C7B5",
             borderWidth: "1px",
           }}
-          className="mt-6 space-y-6 rounded-xl p-6"
+          className="survey-form mt-6 space-y-6 rounded-xl p-4 sm:p-6"
         >
+          <style>{`
+            .survey-form > div + div {
+              border-top: 1px solid #F1E7DC;
+              padding-top: 1.5rem;
+            }
+
+            .survey-form input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+            .survey-form textarea {
+              width: 100%;
+              min-height: 44px;
+            }
+
+            .survey-form label {
+              width: 100%;
+            }
+
+            .survey-form label:has(input[type="checkbox"]),
+            .survey-form label:has(input[type="radio"]) {
+              display: flex;
+              min-height: 44px;
+              width: 100%;
+              align-items: center;
+              border: 1px solid #D8C7B5;
+              border-radius: 8px;
+              background: #FFFFFF;
+              padding: 8px 10px;
+              cursor: pointer;
+            }
+
+            .survey-form input[type="checkbox"],
+            .survey-form input[type="radio"] {
+              min-height: 20px;
+              min-width: 20px;
+            }
+
+            @media (min-width: 640px) {
+              .survey-form label:has(input[type="checkbox"]),
+              .survey-form label:has(input[type="radio"]) {
+                width: auto;
+              }
+            }
+          `}</style>
           {error && (
             <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
               {error}
@@ -459,7 +501,7 @@ typeof payload & { surveyId?: string; error?: string } | null;
               >
                 Uses Korean Products
               </p>
-              <div className="mt-2 flex gap-4">
+              <div className="mt-2 grid gap-2 sm:grid-cols-2">
                 <label className="inline-flex items-center">
                   <input
                     type="radio"
@@ -498,7 +540,7 @@ typeof payload & { surveyId?: string; error?: string } | null;
               >
                 Facing Skin Issues
               </p>
-              <div className="mt-2 flex gap-4">
+              <div className="mt-2 grid gap-2 sm:grid-cols-2">
                 <label className="inline-flex items-center">
                   <input
                     type="radio"
@@ -659,7 +701,7 @@ typeof payload & { surveyId?: string; error?: string } | null;
             >
               Double Cleanse Preference
             </p>
-            <div className="mt-2 flex gap-4 flex-wrap">
+            <div className="mt-2 grid gap-2 sm:grid-cols-2">
               {[
                 "No",
                 "Cleansing Oil",
@@ -754,7 +796,7 @@ typeof payload & { surveyId?: string; error?: string } | null;
               >
                 Applies Sunscreen
               </p>
-              <div className="mt-2 flex gap-4">
+              <div className="mt-2 grid gap-2 sm:grid-cols-2">
                 <label className="inline-flex items-center">
                   <input
                     type="radio"
@@ -793,7 +835,7 @@ typeof payload & { surveyId?: string; error?: string } | null;
               >
                 Regular Period Cycle
               </p>
-              <div className="mt-2 flex gap-4">
+              <div className="mt-2 grid gap-2 sm:grid-cols-2">
                 <label className="inline-flex items-center">
                   <input
                     type="radio"
@@ -832,7 +874,7 @@ typeof payload & { surveyId?: string; error?: string } | null;
               >
                 Used Steroid Based Night Cream
               </p>
-              <div className="mt-2 flex gap-4">
+              <div className="mt-2 grid gap-2 sm:grid-cols-2">
                 <label className="inline-flex items-center">
                   <input
                     type="radio"
@@ -962,7 +1004,7 @@ typeof payload & { surveyId?: string; error?: string } | null;
             </div>
           ) : null}
 
-          <div className="flex gap-3 pt-4">
+          <div className="flex flex-col gap-3 pt-4 sm:flex-row">
             <button
               type="submit"
               disabled={isSubmitting}
@@ -970,7 +1012,7 @@ typeof payload & { surveyId?: string; error?: string } | null;
                 backgroundColor: "#2B2B2B",
                 color: "#F8F5F0",
               }}
-              className="flex-1 h-11 rounded-md text-sm font-medium transition-colors duration-200 hover:bg-[#B8A89A] disabled:opacity-50 disabled:cursor-not-allowed"
+              className="h-12 w-full rounded-md text-sm font-medium transition-colors duration-200 hover:bg-[#B8A89A] disabled:cursor-not-allowed disabled:opacity-50 sm:h-11 sm:flex-1"
             >
               {isSubmitting ? "Submitting..." : "Submit Survey"}
             </button>
