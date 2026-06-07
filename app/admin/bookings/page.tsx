@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Papa from "papaparse";
 import { useEffect, useMemo, useState } from "react";
 
 type AdminBooking = {
@@ -11,11 +12,16 @@ type AdminBooking = {
   user: {
     name: string | null;
     email: string;
+    phone: string | null;
   };
   service: {
     name: string;
   };
+  doctor: {
+    name: string;
+  } | null;
   payment: {
+    amount: number;
     status: string;
   } | null;
 };
@@ -75,6 +81,49 @@ export default function AdminBookingsPage() {
     });
   }, [bookings, searchQuery, statusFilter]);
 
+  function formatBdt(amount: number) {
+    return `${Math.round(amount)} BDT`;
+  }
+
+  function handleExportCsv() {
+    const csv = Papa.unparse(
+      filteredBookings.map((booking) => ({
+        "Booking Token": booking.token ?? booking.id,
+        "Client Name": booking.user.name ?? booking.user.email,
+        "Client Phone": booking.user.phone ?? "",
+        "Service Name": booking.service.name,
+        "Doctor Name": booking.doctor?.name ?? "",
+        "Appointment Time": new Date(booking.appointmentTime).toLocaleString(),
+        "Booking Status": booking.status,
+        "Payment Status": booking.payment?.status ?? "UNPAID",
+        Amount: booking.payment ? formatBdt(booking.payment.amount) : "",
+      })),
+      {
+        columns: [
+          "Booking Token",
+          "Client Name",
+          "Client Phone",
+          "Service Name",
+          "Doctor Name",
+          "Appointment Time",
+          "Booking Status",
+          "Payment Status",
+          "Amount",
+        ],
+      },
+    );
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = "selenite-care-bookings.csv";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
+
   return (
     <section>
       <div>
@@ -101,7 +150,7 @@ export default function AdminBookingsPage() {
       {!isLoading && !error && bookings.length > 0 ? (
         <>
           <div className="mt-8 rounded-lg border border-[#D8C7B5] bg-white p-4">
-            <div className="grid gap-4 md:grid-cols-[1fr_220px] md:items-end">
+            <div className="grid gap-4 md:grid-cols-[1fr_220px_auto] md:items-end">
               <div>
                 <label
                   htmlFor="booking-search"
@@ -143,6 +192,19 @@ export default function AdminBookingsPage() {
                   ))}
                 </select>
               </div>
+
+              <button
+                type="button"
+                onClick={handleExportCsv}
+                disabled={filteredBookings.length === 0}
+                className="inline-flex h-11 items-center justify-center rounded-md px-5 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+                style={{
+                  backgroundColor: "#2B2B2B",
+                  color: "#F8F5F0",
+                }}
+              >
+                Export CSV
+              </button>
             </div>
 
             <p className="mt-4 text-sm text-[#B8A89A]">
