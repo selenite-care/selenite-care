@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getSession, signIn } from "next-auth/react";
 
@@ -10,7 +10,7 @@ type UserSession = {
   };
 };
 
-export default function LoginPage() {
+function LoginPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl");
@@ -242,5 +242,30 @@ export default function LoginPage() {
         </form>
       </div>
     </section>
+  );
+}
+
+function LoginLoadingFallback() {
+  return (
+    <section
+      style={{
+        display: "flex",
+        flex: 1,
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: "#F8F5F0",
+        minHeight: "100vh",
+      }}
+    >
+      <p style={{ color: "#B8A89A", fontSize: "14px" }}>Loading...</p>
+    </section>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<LoginLoadingFallback />}>
+      <LoginPageContent />
+    </Suspense>
   );
 }

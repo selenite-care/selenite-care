@@ -1,9 +1,9 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, Suspense, useState } from "react";
 import { useRouter } from "next/navigation";
 
-export default function RegisterPage() {
+function RegisterPageContent() {
   const router = useRouter();
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -297,5 +297,30 @@ export default function RegisterPage() {
         </form>
       </div>
     </section>
+  );
+}
+
+function RegisterLoadingFallback() {
+  return (
+    <section
+      style={{
+        display: "flex",
+        flex: 1,
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: "#F8F5F0",
+        minHeight: "100vh",
+      }}
+    >
+      <p style={{ color: "#B8A89A", fontSize: "14px" }}>Loading...</p>
+    </section>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={<RegisterLoadingFallback />}>
+      <RegisterPageContent />
+    </Suspense>
   );
 }
