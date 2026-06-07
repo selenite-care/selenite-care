@@ -199,7 +199,7 @@ export default function ServicesClient({ services }: ServicesClientProps) {
           </div>
         </div>
       ) : null}
-      <div className="hidden 2xl:block absolute right-[-130px] top-[-30px]">
+      <div className="hidden 2xl:block absolute right-[-10px] top-[-30px]">
     <DoctorMascot />
       </div>
       </div>
