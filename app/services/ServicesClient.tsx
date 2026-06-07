@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import DoctorMascot from "@/components/ui/DoctorMascot";
 
 export type ServicesClientService = {
   id: string;
@@ -25,8 +26,12 @@ export default function ServicesClient({ services }: ServicesClientProps) {
     useState<ServicesClientService | null>(null);
 
   return (
-    <section style={{ backgroundColor: "#F8F5F0" }} className="flex flex-1 px-6 py-16">
-      <div className="mx-auto w-full max-w-6xl">
+    <section
+      style={{ backgroundColor: "#F8F5F0" }}
+      className="flex flex-1 px-6 py-16"
+    >
+    <div className="relative">
+    <div className="mx-auto w-full max-w-7xl">
         <div className="max-w-2xl">
           <h1
             style={{
@@ -194,6 +199,10 @@ export default function ServicesClient({ services }: ServicesClientProps) {
           </div>
         </div>
       ) : null}
+      <div className="hidden 2xl:block absolute right-[-130px] top-[-30px]">
+    <DoctorMascot />
+      </div>
+      </div>
     </section>
   );
 }
