@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { CalendarCheck, CreditCard, LayoutDashboard, UserRound } from "lucide-react";
+import { CalendarCheck, CreditCard, LayoutDashboard, ScanFace, UserRound } from "lucide-react";
 
 const dashboardLinks = [
   { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
   { href: "/dashboard/bookings", label: "Bookings", icon: CalendarCheck },
   { href: "/dashboard/payments", label: "Payments", icon: CreditCard },
+  { href: "/dashboard/survey", label: "My Skin Profile", icon: ScanFace },
   { href: "/dashboard/profile", label: "Profile", icon: UserRound },
 ];
 
@@ -52,7 +53,7 @@ export function DashboardMobileNav() {
 
   return (
     <nav
-      className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-4 border-t px-2 py-2 md:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t px-2 py-2 md:hidden"
       style={{
         backgroundColor: "#2B2B2B",
         borderColor: "#C6A56B",

@@ -9,6 +9,7 @@ import { useState } from "react";
 const navLinks = [
   { href: "/", label: "Home" },
   { href: "/services", label: "Services" },
+  { href: "/appointment", label: "Appointment" },
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
 ];
@@ -49,7 +50,7 @@ function NavbarContent() {
         >
         <Image
     className="object-contain"
-    src="/logo1.png"
+    src="/log.png"
     alt="Selenite Care Logo"
     width={40}
     height={40}
@@ -128,7 +129,7 @@ function NavbarContent() {
             style={{ color: "#C6A56B", borderColor: "#C6A56B" }}
             className="border px-4 py-2 font-medium rounded transition-all duration-200 hover:bg-[#000000] hover:text-[#F8F5F0]"
           >
-            Book Appointment
+            Get Membership
           </Link>
 
           <span
@@ -199,15 +200,15 @@ function NavbarContent() {
           ))}
 
           <Link
-            href="/booking"
+            href="/services"
             style={{
-              color: isActiveLink("/booking") ? "#C6A56B" : "#D8C7B5",
+              color: isActiveLink("/services") ? "#C6A56B" : "#D8C7B5",
               borderColor: "#C6A56B",
             }}
             className="mt-2 rounded-md border px-3 py-3 text-sm font-medium transition-all duration-200 hover:bg-[#C6A56B] hover:text-[#F8F5F0]"
             onClick={closeMobileMenu}
           >
-            Book Appointment
+            Get Membership
           </Link>
 
           <div

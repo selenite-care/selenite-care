@@ -1,208 +1,522 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 import DoctorMascot from "@/components/ui/DoctorMascot";
+import { MembershipCard } from "@/components/ui/MembershipCards";
 
-export type ServicesClientService = {
-  id: string;
-  name: string;
-  description: string | null;
-  details: string | null;
-  price: number;
-  originalPrice: number | null;
+type BenefitItem = {
+  heading: string;
+  points: string[];
 };
 
-type ServicesClientProps = {
-  services: ServicesClientService[];
+type MembershipTier = {
+  key: "signature" | "crystal" | "platinum";
+  tierValue: "SIGNATURE" | "CRYSTAL" | "PLATINUM";
+  title: string;
+  validity: string;
+  cost: string;
+  description: string;
+  accentColor: string;
+  benefits: BenefitItem[];
 };
 
-function formatBdt(amount: number) {
-  return `${Math.round(amount)} BDT`;
-}
+const memberships: MembershipTier[] = [
+  {
+    key: "signature",
+    tierValue: "SIGNATURE",
+    title: "Signature Membership",
+    validity: "Valid for 3 Months",
+    cost: "BDT 490",
+    description:
+      "A perfect starting point for individuals seeking professional skincare guidance and routine development.",
+    accentColor: "#C6A56B",
+    benefits: [
+      { heading: "100% Off on the 2nd Consultation", points: [] },
+      { heading: "120 Days of Online Support", points: [] },
+      {
+        heading: "Digital Skin Analysis",
+        points: ["Self-submitted photo review", "Online skin assessment form"],
+      },
+      { heading: "1-on-1 Consultation via WhatsApp Video Call", points: [] },
+      { heading: "Personalized Product Recommendation List", points: [] },
+      { heading: "Skin Report Card", points: [] },
+      {
+        heading: "Personalized Morning and Night Skincare Routine",
+        points: ["Available after product purchase"],
+      },
+    ],
+  },
+  {
+    key: "crystal",
+    tierValue: "CRYSTAL",
+    title: "Crystal Membership",
+    validity: "Valid for 12 Months",
+    cost: "BDT 2,900",
+    description:
+      "Designed for individuals committed to achieving long-term skin improvement through regular monitoring and expert guidance.",
+    accentColor: "#4B9DD3",
+    benefits: [
+      {
+        heading: "Complimentary Consultations",
+        points: [
+          "100% Off on 5 Follow-Up Consultations",
+          "One consultation every 2 months",
+        ],
+      },
+      {
+        heading: "Specialist Access",
+        points: [
+          "Aesthetician Consultation - 3 times",
+          "Nutritionist Consultation - 2 times",
+          "Psychiatrist Consultation - 1 time",
+        ],
+      },
+      { heading: "12 Months of Online Support", points: [] },
+      {
+        heading: "Advanced Skin Assessment",
+        points: [
+          "Detailed Skin Analysis",
+          "Problem Identification and Concern Mapping",
+          "Covers acne, pigmentation, dehydration, sensitivity, dullness, and more",
+        ],
+      },
+      {
+        heading: "Lifestyle Evaluation",
+        points: ["Lifestyle and skincare habit review"],
+      },
+      {
+        heading: "Customized Care Plan",
+        points: [
+          "Personalized Product Recommendation List",
+          "Skin Report Card",
+          "Personalized Morning and Night Skincare Routine after product purchase",
+        ],
+      },
+    ],
+  },
+  {
+    key: "platinum",
+    tierValue: "PLATINUM",
+    title: "Platinum Membership",
+    validity: "Valid for 36 Months",
+    cost: "BDT 6,900",
+    description:
+      "A complete skin transformation program combining skincare, nutrition, wellness, and continuous progress monitoring.",
+    accentColor: "#C6A56B",
+    benefits: [
+      {
+        heading: "Complimentary Consultations",
+        points: [
+          "100% Off on 30 Follow-Up Consultations",
+          "One aesthetician consultation every 2 months",
+        ],
+      },
+      {
+        heading: "2.	5% off on Product Purchase for Validate Time of Membership",
+        points: [],
+      },
+      {
+        heading: "Specialist Access",
+        points: [
+          "Aesthetician Consultation - 15 times",
+          "Nutritionist Consultation - 8 times",
+          "Psychiatrist Consultation - 7 times",
+        ],
+      },
+      { heading: "36 Months of Online Support", points: [] },
+      {
+        heading: "Advanced Skin Mapping",
+        points: [
+          "Deep skin concern analysis",
+          "Trigger identification",
+          "Skin barrier assessment",
+        ],
+      },
+      {
+        heading: "Psychological Wellness Review",
+        points: ["Stress level assessment", "Lifestyle impact analysis"],
+      },
+      {
+        heading: "Nutritional Assessment",
+        points: [
+          "Nutritional value analysis",
+          "Diet and skin health evaluation",
+        ],
+      },
+      {
+        heading: "Customized Care Plan",
+        points: [
+          "Personalized Product Recommendation List",
+          "Skin Report Card",
+          "Personalized Morning and Night Skincare Routine after product purchase",
+        ],
+      },
+      {
+        heading: "Skin Transformation Program",
+        points: [
+          "Skin transformation roadmap every 60 days",
+          "Product layering strategy",
+          "Seasonal skincare adjustments",
+        ],
+      },
+      {
+        heading: "Progress Monitoring",
+        points: [
+          "Professional before-and-after documentation",
+          "Monthly skin scoring",
+          "Routine modifications based on skin progress",
+          "Continuous improvement tracking",
+        ],
+      },
+    ],
+  },
+];
 
-export default function ServicesClient({ services }: ServicesClientProps) {
-  const [selectedService, setSelectedService] =
-    useState<ServicesClientService | null>(null);
+function MembershipModal({
+  membership,
+  onClose,
+  ctaHref,
+}: {
+  membership: MembershipTier;
+  onClose: () => void;
+  ctaHref: string;
+}) {
+  useEffect(() => {
+    function handleEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    }
+
+    window.addEventListener("keydown", handleEscape);
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      window.removeEventListener("keydown", handleEscape);
+      document.body.style.overflow = "";
+    };
+  }, [onClose]);
 
   return (
-    <section
-      style={{ backgroundColor: "#F8F5F0" }}
-      className="flex flex-1 px-6 py-16"
-    >
-    <div className="relative w-full">
-    <div className="mx-auto w-full max-w-7xl">
-        <div className="max-w-2xl">
-          <h1
+    <div className="fixed inset-0 z-50 flex items-center justify-center px-4 py-6">
+      <button
+        type="button"
+        aria-label="Close membership details"
+        onClick={onClose}
+        className="absolute inset-0"
+        style={{ backgroundColor: "rgba(43, 43, 43, 0.76)" }}
+      />
+
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={`membership-modal-${membership.key}`}
+        className="relative z-10 flex max-h-[80vh] w-full max-w-2xl flex-col overflow-hidden rounded-[20px] border"
+        style={{
+          backgroundColor: "#F8F5F0",
+          borderColor: "#D8C7B5",
+          boxShadow: "0 32px 90px rgba(43, 43, 43, 0.28)",
+        }}
+      >
+        <div
+          className="border-b px-6 pb-5 pt-6 sm:px-8"
+          style={{
+            borderColor: "#D8C7B5",
+            background:
+              membership.key === "platinum"
+                ? "linear-gradient(135deg, #111111 0%, #1E1A15 100%)"
+                : membership.key === "crystal"
+                  ? "linear-gradient(135deg, rgba(224,244,255,0.95) 0%, rgba(200,235,255,0.92) 100%)"
+                  : "linear-gradient(135deg, #FDF8F0 0%, #F2E7D6 100%)",
+          }}
+        >
+          <button
+            type="button"
+            onClick={onClose}
+            className="absolute right-5 top-5 inline-flex h-10 w-10 items-center justify-center rounded-full border text-lg transition-colors hover:bg-white/60"
             style={{
-              fontFamily: "Playfair Display, serif",
-              color: "#2B2B2B",
+              borderColor: "#D8C7B5",
+              color: membership.key === "platinum" ? "#F8F5F0" : "#2B2B2B",
+              backgroundColor:
+                membership.key === "platinum"
+                  ? "rgba(255,255,255,0.08)"
+                  : "rgba(255,255,255,0.85)",
             }}
-            className="text-3xl font-bold tracking-tight sm:text-4xl"
+          >
+            ×
+          </button>
+
+          <div
+            className="inline-flex rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em]"
+            style={{
+              background:
+                membership.key === "crystal"
+                  ? "linear-gradient(135deg, #5BB8F5 0%, #2A8FD4 100%)"
+                  : "linear-gradient(135deg, #C6A56B 0%, #A8864D 100%)",
+              color: membership.key === "platinum" ? "#111111" : "#FFF8EE",
+            }}
+          >
+            {membership.key}
+          </div>
+
+          <h2
+            id={`membership-modal-${membership.key}`}
+            className="mt-4 text-2xl font-bold sm:text-3xl"
+            style={{
+              color: membership.key === "platinum" ? "#F8F5F0" : "#2B2B2B",
+              fontFamily: "Playfair Display, serif",
+            }}
+          >
+            {membership.title}
+          </h2>
+
+          <p
+            className="mt-3 max-w-xl text-sm leading-6 sm:text-base"
+            style={{
+              color: membership.key === "platinum" ? "#D8C7B5" : "#6E6257",
+            }}
+          >
+            {membership.description}
+          </p>
+
+          <div className="mt-5 flex flex-wrap items-center gap-3">
+            <span
+              className="text-2xl font-semibold"
+              style={{
+                color:
+                  membership.key === "platinum"
+                    ? "#F3E0B5"
+                    : membership.accentColor,
+                fontFamily: "Playfair Display, serif",
+              }}
+            >
+              {membership.cost}
+            </span>
+            <span
+              className="text-xs font-semibold uppercase tracking-[0.14em]"
+              style={{
+                color: membership.key === "platinum" ? "#D8C7B5" : "#8C7967",
+              }}
+            >
+              {membership.validity}
+            </span>
+          </div>
+        </div>
+
+        <div className="overflow-y-auto px-6 py-6 sm:px-8">
+          <div className="space-y-5">
+            {membership.benefits.map((benefit, index) => (
+              <div key={`${membership.key}-${benefit.heading}`}>
+                <div className="flex gap-3">
+                  <div
+                    className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold"
+                    style={{
+                      background: "linear-gradient(135deg, #C6A56B 0%, #A8864D 100%)",
+                      color: "#FFF8EE",
+                    }}
+                  >
+                    {index + 1}
+                  </div>
+                  <div>
+                    <p
+                      className="text-sm font-semibold leading-6 sm:text-base"
+                      style={{ color: "#2B2B2B" }}
+                    >
+                      {benefit.heading}
+                    </p>
+                    {benefit.points.length > 0 ? (
+                      <ul className="mt-2 space-y-1.5">
+                        {benefit.points.map((point) => (
+                          <li
+                            key={point}
+                            className="flex gap-2 text-sm leading-6"
+                            style={{ color: "#6E6257" }}
+                          >
+                            <span style={{ color: "#C6A56B" }}>•</span>
+                            <span>{point}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : null}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div
+            className="mt-8 border-t pt-6"
+            style={{ borderColor: "#D8C7B5" }}
+          >
+            <Link
+              href={ctaHref}
+              className="inline-flex h-12 w-full items-center justify-center rounded-md px-5 text-sm font-medium transition-colors hover:bg-[#B8A89A] sm:w-auto"
+              style={{
+                backgroundColor: "#2B2B2B",
+                color: "#F8F5F0",
+              }}
+            >
+              Get this Membership
+            </Link>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function ServicesClient() {
+  const { data: session } = useSession();
+  const [selectedMembership, setSelectedMembership] = useState<MembershipTier | null>(
+    null,
+  );
+
+  return (
+    <main style={{ backgroundColor: "#F8F5F0" }}>
+      <section
+        className="relative overflow-hidden px-6 py-24 sm:py-10"
+        style={{
+          background:
+            "linear-gradient(135deg, rgba(248,245,240,0.98) 0%, rgba(239,228,210,0.94) 42%, rgba(198,165,107,0.32) 100%)",
+        }}
+      >
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(circle at top left, rgba(255,255,255,0.75) 0%, transparent 34%), radial-gradient(circle at bottom right, rgba(198,165,107,0.22) 0%, transparent 36%)",
+          }}
+        />
+        <div className="relative mx-auto max-w-7xl">
+          <center>
+          <h1
+            className="text-4xl font-bold sm:text-5xl lg:text-6xl"
+            style={{
+              color: "#2B2B2B",
+              fontFamily: "Playfair Display, serif",
+            }}
           >
             Services
           </h1>
-          <p style={{ color: "#B8A89A" }} className="mt-4 text-base leading-7">
-            Choose the care option that best fits your needs and book a
-            consultation in a few simple steps.
-          </p>
+          </center>
         </div>
+      </section>
 
-        {services.length === 0 ? (
-          <p style={{ color: "#B8A89A" }} className="mt-10 text-sm">
-            No services are available yet.
-          </p>
-        ) : (
-          <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
-            {services.map((service) => (
-              <article
-                key={service.id}
-                style={{
-                  backgroundColor: "#FFFFFF",
-                  borderColor: "#D8C7B5",
-                  borderWidth: "1px",
-                }}
-                className="flex min-h-64 flex-col rounded-xl p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
-              >
-                <div className="flex-1">
-                  <h2
-                    style={{
-                      fontFamily: "Playfair Display, serif",
-                      color: "#2B2B2B",
-                    }}
-                    className="text-lg font-bold"
-                  >
-                    {service.name}
-                  </h2>
-                  <p style={{ color: "#B8A89A" }} className="mt-3 text-sm leading-6">
-                    {service.description ?? "Personalized wellness support."}
-                  </p>
-                  <div className="mt-5 flex items-center gap-3 text-sm">
-                    {service.originalPrice ? (
-                      <span
-                        style={{ color: "#B8A89A" }}
-                        className="line-through"
-                      >
-                        {formatBdt(service.originalPrice)}
-                      </span>
-                    ) : null}
-                    <span style={{ color: "#C6A56B" }} className="font-semibold">
-                      {formatBdt(service.price)}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="mt-6 grid gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setSelectedService(service)}
-                    style={{
-                      borderColor: "#C6A56B",
-                      color: "#2B2B2B",
-                    }}
-                    className="inline-flex h-12 w-full items-center justify-center rounded-md border px-4 text-sm font-medium transition-colors duration-200 hover:bg-[#D8C7B5] md:h-11"
-                  >
-                    View Details
-                  </button>
-
-                  <Link
-                    href={`/booking?serviceId=${service.id}`}
-                    style={{
-                      backgroundColor: "#2B2B2B",
-                      color: "#F8F5F0",
-                    }}
-                    className="inline-flex h-12 w-full items-center justify-center rounded-md px-4 text-sm font-medium transition-colors duration-200 hover:bg-[#B8A89A] md:h-11"
-                  >
-                    Book Now
-                  </Link>
-                </div>
-              </article>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {selectedService ? (
+      <section className="px-6 py-12 sm:py-14">
         <div
-          className="fixed inset-0 z-50 flex items-stretch justify-center p-0 sm:items-center sm:px-4 sm:py-6"
-          style={{ backgroundColor: "rgba(43, 43, 43, 0.72)" }}
+          className="relative mx-auto max-w-5xl overflow-hidden rounded-[28px] border px-6 py-12 text-center sm:px-10 sm:py-16"
+          style={{
+            borderColor: "#D8C7B5",
+            backgroundImage:
+              "linear-gradient(rgba(248,245,240,0.6), rgba(248,245,240,0.9)), url('/hero/consult.jpg')",
+            backgroundPosition: "center",
+            backgroundSize: "cover",
+            backgroundRepeat: "no-repeat",
+            boxShadow: "0 18px 48px rgba(43, 43, 43, 0.7)",
+          }}
         >
           <div
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="service-details-title"
-            className="relative h-full w-full overflow-y-auto border p-6 pt-20 shadow-2xl sm:h-auto sm:max-h-[90vh] sm:max-w-xl sm:rounded-lg sm:pt-6"
+            className="absolute inset-0"
             style={{
-              backgroundColor: "#FFFFFF",
-              borderColor: "#D8C7B5",
-              boxShadow: "0 24px 80px rgba(43, 43, 43, 0.28)",
+              background:
+                "linear-gradient(135deg, rgba(255,255,255,0.18) 0%, rgba(198,165,107,0.12) 100%)",
             }}
+          />
+          <p
+            className="relative mx-auto max-w-4xl text-base leading-8 sm:text-lg"
+            style={{ color: "#6E6257" }}
           >
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <h2
-                  id="service-details-title"
-                  className="text-2xl font-bold"
-                  style={{
-                    color: "#2B2B2B",
-                    fontFamily: "Playfair Display, serif",
-                  }}
-                >
-                  {selectedService.name}
-                </h2>
-                <div className="mt-4 flex items-center gap-3 text-sm">
-                  {selectedService.originalPrice ? (
-                    <span
-                      style={{ color: "#B8A89A" }}
-                      className="line-through"
-                    >
-                      {formatBdt(selectedService.originalPrice)}
-                    </span>
-                  ) : null}
-                  <span
-                    style={{ color: "#C6A56B" }}
-                    className="text-lg font-semibold"
-                  >
-                    {formatBdt(selectedService.price)}
-                  </span>
-                </div>
-              </div>
+            A complete skin transformation program where individuals committed
+            to achieving long-term skin improvement through regular monitoring
+            and expert guidance. Basic to Advanced Skin Assessment and 1-on-1
+            Consultation by our Aestheticians. Personalized Product
+            Recommendation and Customized Routine with Online Support according
+            to criteria.
+          </p>
+        </div>
+      </section>
 
-              <button
-                type="button"
-                onClick={() => setSelectedService(null)}
-                className="fixed right-4 top-4 z-10 rounded-md border px-4 py-2 text-sm font-medium shadow-sm transition-colors hover:bg-[#F8F5F0] sm:static sm:border-0 sm:px-3 sm:shadow-none"
-                style={{ color: "#2B2B2B", borderColor: "#D8C7B5", backgroundColor: "#FFFFFF" }}
-              >
-                Close
-              </button>
+      <section className="px-6 pb-6">
+        <div className="mx-auto flex max-w-6xl items-center gap-4">
+          <div
+            className="h-px flex-1"
+            style={{
+              background:
+                "linear-gradient(90deg, transparent 0%, #C6A56B 50%, transparent 100%)",
+            }}
+          />
+          <p
+            className="shrink-0 px-2 text-center text-xs font-semibold uppercase tracking-[0.16em] sm:text-sm"
+            style={{ color: "#C6A56B" }}
+          >
+            View our Comprehensive Membership Details and Pricing Below
+          </p>
+          <div
+            className="h-px flex-1"
+            style={{
+              background:
+                "linear-gradient(90deg, transparent 0%, #C6A56B 50%, transparent 100%)",
+            }}
+          />
+        </div>
+      </section>
+
+      <section className="px-6 pb-20 pt-8 sm:pb-24">
+        <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)] lg:items-start">
+          <div>
+            <div className="grid grid-cols-1 gap-6">
+              {memberships.map((membership, index) => (
+                <button
+                  key={membership.key}
+                  type="button"
+                  onClick={() => setSelectedMembership(membership)}
+                  className="block w-full cursor-pointer border-0 bg-transparent p-0 text-left"
+                  style={{ borderRadius: 20 }}
+                >
+                  <MembershipCard
+                    step={{
+                      title: membership.title,
+                      validity: membership.validity,
+                      cost: membership.cost,
+                      description: membership.description,
+                      tier: membership.key,
+                    }}
+                    index={index}
+                    footerText="View details ->"
+                  />
+                </button>
+              ))}
             </div>
+          </div>
 
-            <div className="mt-6 space-y-4">
-              <div>
-                <p
-                  className="text-sm font-medium"
-                  style={{ color: "#2B2B2B" }}
-                >
-                  Details
-                </p>
-                <p
-                  className="mt-2 text-sm leading-6"
-                  style={{ color: "#B8A89A" }}
-                >
-                  {selectedService.details ??
-                    selectedService.description ??
-                    "More details will be available soon."}
-                </p>
-              </div>
+          <div className="flex justify-center lg:justify-end">
+            <div
+              className="w-full max-w-sm rounded-[24px] border px-4 py-6 sm:px-6"
+              style={{
+                background:
+                  "linear-gradient(180deg, rgba(255,255,255,0.88) 0%, rgba(248,245,240,0.98) 100%)",
+                borderColor: "#D8C7B5",
+              }}
+            >
+              <DoctorMascot />
             </div>
           </div>
         </div>
+      </section>
+
+      {selectedMembership ? (
+        <MembershipModal
+          membership={selectedMembership}
+          ctaHref={
+            session?.user
+              ? `/membership/payment?tier=${selectedMembership.tierValue}`
+              : "/login?callbackUrl=/services"
+          }
+          onClose={() => setSelectedMembership(null)}
+        />
       ) : null}
-      <div className="hidden 2xl:block absolute right-[-10px] top-[-30px]">
-    <DoctorMascot />
-      </div>
-      </div>
-    </section>
+    </main>
   );
 }
