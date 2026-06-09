@@ -9,7 +9,7 @@ type CrmStats = {
   recentBookings: Array<{
     id: string;
     token: string;
-    appointmentTime: string;
+    appointmentTime: string | null;
     status: string;
     user: { name: string | null } | null;
     doctor: { name: string | null } | null;
@@ -46,6 +46,19 @@ export default function CrmPage() {
 
     loadStats();
   }, []);
+
+  function formatAppointmentTime(value: string | null) {
+    return value
+      ? new Date(value).toLocaleString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+          hour: "numeric",
+          minute: "2-digit",
+          hour12: true,
+        })
+      : "Not scheduled";
+  }
 
   return (
     <section className="min-h-screen bg-zinc-50 px-6 py-10 dark:bg-black">
@@ -118,14 +131,7 @@ export default function CrmPage() {
                         <td className="px-4 py-4 text-sm text-foreground/80">{booking.doctor?.name ?? "Unassigned"}</td>
                         <td className="px-4 py-4 text-sm text-foreground/80">{booking.service?.name ?? "Unknown"}</td>
                         <td className="px-4 py-4 text-sm text-foreground/80">
-                          {new Date(booking.appointmentTime).toLocaleString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric",
-                            hour: "numeric",
-                            minute: "2-digit",
-                            hour12: true,
-                          })}
+                          {formatAppointmentTime(booking.appointmentTime)}
                         </td>
                         <td className="px-4 py-4 text-sm">
                           <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${

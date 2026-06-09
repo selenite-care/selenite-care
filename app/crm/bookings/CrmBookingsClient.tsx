@@ -7,7 +7,7 @@ import { useMemo, useState } from "react";
 export type CrmBookingListItem = {
   id: string;
   token: string | null;
-  appointmentTime: string;
+  appointmentTime: string | null;
   status: string;
   user: {
     name: string | null;
@@ -15,7 +15,7 @@ export type CrmBookingListItem = {
   };
   service: {
     name: string;
-  };
+  } | null;
   doctor: {
     name: string;
   } | null;
@@ -48,7 +48,11 @@ function getBookingStatusBadgeClasses(status: string) {
   }
 }
 
-function formatAppointmentTime(value: string) {
+function formatAppointmentTime(value: string | null) {
+  if (!value || value === "Not scheduled") {
+    return "Not scheduled";
+  }
+
   return new Date(value).toLocaleString("en-US", {
     year: "numeric",
     month: "short",
@@ -73,7 +77,7 @@ export default function CrmBookingsClient({ bookings }: CrmBookingsClientProps) 
         (booking.user.name ?? "").toLowerCase().includes(normalizedQuery) ||
         (booking.user.phone ?? "").toLowerCase().includes(normalizedQuery) ||
         bookingToken.toLowerCase().includes(normalizedQuery) ||
-        booking.service.name.toLowerCase().includes(normalizedQuery);
+        (booking.service?.name ?? "").toLowerCase().includes(normalizedQuery);
       const matchesStatus =
         statusFilter === "All" || booking.status === statusFilter;
 
@@ -87,7 +91,7 @@ export default function CrmBookingsClient({ bookings }: CrmBookingsClientProps) 
         "Booking Token": booking.token ?? booking.id,
         "Client Name": booking.user.name ?? "",
         "Client Phone": booking.user.phone ?? "",
-        "Service Name": booking.service.name,
+        "Service Name": booking.service?.name ?? "No service attached",
         "Doctor Name": booking.doctor?.name ?? "",
         "Appointment Time": formatAppointmentTime(booking.appointmentTime),
         "Booking Status": booking.status,
@@ -221,7 +225,7 @@ export default function CrmBookingsClient({ bookings }: CrmBookingsClientProps) 
                       {booking.user.phone ?? "-"}
                     </td>
                     <td className="px-4 py-4 text-foreground/70">
-                      {booking.service.name}
+                      {booking.service?.name ?? "No service attached"}
                     </td>
                     <td className="px-4 py-4 text-foreground/70">
                       {booking.doctor?.name ?? "-"}
