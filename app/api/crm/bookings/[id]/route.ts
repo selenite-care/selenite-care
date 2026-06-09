@@ -63,7 +63,6 @@ export async function GET(_request: Request, context: RouteContext) {
           availability: true,
           bio: true,
           image: true,
-          serviceId: true,
         },
       },
       payment: true,

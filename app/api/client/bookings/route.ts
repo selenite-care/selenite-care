@@ -19,20 +19,11 @@ export async function GET() {
       createdAt: "desc",
     },
     include: {
-      service: {
+      doctor: {
         select: {
           id: true,
           name: true,
-          price: true,
-        },
-      },
-      payment: {
-        select: {
-          id: true,
-          stripePaymentId: true,
-          amount: true,
-          status: true,
-          createdAt: true,
+          designation: true,
         },
       },
     },

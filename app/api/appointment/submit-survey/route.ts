@@ -8,6 +8,8 @@ const adminEmail = process.env.ADMIN_EMAIL ?? "";
 
 type SurveyPayload = {
   doctorId?: unknown;
+  preferredDate?: unknown;
+  date?: unknown;
   name?: unknown;
   age?: unknown;
   phone?: unknown;
@@ -44,6 +46,68 @@ function asOptionalString(value: unknown): string | null {
   return trimmed.length > 0 ? trimmed : null;
 }
 
+function formatPreferredDate(date: Date) {
+  return date.toLocaleDateString("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+function buildAppointmentEmailHtml({
+  bookingToken,
+  clientName,
+  clientPhone,
+  clientEmail,
+  doctorName,
+  preferredDate,
+  footerMessage,
+}: {
+  bookingToken: string;
+  clientName: string;
+  clientPhone: string;
+  clientEmail: string;
+  doctorName: string;
+  preferredDate: string;
+  footerMessage: string;
+}) {
+  return `
+    <div style="font-family: Arial, sans-serif; color: #2B2B2B; line-height: 1.6;">
+      <h1 style="color: #2B2B2B; margin-bottom: 16px;">Selenite Care</h1>
+      <table style="width:100%; border-collapse:collapse;">
+        <tbody>
+          <tr>
+            <td style="padding:10px; border:1px solid #D8C7B5; font-weight:bold;">Booking Token</td>
+            <td style="padding:10px; border:1px solid #D8C7B5;">${bookingToken}</td>
+          </tr>
+          <tr>
+            <td style="padding:10px; border:1px solid #D8C7B5; font-weight:bold;">Client Name</td>
+            <td style="padding:10px; border:1px solid #D8C7B5;">${clientName}</td>
+          </tr>
+          <tr>
+            <td style="padding:10px; border:1px solid #D8C7B5; font-weight:bold;">Client Phone</td>
+            <td style="padding:10px; border:1px solid #D8C7B5;">${clientPhone}</td>
+          </tr>
+          <tr>
+            <td style="padding:10px; border:1px solid #D8C7B5; font-weight:bold;">Client Email</td>
+            <td style="padding:10px; border:1px solid #D8C7B5;">${clientEmail}</td>
+          </tr>
+          <tr>
+            <td style="padding:10px; border:1px solid #D8C7B5; font-weight:bold;">Selected Doctor</td>
+            <td style="padding:10px; border:1px solid #D8C7B5;">${doctorName}</td>
+          </tr>
+          <tr>
+            <td style="padding:10px; border:1px solid #D8C7B5; font-weight:bold;">Preferred Date</td>
+            <td style="padding:10px; border:1px solid #D8C7B5;">${preferredDate}</td>
+          </tr>
+        </tbody>
+      </table>
+      <p style="margin-top: 18px;">${footerMessage}</p>
+    </div>
+  `;
+}
+
 export async function POST(request: Request) {
   const session = await auth();
 
@@ -67,22 +131,46 @@ export async function POST(request: Request) {
 
   const doctorId =
     typeof body.doctorId === "string" ? body.doctorId.trim() : "";
+  const preferredDateInput =
+    typeof body.preferredDate === "string"
+      ? body.preferredDate.trim()
+      : typeof body.date === "string"
+        ? body.date.trim()
+        : "";
   const name = typeof body.name === "string" ? body.name.trim() : "";
   const age = typeof body.age === "string" ? body.age.trim() : "";
   const phone = typeof body.phone === "string" ? body.phone.trim() : "";
   const email = typeof body.email === "string" ? body.email.trim() : "";
   const skinType = typeof body.skinType === "string" ? body.skinType.trim() : "";
 
-  if (!doctorId || !name || !phone || !email || !skinType) {
+  if (!doctorId || !preferredDateInput || !name || !phone || !email || !skinType) {
     return Response.json(
-      { error: "doctorId, name, phone, email, and skinType are required." },
+      {
+        error:
+          "doctorId, preferredDate, name, phone, email, and skinType are required.",
+      },
       { status: 400 },
     );
   }
 
+  const preferredDate = new Date(preferredDateInput);
+
+  if (Number.isNaN(preferredDate.getTime())) {
+    return Response.json({ error: "Preferred date is invalid." }, { status: 400 });
+  }
+
   const doctor = await db.doctor.findUnique({
     where: { id: doctorId },
-    select: { id: true, name: true, designation: true },
+    select: {
+      id: true,
+      name: true,
+      designation: true,
+      user: {
+        select: {
+          email: true,
+        },
+      },
+    },
   });
 
   if (!doctor) {
@@ -115,79 +203,136 @@ export async function POST(request: Request) {
   const note = asOptionalString(body.note);
   const waterIntake = asOptionalString(body.waterIntake) ?? "";
   const skinImages = asStringArray(body.skinImages).slice(0, 4);
+  const preferredDateLabel = formatPreferredDate(preferredDate);
 
   try {
-    const survey = await db.surveyResponse.create({
-      data: {
-        codeId: doctorId,
-        name,
-        age,
-        phone,
-        email,
-        skinType,
-        usesKoreanProducts,
-        facingSkinIssues,
-        skinIssues,
-        skinIssueDuration,
-        currentProducts,
-        allergicIngredients,
-        doubleCleansePreference,
-        sleepHours,
-        waterIntake,
-        appliesSunscreen,
-        regularPeriodCycle,
-        usedSteroidBasedNightCream,
-        note,
-        skinImages,
-      },
+    const { booking, survey } = await db.$transaction(async (tx) => {
+      const existingTokens = await tx.booking.findMany({
+        select: { token: true },
+      });
+
+      const highestSerial = existingTokens.reduce((max, existingBooking) => {
+        const numericToken = Number.parseInt(existingBooking.token, 10);
+
+        if (!Number.isNaN(numericToken)) {
+          return Math.max(max, numericToken);
+        }
+
+        return max;
+      }, 0);
+
+      const bookingToken = String(highestSerial + 1).padStart(4, "0");
+
+      const booking = await tx.booking.create({
+        data: {
+          token: bookingToken,
+          userId: session.user.id,
+          doctorId: doctor.id,
+          appointmentTime: preferredDate,
+          status: "PENDING",
+        },
+      });
+
+      const survey = await tx.surveyResponse.create({
+        data: {
+          bookingId: booking.id,
+          codeId: doctorId,
+          name,
+          age,
+          phone,
+          email,
+          skinType,
+          usesKoreanProducts,
+          facingSkinIssues,
+          skinIssues,
+          skinIssueDuration,
+          currentProducts,
+          allergicIngredients,
+          doubleCleansePreference,
+          sleepHours,
+          waterIntake,
+          appliesSunscreen,
+          regularPeriodCycle,
+          usedSteroidBasedNightCream,
+          note,
+          skinImages,
+        },
+      });
+
+      return { booking, survey };
     });
 
-    if (adminEmail) {
-      const emailHtml = `
-        <table style="width:100%; border-collapse:collapse; font-family:Arial, sans-serif;">
-          <thead>
-            <tr>
-              <th style="text-align:left; padding:10px; border-bottom:1px solid #ddd;">Field</th>
-              <th style="text-align:left; padding:10px; border-bottom:1px solid #ddd;">Value</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td style="padding:10px; border-bottom:1px solid #eee;">Client Name</td>
-              <td style="padding:10px; border-bottom:1px solid #eee;">${name}</td>
-            </tr>
-            <tr>
-              <td style="padding:10px; border-bottom:1px solid #eee;">Phone</td>
-              <td style="padding:10px; border-bottom:1px solid #eee;">${phone}</td>
-            </tr>
-            <tr>
-              <td style="padding:10px; border-bottom:1px solid #eee;">Email</td>
-              <td style="padding:10px; border-bottom:1px solid #eee;">${email}</td>
-            </tr>
-            <tr>
-              <td style="padding:10px; border-bottom:1px solid #eee;">Doctor</td>
-              <td style="padding:10px; border-bottom:1px solid #eee;">${doctor.name} (${doctor.designation})</td>
-            </tr>
-            <tr>
-              <td style="padding:10px; border-bottom:1px solid #eee;">Skin Type</td>
-              <td style="padding:10px; border-bottom:1px solid #eee;">${skinType}</td>
-            </tr>
-            <tr>
-              <td style="padding:10px; border-bottom:1px solid #eee;">Survey ID</td>
-              <td style="padding:10px; border-bottom:1px solid #eee;">${survey.id}</td>
-            </tr>
-          </tbody>
-        </table>
-      `;
+    const adminEmailHtml = buildAppointmentEmailHtml({
+      bookingToken: booking.token,
+      clientName: name,
+      clientPhone: phone,
+      clientEmail: email,
+      doctorName: `${doctor.name} (${doctor.designation})`,
+      preferredDate: preferredDateLabel,
+      footerMessage:
+        "A new appointment request has been submitted and is awaiting follow-up.",
+    });
 
-      await sendEmail({
-        to: adminEmail,
-        subject: "New Appointment Survey Submission - Selenite Care",
-        html: emailHtml,
-      });
+    const doctorEmailHtml = buildAppointmentEmailHtml({
+      bookingToken: booking.token,
+      clientName: name,
+      clientPhone: phone,
+      clientEmail: email,
+      doctorName: `${doctor.name} (${doctor.designation})`,
+      preferredDate: preferredDateLabel,
+      footerMessage:
+        "Please review this assigned appointment request and await CRM confirmation.",
+    });
+
+    const clientEmailHtml = buildAppointmentEmailHtml({
+      bookingToken: booking.token,
+      clientName: name,
+      clientPhone: phone,
+      clientEmail: email,
+      doctorName: `${doctor.name} (${doctor.designation})`,
+      preferredDate: preferredDateLabel,
+      footerMessage:
+        "Our CRM team will contact you shortly to confirm your appointment time.",
+    });
+
+    const emailPromises: Promise<unknown>[] = [];
+
+    if (adminEmail) {
+      emailPromises.push(
+        sendEmail({
+          to: adminEmail,
+          subject: "New Appointment - Selenite Care",
+          html: adminEmailHtml,
+        }),
+      );
     }
 
-    return Response.json({ ok: true, surveyId: survey.id });
+    if (doctor.user?.email) {
+      emailPromises.push(
+        sendEmail({
+          to: doctor.user.email,
+          subject: "New Appointment Assigned - Selenite Care",
+          html: doctorEmailHtml,
+        }),
+      );
+    }
+
+    emailPromises.push(
+      sendEmail({
+        to: email,
+        subject: "Appointment Request Confirmed - Selenite Care",
+        html: clientEmailHtml,
+      }),
+    );
+
+    await Promise.all(emailPromises);
+
+    return Response.json({
+      ok: true,
+      surveyId: survey.id,
+      bookingId: booking.id,
+      bookingToken: booking.token,
+    });
   } catch (error) {
     console.error("Appointment survey save error:", error);
     return Response.json(

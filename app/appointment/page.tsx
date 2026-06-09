@@ -45,6 +45,7 @@ export default function AppointmentPage() {
   const [doctors, setDoctors] = useState<AppointmentDoctor[]>([]);
   const [isLoadingDoctors, setIsLoadingDoctors] = useState(false);
   const [error, setError] = useState("");
+  const [showMembershipModal, setShowMembershipModal] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -65,12 +66,12 @@ export default function AppointmentPage() {
           return;
         }
 
-        if (!hasActiveMembership) {
+        if (hasActiveMembership) {
+          setMembershipStatus("active");
+        } else {
           setMembershipStatus("inactive");
-          return;
         }
 
-        setMembershipStatus("active");
         setIsLoadingDoctors(true);
 
         const doctorsResponse = await fetch("/api/appointment/doctors");
@@ -111,6 +112,8 @@ export default function AppointmentPage() {
     };
   }, []);
 
+  const hasActiveMembership = membershipStatus === "active";
+
   return (
     <main className="min-h-screen px-6 py-16" style={{ backgroundColor: "#F8F5F0" }}>
       <div className="mx-auto w-full max-w-6xl">
@@ -150,7 +153,7 @@ export default function AppointmentPage() {
 
         {membershipStatus === "inactive" ? (
           <section
-            className="mt-10 rounded-[24px] border px-6 py-10 text-center"
+            className="mt-10 rounded-[24px] border px-6 py-8 text-center"
             style={{
               backgroundColor: "#FFFFFF",
               borderColor: "#D8C7B5",
@@ -167,22 +170,13 @@ export default function AppointmentPage() {
               Active Membership Required
             </h2>
             <p className="mx-auto mt-4 max-w-2xl text-base leading-7" style={{ color: "#6E6257" }}>
-              You need an active membership to book an appointment.
+              You can browse our doctors below, but you will need an active membership
+              before selecting one for an appointment.
             </p>
-            <Link
-              href="/services"
-              className="mt-8 inline-flex h-12 items-center justify-center rounded-md px-6 text-sm font-medium transition-colors hover:bg-[#B8A89A]"
-              style={{
-                backgroundColor: "#2B2B2B",
-                color: "#F8F5F0",
-              }}
-            >
-              Get Membership
-            </Link>
           </section>
         ) : null}
 
-        {membershipStatus === "active" ? (
+        {membershipStatus !== "loading" ? (
           <>
             {isLoadingDoctors ? (
               <p className="mt-10 text-sm" style={{ color: "#B8A89A" }}>
@@ -201,7 +195,7 @@ export default function AppointmentPage() {
                 {doctors.map((doctor) => (
                   <article
                     key={doctor.id}
-                    className="overflow-hidden rounded-[20px] border bg-white"
+                    className="relative overflow-hidden rounded-[20px] border bg-white"
                     style={{
                       borderColor: "#D8C7B5",
                       boxShadow: "0 14px 40px rgba(43, 43, 43, 0.06)",
@@ -232,6 +226,19 @@ export default function AppointmentPage() {
                     )}
 
                     <div className="p-6">
+                      {!hasActiveMembership ? (
+                        <div
+                          className="mb-4 inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em]"
+                          style={{
+                            borderColor: "#D8C7B5",
+                            backgroundColor: "#F8F5F0",
+                            color: "#8C7967",
+                          }}
+                        >
+                          Locked
+                        </div>
+                      ) : null}
+
                       <h2
                         className="text-xl font-semibold"
                         style={{
@@ -262,16 +269,30 @@ export default function AppointmentPage() {
                         {doctor.availability}
                       </div>
 
-                      <Link
-                        href={`/appointment/survey?doctorId=${encodeURIComponent(doctor.id)}`}
-                        className="mt-6 inline-flex h-12 w-full items-center justify-center rounded-md px-5 text-sm font-medium transition-colors hover:bg-[#B8A89A]"
-                        style={{
-                          backgroundColor: "#2B2B2B",
-                          color: "#F8F5F0",
-                        }}
-                      >
-                        Select Doctor
-                      </Link>
+                      {hasActiveMembership ? (
+                        <Link
+                          href={`/appointment/date?doctorId=${encodeURIComponent(doctor.id)}`}
+                          className="mt-6 inline-flex h-12 w-full items-center justify-center rounded-md px-5 text-sm font-medium transition-colors hover:bg-[#B8A89A]"
+                          style={{
+                            backgroundColor: "#2B2B2B",
+                            color: "#F8F5F0",
+                          }}
+                        >
+                          Select Doctor
+                        </Link>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => setShowMembershipModal(true)}
+                          className="mt-6 inline-flex h-12 w-full items-center justify-center rounded-md px-5 text-sm font-medium transition-colors hover:bg-[#B8A89A]"
+                          style={{
+                            backgroundColor: "#2B2B2B",
+                            color: "#F8F5F0",
+                          }}
+                        >
+                          Select Doctor
+                        </button>
+                      )}
                     </div>
                   </article>
                 ))}
@@ -280,6 +301,75 @@ export default function AppointmentPage() {
           </>
         ) : null}
       </div>
+
+      {showMembershipModal ? (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 px-4"
+          onClick={() => setShowMembershipModal(false)}
+        >
+          <div
+            className="w-full max-w-md rounded-[24px] border bg-white p-6 shadow-2xl"
+            style={{ borderColor: "#D8C7B5" }}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2
+                  className="text-2xl font-semibold"
+                  style={{
+                    fontFamily: "Playfair Display, serif",
+                    color: "#2B2B2B",
+                  }}
+                >
+                  Membership Required
+                </h2>
+                <p className="mt-3 text-sm leading-7" style={{ color: "#6E6257" }}>
+                  Please purchase a membership first.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setShowMembershipModal(false)}
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full border text-lg"
+                style={{
+                  borderColor: "#D8C7B5",
+                  color: "#2B2B2B",
+                  backgroundColor: "#F8F5F0",
+                }}
+                aria-label="Close membership prompt"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+              <Link
+                href="/services"
+                className="inline-flex h-12 flex-1 items-center justify-center rounded-md px-5 text-sm font-medium transition-colors hover:bg-[#B8A89A]"
+                style={{
+                  backgroundColor: "#2B2B2B",
+                  color: "#F8F5F0",
+                }}
+              >
+                Get Membership
+              </Link>
+              <button
+                type="button"
+                onClick={() => setShowMembershipModal(false)}
+                className="inline-flex h-12 flex-1 items-center justify-center rounded-md border px-5 text-sm font-medium transition-colors"
+                style={{
+                  borderColor: "#D8C7B5",
+                  color: "#2B2B2B",
+                  backgroundColor: "#F8F5F0",
+                }}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </main>
   );
 }

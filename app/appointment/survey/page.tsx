@@ -70,6 +70,7 @@ function AppointmentSurveyPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const doctorId = searchParams.get("doctorId") ?? "";
+  const preferredDate = searchParams.get("date") ?? "";
 
   const [formState, setFormState] = useState<SurveyFormState>({
     name: "",
@@ -205,8 +206,8 @@ function AppointmentSurveyPageContent() {
     setError("");
     setIsSubmitting(true);
 
-    if (!doctorId) {
-      setError("Doctor ID is required.");
+    if (!doctorId || !preferredDate) {
+      setError("Doctor ID and preferred date are required.");
       setIsSubmitting(false);
       return;
     }
@@ -222,6 +223,7 @@ function AppointmentSurveyPageContent() {
 
     const payload = {
       doctorId,
+      preferredDate,
       name: formState.name,
       age: formState.age,
       phone: formState.phone,
@@ -252,7 +254,7 @@ function AppointmentSurveyPageContent() {
       });
 
       const data = (await response.json().catch(() => null)) as
-        | { ok?: boolean; error?: string }
+        | { ok?: boolean; error?: string; bookingToken?: string }
         | null;
 
       if (!response.ok) {
@@ -261,7 +263,11 @@ function AppointmentSurveyPageContent() {
         return;
       }
 
-      router.push("/appointment/confirmation");
+      router.push(
+        `/appointment/confirmation?bookingToken=${encodeURIComponent(
+          data?.bookingToken ?? "",
+        )}`,
+      );
     } catch {
       setError("Failed to submit survey.");
       setIsSubmitting(false);
