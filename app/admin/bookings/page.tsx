@@ -100,7 +100,7 @@ export default function AdminBookingsPage() {
         "Appointment Time": formatAppointmentTime(booking.appointmentTime),
         "Booking Status": booking.status,
         "Payment Status": booking.payment?.status ?? "UNPAID",
-        Amount: booking.payment ? formatBdt(booking.payment.amount) : "",
+        Amount: booking.payment ? formatBdt(booking.payment?.amount ?? 0) : "",
       })),
       {
         columns: [

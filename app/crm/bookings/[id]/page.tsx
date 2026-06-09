@@ -161,8 +161,8 @@ export default async function CrmBookingDetailsPage({
           <h2 className="text-lg font-semibold text-foreground">Service</h2>
           {booking.service ? (
             <div className="mt-5 grid gap-5 sm:grid-cols-2">
-              <DetailItem label="Name" value={booking.service.name} />
-              <DetailItem label="Price" value={formatBdt(booking.service.price)} />
+              <DetailItem label="Name" value={booking.service?.name ?? "N/A"} />
+              <DetailItem label="Price" value={formatBdt(booking.service?.price ?? 0)} />
               <DetailItem
                 label="Description"
                 value={booking.service.description ?? "Not provided"}
@@ -179,7 +179,7 @@ export default async function CrmBookingDetailsPage({
           <h2 className="text-lg font-semibold text-foreground">Doctor</h2>
           {booking.doctor ? (
             <div className="mt-5 grid gap-5 sm:grid-cols-2">
-              <DetailItem label="Name" value={booking.doctor.name} />
+              <DetailItem label="Name" value={booking.doctor?.name ?? "Not assigned"} />
               <DetailItem label="Designation" value={booking.doctor.designation} />
               <DetailItem label="Availability" value={booking.doctor.availability} />
               <DetailItem label="Bio" value={booking.doctor.bio ?? "Not provided"} />
@@ -221,14 +221,14 @@ export default async function CrmBookingDetailsPage({
                 value={
                   <span
                     className={`inline-flex rounded-full border px-3 py-1 text-xs font-medium ${getPaymentStatusBadgeClasses(
-                      booking.payment.status,
+                      booking.payment?.status ?? "UNPAID",
                     )}`}
                   >
-                    {booking.payment.status}
+                    {booking.payment?.status ?? "UNPAID"}
                   </span>
                 }
               />
-              <DetailItem label="Amount" value={formatBdt(booking.payment.amount)} />
+              <DetailItem label="Amount" value={formatBdt(booking.payment?.amount ?? 0)} />
               <DetailItem
                 label="Stripe Payment ID"
                 value={

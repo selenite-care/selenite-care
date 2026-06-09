@@ -159,7 +159,7 @@ export default async function BookingDetailsPage({ params }: BookingDetailsPageP
             <DetailItem
               label="Price"
               value={
-                booking.service ? formatBdt(booking.service.price) : "Not available"
+                booking.service ? formatBdt(booking.service?.price ?? 0) : "Not available"
               }
             />
             <DetailItem
@@ -178,16 +178,16 @@ export default async function BookingDetailsPage({ params }: BookingDetailsPageP
                 value={
                   <span
                     className={`inline-flex rounded-full border px-3 py-1 text-xs font-medium ${getPaymentStatusBadgeClasses(
-                      booking.payment.status,
+                      booking.payment?.status ?? "UNPAID",
                     )}`}
                   >
-                    {booking.payment.status}
+                    {booking.payment?.status ?? "UNPAID"}
                   </span>
                 }
               />
               <DetailItem
                 label="Amount"
-                value={formatBdt(booking.payment.amount)}
+                value={formatBdt(booking.payment?.amount ?? 0)}
               />
               <DetailItem
                 label="Stripe Payment ID"
@@ -216,72 +216,72 @@ export default async function BookingDetailsPage({ params }: BookingDetailsPageP
         </h2>
         {booking.surveyResponse ? (
           <div className="mt-5 grid gap-5 sm:grid-cols-2">
-            <DetailItem label="Name" value={booking.surveyResponse.name} />
-            <DetailItem label="Age" value={booking.surveyResponse.age} />
-            <DetailItem label="Phone" value={booking.surveyResponse.phone} />
-            <DetailItem label="Email" value={booking.surveyResponse.email} />
-            <DetailItem label="Skin Type" value={booking.surveyResponse.skinType} />
+            <DetailItem label="Name" value={booking.surveyResponse?.name ?? "Not provided"} />
+            <DetailItem label="Age" value={booking.surveyResponse?.age ?? "Not provided"} />
+            <DetailItem label="Phone" value={booking.surveyResponse?.phone ?? "Not provided"} />
+            <DetailItem label="Email" value={booking.surveyResponse?.email ?? "Not provided"} />
+            <DetailItem label="Skin Type" value={booking.surveyResponse?.skinType ?? "Not provided"} />
             <DetailItem
               label="Code ID"
-              value={booking.surveyResponse.codeId}
+              value={booking.surveyResponse?.codeId ?? "Not provided"}
             />
             <DetailItem
               label="Uses Korean Products"
-              value={booking.surveyResponse.usesKoreanProducts ? "Yes" : "No"}
+              value={booking.surveyResponse?.usesKoreanProducts ? "Yes" : "No"}
             />
             <DetailItem
               label="Facing Skin Issues"
-              value={booking.surveyResponse.facingSkinIssues ? "Yes" : "No"}
+              value={booking.surveyResponse?.facingSkinIssues ? "Yes" : "No"}
             />
             <DetailItem
               label="Skin Issues"
-              value={joinValues(booking.surveyResponse.skinIssues)}
+              value={joinValues(booking.surveyResponse?.skinIssues)}
             />
             <DetailItem
               label="Issue Duration"
-              value={booking.surveyResponse.skinIssueDuration ?? "Not specified"}
+              value={booking.surveyResponse?.skinIssueDuration ?? "Not specified"}
             />
             <DetailItem
               label="Current Products"
-              value={joinValues(booking.surveyResponse.currentProducts)}
+              value={joinValues(booking.surveyResponse?.currentProducts)}
             />
             <DetailItem
               label="Allergic Ingredients"
-              value={joinValues(booking.surveyResponse.allergicIngredients)}
+              value={joinValues(booking.surveyResponse?.allergicIngredients)}
             />
             <DetailItem
               label="Double Cleanse Preference"
-              value={booking.surveyResponse.doubleCleansePreference}
+              value={booking.surveyResponse?.doubleCleansePreference ?? "Not specified"}
             />
             <DetailItem
               label="Sleep Hours"
-              value={booking.surveyResponse.sleepHours}
+              value={booking.surveyResponse?.sleepHours ?? "Not specified"}
             />
             <DetailItem
               label="Water Intake"
               value={
-                booking.surveyResponse.waterIntake
-                  ? Array.isArray(booking.surveyResponse.waterIntake)
-                    ? booking.surveyResponse.waterIntake.join(", ")
-                    : booking.surveyResponse.waterIntake
+                booking.surveyResponse?.waterIntake
+                  ? Array.isArray(booking.surveyResponse?.waterIntake)
+                    ? booking.surveyResponse?.waterIntake?.join(", ")
+                    : booking.surveyResponse?.waterIntake
                   : "Not specified"
               }
             />
             <DetailItem
               label="Applies Sunscreen"
-              value={booking.surveyResponse.appliesSunscreen ? "Yes" : "No"}
+              value={booking.surveyResponse?.appliesSunscreen ? "Yes" : "No"}
             />
             <DetailItem
               label="Regular Period Cycle"
-              value={booking.surveyResponse.regularPeriodCycle ? "Yes" : "No"}
+              value={booking.surveyResponse?.regularPeriodCycle ? "Yes" : "No"}
             />
             <DetailItem
               label="Used Steroid Based Night Cream"
-              value={booking.surveyResponse.usedSteroidBasedNightCream ? "Yes" : "No"}
+              value={booking.surveyResponse?.usedSteroidBasedNightCream ? "Yes" : "No"}
             />
             <DetailItem
               label="Additional Notes"
-              value={booking.surveyResponse.note ?? "No additional notes"}
+              value={booking.surveyResponse?.note ?? "No additional notes"}
             />
           </div>
         ) : (

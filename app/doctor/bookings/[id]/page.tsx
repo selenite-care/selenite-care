@@ -85,8 +85,8 @@ export default async function BookingDetailsPage({ params }: BookingDetailsPageP
           <h2 className="text-lg font-semibold text-foreground">Service</h2>
           {booking.service ? (
             <div className="mt-5 grid gap-5 sm:grid-cols-2">
-              <DetailItem label="Name" value={booking.service.name} />
-              <DetailItem label="Price" value={formatBdt(booking.service.price)} />
+              <DetailItem label="Name" value={booking.service?.name ?? "N/A"} />
+              <DetailItem label="Price" value={formatBdt(booking.service?.price ?? 0)} />
               <DetailItem label="Description" value={booking.service.description ?? "Not provided"} />
             </div>
           ) : (
@@ -108,8 +108,8 @@ export default async function BookingDetailsPage({ params }: BookingDetailsPageP
           <h2 className="text-lg font-semibold text-foreground">Payment Info</h2>
           {booking.payment ? (
             <div className="mt-5 grid gap-5 sm:grid-cols-2">
-              <DetailItem label="Payment Status" value={booking.payment.status} />
-              <DetailItem label="Amount" value={formatBdt(booking.payment.amount)} />
+              <DetailItem label="Payment Status" value={booking.payment?.status ?? "UNPAID"} />
+              <DetailItem label="Amount" value={formatBdt(booking.payment?.amount ?? 0)} />
               <DetailItem label="Stripe Payment ID" value={<span className="break-all font-mono text-xs">{booking.payment.stripePaymentId}</span>} />
               <DetailItem label="Paid At" value={booking.payment.createdAt.toLocaleString()} />
             </div>
@@ -123,7 +123,7 @@ export default async function BookingDetailsPage({ params }: BookingDetailsPageP
         <h2 className="text-lg font-semibold text-foreground">Selected Doctor</h2>
         {booking.doctor ? (
           <div className="mt-5 grid gap-5 sm:grid-cols-2">
-            <DetailItem label="Name" value={booking.doctor.name} />
+            <DetailItem label="Name" value={booking.doctor?.name ?? "Not assigned"} />
             <DetailItem label="Designation" value={booking.doctor.designation} />
             <DetailItem label="Availability" value={booking.doctor.availability} />
             <DetailItem label="Bio" value={booking.doctor.bio ?? "Not provided"} />

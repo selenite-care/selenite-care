@@ -11,7 +11,7 @@ type ClientPayment = {
   booking: {
     service: {
       name: string;
-    };
+    } | null;
   };
 };
 
@@ -107,7 +107,7 @@ export default function DashboardPaymentsPage() {
                       {payment.bookingId}
                     </td>
                     <td className="px-4 py-4 text-foreground/70">
-                      {payment.booking.service.name}
+                      {payment.booking.service?.name ?? "N/A"}
                     </td>
                     <td className="px-4 py-4 text-foreground/70">
                       {formatBdt(payment.amount)}

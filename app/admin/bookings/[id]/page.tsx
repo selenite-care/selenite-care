@@ -112,10 +112,10 @@ export default async function BookingDetailsPage({
           <h2 className="text-lg font-semibold text-foreground">Service</h2>
           {booking.service ? (
             <div className="mt-5 grid gap-5 sm:grid-cols-2">
-              <DetailItem label="Name" value={booking.service.name} />
+              <DetailItem label="Name" value={booking.service?.name ?? "N/A"} />
               <DetailItem
                 label="Price"
-                value={formatBdt(booking.service.price)}
+                value={formatBdt(booking.service?.price ?? 0)}
               />
               <DetailItem
                 label="Description"
@@ -153,10 +153,10 @@ export default async function BookingDetailsPage({
           </h2>
           {booking.payment ? (
             <div className="mt-5 grid gap-5 sm:grid-cols-2">
-              <DetailItem label="Payment Status" value={booking.payment.status} />
+              <DetailItem label="Payment Status" value={booking.payment?.status ?? "UNPAID"} />
               <DetailItem
                 label="Amount"
-                value={formatBdt(booking.payment.amount)}
+                value={formatBdt(booking.payment?.amount ?? 0)}
               />
               <DetailItem
                 label="Stripe Payment ID"
@@ -185,7 +185,7 @@ export default async function BookingDetailsPage({
         </h2>
         {booking.doctor ? (
           <div className="mt-5 grid gap-5 sm:grid-cols-2">
-            <DetailItem label="Name" value={booking.doctor.name} />
+            <DetailItem label="Name" value={booking.doctor?.name ?? "Not assigned"} />
             <DetailItem
               label="Designation"
               value={booking.doctor.designation}
@@ -211,7 +211,7 @@ export default async function BookingDetailsPage({
       {booking.payment ? (
         <PaymentStatusControls
           paymentId={booking.payment.id}
-          currentStatus={booking.payment.status}
+          currentStatus={booking.payment?.status ?? "UNPAID"}
         />
       ) : null}
 
