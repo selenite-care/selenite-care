@@ -5,11 +5,11 @@ import { useEffect, useState } from "react";
 
 type ClientBooking = {
   id: string;
-  appointmentTime: string;
+  appointmentTime: string | null;
   status: string;
   service: {
     name: string;
-  };
+  } | null;
   payment: {
     status: string;
   } | null;
@@ -55,6 +55,10 @@ export default function DashboardBookingsPage() {
 
     loadBookings();
   }, []);
+
+  function formatAppointmentTime(value: string | null) {
+    return value ? new Date(value).toLocaleString() : "Not scheduled";
+  }
 
   return (
     <section>
@@ -103,10 +107,10 @@ export default function DashboardBookingsPage() {
                       {booking.id}
                     </td>
                     <td className="px-4 py-4 text-foreground/70">
-                      {booking.service.name}
+                      {booking.service?.name ?? "No service attached"}
                     </td>
                     <td className="px-4 py-4 text-foreground/70">
-                      {new Date(booking.appointmentTime).toLocaleString()}
+                      {formatAppointmentTime(booking.appointmentTime)}
                     </td>
                     <td className="px-4 py-4">
                       <span

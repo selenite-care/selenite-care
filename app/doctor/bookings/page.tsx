@@ -6,14 +6,14 @@ import { useEffect, useState } from "react";
 type DoctorBooking = {
   id: string;
   token: string;
-  appointmentTime: string;
+  appointmentTime: string | null;
   status: string;
   user: {
     name: string;
   };
   service: {
     name: string;
-  };
+  } | null;
 };
 
 function getStatusBadgeClasses(status: string) {
@@ -55,6 +55,10 @@ export default function DoctorBookingsPage() {
 
     loadBookings();
   }, []);
+
+  function formatAppointmentTime(value: string | null) {
+    return value ? new Date(value).toLocaleString() : "Not scheduled";
+  }
 
   return (
     <section>
@@ -107,10 +111,10 @@ export default function DoctorBookingsPage() {
                       {booking.user.name}
                     </td>
                     <td className="px-4 py-4 text-foreground/70">
-                      {booking.service.name}
+                      {booking.service?.name ?? "No service attached"}
                     </td>
                     <td className="px-4 py-4 text-foreground/70">
-                      {new Date(booking.appointmentTime).toLocaleString()}
+                      {formatAppointmentTime(booking.appointmentTime)}
                     </td>
                     <td className="px-4 py-4">
                       <span

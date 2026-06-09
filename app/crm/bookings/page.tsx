@@ -44,7 +44,7 @@ export default async function CrmBookingsPage() {
 
   const bookingItems = bookings.map((booking) => ({
     ...booking,
-    appointmentTime: booking.appointmentTime.toISOString(),
+    appointmentTime: booking.appointmentTime?.toISOString() ?? "Not scheduled",
   }));
 
   return (

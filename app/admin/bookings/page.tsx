@@ -7,7 +7,7 @@ import { useEffect, useMemo, useState } from "react";
 type AdminBooking = {
   id: string;
   token?: string | null;
-  appointmentTime: string;
+  appointmentTime: string | null;
   status: string;
   user: {
     name: string | null;
@@ -16,7 +16,7 @@ type AdminBooking = {
   };
   service: {
     name: string;
-  };
+  } | null;
   doctor: {
     name: string;
   } | null;
@@ -73,7 +73,7 @@ export default function AdminBookingsPage() {
         !normalizedQuery ||
         clientName.toLowerCase().includes(normalizedQuery) ||
         bookingToken.toLowerCase().includes(normalizedQuery) ||
-        booking.service.name.toLowerCase().includes(normalizedQuery);
+        (booking.service?.name ?? "").toLowerCase().includes(normalizedQuery);
       const matchesStatus =
         statusFilter === "All" || booking.status === statusFilter;
 
@@ -85,15 +85,19 @@ export default function AdminBookingsPage() {
     return `${Math.round(amount)} BDT`;
   }
 
+  function formatAppointmentTime(value: string | null) {
+    return value ? new Date(value).toLocaleString() : "Not scheduled";
+  }
+
   function handleExportCsv() {
     const csv = Papa.unparse(
       filteredBookings.map((booking) => ({
         "Booking Token": booking.token ?? booking.id,
         "Client Name": booking.user.name ?? booking.user.email,
         "Client Phone": booking.user.phone ?? "",
-        "Service Name": booking.service.name,
+        "Service Name": booking.service?.name ?? "No service attached",
         "Doctor Name": booking.doctor?.name ?? "",
-        "Appointment Time": new Date(booking.appointmentTime).toLocaleString(),
+        "Appointment Time": formatAppointmentTime(booking.appointmentTime),
         "Booking Status": booking.status,
         "Payment Status": booking.payment?.status ?? "UNPAID",
         Amount: booking.payment ? formatBdt(booking.payment.amount) : "",
@@ -244,10 +248,10 @@ export default function AdminBookingsPage() {
                           {booking.user.name ?? booking.user.email}
                         </td>
                         <td className="px-4 py-4 text-foreground/70">
-                          {booking.service.name}
+                          {booking.service?.name ?? "No service attached"}
                         </td>
                         <td className="px-4 py-4 text-foreground/70">
-                          {new Date(booking.appointmentTime).toLocaleString()}
+                          {formatAppointmentTime(booking.appointmentTime)}
                         </td>
                         <td className="px-4 py-4 text-foreground/70">
                           {booking.payment?.status ?? "UNPAID"}
