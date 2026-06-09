@@ -83,18 +83,22 @@ export default async function BookingDetailsPage({ params }: BookingDetailsPageP
 
         <section className="rounded-lg border border-black/10 bg-background p-6 dark:border-white/10">
           <h2 className="text-lg font-semibold text-foreground">Service</h2>
-          <div className="mt-5 grid gap-5 sm:grid-cols-2">
-            <DetailItem label="Name" value={booking.service.name} />
-            <DetailItem label="Price" value={formatBdt(booking.service.price)} />
-            <DetailItem label="Description" value={booking.service.description ?? "Not provided"} />
-          </div>
+          {booking.service ? (
+            <div className="mt-5 grid gap-5 sm:grid-cols-2">
+              <DetailItem label="Name" value={booking.service.name} />
+              <DetailItem label="Price" value={formatBdt(booking.service.price)} />
+              <DetailItem label="Description" value={booking.service.description ?? "Not provided"} />
+            </div>
+          ) : (
+            <p className="mt-5 text-sm text-foreground/70">No service record is attached to this booking.</p>
+          )}
         </section>
 
         <section className="rounded-lg border border-black/10 bg-background p-6 dark:border-white/10">
           <h2 className="text-lg font-semibold text-foreground">Booking Info</h2>
           <div className="mt-5 grid gap-5 sm:grid-cols-2">
             <DetailItem label="Appointment Creation Time" value={booking.createdAt.toLocaleString()} />
-            <DetailItem label="Appointment Taken Time" value={booking.appointmentTime.toLocaleString()} />
+            <DetailItem label="Appointment Taken Time" value={booking.appointmentTime?.toLocaleString() ?? "Not scheduled"} />
             <DetailItem label="Booking Status" value={booking.status} />
             <DetailItem label="Booking Token" value={booking.token} />
           </div>

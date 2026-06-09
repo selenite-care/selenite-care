@@ -131,14 +131,17 @@ export default async function BookingDetailsPage({ params }: BookingDetailsPageP
         <section className="rounded-lg border border-black/10 bg-background p-6 dark:border-white/10">
           <h2 className="text-lg font-semibold text-foreground">Service</h2>
           <div className="mt-5 grid gap-5 sm:grid-cols-2">
-            <DetailItem label="Service Name" value={booking.service.name} />
+            <DetailItem
+              label="Service Name"
+              value={booking.service?.name ?? "No service attached"}
+            />
             <DetailItem
               label="Appointment Creation Time"
               value={booking.createdAt.toLocaleString()}
             />
             <DetailItem
               label="Appointment Taken Time"
-              value={booking.appointmentTime.toLocaleString()}
+              value={booking.appointmentTime?.toLocaleString() ?? "Not scheduled"}
             />
             <DetailItem label="Booking Token" value={booking.id} />
             <DetailItem
@@ -155,11 +158,13 @@ export default async function BookingDetailsPage({ params }: BookingDetailsPageP
             />
             <DetailItem
               label="Price"
-              value={formatBdt(booking.service.price)}
+              value={
+                booking.service ? formatBdt(booking.service.price) : "Not available"
+              }
             />
             <DetailItem
               label="Description"
-              value={booking.service.description ?? "No description"}
+              value={booking.service?.description ?? "No description"}
             />
           </div>
         </section>
