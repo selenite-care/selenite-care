@@ -14,7 +14,6 @@ type DoctorPayload = {
   availability?: unknown;
   bio?: unknown;
   image?: unknown;
-  serviceId?: unknown;
 };
 
 async function requireAdmin() {
@@ -41,12 +40,9 @@ function parseDoctorPayload(body: DoctorPayload) {
     typeof body.availability === "string" ? body.availability.trim() : "";
   const bio = typeof body.bio === "string" ? body.bio.trim() : "";
   const image = typeof body.image === "string" ? body.image.trim() : "";
-  const serviceId =
-    typeof body.serviceId === "string" ? body.serviceId.trim() : "";
-
-  if (!name || !email || !designation || !availability || !serviceId) {
+  if (!name || !email || !designation || !availability) {
     return {
-      error: "Name, email, designation, availability, and service are required.",
+      error: "Name, email, designation, and availability are required.",
     };
   }
 
@@ -62,7 +58,6 @@ function parseDoctorPayload(body: DoctorPayload) {
       email,
       designation,
       availability,
-      serviceId,
       bio: bio || null,
       image: image || null,
     },
@@ -109,36 +104,21 @@ export async function GET() {
     return adminError;
   }
 
-  const services = await db.service.findMany({
+  const doctors = await db.doctor.findMany({
     orderBy: {
       name: "asc",
     },
     select: {
       id: true,
       name: true,
-      doctors: {
-        orderBy: {
-          name: "asc",
-        },
-        select: {
-          id: true,
-          name: true,
-          designation: true,
-          availability: true,
-          bio: true,
-          image: true,
-          serviceId: true,
-          user: {
-            select: {
-              email: true,
-            },
-          },
-        },
-      },
+      designation: true,
+      availability: true,
+      bio: true,
+      image: true,
     },
   });
 
-  return Response.json({ services });
+  return Response.json({ doctors });
 }
 
 export async function POST(request: Request) {
@@ -197,7 +177,6 @@ export async function POST(request: Request) {
         name: parsed.data.name,
         designation: parsed.data.designation,
         availability: parsed.data.availability,
-        serviceId: parsed.data.serviceId,
         bio: parsed.data.bio,
         image: parsed.data.image,
         userId: user.id,

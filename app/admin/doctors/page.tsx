@@ -10,12 +10,6 @@ type Doctor = {
   availability: string;
   bio: string | null;
   image: string | null;
-  serviceId: string;
-};
-
-type Service = {
-  id: string;
-  name: string;
 };
 
 type DoctorFormState = {
@@ -27,7 +21,6 @@ type DoctorFormState = {
   startTime: string;
   endTime: string;
   bio: string;
-  serviceId: string;
 };
 
 type DoctorCredentials = {
@@ -45,7 +38,6 @@ const emptyForm: DoctorFormState = {
   startTime: "1PM",
   endTime: "5PM",
   bio: "",
-  serviceId: "",
 };
 
 const dayOptions = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -75,9 +67,7 @@ function formatAvailability(form: DoctorFormState) {
 }
 
 export default function AdminDoctorsPage() {
-  const [services, setServices] = useState<Service[]>([]);
   const [doctors, setDoctors] = useState<Doctor[]>([]);
-  const [selectedServiceId, setSelectedServiceId] = useState("");
   const [form, setForm] = useState<DoctorFormState>(emptyForm);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState("");
@@ -85,90 +75,34 @@ export default function AdminDoctorsPage() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [doctorCredentials, setDoctorCredentials] = useState<DoctorCredentials | null>(null);
+  const [doctorCredentials, setDoctorCredentials] =
+    useState<DoctorCredentials | null>(null);
   const [isPasswordCopied, setIsPasswordCopied] = useState(false);
 
-  async function loadInitialData() {
+  async function loadDoctors() {
     setError("");
 
     try {
-      const [servicesRes, doctorsRes] = await Promise.all([
-        fetch("/api/services"),
-        fetch("/api/admin/doctors"),
-      ]);
+      const doctorsRes = await fetch("/api/admin/doctors");
 
-      if (!servicesRes.ok || !doctorsRes.ok) {
-        throw new Error("Unable to load data");
+      if (!doctorsRes.ok) {
+        throw new Error("Unable to load doctors.");
       }
 
-      const servicesJson = await servicesRes.json()
-      const doctorsJson = await doctorsRes.json()
+      const doctorsJson = (await doctorsRes.json().catch(() => null)) as
+        | { doctors?: Doctor[]; error?: string }
+        | null;
 
-      const servicesData: Service[] = servicesJson.services ?? servicesJson ?? []
-
-// API returns services with nested doctors, flatten them into a single array
-      const doctorsData: Doctor[] = (doctorsJson.services ?? []).flatMap(
-      (s: { doctors: Doctor[] }) => s.doctors
-      )
-
-setServices(servicesData)
-setDoctors(doctorsData)
-
-      if (servicesData.length > 0) {
-        setSelectedServiceId(servicesData[0].id);
-        setForm((current) => ({
-          ...current,
-          serviceId: servicesData[0].id,
-        }));
-      }
+      setDoctors(doctorsJson?.doctors ?? []);
     } catch {
-      setError("Unable to load data right now.");
+      setError("Unable to load doctors right now.");
     } finally {
       setIsLoading(false);
     }
   }
 
   useEffect(() => {
-    async function loadDataOnMount() {
-      setError("");
-
-      try {
-        const [servicesRes, doctorsRes] = await Promise.all([
-          fetch("/api/services"),
-          fetch("/api/admin/doctors"),
-        ]);
-
-        if (!servicesRes.ok || !doctorsRes.ok) {
-          throw new Error("Unable to load data");
-        }
-
-        const servicesJson = await servicesRes.json();
-        const doctorsJson = await doctorsRes.json();
-
-        const servicesData: Service[] = servicesJson.services ?? servicesJson ?? [];
-
-        const doctorsData: Doctor[] = (doctorsJson.services ?? []).flatMap(
-          (serviceGroup: { doctors: Doctor[] }) => serviceGroup.doctors,
-        );
-
-        setServices(servicesData);
-        setDoctors(doctorsData);
-
-        if (servicesData.length > 0) {
-          setSelectedServiceId(servicesData[0].id);
-          setForm((current) => ({
-            ...current,
-            serviceId: servicesData[0].id,
-          }));
-        }
-      } catch {
-        setError("Unable to load data right now.");
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    loadDataOnMount();
+    loadDoctors();
   }, []);
 
   useEffect(() => {
@@ -214,10 +148,12 @@ setDoctors(doctorsData)
           body: uploadFormData,
         });
 
-        const uploadData = (await uploadResponse.json().catch(() => null)) as {
-          secure_url?: string;
-          error?: string;
-        } | null;
+        const uploadData = (await uploadResponse.json().catch(() => null)) as
+          | {
+              secure_url?: string;
+              error?: string;
+            }
+          | null;
 
         if (!uploadResponse.ok || !uploadData?.secure_url) {
           throw new Error(uploadData?.error ?? "Unable to upload doctor image.");
@@ -237,15 +173,16 @@ setDoctors(doctorsData)
           designation: form.designation,
           availability: formatAvailability(form),
           bio: form.bio,
-          serviceId: form.serviceId,
           image,
         }),
       });
 
-      const data = (await response.json().catch(() => null)) as {
-        credentials?: DoctorCredentials;
-        error?: string;
-      } | null;
+      const data = (await response.json().catch(() => null)) as
+        | {
+            credentials?: DoctorCredentials;
+            error?: string;
+          }
+        | null;
 
       if (!response.ok) {
         throw new Error(data?.error ?? "Unable to save doctor.");
@@ -256,15 +193,12 @@ setDoctors(doctorsData)
         setIsPasswordCopied(false);
       }
 
-      setForm((current) => ({
-        ...emptyForm,
-        serviceId: current.serviceId,
-      }));
+      setForm(emptyForm);
       updateImageFile(null);
-      setIsSubmitting(false);
-      await loadInitialData();
+      await loadDoctors();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unable to save doctor.");
+    } finally {
       setIsSubmitting(false);
     }
   }
@@ -281,15 +215,17 @@ setDoctors(doctorsData)
     });
 
     if (!response.ok) {
-      const data = (await response.json().catch(() => null)) as {
-        error?: string;
-      } | null;
+      const data = (await response.json().catch(() => null)) as
+        | {
+            error?: string;
+          }
+        | null;
 
       setError(data?.error ?? "Unable to delete doctor.");
       return;
     }
 
-    await loadInitialData();
+    await loadDoctors();
   }
 
   async function copyTemporaryPassword() {
@@ -304,10 +240,6 @@ setDoctors(doctorsData)
       setError("Unable to copy password. Please select and copy it manually.");
     }
   }
-
-  const filteredDoctors = doctors.filter(
-    (doc) => doc.serviceId === selectedServiceId
-  );
 
   return (
     <section className="space-y-8">
@@ -338,7 +270,8 @@ setDoctors(doctorsData)
               Doctor Added Successfully
             </h2>
             <p className="mt-3 text-sm leading-6" style={{ color: "#B8A89A" }}>
-              Share these credentials with the doctor securely. This password will not be shown again after closing this dialog.
+              Share these credentials with the doctor securely. This password will
+              not be shown again after closing this dialog.
             </p>
 
             <div
@@ -355,7 +288,10 @@ setDoctors(doctorsData)
                 >
                   Doctor Name
                 </p>
-                <p className="mt-1 break-all font-mono text-sm" style={{ color: "#2B2B2B" }}>
+                <p
+                  className="mt-1 break-all font-mono text-sm"
+                  style={{ color: "#2B2B2B" }}
+                >
                   {doctorCredentials.name}
                 </p>
               </div>
@@ -367,7 +303,10 @@ setDoctors(doctorsData)
                 >
                   Email
                 </p>
-                <p className="mt-1 break-all font-mono text-sm" style={{ color: "#2B2B2B" }}>
+                <p
+                  className="mt-1 break-all font-mono text-sm"
+                  style={{ color: "#2B2B2B" }}
+                >
                   {doctorCredentials.email}
                 </p>
               </div>
@@ -427,53 +366,24 @@ setDoctors(doctorsData)
           Doctors
         </h1>
         <p className="mt-3 text-sm leading-6 text-foreground/70">
-          Manage doctors by service and keep availability up to date.
+          Manage doctor profiles and keep their availability up to date.
         </p>
       </div>
 
       {isLoading ? (
         <p className="text-sm text-foreground/70">Loading doctors...</p>
-      ) : services.length === 0 ? (
-        <p className="text-sm text-foreground/70">
-          No services found. Add services before adding doctors.
-        </p>
       ) : (
         <>
-          {/* Service Selector */}
-          <div className="rounded-lg border border-black/10 bg-background p-6 dark:border-white/10">
-            <label
-              htmlFor="service-filter"
-              className="block text-sm font-medium text-foreground"
-            >
-              Select Service
-            </label>
-            <select
-              id="service-filter"
-              value={selectedServiceId}
-              onChange={(event) => {
-                setSelectedServiceId(event.target.value);
-              }}
-              className="mt-2 h-11 w-full max-w-sm rounded-md border border-black/10 bg-transparent px-3 text-sm outline-none transition-colors focus:border-foreground dark:border-white/10"
-            >
-              {services.map((service) => (
-                <option key={service.id} value={service.id}>
-                  {service.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Doctors Table */}
           <div className="rounded-lg border border-black/10 bg-background dark:border-white/10">
             <div className="border-b border-black/10 bg-zinc-50 px-6 py-4 dark:border-white/10 dark:bg-white/5">
               <h2 className="text-lg font-semibold text-foreground">
-                Doctors for {services.find((s) => s.id === selectedServiceId)?.name}
+                All Doctors
               </h2>
             </div>
 
-            {filteredDoctors.length === 0 ? (
+            {doctors.length === 0 ? (
               <p className="px-6 py-6 text-sm text-foreground/70">
-                No doctors added for this service yet.
+                No doctors added yet.
               </p>
             ) : (
               <div className="overflow-x-auto">
@@ -488,7 +398,7 @@ setDoctors(doctorsData)
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredDoctors.map((doctor) => (
+                    {doctors.map((doctor) => (
                       <tr
                         key={doctor.id}
                         className="border-b border-black/10 last:border-0 dark:border-white/10"
@@ -522,40 +432,10 @@ setDoctors(doctorsData)
             )}
           </div>
 
-          {/* Add Doctor Form */}
           <div className="rounded-lg border border-black/10 bg-background p-6 dark:border-white/10">
-            <h2 className="text-lg font-semibold text-foreground">
-              Add Doctor
-            </h2>
+            <h2 className="text-lg font-semibold text-foreground">Add Doctor</h2>
             <form onSubmit={handleSubmit} className="mt-5 space-y-5">
               <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-                <div>
-                  <label
-                    htmlFor="serviceId"
-                    className="block text-sm font-medium text-foreground"
-                  >
-                    Service
-                  </label>
-                  <select
-                    id="serviceId"
-                    value={form.serviceId}
-                    onChange={(event) =>
-                      setForm((current) => ({
-                        ...current,
-                        serviceId: event.target.value,
-                      }))
-                    }
-                    required
-                    className="mt-2 h-11 w-full rounded-md border border-black/10 bg-transparent px-3 text-sm outline-none transition-colors focus:border-foreground dark:border-white/10"
-                  >
-                    {services.map((service) => (
-                      <option key={service.id} value={service.id}>
-                        {service.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
                 <div>
                   <label
                     htmlFor="name"
@@ -795,7 +675,7 @@ setDoctors(doctorsData)
                 </div>
                 <button
                   type="submit"
-                  disabled={isSubmitting || services.length === 0}
+                  disabled={isSubmitting}
                   className="inline-flex h-11 items-center justify-center rounded-md bg-foreground px-5 text-sm font-medium text-background transition-colors hover:bg-foreground/85 disabled:cursor-not-allowed disabled:opacity-70"
                 >
                   {isSubmitting ? "Saving..." : "Add Doctor"}

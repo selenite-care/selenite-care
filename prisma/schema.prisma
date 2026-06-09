@@ -79,7 +79,6 @@ model Service {
   details       String?
   price         Float
   originalPrice Float?
-  doctors       Doctor[]
   bookings      Booking[]
 }
 
@@ -91,8 +90,6 @@ model Doctor {
   availability String
   image        String?
   slotDuration Int       @default(15)
-  serviceId    String
-  service      Service   @relation(fields: [serviceId], references: [id])
   userId       String?   @unique
   user         User?     @relation(fields: [userId], references: [id])
   bookings     Booking[]

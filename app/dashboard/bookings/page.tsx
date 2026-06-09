@@ -5,13 +5,15 @@ import { useEffect, useState } from "react";
 
 type ClientBooking = {
   id: string;
+  token: string;
   appointmentTime: string | null;
   status: string;
+  doctor: {
+    name: string;
+    designation: string;
+  } | null;
   service: {
     name: string;
-  } | null;
-  payment: {
-    status: string;
   } | null;
 };
 
@@ -67,7 +69,7 @@ export default function DashboardBookingsPage() {
           My Bookings
         </h1>
         <p className="mt-3 text-sm leading-6 text-foreground/70">
-          Track your appointment status and payment details.
+          Track your appointment requests and preferred dates.
         </p>
       </div>
 
@@ -90,10 +92,9 @@ export default function DashboardBookingsPage() {
               <thead className="border-b border-black/10 bg-zinc-50 text-foreground/70 dark:border-white/10 dark:bg-white/5">
                 <tr>
                   <th className="px-4 py-3 font-medium">Booking Token</th>
-                  <th className="px-4 py-3 font-medium">Service Name</th>
-                  <th className="px-4 py-3 font-medium">Appointment Time</th>
+                  <th className="px-4 py-3 font-medium">Doctor Name</th>
+                  <th className="px-4 py-3 font-medium">Preferred Date</th>
                   <th className="px-4 py-3 font-medium">Booking Status</th>
-                  <th className="px-4 py-3 font-medium">Payment Status</th>
                   <th className="px-4 py-3 font-medium">Action</th>
                 </tr>
               </thead>
@@ -104,10 +105,10 @@ export default function DashboardBookingsPage() {
                     className="border-b border-black/10 last:border-0 dark:border-white/10"
                   >
                     <td className="px-4 py-4 font-mono text-xs text-foreground/70">
-                      {booking.id}
+                      {booking.token}
                     </td>
                     <td className="px-4 py-4 text-foreground/70">
-                      {booking.service?.name ?? "No service attached"}
+                      {booking.doctor?.name ?? "Not assigned"}
                     </td>
                     <td className="px-4 py-4 text-foreground/70">
                       {formatAppointmentTime(booking.appointmentTime)}
@@ -120,9 +121,6 @@ export default function DashboardBookingsPage() {
                       >
                         {booking.status}
                       </span>
-                    </td>
-                    <td className="px-4 py-4 text-foreground/70">
-                      {booking.payment?.status ?? "UNPAID"}
                     </td>
                     <td className="px-4 py-4">
                       <Link
