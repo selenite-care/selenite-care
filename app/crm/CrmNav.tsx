@@ -9,6 +9,7 @@ const crmLinks = [
   { href: "/crm", label: "Overview" },
   { href: "/crm/clients", label: "All Clients" },
   { href: "/crm/bookings", label: "All Bookings" },
+  { href: "/crm/memberships", label: "Memberships" },
   { href: "/crm/profile", label: "My Profile" },
 ];
 

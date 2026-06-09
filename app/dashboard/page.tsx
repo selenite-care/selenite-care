@@ -3,6 +3,7 @@ import NextAuth from "next-auth";
 import { redirect } from "next/navigation";
 import { authConfig } from "@/lib/auth";
 import { db } from "@/lib/db";
+import MembershipStatusCard from "./MembershipStatusCard";
 
 const { auth } = NextAuth(authConfig);
 
@@ -66,6 +67,10 @@ export default async function DashboardPage() {
       </div>
 
       <div className="mt-8 grid gap-5 md:grid-cols-3">
+        <div className="md:col-span-3">
+          <MembershipStatusCard />
+        </div>
+
         <article
           className="rounded-lg border p-6"
           style={{

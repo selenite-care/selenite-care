@@ -1,9 +1,9 @@
 import { notFound } from "next/navigation";
-import Image from "next/image";
 import NextAuth from "next-auth";
 import { authConfig } from "@/lib/auth";
 import { db } from "@/lib/db";
 import BookingStatusButtons from "@/components/doctor/BookingStatusButtons";
+import SurveyProfileDetails from "@/components/survey/SurveyProfileDetails";
 
 const { auth } = NextAuth(authConfig);
 
@@ -20,11 +20,6 @@ function DetailItem({ label, value }: { label: string; value: React.ReactNode })
       <div className="mt-1 text-sm text-foreground">{value}</div>
     </div>
   );
-}
-
-function joinValues(values?: string[]) {
-  if (!values || values.length === 0) return "None";
-  return values.join(", ");
 }
 
 function formatBdt(amount: number) {
@@ -56,11 +51,10 @@ export default async function BookingDetailsPage({ params }: BookingDetailsPageP
   const booking = await db.booking.findUnique({
     where: { id },
     include: {
-      user: { select: { id: true, name: true, email: true, role: true, createdAt: true } },
+      user: { select: { id: true, name: true, email: true, phone: true, role: true, createdAt: true, surveyProfile: true } },
       service: { select: { id: true, name: true, description: true, price: true } },
       doctor: { select: { id: true, name: true, designation: true, availability: true, bio: true } },
       payment: { select: { id: true, stripePaymentId: true, amount: true, status: true, createdAt: true } },
-      surveyResponse: true,
     },
   });
 
@@ -140,64 +134,11 @@ export default async function BookingDetailsPage({ params }: BookingDetailsPageP
       </div>
 
       <section className="mt-6 rounded-lg border border-black/10 bg-background p-6 dark:border-white/10">
-        <h2 className="text-lg font-semibold text-foreground">Survey Form Responses</h2>
-        {booking.surveyResponse ? (
-          <>
-            <div className="mt-5 grid gap-5 sm:grid-cols-2">
-              <DetailItem label="Name" value={booking.surveyResponse.name} />
-              <DetailItem label="Age" value={booking.surveyResponse.age} />
-              <DetailItem label="Phone" value={booking.surveyResponse.phone} />
-              <DetailItem label="Email" value={booking.surveyResponse.email} />
-              <DetailItem label="Skin Type" value={booking.surveyResponse.skinType} />
-              <DetailItem label="Skin Issues" value={joinValues(booking.surveyResponse.skinIssues)} />
-              <DetailItem label="Current Products" value={joinValues(booking.surveyResponse.currentProducts)} />
-              <DetailItem label="Allergic Ingredients" value={joinValues(booking.surveyResponse.allergicIngredients)} />
-              <DetailItem label="Double Cleanse Preference" value={booking.surveyResponse.doubleCleansePreference} />
-              <DetailItem label="Sleep Hours" value={booking.surveyResponse.sleepHours} />
-              <DetailItem label="Water Intake" value={booking.surveyResponse.waterIntake ? Array.isArray(booking.surveyResponse.waterIntake) ? booking.surveyResponse.waterIntake.join(", ") : booking.surveyResponse.waterIntake : "Not specified"} />
-              <DetailItem label="Uses Korean Products" value={booking.surveyResponse.usesKoreanProducts ? "Yes" : "No"} />
-              <DetailItem label="Facing Skin Issues" value={booking.surveyResponse.facingSkinIssues ? "Yes" : "No"} />
-              <DetailItem label="Applies Sunscreen" value={booking.surveyResponse.appliesSunscreen ? "Yes" : "No"} />
-              <DetailItem label="Regular Period Cycle" value={booking.surveyResponse.regularPeriodCycle ? "Yes" : "No"} />
-              <DetailItem label="Used Steroid Based Night Cream" value={booking.surveyResponse.usedSteroidBasedNightCream ? "Yes" : "No"} />
-              <DetailItem label="Issue Duration" value={booking.surveyResponse.skinIssueDuration ?? "Not specified"} />
-              <DetailItem label="Code ID" value={booking.surveyResponse.codeId ?? "Not provided"} />
-              <DetailItem label="Additional Notes" value={booking.surveyResponse.note ?? "No additional notes"} />
-              <DetailItem label="Submitted At" value={booking.surveyResponse.createdAt.toLocaleString()} />
-            </div>
-
-            {booking.surveyResponse.skinImages.length > 0 ? (
-              <div className="mt-8">
-                <h3 className="text-base font-semibold text-foreground">
-                  Client Skin Photos
-                </h3>
-                <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                  {booking.surveyResponse.skinImages.map((imageUrl, index) => (
-                    <a
-                      key={imageUrl}
-                      href={imageUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="block overflow-hidden rounded-lg border border-black/10 bg-background transition-opacity hover:opacity-90 dark:border-white/10"
-                    >
-                      <div className="relative aspect-[4/3] w-full">
-                        <Image
-                          src={imageUrl}
-                          alt={`Client skin concern photo ${index + 1}`}
-                          fill
-                          sizes="(min-width: 640px) 50vw, 100vw"
-                          className="object-cover"
-                        />
-                      </div>
-                    </a>
-                  ))}
-                </div>
-              </div>
-            ) : null}
-          </>
-        ) : (
-          <p className="mt-4 text-sm leading-6 text-foreground/70">No survey response was submitted for this booking.</p>
-        )}
+        <h2 className="text-lg font-semibold text-foreground">Skin Profile</h2>
+        <SurveyProfileDetails
+          profile={booking.user.surveyProfile}
+          emptyMessage="No skin profile is available for this client."
+        />
       </section>
     </section>
   );

@@ -9,58 +9,109 @@ datasource db {
 }
 
 model User {
-  id        String    @id @default(cuid())
-  name      String?
-  email     String    @unique
-  phone     String?
-  password  String?
-  isTemporaryPassword Boolean @default(false)
-  role      Role      @default(CLIENT)
-  createdAt DateTime  @default(now())
-  bookings  Booking[]
-  doctor    Doctor?   // reverse relation
+  id                    String         @id @default(cuid())
+  name                  String?
+  email                 String         @unique
+  phone                 String?
+  password              String?
+  role                  Role           @default(CLIENT)
+  isTemporaryPassword   Boolean        @default(false)
+  createdAt             DateTime       @default(now())
+  bookings              Booking[]
+  doctor                Doctor?
+  membership            Membership?
+  surveyProfile         SurveyProfile?
+}
+
+model SurveyProfile {
+  id                         String   @id @default(cuid())
+  userId                     String   @unique
+  user                       User     @relation(fields: [userId], references: [id])
+  name                       String?
+  age                        String?
+  phone                      String?
+  email                      String?
+  skinType                   String?
+  usesKoreanProducts         Boolean  @default(false)
+  facingSkinIssues           Boolean  @default(false)
+  skinIssues                 String[]
+  skinIssueDuration          String?
+  currentProducts            String[]
+  allergicIngredients        String[]
+  doubleCleansePreference    String?
+  sleepHours                 String?
+  waterIntake                String?
+  appliesSunscreen           Boolean  @default(false)
+  regularPeriodCycle         Boolean  @default(false)
+  usedSteroidBasedNightCream Boolean  @default(false)
+  skinImages                 String[]
+  note                       String?
+  updatedAt                  DateTime @updatedAt
+  createdAt                  DateTime @default(now())
+}
+
+model Membership {
+  id           String             @id @default(cuid())
+  membershipId String             @unique
+  userId       String             @unique
+  user         User               @relation(fields: [userId], references: [id])
+  tier         MembershipTier
+  status       MembershipStatus   @default(PENDING)
+  payment      MembershipPayment?
+  createdAt    DateTime           @default(now())
+  expiresAt    DateTime?
+}
+
+model MembershipPayment {
+  id              String        @id @default(cuid())
+  membershipId    String        @unique
+  membership      Membership    @relation(fields: [membershipId], references: [id])
+  stripePaymentId String        @unique
+  amount          Float
+  status          PaymentStatus @default(UNPAID)
+  createdAt       DateTime      @default(now())
 }
 
 model Service {
   id            String    @id @default(cuid())
   name          String
   description   String?
-  details       String?   // detailed description for modal
-  price         Float     // discounted price in BDT
-  originalPrice Float?    // original price in BDT (shown crossed out)
+  details       String?
+  price         Float
+  originalPrice Float?
   doctors       Doctor[]
   bookings      Booking[]
 }
 
 model Doctor {
-  id            String    @id @default(cuid())
-  name          String
-  designation   String
-  bio           String?
-  availability  String
-  image         String?
-  slotDuration  Int       @default(15)
-  serviceId     String
-  service       Service   @relation(fields: [serviceId], references: [id])
-  userId        String?   @unique
-  user          User?     @relation(fields: [userId], references: [id])
-  bookings      Booking[]
+  id           String    @id @default(cuid())
+  name         String
+  designation  String
+  bio          String?
+  availability String
+  image        String?
+  slotDuration Int       @default(15)
+  serviceId    String
+  service      Service   @relation(fields: [serviceId], references: [id])
+  userId       String?   @unique
+  user         User?     @relation(fields: [userId], references: [id])
+  bookings     Booking[]
 }
 
 model Booking {
   id              String          @id @default(cuid())
   token           String          @unique
-  user            User            @relation(fields: [userId], references: [id])
   userId          String
-  service         Service         @relation(fields: [serviceId], references: [id])
-  serviceId       String
-  doctor          Doctor?         @relation(fields: [doctorId], references: [id])
+  user            User            @relation(fields: [userId], references: [id])
+  serviceId       String?
+  service         Service?        @relation(fields: [serviceId], references: [id])
   doctorId        String?
-  appointmentTime DateTime
+  doctor          Doctor?         @relation(fields: [doctorId], references: [id])
   status          BookingStatus   @default(PENDING)
+  appointmentTime DateTime?
+  createdAt       DateTime        @default(now())
   payment         Payment?
   surveyResponse  SurveyResponse?
-  createdAt       DateTime        @default(now())
 }
 
 model Payment {
@@ -74,30 +125,30 @@ model Payment {
 }
 
 model SurveyResponse {
-  id                      String    @id @default(cuid())
-  booking                 Booking?  @relation(fields: [bookingId], references: [id])
-  bookingId               String?   @unique
-  name                    String
-  age                     String
-  phone                   String
-  email                   String
-  skinType                String
-  codeId                  String?
-  usesKoreanProducts      Boolean
-  facingSkinIssues        Boolean
-  skinIssues              String[]
-  skinIssueDuration       String?
-  currentProducts         String[]
-  allergicIngredients     String[]
-  doubleCleansePreference String
-  sleepHours              String
-  waterIntake             String      // changed from String[] to String
-  appliesSunscreen        Boolean
-  regularPeriodCycle      Boolean
-  usedSteroidBasedNightCream   Boolean
-  note                    String?
-  skinImages              String[]  // stores Cloudinary URLs, only for online consultation
-  createdAt               DateTime  @default(now())
+  id                         String    @id @default(cuid())
+  booking                    Booking?  @relation(fields: [bookingId], references: [id])
+  bookingId                  String?   @unique
+  name                       String
+  age                        String
+  phone                      String
+  email                      String
+  skinType                   String
+  codeId                     String?
+  usesKoreanProducts         Boolean
+  facingSkinIssues           Boolean
+  skinIssues                 String[]
+  skinIssueDuration          String?
+  currentProducts            String[]
+  allergicIngredients        String[]
+  doubleCleansePreference    String
+  sleepHours                 String
+  waterIntake                String
+  appliesSunscreen           Boolean
+  regularPeriodCycle         Boolean
+  usedSteroidBasedNightCream Boolean
+  note                       String?
+  skinImages                 String[]
+  createdAt                  DateTime  @default(now())
 }
 
 enum Role {
@@ -118,4 +169,17 @@ enum PaymentStatus {
   UNPAID
   PAID
   REFUNDED
+}
+
+enum MembershipTier {
+  SIGNATURE
+  CRYSTAL
+  PLATINUM
+}
+
+enum MembershipStatus {
+  PENDING
+  ACTIVE
+  EXPIRED
+  CANCELLED
 }

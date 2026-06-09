@@ -8,6 +8,7 @@ import { useState } from "react";
 const adminLinks = [
   { href: "/admin", label: "Dashboard Overview" },
   { href: "/admin/bookings", label: "All Bookings" },
+  { href: "/admin/memberships", label: "Memberships" },
   { href: "/admin/users", label: "All Users" },
   { href: "/admin/services", label: "Services Management" },
   { href: "/admin/doctors", label: "Manage Doctors" },
