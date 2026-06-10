@@ -1,9 +1,9 @@
-import NextAuth from "next-auth";
 import { redirect } from "next/navigation";
-import { authConfig } from "@/lib/auth";
+import { auth } from "@/auth";
 import { DashboardMobileNav, DashboardSidebarNav } from "./DashboardNav";
 
-const { auth } = NextAuth(authConfig);
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export default async function DashboardLayout({
   children,

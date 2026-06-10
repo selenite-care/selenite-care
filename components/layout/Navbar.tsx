@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import { useState } from "react";
 
@@ -17,6 +17,7 @@ const navLinks = [
 function NavbarContent() {
   const { data: session, status } = useSession();
   const pathname = usePathname();
+  const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const role = session?.user?.role;
 
@@ -35,6 +36,11 @@ function NavbarContent() {
 
   function closeMobileMenu() {
     setMobileMenuOpen(false);
+  }
+
+  async function handleLogout() {
+    router.refresh();
+    await signOut({ callbackUrl: "/login", redirect: true });
   }
 
   return (
@@ -170,7 +176,7 @@ function NavbarContent() {
               </Link>
               <button
                 type="button"
-                onClick={() => signOut({ callbackUrl: "/" })}
+                onClick={handleLogout}
                 style={{ color: "#2B2B2B" }}
                 className="font-medium transition-colors duration-200 hover:text-[#C6A56B]"
               >
@@ -251,9 +257,9 @@ function NavbarContent() {
                 </Link>
                 <button
                   type="button"
-                  onClick={() => {
-                    signOut({ callbackUrl: "/" });
+                  onClick={async () => {
                     closeMobileMenu();
+                    await handleLogout();
                   }}
                   style={{ color: "#D8C7B5" }}
                   className="rounded-md px-3 py-3 text-left text-sm font-medium transition-colors duration-200 hover:bg-[#B8A89A]/20 hover:text-[#C6A56B]"

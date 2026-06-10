@@ -1,9 +1,9 @@
-import NextAuth from "next-auth";
 import { redirect } from "next/navigation";
-import { authConfig } from "@/lib/auth";
+import { auth } from "@/auth";
 import { CrmMobileNav, CrmSidebarNav } from "./CrmNav";
 
-const { auth } = NextAuth(authConfig);
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export default async function CrmLayout({
   children,
@@ -12,8 +12,8 @@ export default async function CrmLayout({
 }>) {
   const session = await auth();
 
-  if (session?.user?.role !== "CRM") {
-    redirect("/dashboard");
+  if (!session?.user || session.user.role !== "CRM") {
+    redirect("/login");
   }
 
   return (
