@@ -71,6 +71,10 @@ export default async function BookingDetailsPage({ params }: BookingDetailsPageP
     },
   });
 
+  const preferredDate = booking.appointmentTime
+    ? new Date(booking.appointmentTime).toLocaleDateString()
+    : "Not scheduled";
+
   return (
     <section>
       <div>
@@ -94,7 +98,7 @@ export default async function BookingDetailsPage({ params }: BookingDetailsPageP
           <h2 className="text-lg font-semibold text-foreground">Appointment</h2>
           <div className="mt-5 grid gap-5 sm:grid-cols-2">
             <DetailItem label="Booking Token" value={booking.token} />
-            <DetailItem label="Preferred Date" value={booking.appointmentTime?.toLocaleString() ?? "Not scheduled"} />
+            <DetailItem label="Preferred Date" value={preferredDate} />
             <DetailItem label="Booking Status" value={booking.status} />
             <DetailItem label="Created At" value={booking.createdAt.toLocaleString()} />
           </div>
@@ -118,7 +122,7 @@ export default async function BookingDetailsPage({ params }: BookingDetailsPageP
           <h2 className="text-lg font-semibold text-foreground">Status</h2>
           <div className="mt-5 grid gap-5 sm:grid-cols-2">
             <DetailItem label="Booking Status" value={booking.status} />
-            <DetailItem label="Preferred Date" value={booking.appointmentTime?.toLocaleString() ?? "Not scheduled"} />
+            <DetailItem label="Preferred Date" value={preferredDate} />
           </div>
         </section>
       </div>

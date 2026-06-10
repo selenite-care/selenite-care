@@ -15,7 +15,12 @@ type PatchPayload = {
   status?: unknown;
 };
 
-const validStatuses = new Set<BookingStatus>(["PENDING", "COMPLETED"]);
+const validStatuses = new Set<BookingStatus>([
+  "PENDING",
+  "CONFIRMED",
+  "COMPLETED",
+  "CANCELLED",
+]);
 
 export async function GET(_request: Request, context: RouteContext) {
   const session = await auth();

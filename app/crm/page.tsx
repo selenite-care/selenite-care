@@ -49,14 +49,7 @@ export default function CrmPage() {
 
   function formatAppointmentTime(value: string | null) {
     return value
-      ? new Date(value).toLocaleString("en-US", {
-          month: "short",
-          day: "numeric",
-          year: "numeric",
-          hour: "numeric",
-          minute: "2-digit",
-          hour12: true,
-        })
+      ? new Date(value).toLocaleDateString("en-US")
       : "Not scheduled";
   }
 

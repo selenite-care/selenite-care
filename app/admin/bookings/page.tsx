@@ -78,7 +78,7 @@ export default function AdminBookingsPage() {
   }, [bookings, searchQuery, statusFilter]);
 
   function formatAppointmentTime(value: string | null) {
-    return value ? new Date(value).toLocaleString() : "Not scheduled";
+    return value ? new Date(value).toLocaleDateString() : "Not scheduled";
   }
 
   function handleExportCsv() {
@@ -89,7 +89,7 @@ export default function AdminBookingsPage() {
         "Client Phone": booking.user.phone ?? "",
         "Service Name": booking.service?.name ?? "No service attached",
         "Doctor Name": booking.doctor?.name ?? "",
-        "Appointment Time": formatAppointmentTime(booking.appointmentTime),
+        "Preferred Date": formatAppointmentTime(booking.appointmentTime),
         "Booking Status": booking.status,
       })),
       {
@@ -99,7 +99,7 @@ export default function AdminBookingsPage() {
           "Client Phone",
           "Service Name",
           "Doctor Name",
-          "Appointment Time",
+          "Preferred Date",
           "Booking Status",
         ],
       },
@@ -216,8 +216,8 @@ export default function AdminBookingsPage() {
                     <tr>
                       <th className="px-4 py-3 font-medium">Booking Token</th>
                       <th className="px-4 py-3 font-medium">Client Name</th>
-                      <th className="px-4 py-3 font-medium">Service Name</th>
-                      <th className="px-4 py-3 font-medium">Appointment Time</th>
+                      {/* <th className="px-4 py-3 font-medium">Service Name</th> */}
+                      <th className="px-4 py-3 font-medium">Preferred Date</th>
                       <th className="px-4 py-3 font-medium">Booking Status</th>
                       <th className="px-4 py-3 font-medium">Action</th>
                     </tr>
@@ -234,9 +234,9 @@ export default function AdminBookingsPage() {
                         <td className="px-4 py-4 text-foreground">
                           {booking.user.name ?? booking.user.email}
                         </td>
-                        <td className="px-4 py-4 text-foreground/70">
+                        {/* <td className="px-4 py-4 text-foreground/70">
                           {booking.service?.name ?? "No service attached"}
-                        </td>
+                        </td> */}
                         <td className="px-4 py-4 text-foreground/70">
                           {formatAppointmentTime(booking.appointmentTime)}
                         </td>

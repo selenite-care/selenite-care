@@ -10,7 +10,7 @@ const adminLinks = [
   { href: "/admin/bookings", label: "All Bookings" },
   { href: "/admin/memberships", label: "Memberships" },
   { href: "/admin/users", label: "All Users" },
-  { href: "/admin/services", label: "Services Management" },
+  // { href: "/admin/services", label: "Services Management" },
   { href: "/admin/doctors", label: "Manage Doctors" },
   { href: "/admin/payments", label: "Membership Payments" },
 ];

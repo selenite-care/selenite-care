@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-type BookingStatus = "PENDING" | "COMPLETED";
+type BookingStatus = "PENDING" | "CONFIRMED" | "COMPLETED" | "CANCELLED";
 
 type BookingStatusButtonsProps = {
   bookingId: string;
@@ -29,10 +29,22 @@ const statusActions: Array<{
       "border-yellow-200 bg-yellow-50 text-yellow-700 dark:border-yellow-900/50 dark:bg-yellow-950/20 dark:text-yellow-300",
   },
   {
+    label: "Confirm",
+    value: "CONFIRMED",
+    activeClassName:
+      "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-900/50 dark:bg-blue-950/20 dark:text-blue-300",
+  },
+  {
     label: "Mark Completed",
     value: "COMPLETED",
     activeClassName:
       "border-green-200 bg-green-50 text-green-700 dark:border-green-900/50 dark:bg-green-950/20 dark:text-green-300",
+  },
+  {
+    label: "Cancel",
+    value: "CANCELLED",
+    activeClassName:
+      "border-red-200 bg-red-50 text-red-700 dark:border-red-900/50 dark:bg-red-950/20 dark:text-red-300",
   },
 ];
 
@@ -74,7 +86,7 @@ export default function BookingStatusButtons({
 
   return (
     <section className="mt-6 rounded-lg border border-black/10 bg-background p-6 dark:border-white/10">
-      <h2 className="text-lg font-semibold text-foreground">Booking Status</h2>
+      <h2 className="text-lg font-semibold text-foreground">Booking Status Control</h2>
       <p className="mt-2 text-sm text-foreground/70">
         Current status: <span className="font-medium text-foreground">{status}</span>
       </p>

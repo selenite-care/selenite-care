@@ -26,7 +26,9 @@ export async function GET() {
       }),
       db.booking.count({
         where: {
-          status: "PENDING",
+          status: {
+            notIn: ["COMPLETED", "CANCELLED"],
+          },
         },
       }),
     ]);
