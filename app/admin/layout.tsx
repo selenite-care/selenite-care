@@ -1,9 +1,9 @@
-import NextAuth from "next-auth";
 import { redirect } from "next/navigation";
-import { authConfig } from "@/lib/auth";
+import { auth } from "@/auth";
 import { AdminMobileNav, AdminSidebarNav } from "./AdminNav";
 
-const { auth } = NextAuth(authConfig);
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export default async function AdminLayout({
   children,
@@ -12,7 +12,7 @@ export default async function AdminLayout({
 }>) {
   const session = await auth();
 
-  if (session?.user?.role !== "ADMIN") {
+  if (!session?.user || session.user.role !== "ADMIN") {
     redirect("/login");
   }
 

@@ -1,8 +1,8 @@
 "use client";
 
-import { FormEvent, Suspense, useState } from "react";
+import { FormEvent, Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { getSession, signIn } from "next-auth/react";
+import { getSession, signIn, useSession } from "next-auth/react";
 
 type UserSession = {
   user?: {
@@ -13,9 +13,40 @@ type UserSession = {
 function LoginPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { data: session, status } = useSession();
   const callbackUrl = searchParams.get("callbackUrl");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (status !== "authenticated") {
+      return;
+    }
+
+    const role = session?.user?.role;
+
+    if (role === "ADMIN") router.replace("/admin");
+    else if (role === "DOCTOR") router.replace("/doctor");
+    else if (role === "CRM") router.replace("/crm");
+    else router.replace("/dashboard");
+  }, [router, session?.user?.role, status]);
+
+  if (status === "authenticated") {
+    return (
+      <section
+        style={{
+          display: "flex",
+          flex: 1,
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: "#F8F5F0",
+          minHeight: "100vh",
+        }}
+      >
+        <p style={{ color: "#B8A89A", fontSize: "14px" }}>Redirecting...</p>
+      </section>
+    );
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

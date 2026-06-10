@@ -1,9 +1,9 @@
-import NextAuth from "next-auth";
 import { redirect } from "next/navigation";
-import { authConfig } from "@/lib/auth";
+import { auth } from "@/auth";
 import { DoctorMobileNav, DoctorSidebarNav } from "./DoctorNav";
 
-const { auth } = NextAuth(authConfig);
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export default async function DoctorLayout({
   children,
@@ -12,8 +12,8 @@ export default async function DoctorLayout({
 }>) {
   const session = await auth();
 
-  if (session?.user?.role !== "DOCTOR") {
-    redirect("/dashboard");
+  if (!session?.user || session.user.role !== "DOCTOR") {
+    redirect("/login");
   }
 
   return (
