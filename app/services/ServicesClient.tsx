@@ -236,7 +236,7 @@ function MembershipModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby={`membership-modal-${membership.key}`}
-        className="relative z-10 flex max-h-[80vh] w-full max-w-2xl flex-col overflow-hidden rounded-[20px] border"
+        className="relative z-10 flex h-[80vh] w-full max-w-2xl flex-col overflow-hidden rounded-[20px] border"
         style={{
           backgroundColor: "#F8F5F0",
           borderColor: "#D8C7B5",
@@ -328,8 +328,8 @@ function MembershipModal({
           </div>
         </div>
 
-        <div className="overflow-y-auto px-6 py-6 sm:px-8">
-          <div className="space-y-5">
+        <div className="min-h-0 flex-1 overflow-y-auto px-6 py-6 sm:px-8">
+          <div className="space-y-5 pb-2">
             {membership.benefits.map((benefit, index) => (
               <div key={`${membership.key}-${benefit.heading}`}>
                 <div className="flex gap-3">
@@ -368,36 +368,39 @@ function MembershipModal({
               </div>
             ))}
           </div>
+        </div>
 
-          <div
-            className="mt-8 border-t pt-6"
-            style={{ borderColor: "#D8C7B5" }}
-          >
-            {actionState.disabled || !actionState.href ? (
-              <button
-                type="button"
-                disabled
-                className="inline-flex h-12 w-full cursor-not-allowed items-center justify-center rounded-md px-5 text-sm font-medium opacity-60 sm:w-auto"
-                style={{
-                  backgroundColor: "#CFC5BA",
-                  color: "#6E6257",
-                }}
-              >
-                {actionState.label}
-              </button>
-            ) : (
-              <Link
-                href={actionState.href}
-                className="inline-flex h-12 w-full items-center justify-center rounded-md px-5 text-sm font-medium transition-colors hover:bg-[#B8A89A] sm:w-auto"
-                style={{
-                  backgroundColor: "#2B2B2B",
-                  color: "#F8F5F0",
-                }}
-              >
-                {actionState.label}
-              </Link>
-            )}
-          </div>
+        <div
+          className="shrink-0 border-t px-6 py-5 sm:px-8"
+          style={{
+            borderColor: "#D8C7B5",
+            backgroundColor: "#F8F5F0",
+          }}
+        >
+          {actionState.disabled || !actionState.href ? (
+            <button
+              type="button"
+              disabled
+              className="inline-flex h-12 w-full cursor-not-allowed items-center justify-center rounded-md px-5 text-sm font-medium opacity-60 sm:w-auto"
+              style={{
+                backgroundColor: "#CFC5BA",
+                color: "#6E6257",
+              }}
+            >
+              {actionState.label}
+            </button>
+          ) : (
+            <Link
+              href={actionState.href}
+              className="inline-flex h-12 w-full items-center justify-center rounded-md px-5 text-sm font-medium transition-colors hover:bg-[#B8A89A] sm:w-auto"
+              style={{
+                backgroundColor: "#2B2B2B",
+                color: "#F8F5F0",
+              }}
+            >
+              {actionState.label}
+            </Link>
+          )}
         </div>
       </div>
     </div>
