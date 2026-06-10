@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import BookingStatusControls from "./BookingStatusControls";
-import PaymentStatusControls from "./PaymentStatusControls";
 import SurveyProfileDetails from "@/components/survey/SurveyProfileDetails";
 
 type BookingDetailsPageProps = {
@@ -25,10 +24,6 @@ function DetailItem({
   );
 }
 
-function formatBdt(amount: number) {
-  return `${Math.round(amount)} BDT`;
-}
-
 export default async function BookingDetailsPage({
   params,
 }: BookingDetailsPageProps) {
@@ -42,17 +37,8 @@ export default async function BookingDetailsPage({
           name: true,
           email: true,
           phone: true,
-          role: true,
           createdAt: true,
           surveyProfile: true,
-        },
-      },
-      service: {
-        select: {
-          id: true,
-          name: true,
-          description: true,
-          price: true,
         },
       },
       doctor: {
@@ -62,15 +48,6 @@ export default async function BookingDetailsPage({
           designation: true,
           availability: true,
           bio: true,
-        },
-      },
-      payment: {
-        select: {
-          id: true,
-          stripePaymentId: true,
-          amount: true,
-          status: true,
-          createdAt: true,
         },
       },
     },
@@ -83,12 +60,12 @@ export default async function BookingDetailsPage({
   return (
     <section>
       <div>
-        <p className="font-mono text-sm text-foreground/60">{booking.id}</p>
+        <p className="font-mono text-sm text-foreground/60">{booking.token}</p>
         <h1 className="mt-2 text-3xl font-semibold tracking-tight text-foreground">
           Booking Details
         </h1>
         <p className="mt-3 text-sm leading-6 text-foreground/70">
-          Full booking, client, service, and payment information.
+          Review the appointment request and the client&apos;s saved skin profile.
         </p>
       </div>
 
@@ -100,120 +77,60 @@ export default async function BookingDetailsPage({
           <div className="mt-5 grid gap-5 sm:grid-cols-2">
             <DetailItem label="Name" value={booking.user.name ?? "Not set"} />
             <DetailItem label="Email" value={booking.user.email} />
-            <DetailItem label="Role" value={booking.user.role} />
-            <DetailItem
-              label="Client Since"
-              value={booking.user.createdAt.toLocaleDateString()}
-            />
+            <DetailItem label="Phone" value={booking.user.phone ?? "Not set"} />
           </div>
         </section>
 
         <section className="rounded-lg border border-black/10 bg-background p-6 dark:border-white/10">
-          <h2 className="text-lg font-semibold text-foreground">Service</h2>
-          {booking.service ? (
+          <h2 className="text-lg font-semibold text-foreground">
+            Selected Doctor
+          </h2>
+          {booking.doctor ? (
             <div className="mt-5 grid gap-5 sm:grid-cols-2">
-              <DetailItem label="Name" value={booking.service?.name ?? "N/A"} />
               <DetailItem
-                label="Price"
-                value={formatBdt(booking.service?.price ?? 0)}
+                label="Doctor Name"
+                value={booking.doctor?.name ?? "Not assigned"}
               />
               <DetailItem
-                label="Description"
-                value={booking.service.description ?? "Not provided"}
+                label="Designation"
+                value={booking.doctor.designation}
+              />
+              <DetailItem
+                label="Availability"
+                value={booking.doctor.availability}
+              />
+              <DetailItem
+                label="Bio"
+                value={booking.doctor.bio ?? "Not provided"}
               />
             </div>
           ) : (
             <p className="mt-5 text-sm text-foreground/70">
-              No service record is attached to this booking.
+              No doctor has been assigned to this booking.
             </p>
           )}
         </section>
 
         <section className="rounded-lg border border-black/10 bg-background p-6 dark:border-white/10">
-          <h2 className="text-lg font-semibold text-foreground">
-            Booking Info
-          </h2>
+          <h2 className="text-lg font-semibold text-foreground">Appointment</h2>
           <div className="mt-5 grid gap-5 sm:grid-cols-2">
             <DetailItem
-              label="Appointment Taken Time"
+              label="Booking Token"
+              value={booking.token}
+            />
+            <DetailItem
+              label="Preferred Date"
               value={booking.appointmentTime?.toLocaleString() ?? "Not scheduled"}
             />
-            <DetailItem label="Booking Status" value={booking.status} />
             <DetailItem
-              label="Appointment Creation Time"
-              value={booking.createdAt.toLocaleString()}
+              label="Booking Status"
+              value={booking.status}
             />
-            <DetailItem label="Booking Token" value={booking.token} />
           </div>
-        </section>
-
-        <section className="rounded-lg border border-black/10 bg-background p-6 dark:border-white/10">
-          <h2 className="text-lg font-semibold text-foreground">
-            Payment Info
-          </h2>
-          {booking.payment ? (
-            <div className="mt-5 grid gap-5 sm:grid-cols-2">
-              <DetailItem label="Payment Status" value={booking.payment?.status ?? "UNPAID"} />
-              <DetailItem
-                label="Amount"
-                value={formatBdt(booking.payment?.amount ?? 0)}
-              />
-              <DetailItem
-                label="Stripe Payment ID"
-                value={
-                  <span className="break-all font-mono text-xs">
-                    {booking.payment.stripePaymentId}
-                  </span>
-                }
-              />
-              <DetailItem
-                label="Paid At"
-                value={booking.payment.createdAt.toLocaleString()}
-              />
-            </div>
-          ) : (
-            <p className="mt-5 text-sm text-foreground/70">
-              No payment record is attached to this booking.
-            </p>
-          )}
         </section>
       </div>
 
-      <section className="mt-6 rounded-lg border border-black/10 bg-background p-6 dark:border-white/10">
-        <h2 className="text-lg font-semibold text-foreground">
-          Selected Doctor
-        </h2>
-        {booking.doctor ? (
-          <div className="mt-5 grid gap-5 sm:grid-cols-2">
-            <DetailItem label="Name" value={booking.doctor?.name ?? "Not assigned"} />
-            <DetailItem
-              label="Designation"
-              value={booking.doctor.designation}
-            />
-            <DetailItem
-              label="Availability"
-              value={booking.doctor.availability}
-            />
-            <DetailItem
-              label="Bio"
-              value={booking.doctor.bio ?? "Not provided"}
-            />
-          </div>
-        ) : (
-          <p className="mt-4 text-sm leading-6 text-foreground/70">
-            No doctor has been assigned to this booking.
-          </p>
-        )}
-      </section>
-
       <BookingStatusControls bookingId={booking.id} currentStatus={booking.status} />
-
-      {booking.payment ? (
-        <PaymentStatusControls
-          paymentId={booking.payment.id}
-          currentStatus={booking.payment?.status ?? "UNPAID"}
-        />
-      ) : null}
 
       <section className="mt-6 rounded-lg border border-black/10 bg-background p-6 dark:border-white/10">
         <h2 className="text-lg font-semibold text-foreground">

@@ -60,9 +60,6 @@ export default async function BookingDetailsPage({ params }: BookingDetailsPageP
       doctor: {
         select: {
           name: true,
-          designation: true,
-          availability: true,
-          bio: true,
         },
       },
       user: {
@@ -86,7 +83,7 @@ export default async function BookingDetailsPage({ params }: BookingDetailsPageP
             Booking Details
           </h1>
           <p className="mt-3 text-sm leading-6 text-foreground/70">
-            Review your appointment details and saved skin profile.
+            Review your appointment details and your saved skin profile.
           </p>
         </div>
 
@@ -113,10 +110,6 @@ export default async function BookingDetailsPage({ params }: BookingDetailsPageP
               value={booking.doctor?.name ?? "Not assigned"}
             />
             <DetailItem
-              label="Designation"
-              value={booking.doctor?.designation ?? "Not provided"}
-            />
-            <DetailItem
               label="Preferred Date"
               value={booking.appointmentTime?.toLocaleString() ?? "Not scheduled"}
             />
@@ -132,45 +125,18 @@ export default async function BookingDetailsPage({ params }: BookingDetailsPageP
                 </span>
               }
             />
-            <DetailItem
-              label="Availability"
-              value={booking.doctor?.availability ?? "Not provided"}
-            />
-          </div>
-        </section>
-
-        <section className="rounded-lg border border-black/10 bg-background p-6 dark:border-white/10">
-          <h2 className="text-lg font-semibold text-foreground">Doctor Notes</h2>
-          <div className="mt-5">
-            <DetailItem
-              label="Bio"
-              value={booking.doctor?.bio ?? "Doctor profile is not available."}
-            />
           </div>
         </section>
       </div>
 
       <section className="mt-6 rounded-lg border border-black/10 bg-background p-6 dark:border-white/10">
         <h2 className="text-lg font-semibold text-foreground">
-          Survey Profile Responses
+          Survey Profile Summary
         </h2>
         <SurveyProfileDetails
           profile={booking.user.surveyProfile}
           emptyMessage="No survey profile is available for your account."
         />
-      </section>
-
-      <section className="mt-6 rounded-lg border border-black/10 bg-blue-50 p-6 dark:border-white/10 dark:bg-blue-950/20">
-        <p className="text-sm text-foreground/80">
-          To cancel or reschedule your appointment, please contact us at{" "}
-          <a
-            href="mailto:careseleniteit@gmail.com"
-            className="font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-          >
-            careseleniteit@gmail.com
-          </a>{" "}
-          or reach out via our Facebook page.
-        </p>
       </section>
     </section>
   );

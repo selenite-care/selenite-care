@@ -15,20 +15,23 @@ export async function GET() {
     return Response.json({ error: "Forbidden." }, { status: 403 });
   }
 
-  const payments = await db.payment.findMany({
+  const payments = await db.membershipPayment.findMany({
     orderBy: {
       createdAt: "desc",
     },
-    include: {
-      booking: {
+    select: {
+      id: true,
+      amount: true,
+      status: true,
+      createdAt: true,
+      membership: {
         select: {
-          id: true,
-          appointmentTime: true,
-          status: true,
+          membershipId: true,
+          tier: true,
           user: {
             select: {
-              id: true,
               name: true,
+              phone: true,
               email: true,
             },
           },

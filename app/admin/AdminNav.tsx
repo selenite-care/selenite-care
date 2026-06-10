@@ -12,7 +12,7 @@ const adminLinks = [
   { href: "/admin/users", label: "All Users" },
   { href: "/admin/services", label: "Services Management" },
   { href: "/admin/doctors", label: "Manage Doctors" },
-  { href: "/admin/payments", label: "Payments" },
+  { href: "/admin/payments", label: "Membership Payments" },
 ];
 
 function isActiveLink(pathname: string, href: string) {

@@ -44,23 +44,6 @@ function getBookingStatusBadgeClasses(status: string) {
   }
 }
 
-function getPaymentStatusBadgeClasses(status: string) {
-  switch (status) {
-    case "UNPAID":
-      return "border-yellow-200 bg-yellow-50 text-yellow-700 dark:border-yellow-900/50 dark:bg-yellow-950/20 dark:text-yellow-300";
-    case "PAID":
-      return "border-green-200 bg-green-50 text-green-700 dark:border-green-900/50 dark:bg-green-950/20 dark:text-green-300";
-    case "REFUNDED":
-      return "border-zinc-200 bg-zinc-100 text-zinc-700 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300";
-    default:
-      return "border-black/10 bg-zinc-50 text-foreground/70 dark:border-white/10 dark:bg-white/5";
-  }
-}
-
-function formatBdt(amount: number) {
-  return `${Math.round(amount)} BDT`;
-}
-
 export default async function CrmBookingDetailsPage({
   params,
 }: CrmBookingDetailsPageProps) {
@@ -84,17 +67,8 @@ export default async function CrmBookingDetailsPage({
           name: true,
           email: true,
           phone: true,
-          role: true,
           createdAt: true,
           surveyProfile: true,
-        },
-      },
-      service: {
-        select: {
-          id: true,
-          name: true,
-          description: true,
-          price: true,
         },
       },
       doctor: {
@@ -104,15 +78,6 @@ export default async function CrmBookingDetailsPage({
           designation: true,
           availability: true,
           bio: true,
-        },
-      },
-      payment: {
-        select: {
-          id: true,
-          stripePaymentId: true,
-          amount: true,
-          status: true,
-          createdAt: true,
         },
       },
     },
@@ -131,7 +96,7 @@ export default async function CrmBookingDetailsPage({
             Booking Details
           </h1>
           <p className="mt-3 text-sm leading-6 text-foreground/70">
-            Review the full client appointment record and update CRM-visible status.
+            Review the appointment request and the client&apos;s latest skin profile.
           </p>
         </div>
 
@@ -150,42 +115,17 @@ export default async function CrmBookingDetailsPage({
             <DetailItem label="Name" value={booking.user.name ?? "Not set"} />
             <DetailItem label="Email" value={booking.user.email} />
             <DetailItem label="Phone" value={booking.user.phone ?? "Not set"} />
-            <DetailItem
-              label="Client Since"
-              value={booking.user.createdAt.toLocaleDateString()}
-            />
           </div>
-        </section>
-
-        <section className="rounded-lg border border-black/10 bg-background p-6 dark:border-white/10">
-          <h2 className="text-lg font-semibold text-foreground">Service</h2>
-          {booking.service ? (
-            <div className="mt-5 grid gap-5 sm:grid-cols-2">
-              <DetailItem label="Name" value={booking.service?.name ?? "N/A"} />
-              <DetailItem label="Price" value={formatBdt(booking.service?.price ?? 0)} />
-              <DetailItem
-                label="Description"
-                value={booking.service.description ?? "Not provided"}
-              />
-            </div>
-          ) : (
-            <p className="mt-5 text-sm leading-6 text-foreground/70">
-              No service record is attached to this booking.
-            </p>
-          )}
         </section>
 
         <section className="rounded-lg border border-black/10 bg-background p-6 dark:border-white/10">
           <h2 className="text-lg font-semibold text-foreground">Doctor</h2>
           {booking.doctor ? (
             <div className="mt-5 grid gap-5 sm:grid-cols-2">
-              <DetailItem label="Name" value={booking.doctor?.name ?? "Not assigned"} />
-              <DetailItem label="Designation" value={booking.doctor.designation} />
-              <DetailItem label="Availability" value={booking.doctor.availability} />
-              <DetailItem label="Bio" value={booking.doctor.bio ?? "Not provided"} />
+              <DetailItem label="Doctor Name" value={booking.doctor?.name ?? "Not assigned"} />
             </div>
           ) : (
-            <p className="mt-4 text-sm leading-6 text-foreground/70">
+            <p className="mt-5 text-sm leading-6 text-foreground/70">
               No doctor has been assigned to this booking.
             </p>
           )}
@@ -194,9 +134,8 @@ export default async function CrmBookingDetailsPage({
         <section className="rounded-lg border border-black/10 bg-background p-6 dark:border-white/10">
           <h2 className="text-lg font-semibold text-foreground">Appointment</h2>
           <div className="mt-5 grid gap-5 sm:grid-cols-2">
-            <DetailItem label="Appointment Time" value={booking.appointmentTime?.toLocaleString() ?? "Not scheduled"} />
-            <DetailItem label="Created" value={booking.createdAt.toLocaleString()} />
             <DetailItem label="Booking Token" value={booking.token} />
+            <DetailItem label="Preferred Date" value={booking.appointmentTime?.toLocaleString() ?? "Not scheduled"} />
             <DetailItem
               label="Booking Status"
               value={
@@ -211,46 +150,12 @@ export default async function CrmBookingDetailsPage({
             />
           </div>
         </section>
-
-        <section className="rounded-lg border border-black/10 bg-background p-6 dark:border-white/10 xl:col-span-2">
-          <h2 className="text-lg font-semibold text-foreground">Payment Info</h2>
-          {booking.payment ? (
-            <div className="mt-5 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
-              <DetailItem
-                label="Payment Status"
-                value={
-                  <span
-                    className={`inline-flex rounded-full border px-3 py-1 text-xs font-medium ${getPaymentStatusBadgeClasses(
-                      booking.payment?.status ?? "UNPAID",
-                    )}`}
-                  >
-                    {booking.payment?.status ?? "UNPAID"}
-                  </span>
-                }
-              />
-              <DetailItem label="Amount" value={formatBdt(booking.payment?.amount ?? 0)} />
-              <DetailItem
-                label="Stripe Payment ID"
-                value={
-                  <span className="break-all font-mono text-xs">
-                    {booking.payment.stripePaymentId}
-                  </span>
-                }
-              />
-              <DetailItem label="Paid At" value={booking.payment.createdAt.toLocaleString()} />
-            </div>
-          ) : (
-            <p className="mt-4 text-sm leading-6 text-foreground/70">
-              No payment record is attached to this booking.
-            </p>
-          )}
-        </section>
       </div>
 
       <BookingStatusButtons bookingId={booking.id} currentStatus={booking.status} />
 
       <section className="mt-6 rounded-lg border border-black/10 bg-background p-6 dark:border-white/10">
-        <h2 className="text-lg font-semibold text-foreground">Skin Profile</h2>
+        <h2 className="text-lg font-semibold text-foreground">Survey Profile Responses</h2>
         <SurveyProfileDetails
           profile={booking.user.surveyProfile}
           emptyMessage="No skin profile is available for this client."

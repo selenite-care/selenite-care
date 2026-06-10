@@ -20,10 +20,6 @@ type AdminBooking = {
   doctor: {
     name: string;
   } | null;
-  payment: {
-    amount: number;
-    status: string;
-  } | null;
 };
 
 const bookingStatuses = [
@@ -81,10 +77,6 @@ export default function AdminBookingsPage() {
     });
   }, [bookings, searchQuery, statusFilter]);
 
-  function formatBdt(amount: number) {
-    return `${Math.round(amount)} BDT`;
-  }
-
   function formatAppointmentTime(value: string | null) {
     return value ? new Date(value).toLocaleString() : "Not scheduled";
   }
@@ -99,8 +91,6 @@ export default function AdminBookingsPage() {
         "Doctor Name": booking.doctor?.name ?? "",
         "Appointment Time": formatAppointmentTime(booking.appointmentTime),
         "Booking Status": booking.status,
-        "Payment Status": booking.payment?.status ?? "UNPAID",
-        Amount: booking.payment ? formatBdt(booking.payment?.amount ?? 0) : "",
       })),
       {
         columns: [
@@ -111,8 +101,6 @@ export default function AdminBookingsPage() {
           "Doctor Name",
           "Appointment Time",
           "Booking Status",
-          "Payment Status",
-          "Amount",
         ],
       },
     );
@@ -135,7 +123,7 @@ export default function AdminBookingsPage() {
           All Bookings
         </h1>
         <p className="mt-3 text-sm leading-6 text-foreground/70">
-          Review every consultation booking and its payment state.
+          Review every consultation booking and its current appointment status.
         </p>
       </div>
 
@@ -230,7 +218,6 @@ export default function AdminBookingsPage() {
                       <th className="px-4 py-3 font-medium">Client Name</th>
                       <th className="px-4 py-3 font-medium">Service Name</th>
                       <th className="px-4 py-3 font-medium">Appointment Time</th>
-                      <th className="px-4 py-3 font-medium">Payment Status</th>
                       <th className="px-4 py-3 font-medium">Booking Status</th>
                       <th className="px-4 py-3 font-medium">Action</th>
                     </tr>
@@ -252,9 +239,6 @@ export default function AdminBookingsPage() {
                         </td>
                         <td className="px-4 py-4 text-foreground/70">
                           {formatAppointmentTime(booking.appointmentTime)}
-                        </td>
-                        <td className="px-4 py-4 text-foreground/70">
-                          {booking.payment?.status ?? "UNPAID"}
                         </td>
                         <td className="px-4 py-4 text-foreground/70">
                           {booking.status}
