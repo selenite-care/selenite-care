@@ -320,7 +320,7 @@ export default function DashboardSurveyPage() {
         throw new Error(data?.error ?? "Failed to save profile.");
       }
 
-      setSuccessMessage("Your profile has been updated");
+      setSuccessMessage("Skin profile updated successfully.");
     } catch (submitError) {
       setError(
         submitError instanceof Error
@@ -360,6 +360,18 @@ export default function DashboardSurveyPage() {
         <p className="mt-3 text-sm leading-6" style={{ color: "#B8A89A" }}>
           Keep your consultation details up to date so our team can support you better.
         </p>
+      </div>
+
+      <div
+        className="mt-6 rounded-lg border p-4 text-sm leading-6"
+        style={{
+          borderColor: "#D8C7B5",
+          backgroundColor: "#F8F5F0",
+          color: "#6E6257",
+        }}
+      >
+        Your skin profile is automatically updated when you submit an appointment
+        survey. You can also update it manually anytime.
       </div>
 
       <form
