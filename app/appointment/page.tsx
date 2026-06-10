@@ -25,6 +25,7 @@ type MembershipResponse = {
     membershipId: string;
     tier: "SIGNATURE" | "CRYSTAL" | "PLATINUM";
     status: "PENDING" | "ACTIVE" | "EXPIRED" | "CANCELLED";
+    expiresAt: string | null;
   } | null;
   error?: string;
 };
@@ -40,7 +41,7 @@ function getInitials(name: string) {
 
 export default function AppointmentPage() {
   const [membershipStatus, setMembershipStatus] = useState<
-    "loading" | "active" | "inactive"
+    "loading" | "active" | "inactive" | "expired"
   >("loading");
   const [doctors, setDoctors] = useState<AppointmentDoctor[]>([]);
   const [isLoadingDoctors, setIsLoadingDoctors] = useState(false);
@@ -58,9 +59,12 @@ export default function AppointmentPage() {
             | MembershipResponse
             | null;
 
+        const membership = membershipData?.membership;
         const hasActiveMembership =
           membershipResponse.ok &&
-          membershipData?.membership?.status === "ACTIVE";
+          membership?.status === "ACTIVE" &&
+          !!membership.expiresAt &&
+          new Date(membership.expiresAt).getTime() > Date.now();
 
         if (!isMounted) {
           return;
@@ -68,6 +72,15 @@ export default function AppointmentPage() {
 
         if (hasActiveMembership) {
           setMembershipStatus("active");
+        } else if (
+          membershipResponse.ok &&
+          membership &&
+          (membership.status === "EXPIRED" ||
+            (membership.status === "ACTIVE" &&
+              (!membership.expiresAt ||
+                new Date(membership.expiresAt).getTime() <= Date.now())))
+        ) {
+          setMembershipStatus("expired");
         } else {
           setMembershipStatus("inactive");
         }
@@ -113,6 +126,10 @@ export default function AppointmentPage() {
   }, []);
 
   const hasActiveMembership = membershipStatus === "active";
+  const membershipPromptMessage =
+    membershipStatus === "expired"
+      ? "Your membership has expired. Please renew your membership to book appointments."
+      : "Please purchase a membership first.";
 
   return (
     <main className="min-h-screen px-6 py-16" style={{ backgroundColor: "#F8F5F0" }}>
@@ -151,7 +168,7 @@ export default function AppointmentPage() {
           </p>
         ) : null}
 
-        {membershipStatus === "inactive" ? (
+        {membershipStatus === "inactive" || membershipStatus === "expired" ? (
           <section
             className="mt-10 rounded-[24px] border px-6 py-8 text-center"
             style={{
@@ -170,9 +187,20 @@ export default function AppointmentPage() {
               Active Membership Required
             </h2>
             <p className="mx-auto mt-4 max-w-2xl text-base leading-7" style={{ color: "#6E6257" }}>
-              You can browse our doctors below, but you will need an active membership
-              before selecting one for an appointment.
+              {membershipStatus === "expired"
+                ? "Your membership has expired. Please renew your membership to book appointments."
+                : "You can browse our doctors below, but you will need an active membership before selecting one for an appointment."}
             </p>
+            <Link
+              href="/services"
+              className="mt-6 inline-flex h-12 items-center justify-center rounded-md px-5 text-sm font-medium transition-colors hover:bg-[#B8A89A]"
+              style={{
+                backgroundColor: "#2B2B2B",
+                color: "#F8F5F0",
+              }}
+            >
+              Get Membership
+            </Link>
           </section>
         ) : null}
 
@@ -324,7 +352,7 @@ export default function AppointmentPage() {
                   Membership Required
                 </h2>
                 <p className="mt-3 text-sm leading-7" style={{ color: "#6E6257" }}>
-                  Please purchase a membership first.
+                  {membershipPromptMessage}
                 </p>
               </div>
 

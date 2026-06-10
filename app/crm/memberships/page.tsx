@@ -8,6 +8,7 @@ type CrmMembership = {
   tier: "SIGNATURE" | "CRYSTAL" | "PLATINUM";
   status: "PENDING" | "ACTIVE" | "EXPIRED" | "CANCELLED";
   createdAt: string;
+  expiresAt: string | null;
   user: {
     name: string | null;
     email: string;
@@ -63,6 +64,16 @@ function getStatusBadgeStyles(status: CrmMembership["status"]) {
         color: "#B91C1C",
       };
   }
+}
+
+function getDaysRemaining(expiresAt: string | null) {
+  if (!expiresAt) {
+    return null;
+  }
+
+  return Math.ceil(
+    (new Date(expiresAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24),
+  );
 }
 
 export default function CrmMembershipsPage() {
@@ -126,45 +137,75 @@ export default function CrmMembershipsPage() {
                     <th className="px-4 py-3 font-medium">Client Phone</th>
                     <th className="px-4 py-3 font-medium">Tier</th>
                     <th className="px-4 py-3 font-medium">Status</th>
+                    <th className="px-4 py-3 font-medium">Days Remaining</th>
                     <th className="px-4 py-3 font-medium">Purchase Date</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {memberships.map((membership) => (
-                    <tr
-                      key={membership.id}
-                      className="border-b border-black/10 last:border-0 dark:border-white/10"
-                    >
-                      <td className="px-4 py-4 font-mono text-xs text-foreground/70">
-                        {membership.membershipId}
-                      </td>
-                      <td className="px-4 py-4 text-foreground">
-                        {membership.user.name ?? membership.user.email}
-                      </td>
-                      <td className="px-4 py-4 text-foreground/70">
-                        {membership.user.phone ?? "-"}
-                      </td>
-                      <td className="px-4 py-4">
-                        <span
-                          className="inline-flex rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em]"
-                          style={getTierBadgeStyles(membership.tier)}
-                        >
-                          {membership.tier}
-                        </span>
-                      </td>
-                      <td className="px-4 py-4">
-                        <span
-                          className="inline-flex rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em]"
-                          style={getStatusBadgeStyles(membership.status)}
-                        >
-                          {membership.status}
-                        </span>
-                      </td>
-                      <td className="px-4 py-4 text-foreground/70">
-                        {new Date(membership.createdAt).toLocaleString()}
-                      </td>
-                    </tr>
-                  ))}
+                  {memberships.map((membership) => {
+                    const daysRemaining = getDaysRemaining(membership.expiresAt);
+
+                    return (
+                      <tr
+                        key={membership.id}
+                        className="border-b border-black/10 last:border-0 dark:border-white/10"
+                      >
+                        <td className="px-4 py-4 font-mono text-xs text-foreground/70">
+                          {membership.membershipId}
+                        </td>
+                        <td className="px-4 py-4 text-foreground">
+                          {membership.user.name ?? membership.user.email}
+                        </td>
+                        <td className="px-4 py-4 text-foreground/70">
+                          {membership.user.phone ?? "-"}
+                        </td>
+                        <td className="px-4 py-4">
+                          <span
+                            className="inline-flex rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em]"
+                            style={getTierBadgeStyles(membership.tier)}
+                          >
+                            {membership.tier}
+                          </span>
+                        </td>
+                        <td className="px-4 py-4">
+                          <span
+                            className="inline-flex rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em]"
+                            style={getStatusBadgeStyles(membership.status)}
+                          >
+                            {membership.status}
+                          </span>
+                        </td>
+                        <td className="px-4 py-4">
+                          {membership.status === "PENDING" ? (
+                            <span className="text-sm font-medium text-foreground/70">
+                              Pending
+                            </span>
+                          ) : daysRemaining === null ? (
+                            <span className="text-sm font-medium text-foreground/70">
+                              -
+                            </span>
+                          ) : daysRemaining <= 0 ? (
+                            <span className="text-sm font-medium text-red-600">
+                              Expired
+                            </span>
+                          ) : (
+                            <span
+                              className={
+                                daysRemaining > 30
+                                  ? "text-sm font-medium text-emerald-600"
+                                  : "text-sm font-medium text-yellow-600"
+                              }
+                            >
+                              {daysRemaining} day{daysRemaining === 1 ? "" : "s"}
+                            </span>
+                          )}
+                        </td>
+                        <td className="px-4 py-4 text-foreground/70">
+                          {new Date(membership.createdAt).toLocaleString()}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

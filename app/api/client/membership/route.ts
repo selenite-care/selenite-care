@@ -4,6 +4,24 @@ import { db } from "@/lib/db";
 
 const { auth } = NextAuth(authConfig);
 
+const membershipSelect = {
+  id: true,
+  membershipId: true,
+  tier: true,
+  status: true,
+  createdAt: true,
+  expiresAt: true,
+  payment: {
+    select: {
+      id: true,
+      stripePaymentId: true,
+      amount: true,
+      status: true,
+      createdAt: true,
+    },
+  },
+} as const;
+
 export async function GET() {
   const session = await auth();
 
@@ -11,28 +29,34 @@ export async function GET() {
     return Response.json({ error: "Unauthorized." }, { status: 401 });
   }
 
-  const membership = await db.membership.findUnique({
+  const membership = await db.membership.findFirst({
     where: {
       userId: session.user.id,
     },
-    select: {
-      id: true,
-      membershipId: true,
-      tier: true,
-      status: true,
-      createdAt: true,
-      expiresAt: true,
-      payment: {
-        select: {
-          id: true,
-          stripePaymentId: true,
-          amount: true,
-          status: true,
-          createdAt: true,
-        },
-      },
+    orderBy: {
+      createdAt: "desc",
     },
+    select: membershipSelect,
   });
+
+  if (
+    membership &&
+    membership.status === "ACTIVE" &&
+    membership.expiresAt &&
+    membership.expiresAt.getTime() < Date.now()
+  ) {
+    const updatedMembership = await db.membership.update({
+      where: {
+        id: membership.id,
+      },
+      data: {
+        status: "EXPIRED",
+      },
+      select: membershipSelect,
+    });
+
+    return Response.json({ membership: updatedMembership });
+  }
 
   return Response.json({ membership });
 }

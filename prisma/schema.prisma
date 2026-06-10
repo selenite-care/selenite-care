@@ -19,7 +19,7 @@ model User {
   createdAt             DateTime       @default(now())
   bookings              Booking[]
   doctor                Doctor?
-  membership            Membership?
+  memberships           Membership[]
   surveyProfile         SurveyProfile?
 }
 
@@ -53,7 +53,7 @@ model SurveyProfile {
 model Membership {
   id           String             @id @default(cuid())
   membershipId String             @unique
-  userId       String             @unique
+  userId       String
   user         User               @relation(fields: [userId], references: [id])
   tier         MembershipTier
   status       MembershipStatus   @default(PENDING)

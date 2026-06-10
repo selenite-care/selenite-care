@@ -25,6 +25,7 @@ export async function GET() {
       tier: true,
       status: true,
       createdAt: true,
+      expiresAt: true,
       user: {
         select: {
           name: true,
