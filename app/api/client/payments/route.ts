@@ -11,24 +11,28 @@ export async function GET() {
     return Response.json({ error: "Unauthorized." }, { status: 401 });
   }
 
-  const payments = await db.payment.findMany({
+  const payments = await db.membershipPayment.findMany({
     where: {
-      booking: {
+      membership: {
         userId: session.user.id,
       },
     },
     orderBy: {
       createdAt: "desc",
     },
-    include: {
-      booking: {
+    select: {
+      id: true,
+      amount: true,
+      status: true,
+      createdAt: true,
+      stripePaymentId: true,
+      membership: {
         select: {
-          id: true,
-          service: {
-            select: {
-              name: true,
-            },
-          },
+          membershipId: true,
+          tier: true,
+          status: true,
+          createdAt: true,
+          expiresAt: true,
         },
       },
     },

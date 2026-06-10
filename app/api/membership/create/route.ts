@@ -16,6 +16,12 @@ const MEMBERSHIP_AMOUNTS: Record<MembershipTier, number> = {
   PLATINUM: 6900,
 };
 
+const MEMBERSHIP_TIER_ORDER: Record<MembershipTier, number> = {
+  SIGNATURE: 1,
+  CRYSTAL: 2,
+  PLATINUM: 3,
+};
+
 const MEMBERSHIP_BENEFITS: Record<MembershipTier, string[]> = {
   SIGNATURE: [
     "100% off on the 2nd consultation",
@@ -97,6 +103,23 @@ function buildBenefitsSummary(tier: MembershipTier) {
     .join("");
 }
 
+function getMembershipDurationDays(tier: MembershipTier) {
+  switch (tier) {
+    case "SIGNATURE":
+      return 90;
+    case "CRYSTAL":
+      return 365;
+    case "PLATINUM":
+      return 1095;
+    default:
+      return 0;
+  }
+}
+
+function isHigherTier(nextTier: MembershipTier, currentTier: MembershipTier) {
+  return MEMBERSHIP_TIER_ORDER[nextTier] > MEMBERSHIP_TIER_ORDER[currentTier];
+}
+
 export async function POST(request: Request) {
   const session = await requireSession();
 
@@ -132,11 +155,6 @@ export async function POST(request: Request) {
       name: true,
       email: true,
       phone: true,
-      membership: {
-        select: {
-          id: true,
-        },
-      },
     },
   });
 
@@ -144,30 +162,88 @@ export async function POST(request: Request) {
     return Response.json({ error: "User not found." }, { status: 404 });
   }
 
-  if (user.membership) {
-    return Response.json(
-      { error: "This user already has a membership." },
-      { status: 409 },
-    );
+  const existingBlockingMembership = await db.membership.findFirst({
+    where: {
+      userId: user.id,
+      status: {
+        in: ["ACTIVE", "PENDING"],
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    select: {
+      id: true,
+      status: true,
+      tier: true,
+    },
+  });
+
+  if (existingBlockingMembership) {
+    if (existingBlockingMembership.status === "PENDING") {
+      return Response.json(
+        { error: "This user already has an active or pending membership." },
+        { status: 409 },
+      );
+    }
+
+    if (
+      existingBlockingMembership.status === "ACTIVE" &&
+      !isHigherTier(tier, existingBlockingMembership.tier)
+    ) {
+      return Response.json(
+        {
+          error:
+            "You already have an equal or higher membership. Please wait for expiry or contact support.",
+        },
+        { status: 409 },
+      );
+    }
+
+    if (existingBlockingMembership.status === "ACTIVE") {
+      // Allow the purchase to continue as an upgrade by cancelling the old plan
+      // and issuing a fresh membership record below inside the transaction.
+    } else {
+      return Response.json(
+        { error: "This user already has an active or pending membership." },
+        { status: 409 },
+      );
+    }
   }
 
   const amount = MEMBERSHIP_AMOUNTS[tier];
 
   try {
     const membershipId = await generateMembershipId();
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + getMembershipDurationDays(tier));
 
     const membership = await db.$transaction(async (tx) => {
+      if (existingBlockingMembership?.status === "ACTIVE") {
+        await tx.membership.update({
+          where: {
+            id: existingBlockingMembership.id,
+          },
+          data: {
+            status: "CANCELLED",
+          },
+        });
+      }
+
       const createdMembership = await tx.membership.create({
         data: {
           membershipId,
           userId: user.id,
           tier,
-          status: "PENDING",
+          status: "ACTIVE",
+          expiresAt,
         },
         select: {
           id: true,
           membershipId: true,
           tier: true,
+          status: true,
+          expiresAt: true,
         },
       });
 
@@ -218,6 +294,7 @@ export async function POST(request: Request) {
           </tr>
         </tbody>
       </table>
+      <p style="margin-top:16px;">This membership has been activated automatically.</p>
     `;
 
     const clientHtml = `
@@ -247,8 +324,8 @@ export async function POST(request: Request) {
         </ul>
         <h3 style="margin:18px 0 10px;">Next Steps</h3>
         <ul style="padding-left:20px; margin-top:0;">
-          <li style="margin-bottom:8px;">Our team will review and activate your membership shortly.</li>
-          <li style="margin-bottom:8px;">You may be contacted if we need any additional details.</li>
+          <li style="margin-bottom:8px;">Your membership is now active and ready to use.</li>
+          <li style="margin-bottom:8px;">Your membership expires on ${membership.expiresAt?.toLocaleDateString("en-US") ?? "-"}.</li>
           <li style="margin-bottom:8px;">Keep your membership ID handy for future support.</li>
         </ul>
         <p>Thank you for choosing Selenite Care.</p>

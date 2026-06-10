@@ -115,8 +115,17 @@ export async function POST(request: Request) {
     return Response.json({ error: "Unauthorized." }, { status: 401 });
   }
 
-  const membership = await db.membership.findUnique({
-    where: { userId: session.user.id },
+  const membership = await db.membership.findFirst({
+    where: {
+      userId: session.user.id,
+      status: "ACTIVE",
+      expiresAt: {
+        gt: new Date(),
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
     select: { status: true },
   });
 

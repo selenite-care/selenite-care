@@ -8,6 +8,7 @@ type AdminMembership = {
   tier: "SIGNATURE" | "CRYSTAL" | "PLATINUM";
   status: "PENDING" | "ACTIVE" | "EXPIRED" | "CANCELLED";
   createdAt: string;
+  expiresAt: string | null;
   user: {
     name: string | null;
     email: string;
@@ -94,6 +95,16 @@ function getPaymentBadgeStyles(status: "UNPAID" | "PAID" | "REFUNDED" | "N/A") {
   }
 }
 
+function getDaysRemaining(expiresAt: string | null) {
+  if (!expiresAt) {
+    return null;
+  }
+
+  return Math.ceil(
+    (new Date(expiresAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24),
+  );
+}
+
 export default function AdminMembershipsPage() {
   const [memberships, setMemberships] = useState<AdminMembership[]>([]);
   const [error, setError] = useState("");
@@ -125,10 +136,7 @@ export default function AdminMembershipsPage() {
     loadMemberships();
   }, []);
 
-  async function updateMembershipStatus(
-    membershipId: string,
-    status: "ACTIVE" | "CANCELLED",
-  ) {
+  async function updateMembershipStatus(membershipId: string, status: "CANCELLED") {
     setUpdatingId(membershipId);
     setError("");
 
@@ -166,6 +174,18 @@ export default function AdminMembershipsPage() {
 
   const hasMemberships = useMemo(() => memberships.length > 0, [memberships]);
 
+  async function handleCancelMembership(membershipId: string) {
+    const confirmed = window.confirm(
+      "Are you sure you want to cancel this membership? This action cannot be undone.",
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    await updateMembershipStatus(membershipId, "CANCELLED");
+  }
+
   return (
     <section>
       <div>
@@ -173,7 +193,7 @@ export default function AdminMembershipsPage() {
           Memberships
         </h1>
         <p className="mt-3 text-sm leading-6 text-foreground/70">
-          Review membership purchases and manage activation status.
+          Review membership purchases and keep an eye on expiry windows.
         </p>
       </div>
 
@@ -198,6 +218,7 @@ export default function AdminMembershipsPage() {
                   <th className="px-4 py-3 font-medium">Client Phone</th>
                   <th className="px-4 py-3 font-medium">Tier</th>
                   <th className="px-4 py-3 font-medium">Status</th>
+                  <th className="px-4 py-3 font-medium">Days Remaining</th>
                   <th className="px-4 py-3 font-medium">Payment Status</th>
                   <th className="px-4 py-3 font-medium">Purchase Date</th>
                   <th className="px-4 py-3 font-medium">Actions</th>
@@ -207,6 +228,7 @@ export default function AdminMembershipsPage() {
                 {memberships.map((membership) => {
                   const paymentStatus = membership.payment?.status ?? "N/A";
                   const isUpdating = updatingId === membership.id;
+                  const daysRemaining = getDaysRemaining(membership.expiresAt);
 
                   return (
                     <tr
@@ -239,6 +261,31 @@ export default function AdminMembershipsPage() {
                         </span>
                       </td>
                       <td className="px-4 py-4">
+                        {membership.status === "PENDING" ? (
+                          <span className="text-sm font-medium text-foreground/70">
+                            Pending
+                          </span>
+                        ) : membership.status === "ACTIVE" && daysRemaining !== null ? (
+                          daysRemaining > 0 ? (
+                            <span className="text-sm font-medium text-emerald-600">
+                              {daysRemaining} day{daysRemaining === 1 ? "" : "s"}
+                            </span>
+                          ) : (
+                            <span className="text-sm font-medium text-red-600">
+                              Expired
+                            </span>
+                          )
+                        ) : membership.status === "EXPIRED" ? (
+                          <span className="text-sm font-medium text-red-600">
+                            Expired
+                          </span>
+                        ) : (
+                          <span className="text-sm font-medium text-foreground/70">
+                            -
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-4 py-4">
                         <span
                           className="inline-flex rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em]"
                           style={getPaymentBadgeStyles(paymentStatus)}
@@ -251,39 +298,22 @@ export default function AdminMembershipsPage() {
                       </td>
                       <td className="px-4 py-4">
                         <div className="flex flex-wrap gap-2">
-                          <button
-                            type="button"
-                            onClick={() =>
-                              updateMembershipStatus(membership.id, "ACTIVE")
-                            }
-                            disabled={isUpdating || membership.status === "ACTIVE"}
-                            className="inline-flex h-9 items-center justify-center rounded-md px-3 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
-                            style={{
-                              backgroundColor: "#2B2B2B",
-                              color: "#F8F5F0",
-                            }}
-                          >
-                            {isUpdating && membership.status !== "ACTIVE"
-                              ? "Updating..."
-                              : "Activate"}
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() =>
-                              updateMembershipStatus(membership.id, "CANCELLED")
-                            }
-                            disabled={
-                              isUpdating || membership.status === "CANCELLED"
-                            }
-                            className="inline-flex h-9 items-center justify-center rounded-md border px-3 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
-                            style={{
-                              borderColor: "#C6A56B",
-                              color: "#2B2B2B",
-                              backgroundColor: "#FFFFFF",
-                            }}
-                          >
-                            Cancel
-                          </button>
+                          {membership.status === "ACTIVE" ||
+                          membership.status === "PENDING" ? (
+                            <button
+                              type="button"
+                              onClick={() => handleCancelMembership(membership.id)}
+                              disabled={isUpdating}
+                              className="inline-flex h-9 items-center justify-center rounded-md border px-3 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+                              style={{
+                                borderColor: "#C6A56B",
+                                color: "#2B2B2B",
+                                backgroundColor: "#FFFFFF",
+                              }}
+                            >
+                              {isUpdating ? "Cancelling..." : "Cancel"}
+                            </button>
+                          ) : null}
                         </div>
                       </td>
                     </tr>

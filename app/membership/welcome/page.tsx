@@ -1,12 +1,97 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
+
+type MembershipResponse = {
+  membership?: {
+    membershipId: string;
+    tier: "SIGNATURE" | "CRYSTAL" | "PLATINUM";
+    status: "PENDING" | "ACTIVE" | "EXPIRED" | "CANCELLED";
+    createdAt: string;
+    expiresAt: string | null;
+  } | null;
+  error?: string;
+};
+
+function getTierBadgeStyles(tier: "SIGNATURE" | "CRYSTAL" | "PLATINUM") {
+  switch (tier) {
+    case "PLATINUM":
+      return {
+        backgroundColor: "#2B2B2B",
+        color: "#F8F5F0",
+      };
+    case "CRYSTAL":
+      return {
+        backgroundColor: "rgba(75, 157, 211, 0.14)",
+        color: "#1D5F89",
+      };
+    case "SIGNATURE":
+    default:
+      return {
+        backgroundColor: "rgba(198, 165, 107, 0.14)",
+        color: "#8A6A2F",
+      };
+  }
+}
 
 function MembershipWelcomePageContent() {
   const searchParams = useSearchParams();
   const membershipId = searchParams.get("id") ?? "";
+  const [membership, setMembership] = useState<MembershipResponse["membership"]>(
+    null,
+  );
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadMembership() {
+      try {
+        const response = await fetch("/api/client/membership");
+        const data = (await response.json().catch(() => null)) as
+          | MembershipResponse
+          | null;
+
+        if (!response.ok) {
+          throw new Error(data?.error ?? "Unable to load membership.");
+        }
+
+        if (isMounted) {
+          setMembership(data?.membership ?? null);
+        }
+      } catch (loadError) {
+        if (isMounted) {
+          setError(
+            loadError instanceof Error
+              ? loadError.message
+              : "Unable to load membership details.",
+          );
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    loadMembership();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const displayMembershipId = membership?.membershipId ?? membershipId;
+  const activationDate = membership?.createdAt
+    ? new Date(membership.createdAt).toLocaleDateString()
+    : "Loading...";
+  const expiryDate = membership?.expiresAt
+    ? new Date(membership.expiresAt).toLocaleDateString()
+    : "N/A";
 
   return (
     <main
@@ -61,29 +146,107 @@ function MembershipWelcomePageContent() {
                 fontFamily: "Playfair Display, serif",
               }}
             >
-              {membershipId || "Pending Assignment"}
+              {displayMembershipId || "Pending Assignment"}
             </p>
           </div>
 
-          <p
-            className="mx-auto mt-8 max-w-2xl text-base leading-8 sm:text-lg"
-            style={{ color: "#6E6257" }}
-          >
-            Your membership is being verified. Our team will contact you shortly
-            to activate your membership and guide you through next steps.
-          </p>
+          {isLoading ? (
+            <p className="mx-auto mt-8 max-w-2xl text-base leading-8 sm:text-lg" style={{ color: "#6E6257" }}>
+              Loading membership details...
+            </p>
+          ) : error ? (
+            <p className="mx-auto mt-8 max-w-2xl text-base leading-8 text-red-600">
+              {error}
+            </p>
+          ) : membership ? (
+            <>
+              <div className="mt-6 flex justify-center">
+                <span
+                  className="inline-flex rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em]"
+                  style={getTierBadgeStyles(membership.tier)}
+                >
+                  {membership.tier}
+                </span>
+              </div>
 
-          <Link
-            href="/dashboard"
-            className="mt-10 inline-flex h-12 items-center justify-center rounded-md px-6 text-sm font-medium transition-colors hover:bg-[#B8A89A]"
-            style={{
-              backgroundColor: "#2B2B2B",
-              color: "#F8F5F0",
-              border: "1px solid #D8C7B5",
-            }}
-          >
-            Go to Dashboard
-          </Link>
+              <div className="mx-auto mt-8 grid max-w-2xl gap-4 sm:grid-cols-2">
+                <div
+                  className="rounded-2xl border px-5 py-4 text-left"
+                  style={{
+                    borderColor: "#D8C7B5",
+                    backgroundColor: "#FFFFFF",
+                  }}
+                >
+                  <p
+                    className="text-xs font-semibold uppercase tracking-[0.16em]"
+                    style={{ color: "#8C7967" }}
+                  >
+                    Activation Date
+                  </p>
+                  <p className="mt-2 text-lg font-semibold" style={{ color: "#2B2B2B" }}>
+                    {activationDate}
+                  </p>
+                </div>
+                <div
+                  className="rounded-2xl border px-5 py-4 text-left"
+                  style={{
+                    borderColor: "#D8C7B5",
+                    backgroundColor: "#FFFFFF",
+                  }}
+                >
+                  <p
+                    className="text-xs font-semibold uppercase tracking-[0.16em]"
+                    style={{ color: "#8C7967" }}
+                  >
+                    Expiry Date
+                  </p>
+                  <p className="mt-2 text-lg font-semibold" style={{ color: "#2B2B2B" }}>
+                    {expiryDate}
+                  </p>
+                </div>
+              </div>
+
+              <p
+                className="mx-auto mt-8 max-w-2xl text-base leading-8 sm:text-lg"
+                style={{ color: "#6E6257" }}
+              >
+                Your membership is now active! You can now book appointments with
+                our doctors.
+              </p>
+            </>
+          ) : (
+            <p
+              className="mx-auto mt-8 max-w-2xl text-base leading-8 sm:text-lg"
+              style={{ color: "#6E6257" }}
+            >
+              Your membership details are not available right now.
+            </p>
+          )}
+
+          <div className="mt-10 flex flex-col justify-center gap-3 sm:flex-row">
+            <Link
+              href="/appointment"
+              className="inline-flex h-12 items-center justify-center rounded-md px-6 text-sm font-medium transition-colors hover:bg-[#B8A89A]"
+              style={{
+                backgroundColor: "#2B2B2B",
+                color: "#F8F5F0",
+                border: "1px solid #D8C7B5",
+              }}
+            >
+              Book Appointment
+            </Link>
+            <Link
+              href="/dashboard"
+              className="inline-flex h-12 items-center justify-center rounded-md px-6 text-sm font-medium transition-colors"
+              style={{
+                backgroundColor: "#F8F5F0",
+                color: "#2B2B2B",
+                border: "1px solid #D8C7B5",
+              }}
+            >
+              Go to Dashboard
+            </Link>
+          </div>
         </section>
       </div>
     </main>

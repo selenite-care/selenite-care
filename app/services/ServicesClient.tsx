@@ -22,6 +22,29 @@ type MembershipTier = {
   benefits: BenefitItem[];
 };
 
+type ClientMembership = {
+  tier: "SIGNATURE" | "CRYSTAL" | "PLATINUM";
+  status: "PENDING" | "ACTIVE" | "EXPIRED" | "CANCELLED";
+  expiresAt: string | null;
+};
+
+type MembershipResponse = {
+  membership?: ClientMembership | null;
+  error?: string;
+};
+
+type MembershipActionState = {
+  disabled: boolean;
+  href: string | null;
+  label: string;
+};
+
+const TIER_ORDER = {
+  SIGNATURE: 1,
+  CRYSTAL: 2,
+  PLATINUM: 3,
+} as const;
+
 const memberships: MembershipTier[] = [
   {
     key: "signature",
@@ -177,11 +200,11 @@ const memberships: MembershipTier[] = [
 function MembershipModal({
   membership,
   onClose,
-  ctaHref,
+  actionState,
 }: {
   membership: MembershipTier;
   onClose: () => void;
-  ctaHref: string;
+  actionState: MembershipActionState;
 }) {
   useEffect(() => {
     function handleEscape(event: KeyboardEvent) {
@@ -350,16 +373,30 @@ function MembershipModal({
             className="mt-8 border-t pt-6"
             style={{ borderColor: "#D8C7B5" }}
           >
-            <Link
-              href={ctaHref}
-              className="inline-flex h-12 w-full items-center justify-center rounded-md px-5 text-sm font-medium transition-colors hover:bg-[#B8A89A] sm:w-auto"
-              style={{
-                backgroundColor: "#2B2B2B",
-                color: "#F8F5F0",
-              }}
-            >
-              Get this Membership
-            </Link>
+            {actionState.disabled || !actionState.href ? (
+              <button
+                type="button"
+                disabled
+                className="inline-flex h-12 w-full cursor-not-allowed items-center justify-center rounded-md px-5 text-sm font-medium opacity-60 sm:w-auto"
+                style={{
+                  backgroundColor: "#CFC5BA",
+                  color: "#6E6257",
+                }}
+              >
+                {actionState.label}
+              </button>
+            ) : (
+              <Link
+                href={actionState.href}
+                className="inline-flex h-12 w-full items-center justify-center rounded-md px-5 text-sm font-medium transition-colors hover:bg-[#B8A89A] sm:w-auto"
+                style={{
+                  backgroundColor: "#2B2B2B",
+                  color: "#F8F5F0",
+                }}
+              >
+                {actionState.label}
+              </Link>
+            )}
           </div>
         </div>
       </div>
@@ -372,6 +409,110 @@ export default function ServicesClient() {
   const [selectedMembership, setSelectedMembership] = useState<MembershipTier | null>(
     null,
   );
+  const [clientMembership, setClientMembership] = useState<ClientMembership | null>(
+    null,
+  );
+  const [isMembershipLoading, setIsMembershipLoading] = useState(false);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadMembership() {
+      if (!session?.user) {
+        setClientMembership(null);
+        return;
+      }
+
+      setIsMembershipLoading(true);
+
+      try {
+        const response = await fetch("/api/client/membership");
+        const data = (await response.json().catch(() => null)) as
+          | MembershipResponse
+          | null;
+
+        if (!response.ok) {
+          throw new Error(data?.error ?? "Unable to load membership.");
+        }
+
+        if (isMounted) {
+          setClientMembership(data?.membership ?? null);
+        }
+      } catch {
+        if (isMounted) {
+          setClientMembership(null);
+        }
+      } finally {
+        if (isMounted) {
+          setIsMembershipLoading(false);
+        }
+      }
+    }
+
+    loadMembership();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [session?.user]);
+
+  function getMembershipActionState(
+    membership: MembershipTier,
+  ): MembershipActionState {
+    if (!session?.user) {
+      return {
+        disabled: false,
+        href: "/login?callbackUrl=/services",
+        label: "Get this Membership",
+      };
+    }
+
+    if (isMembershipLoading) {
+      return {
+        disabled: true,
+        href: null,
+        label: "Checking Plan...",
+      };
+    }
+
+    const hasActiveMembership =
+      clientMembership?.status === "ACTIVE" &&
+      !!clientMembership.expiresAt &&
+      new Date(clientMembership.expiresAt).getTime() > Date.now();
+
+    if (!hasActiveMembership || !clientMembership) {
+      return {
+        disabled: false,
+        href: `/membership/payment?tier=${membership.tierValue}`,
+        label: "Get this Membership",
+      };
+    }
+
+    const currentTierRank = TIER_ORDER[clientMembership.tier];
+    const selectedTierRank = TIER_ORDER[membership.tierValue];
+
+    if (selectedTierRank > currentTierRank) {
+      return {
+        disabled: false,
+        href: `/membership/payment?tier=${membership.tierValue}`,
+        label: "Upgrade to this Membership",
+      };
+    }
+
+    if (selectedTierRank === currentTierRank) {
+      return {
+        disabled: true,
+        href: null,
+        label: "Current Plan",
+      };
+    }
+
+    return {
+      disabled: true,
+      href: null,
+      label: "Lower Plan",
+    };
+  }
 
   return (
     <main style={{ backgroundColor: "#F8F5F0" }}>
@@ -509,11 +650,7 @@ export default function ServicesClient() {
       {selectedMembership ? (
         <MembershipModal
           membership={selectedMembership}
-          ctaHref={
-            session?.user
-              ? `/membership/payment?tier=${selectedMembership.tierValue}`
-              : "/login?callbackUrl=/services"
-          }
+          actionState={getMembershipActionState(selectedMembership)}
           onClose={() => setSelectedMembership(null)}
         />
       ) : null}

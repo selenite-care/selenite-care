@@ -15,7 +15,11 @@ type PatchPayload = {
   status?: unknown;
 };
 
-const validStatuses = new Set<MembershipStatus>(["ACTIVE", "CANCELLED"]);
+const validStatuses = new Set<MembershipStatus>([
+  "ACTIVE",
+  "PENDING",
+  "CANCELLED",
+]);
 
 export async function PATCH(request: Request, context: RouteContext) {
   const session = await auth();
