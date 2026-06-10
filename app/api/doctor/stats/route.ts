@@ -54,7 +54,12 @@ export async function GET() {
   });
 
   const pendingBookings = await db.booking.count({
-    where: { doctorId: doctor.id, status: "PENDING" },
+    where: {
+      doctorId: doctor.id,
+      status: {
+        notIn: ["COMPLETED", "CANCELLED"],
+      },
+    },
   });
 
   const completedBookings = await db.booking.count({

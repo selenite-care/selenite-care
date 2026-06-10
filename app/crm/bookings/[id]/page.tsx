@@ -87,6 +87,10 @@ export default async function CrmBookingDetailsPage({
     notFound();
   }
 
+  const preferredDate = booking.appointmentTime
+    ? new Date(booking.appointmentTime).toLocaleDateString()
+    : "Not scheduled";
+
   return (
     <section>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
@@ -135,7 +139,7 @@ export default async function CrmBookingDetailsPage({
           <h2 className="text-lg font-semibold text-foreground">Appointment</h2>
           <div className="mt-5 grid gap-5 sm:grid-cols-2">
             <DetailItem label="Booking Token" value={booking.token} />
-            <DetailItem label="Preferred Date" value={booking.appointmentTime?.toLocaleString() ?? "Not scheduled"} />
+            <DetailItem label="Preferred Date" value={preferredDate} />
             <DetailItem
               label="Booking Status"
               value={

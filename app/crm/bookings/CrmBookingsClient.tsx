@@ -53,13 +53,7 @@ function formatAppointmentTime(value: string | null) {
     return "Not scheduled";
   }
 
-  return new Date(value).toLocaleString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  });
+  return new Date(value).toLocaleDateString("en-US");
 }
 
 export default function CrmBookingsClient({ bookings }: CrmBookingsClientProps) {
@@ -93,7 +87,7 @@ export default function CrmBookingsClient({ bookings }: CrmBookingsClientProps) 
         "Client Phone": booking.user.phone ?? "",
         "Service Name": booking.service?.name ?? "No service attached",
         "Doctor Name": booking.doctor?.name ?? "",
-        "Appointment Time": formatAppointmentTime(booking.appointmentTime),
+        "Preferred Date": formatAppointmentTime(booking.appointmentTime),
         "Booking Status": booking.status,
       })),
       {
@@ -103,7 +97,7 @@ export default function CrmBookingsClient({ bookings }: CrmBookingsClientProps) 
           "Client Phone",
           "Service Name",
           "Doctor Name",
-          "Appointment Time",
+          "Preferred Date",
           "Booking Status",
         ],
       },
@@ -195,7 +189,7 @@ export default function CrmBookingsClient({ bookings }: CrmBookingsClientProps) 
                 <th className="px-4 py-4">Client Phone</th>
                 <th className="px-4 py-4">Service</th>
                 <th className="px-4 py-4">Doctor</th>
-                <th className="px-4 py-4">Appointment Time</th>
+                <th className="px-4 py-4">Preferred Date</th>
                 <th className="px-4 py-4">Status</th>
                 <th className="px-4 py-4">Action</th>
               </tr>

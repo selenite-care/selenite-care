@@ -74,6 +74,10 @@ export default async function BookingDetailsPage({ params }: BookingDetailsPageP
     notFound();
   }
 
+  const preferredDate = booking.appointmentTime
+    ? new Date(booking.appointmentTime).toLocaleDateString()
+    : "Not scheduled";
+
   return (
     <section>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
@@ -111,7 +115,7 @@ export default async function BookingDetailsPage({ params }: BookingDetailsPageP
             />
             <DetailItem
               label="Preferred Date"
-              value={booking.appointmentTime?.toLocaleString() ?? "Not scheduled"}
+              value={preferredDate}
             />
             <DetailItem
               label="Booking Status"

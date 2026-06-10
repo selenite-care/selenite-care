@@ -25,7 +25,9 @@ export async function GET() {
       db.booking.count(),
       db.booking.count({
         where: {
-          status: "PENDING",
+          status: {
+            notIn: ["COMPLETED", "CANCELLED"],
+          },
         },
       }),
       db.booking.findMany({

@@ -59,7 +59,7 @@ export default function DashboardBookingsPage() {
   }, []);
 
   function formatAppointmentTime(value: string | null) {
-    return value ? new Date(value).toLocaleString() : "Not scheduled";
+    return value ? new Date(value).toLocaleDateString() : "Not scheduled";
   }
 
   return (

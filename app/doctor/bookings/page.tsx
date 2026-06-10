@@ -57,7 +57,7 @@ export default function DoctorBookingsPage() {
   }, []);
 
   function formatAppointmentTime(value: string | null) {
-    return value ? new Date(value).toLocaleString() : "Not scheduled";
+    return value ? new Date(value).toLocaleDateString() : "Not scheduled";
   }
 
   return (
@@ -95,8 +95,8 @@ export default function DoctorBookingsPage() {
                 <tr>
                   <th className="px-4 py-3 font-medium">Booking Token</th>
                   <th className="px-4 py-3 font-medium">Client Name</th>
-                  <th className="px-4 py-3 font-medium">Service Name</th>
-                  <th className="px-4 py-3 font-medium">Appointment Time</th>
+                  {/* <th className="px-4 py-3 font-medium">Service Name</th> */}
+                  <th className="px-4 py-3 font-medium">Preferred Date</th>
                   <th className="px-4 py-3 font-medium">Booking Status</th>
                   <th className="px-4 py-3 font-medium">Action</th>
                 </tr>
@@ -110,9 +110,9 @@ export default function DoctorBookingsPage() {
                     <td className="px-4 py-4 text-foreground/70">
                       {booking.user.name}
                     </td>
-                    <td className="px-4 py-4 text-foreground/70">
+                    {/* <td className="px-4 py-4 text-foreground/70">
                       {booking.service?.name ?? "No service attached"}
-                    </td>
+                    </td> */}
                     <td className="px-4 py-4 text-foreground/70">
                       {formatAppointmentTime(booking.appointmentTime)}
                     </td>

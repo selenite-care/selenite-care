@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import BookingStatusControls from "./BookingStatusControls";
 import SurveyProfileDetails from "@/components/survey/SurveyProfileDetails";
+import Link from "next/link";
 
 type BookingDetailsPageProps = {
   params: Promise<{
@@ -57,16 +58,29 @@ export default async function BookingDetailsPage({
     notFound();
   }
 
+  const preferredDate = booking.appointmentTime
+    ? new Date(booking.appointmentTime).toLocaleDateString()
+    : "Not scheduled";
+
   return (
     <section>
-      <div>
-        <p className="font-mono text-sm text-foreground/60">{booking.token}</p>
-        <h1 className="mt-2 text-3xl font-semibold tracking-tight text-foreground">
-          Booking Details
-        </h1>
-        <p className="mt-3 text-sm leading-6 text-foreground/70">
-          Review the appointment request and the client&apos;s saved skin profile.
-        </p>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="font-mono text-sm text-foreground/60">{booking.token}</p>
+          <h1 className="mt-2 text-3xl font-semibold tracking-tight text-foreground">
+            Booking Details
+          </h1>
+          <p className="mt-3 text-sm leading-6 text-foreground/70">
+            Review the appointment request and the client&apos;s latest skin profile.
+          </p>
+        </div>
+
+        <Link
+          href="/admin/bookings"
+          className="inline-flex h-11 items-center justify-center rounded-md border border-black/10 bg-background px-5 text-sm font-medium text-foreground transition-colors hover:bg-zinc-50 dark:border-white/10 dark:hover:bg-white/5"
+        >
+          Back to Bookings
+        </Link>
       </div>
 
       <div className="mt-8 grid gap-6 xl:grid-cols-2">
@@ -120,7 +134,7 @@ export default async function BookingDetailsPage({
             />
             <DetailItem
               label="Preferred Date"
-              value={booking.appointmentTime?.toLocaleString() ?? "Not scheduled"}
+              value={preferredDate}
             />
             <DetailItem
               label="Booking Status"
@@ -134,7 +148,7 @@ export default async function BookingDetailsPage({
 
       <section className="mt-6 rounded-lg border border-black/10 bg-background p-6 dark:border-white/10">
         <h2 className="text-lg font-semibold text-foreground">
-          Skin Profile
+          Survey Profile Responses
         </h2>
         <SurveyProfileDetails
           profile={booking.user.surveyProfile}
