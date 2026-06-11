@@ -542,7 +542,7 @@ export default function ServicesClient() {
               fontFamily: "Playfair Display, serif",
             }}
           >
-            Services
+            Memberships
           </h1>
           </center>
         </div>

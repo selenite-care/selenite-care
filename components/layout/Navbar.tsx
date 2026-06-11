@@ -8,9 +8,9 @@ import { useState } from "react";
 
 const navLinks = [
   { href: "/", label: "Home" },
-  { href: "/services", label: "Services" },
+  { href: "/services", label: "Memberships" },
   { href: "/appointment", label: "Appointment" },
-  { href: "/blog", label: "Blog" },
+  // { href: "/blog", label: "Blog" },
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
 ];
@@ -49,7 +49,7 @@ function NavbarContent() {
       style={{ borderBottom: "1px solid #C6A56B", backgroundColor: "#F8F5F0" }}
       className="px-6 py-4"
     >
-      <nav className="mx-auto flex w-full max-w-6xl items-center justify-between">
+      <nav className="mx-auto flex w-full max-w-screen-2xl items-center justify-between">
         {/* Logo */}
         <Link
         href="/"

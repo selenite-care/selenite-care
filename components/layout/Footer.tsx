@@ -124,7 +124,7 @@ export function Footer() {
             </p>
             <nav className="flex flex-col gap-2">
               {[
-                { label: "Services", href: "/services" },
+                { label: "Memberships", href: "/services" },
                 { label: "About Us", href: "/about" },
                 { label: "Contact", href: "/contact" },
               ].map(({ label, href }) => (
