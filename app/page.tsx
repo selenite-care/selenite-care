@@ -3,6 +3,7 @@ import ViewportAnimatedSection from "@/components/ui/ViewportAnimatedSection";
 import HeroSlider from "@/components/ui/HeroSlider";
 import { FeatureCard } from "@/components/ui/MembershipCards";
 import MembershipSection from "@/components/ui/MembershipSection";
+import BlogCarousel from "@/components/ui/BlogCarousel";
 
 const features = [
   { title: "Personalized Care",  description: "Support shaped around your needs, schedule, and goals.", icon: "✦" },
@@ -95,6 +96,9 @@ export default function Home() {
           </ViewportAnimatedSection>
         </div>
       </section>
+
+      {/* ── Our Blogs & Articles ── */}
+      <BlogCarousel />
     </div>
   );
 }
