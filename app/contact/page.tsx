@@ -2,6 +2,8 @@
 
 import { FormEvent, useState } from "react";
 
+export const revalidate = 3600;
+
 export default function ContactPage() {
   const [status, setStatus] = useState("");
 
