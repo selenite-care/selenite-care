@@ -23,22 +23,16 @@ const values = [
 
 const teamMembers = [
   {
-    name: "Consultant Name",
+    name: "Dr. Sara",
     role: "Wellness Consultant",
     description:
       "Focused on calm, practical care plans that help clients feel understood and supported from the very first conversation.",
   },
   {
-    name: "Consultant Name",
+    name: "Dr. Amrita",
     role: "Care Specialist",
     description:
       "Guides clients through their next steps with clarity, warmth, and routines that feel realistic to maintain.",
-  },
-  {
-    name: "Consultant Name",
-    role: "Client Care Lead",
-    description:
-      "Helps each experience feel prepared, welcoming, and easy to navigate across consultations and follow-ups.",
   },
 ];
 
@@ -79,11 +73,10 @@ export default function AboutPage() {
             </h1>
 
             <p className="mt-6 max-w-2xl text-lg leading-8" style={{ color: "#6E6257" }}>
-              Selenite Care was created to make expert wellness support feel
-              warm, refined, and genuinely helpful. We combine attentive
-              consultations, tailored guidance, and steady follow-through so
-              every client feels cared for with clarity and confidence.
-            </p>
+              Selenite Care is a professional skincare consultation platform dedicated to addressing acne, dark spots, pigmentation, and other skin concerns through personalized guidance from certified aestheticians. Our mission is to help every client achieve healthier, clearer, and more confident skin with expert care and customized solutions.
+            </p><br></br>
+            <hr></hr><br></br>
+            <p>Since 2024</p>
 
             <div className="mt-8 flex flex-col gap-4 sm:flex-row">
               <Link
