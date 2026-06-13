@@ -27,7 +27,7 @@ const BLOG_POSTS: BlogPost[] = [
       "A luxury approach to intelligent beauty.",
     category: "Skin Care",
     date: "2025-07-11",
-    image: "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=600&q=80&auto=format&fit=crop",
+    image: "/hero/blog1.png",
     author: "Selenite Care",
   },
   {
@@ -37,7 +37,7 @@ const BLOG_POSTS: BlogPost[] = [
       "When we speak of beauty, we often think of glow. Discover how deep hydration unlocks your skin's natural luminosity.",
     category: "Skin Care",
     date: "2025-07-11",
-    image: "https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=600&q=80&auto=format&fit=crop",
+    image: "/hero/blog2.png",
     author: "Selenite Care",
   },
   {
@@ -47,7 +47,7 @@ const BLOG_POSTS: BlogPost[] = [
       "In the ever-demanding pace of modern life, our skin silently bears the brunt of stress, pollution, and harsh weather.",
     category: "Skin Care",
     date: "2025-07-17",
-    image: "https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=600&q=80&auto=format&fit=crop",
+    image: "/hero/blog3.png",
     author: "Selenite Care",
   },
   // {
