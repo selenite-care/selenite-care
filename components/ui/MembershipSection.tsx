@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
+import TermsAndConditionsModal from "@/components/membership/TermsAndConditionsModal";
 import ViewportAnimatedSection from "@/components/ui/ViewportAnimatedSection";
 import { MembershipCard } from "@/components/ui/MembershipCards";
 
@@ -233,6 +234,9 @@ function MembershipModal({
   onClose: () => void;
   actionState: MembershipActionState;
 }) {
+  const [hasAcceptedTerms, setHasAcceptedTerms] = useState(false);
+  const [isTermsOpen, setIsTermsOpen] = useState(false);
+
   useEffect(() => {
     function handleEscape(event: KeyboardEvent) {
       if (event.key === "Escape") {
@@ -404,32 +408,62 @@ function MembershipModal({
             backgroundColor: "#F8F5F0",
           }}
         >
-          {actionState.disabled || !actionState.href ? (
-            <button
-              type="button"
-              disabled
-              className="inline-flex h-12 w-full cursor-not-allowed items-center justify-center rounded-md px-5 text-sm font-medium opacity-60 sm:w-auto"
-              style={{
-                backgroundColor: "#CFC5BA",
-                color: "#6E6257",
-              }}
-            >
-              {actionState.label}
-            </button>
-          ) : (
-            <Link
-              href={actionState.href}
-              className="inline-flex h-12 w-full items-center justify-center rounded-md px-5 text-sm font-medium transition-colors hover:bg-[#B8A89A] sm:w-auto"
-              style={{
-                backgroundColor: "#2B2B2B",
-                color: "#F8F5F0",
-              }}
-            >
-              {actionState.label}
-            </Link>
-          )}
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div className="max-w-lg">
+              <label className="flex items-start gap-3 text-sm leading-6" style={{ color: "#6E6257" }}>
+                <input
+                  type="checkbox"
+                  checked={hasAcceptedTerms}
+                  onChange={(event) => setHasAcceptedTerms(event.target.checked)}
+                  className="mt-1 h-4 w-4 shrink-0 rounded border"
+                  style={{ accentColor: "#C6A56B" }}
+                />
+                <span>
+                  <span style={{ color: "#C84B4B" }}>*</span>{" "}
+                  I agree to the{" "}
+                  <button
+                    type="button"
+                    onClick={() => setIsTermsOpen(true)}
+                    className="font-semibold underline underline-offset-2"
+                    style={{ color: "#2B2B2B" }}
+                  >
+                    Terms & Conditions
+                  </button>
+                </span>
+              </label>
+            </div>
+
+            {actionState.disabled || !actionState.href || !hasAcceptedTerms ? (
+              <button
+                type="button"
+                disabled
+                className="inline-flex h-12 w-full cursor-not-allowed items-center justify-center rounded-md px-5 text-sm font-medium opacity-60 sm:w-auto"
+                style={{
+                  backgroundColor: "#CFC5BA",
+                  color: "#6E6257",
+                }}
+              >
+                {actionState.label}
+              </button>
+            ) : (
+              <Link
+                href={actionState.href}
+                className="inline-flex h-12 w-full items-center justify-center rounded-md px-5 text-sm font-medium transition-colors hover:bg-[#B8A89A] sm:w-auto"
+                style={{
+                  backgroundColor: "#2B2B2B",
+                  color: "#F8F5F0",
+                }}
+              >
+                {actionState.label}
+              </Link>
+            )}
+          </div>
         </div>
       </div>
+
+      {isTermsOpen ? (
+        <TermsAndConditionsModal onClose={() => setIsTermsOpen(false)} />
+      ) : null}
     </div>
   );
 }
