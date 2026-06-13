@@ -2,6 +2,7 @@
 
 import useEmblaCarousel from "embla-carousel-react";
 import { useCallback, useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -109,9 +110,11 @@ function BlogCard({ post }: { post: BlogPost }) {
     >
       {/* Image + date badge */}
       <div style={{ position: "relative", flexShrink: 0 }}>
-        <img
+        <Image
           src={post.image}
           alt={post.title}
+          width={800}
+          height={440}
           style={{ width: "100%", height: 220, objectFit: "cover", display: "block" }}
         />
 

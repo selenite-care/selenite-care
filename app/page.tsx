@@ -5,6 +5,8 @@ import { FeatureCard } from "@/components/ui/MembershipCards";
 import MembershipSection from "@/components/ui/MembershipSection";
 import BlogCarousel from "@/components/ui/BlogCarousel";
 
+export const revalidate = 3600;
+
 const features = [
   { title: "Personalized Care",  description: "Support shaped around your needs, schedule, and goals.", icon: "✦" },
   { title: "Simple Booking",     description: "Choose a service, reserve a time, and get clear next steps.", icon: "◈" },

@@ -1,7 +1,8 @@
+import Image from "next/image";
 import Link from "next/link";
 import { getAllPosts } from "@/lib/blog";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
 
 function formatDateParts(iso: string) {
   const date = new Date(iso);
@@ -52,9 +53,11 @@ export default function BlogPage() {
                 }}
               >
                 <div className="relative flex-shrink-0">
-                  <img
+                  <Image
                     src={post.image}
                     alt={post.title}
+                    width={800}
+                    height={440}
                     className="block h-[220px] w-full object-cover"
                   />
 
