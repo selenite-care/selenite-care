@@ -297,6 +297,25 @@ function RegisterPageContent() {
           >
             {isSubmitting ? "Creating account..." : "Create account"}
           </button>
+          <p style={{
+            marginTop: '12px',
+            fontSize: '14px',
+            lineHeight: '1.5',
+            textAlign: 'center',
+            color: '#B8A89A',
+          }}>
+            Already an User? 
+            <a 
+            href="/login"
+            style={{
+            marginTop: '12px',
+            fontSize: '14px',
+            lineHeight: '1.5',
+            textAlign: 'center',
+            color: '#2B2B2B',
+            textDecoration: 'underline',
+          }}> Login </a>here.
+          </p>
         </form>
       </div>
     </section>

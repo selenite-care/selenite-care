@@ -104,7 +104,7 @@ export default function CrmPage() {
                     <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-foreground/60">Token</th>
                     <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-foreground/60">Client</th>
                     <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-foreground/60">Doctor</th>
-                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-foreground/60">Service</th>
+                    {/* <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-foreground/60">Service</th> */}
                     <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-foreground/60">Time</th>
                     <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-foreground/60">Status</th>
                   </tr>
@@ -122,7 +122,7 @@ export default function CrmPage() {
                         <td className="px-4 py-4 text-sm font-medium text-foreground">{booking.token}</td>
                         <td className="px-4 py-4 text-sm text-foreground/80">{booking.user?.name ?? "Unknown"}</td>
                         <td className="px-4 py-4 text-sm text-foreground/80">{booking.doctor?.name ?? "Unassigned"}</td>
-                        <td className="px-4 py-4 text-sm text-foreground/80">{booking.service?.name ?? "Unknown"}</td>
+                        {/* <td className="px-4 py-4 text-sm text-foreground/80">{booking.service?.name ?? "Unknown"}</td> */}
                         <td className="px-4 py-4 text-sm text-foreground/80">
                           {formatAppointmentTime(booking.appointmentTime)}
                         </td>
