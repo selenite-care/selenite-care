@@ -9,18 +9,18 @@ datasource db {
 }
 
 model User {
-  id                    String         @id @default(cuid())
-  name                  String?
-  email                 String         @unique
-  phone                 String?
-  password              String?
-  role                  Role           @default(CLIENT)
-  isTemporaryPassword   Boolean        @default(false)
-  createdAt             DateTime       @default(now())
-  bookings              Booking[]
-  doctor                Doctor?
-  memberships           Membership[]
-  surveyProfile         SurveyProfile?
+  id                  String         @id @default(cuid())
+  name                String?
+  email               String         @unique
+  phone               String?
+  password            String?
+  role                Role           @default(CLIENT)
+  isTemporaryPassword Boolean        @default(false)
+  createdAt           DateTime       @default(now())
+  bookings            Booking[]
+  doctor              Doctor?
+  memberships         Membership[]
+  surveyProfile       SurveyProfile?
 }
 
 model SurveyProfile {
@@ -109,6 +109,9 @@ model Booking {
   createdAt       DateTime        @default(now())
   payment         Payment?
   surveyResponse  SurveyResponse?
+  diagnosis       Diagnosis?
+  routineGuideline RoutineGuideline?
+  customerFeedback CustomerFeedback?
 }
 
 model Payment {
@@ -146,6 +149,55 @@ model SurveyResponse {
   note                       String?
   skinImages                 String[]
   createdAt                  DateTime  @default(now())
+}
+
+model Product {
+  id              String                  @id @default(cuid())
+  name            String
+  type            String
+  price           Float
+  skinType        String?
+  recommendations ProductRecommendation[]
+  createdAt       DateTime                @default(now())
+}
+
+model Diagnosis {
+  id                    String                  @id @default(cuid())
+  bookingId             String                  @unique
+  booking               Booking                 @relation(fields: [bookingId], references: [id])
+  problemIdentification String?
+  recommendations       ProductRecommendation[]
+  updatedAt             DateTime                @updatedAt
+  createdAt             DateTime                @default(now())
+}
+
+model ProductRecommendation {
+  id          String    @id @default(cuid())
+  diagnosisId String
+  diagnosis   Diagnosis @relation(fields: [diagnosisId], references: [id])
+  productId   String
+  product     Product   @relation(fields: [productId], references: [id])
+  note        String?
+  createdAt   DateTime  @default(now())
+}
+
+model RoutineGuideline {
+  id        String   @id @default(cuid())
+  bookingId String   @unique
+  booking   Booking  @relation(fields: [bookingId], references: [id])
+  content   String?
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+}
+
+model CustomerFeedback {
+  id        String   @id @default(cuid())
+  bookingId String   @unique
+  booking   Booking  @relation(fields: [bookingId], references: [id])
+  feedback  String?
+  images    String[]
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
 }
 
 enum Role {

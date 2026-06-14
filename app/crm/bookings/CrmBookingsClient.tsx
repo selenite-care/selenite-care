@@ -187,7 +187,7 @@ export default function CrmBookingsClient({ bookings }: CrmBookingsClientProps) 
                 <th className="px-4 py-4">Booking Token</th>
                 <th className="px-4 py-4">Client Name</th>
                 <th className="px-4 py-4">Client Phone</th>
-                <th className="px-4 py-4">Service</th>
+                {/* <th className="px-4 py-4">Service</th> */}
                 <th className="px-4 py-4">Doctor</th>
                 <th className="px-4 py-4">Preferred Date</th>
                 <th className="px-4 py-4">Status</th>
@@ -218,9 +218,9 @@ export default function CrmBookingsClient({ bookings }: CrmBookingsClientProps) 
                     <td className="px-4 py-4 text-foreground/70">
                       {booking.user.phone ?? "-"}
                     </td>
-                    <td className="px-4 py-4 text-foreground/70">
+                    {/* <td className="px-4 py-4 text-foreground/70">
                       {booking.service?.name ?? "No service attached"}
-                    </td>
+                    </td> */}
                     <td className="px-4 py-4 text-foreground/70">
                       {booking.doctor?.name ?? "-"}
                     </td>

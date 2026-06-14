@@ -23,13 +23,13 @@ const values = [
 
 const teamMembers = [
   {
-    name: "Dr. Sara",
+    name: "Dr. Safna",
     role: "Wellness Consultant",
     description:
       "Focused on calm, practical care plans that help clients feel understood and supported from the very first conversation.",
   },
   {
-    name: "Dr. Amrita",
+    name: "Dr. Hritisha",
     role: "Care Specialist",
     description:
       "Guides clients through their next steps with clarity, warmth, and routines that feel realistic to maintain.",
