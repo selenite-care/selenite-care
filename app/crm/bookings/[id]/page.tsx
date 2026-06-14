@@ -4,6 +4,9 @@ import { notFound, redirect } from "next/navigation";
 import { authConfig } from "@/lib/auth";
 import { db } from "@/lib/db";
 import BookingStatusButtons from "./BookingStatusButtons";
+import DiagnosisEditor from "@/components/diagnosis/DiagnosisEditor";
+import RoutineEditor from "@/components/routine/RoutineEditor";
+import FeedbackEditor from "@/components/feedback/FeedbackEditor";
 import SurveyProfileDetails from "@/components/survey/SurveyProfileDetails";
 
 type CrmBookingDetailsPageProps = {
@@ -164,6 +167,42 @@ export default async function CrmBookingDetailsPage({
           profile={booking.user.surveyProfile}
           emptyMessage="No skin profile is available for this client."
         />
+      </section>
+
+      <section className="mt-6 rounded-lg border border-black/10 bg-background p-6 dark:border-white/10">
+        <h2
+          className="text-2xl font-semibold text-foreground"
+          style={{ fontFamily: "Playfair Display, serif" }}
+        >
+          Diagnosis
+        </h2>
+        <div className="mt-5">
+          <DiagnosisEditor bookingId={booking.id} canEdit={false} />
+        </div>
+      </section>
+
+      <section className="mt-6 rounded-lg border border-black/10 bg-background p-6 dark:border-white/10">
+        <h2
+          className="text-2xl font-semibold text-foreground"
+          style={{ fontFamily: "Playfair Display, serif" }}
+        >
+          Routine &amp; Guidelines
+        </h2>
+        <div className="mt-5">
+          <RoutineEditor bookingId={booking.id} canEdit={true} />
+        </div>
+      </section>
+
+      <section className="mt-6 rounded-lg border border-black/10 bg-background p-6 dark:border-white/10">
+        <h2
+          className="text-2xl font-semibold text-foreground"
+          style={{ fontFamily: "Playfair Display, serif" }}
+        >
+          Customer&apos;s Feedback
+        </h2>
+        <div className="mt-5">
+          <FeedbackEditor bookingId={booking.id} canEdit={false} />
+        </div>
       </section>
     </section>
   );
