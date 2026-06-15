@@ -40,8 +40,19 @@ function NavbarContent() {
   }
 
   async function handleLogout() {
+    try {
+      await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "same-origin",
+        cache: "no-store",
+      });
+    } catch {
+      // Fall through to NextAuth signOut so logout still proceeds.
+    }
+
     router.refresh();
-    await signOut({ callbackUrl: "/login", redirect: true });
+    await signOut({ redirect: false });
+    window.location.replace("/login");
   }
 
   return (
