@@ -48,6 +48,7 @@ model SurveyProfile {
   note                       String?
   updatedAt                  DateTime @updatedAt
   createdAt                  DateTime @default(now())
+  @@index([userId])
 }
 
 model Membership {
@@ -60,6 +61,8 @@ model Membership {
   payment      MembershipPayment?
   createdAt    DateTime           @default(now())
   expiresAt    DateTime?
+  @@index([userId])
+  @@index([status])
 }
 
 model MembershipPayment {
@@ -112,6 +115,9 @@ model Booking {
   diagnosis       Diagnosis?
   routineGuideline RoutineGuideline?
   customerFeedback CustomerFeedback?
+  @@index([userId])
+  @@index([doctorId])
+  @@index([status])
 }
 
 model Payment {
@@ -159,6 +165,8 @@ model Product {
   skinType        String?
   recommendations ProductRecommendation[]
   createdAt       DateTime                @default(now())
+  @@index([name])
+  @@index([type])
 }
 
 model Diagnosis {
@@ -169,6 +177,7 @@ model Diagnosis {
   recommendations       ProductRecommendation[]
   updatedAt             DateTime                @updatedAt
   createdAt             DateTime                @default(now())
+  @@index([bookingId])
 }
 
 model ProductRecommendation {
