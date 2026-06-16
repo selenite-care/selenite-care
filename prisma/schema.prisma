@@ -17,6 +17,8 @@ model User {
   role                Role           @default(CLIENT)
   isTemporaryPassword Boolean        @default(false)
   createdAt           DateTime       @default(now())
+  emailVerified       DateTime?
+  verificationToken   String?        @unique
   bookings            Booking[]
   doctor              Doctor?
   memberships         Membership[]

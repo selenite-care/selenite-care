@@ -64,7 +64,11 @@ function LoginPageContent() {
     });
 
     if (result?.error) {
-      setError("Invalid email or password.");
+      if (result.code === "email_not_verified") {
+        setError("Please verify your email before logging in. Check your inbox.");
+      } else {
+        setError("Invalid email or password.");
+      }
       setIsSubmitting(false);
       return;
     }

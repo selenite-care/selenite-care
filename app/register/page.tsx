@@ -1,23 +1,32 @@
 "use client";
 
+import "react-phone-number-input/style.css";
+
 import { FormEvent, Suspense, useState } from "react";
 import { useRouter } from "next/navigation";
+import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
 
 function RegisterPageContent() {
   const router = useRouter();
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [phone, setPhone] = useState("");
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
-    setIsSubmitting(true);
 
     const formData = new FormData(event.currentTarget);
     const name = String(formData.get("name") ?? "");
-    const phone = String(formData.get("phone") ?? "");
     const email = String(formData.get("email") ?? "");
     const password = String(formData.get("password") ?? "");
+
+    if (!phone || !isValidPhoneNumber(phone)) {
+      setError("Please enter a valid phone number.");
+      return;
+    }
+
+    setIsSubmitting(true);
 
     const response = await fetch("/api/register", {
       method: "POST",
@@ -148,32 +157,21 @@ function RegisterPageContent() {
             >
               Phone
             </label>
-            <input
-              id="phone"
-              name="phone"
-              type="tel"
-              autoComplete="tel"
-              required
-              style={{
-                height: '44px',
-                width: '100%',
-                borderRadius: '8px',
-                border: '1px solid #D8C7B5',
-                backgroundColor: '#FFFFFF',
-                paddingLeft: '12px',
-                paddingRight: '12px',
-                fontSize: '14px',
-                color: '#2B2B2B',
-                outline: 'none',
-                transition: 'border-color 0.2s ease',
-              }}
-              onFocus={(e) => {
-                e.currentTarget.style.borderColor = '#C6A56B';
-              }}
-              onBlur={(e) => {
-                e.currentTarget.style.borderColor = '#D8C7B5';
-              }}
-            />
+            <div className="brand-phone-input-wrapper">
+              <PhoneInput
+                id="phone"
+                international
+                countryCallingCodeEditable={false}
+                defaultCountry="BD"
+                value={phone}
+                onChange={(value) => setPhone(value ?? "")}
+                className="brand-phone-input"
+                numberInputProps={{
+                  autoComplete: "tel",
+                  required: true,
+                }}
+              />
+            </div>
           </div>
 
           <div>
@@ -318,6 +316,58 @@ function RegisterPageContent() {
           </p>
         </form>
       </div>
+
+      <style jsx global>{`
+        .brand-phone-input-wrapper .PhoneInput {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          height: 44px;
+          width: 100%;
+          border-radius: 8px;
+          border: 1px solid #d8c7b5;
+          background-color: #ffffff;
+          padding: 0 12px;
+          transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .brand-phone-input-wrapper .PhoneInput:focus-within {
+          border-color: #c6a56b;
+          box-shadow: 0 0 0 1px #c6a56b;
+        }
+
+        .brand-phone-input-wrapper .PhoneInputCountry {
+          margin-right: 0;
+        }
+
+        .brand-phone-input-wrapper .PhoneInputCountrySelect {
+          cursor: pointer;
+        }
+
+        .brand-phone-input-wrapper .PhoneInputCountryIcon {
+          box-shadow: none;
+        }
+
+        .brand-phone-input-wrapper .PhoneInputCountrySelectArrow {
+          color: #b8a89a;
+          opacity: 1;
+        }
+
+        .brand-phone-input-wrapper .PhoneInputInput {
+          height: 100%;
+          width: 100%;
+          border: 0;
+          background: transparent;
+          color: #2b2b2b;
+          font-size: 14px;
+          outline: none;
+          box-shadow: none;
+        }
+
+        .brand-phone-input-wrapper .PhoneInputInput::placeholder {
+          color: #b8a89a;
+        }
+      `}</style>
     </section>
   );
 }
