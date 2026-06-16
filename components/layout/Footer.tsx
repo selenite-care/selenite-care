@@ -128,6 +128,7 @@ export function Footer() {
               {[
                 { label: "Memberships", href: "/services" },
                 { label: "About Us", href: "/about" },
+                { label: "FAQ", href: "/faq" },
                 { label: "Contact", href: "/contact" },
                 { label: "Terms & Conditions", href: "/terms-and-conditions" },
               ].map(({ label, href }) => (

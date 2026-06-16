@@ -13,6 +13,7 @@ import {
 } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
+import { BRAC_BANK_DETAILS } from "@/lib/bankDetails";
 
 const stripePublishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
 const stripePromise = stripePublishableKey
@@ -548,7 +549,7 @@ function BkashManualPaymentForm({
             <div className="mx-auto max-w-xs overflow-hidden rounded-2xl border bg-white p-3" style={{ borderColor: "#D8C7B5" }}>
               <div className="relative aspect-square w-full">
                 <Image
-                  src="/images/bkash-qr.png"
+                  src="/images/bkash-qr.jpeg"
                   alt="bKash QR code"
                   fill
                   className="object-contain"
@@ -640,7 +641,7 @@ function BankTransferManualPaymentForm({
 
   async function handleCopyAccountNumber() {
     try {
-      await navigator.clipboard.writeText("1501201908077001");
+      await navigator.clipboard.writeText(BRAC_BANK_DETAILS.accountNumber);
       setCopied(true);
     } catch {
       setError("Unable to copy the account number right now.");
@@ -768,9 +769,20 @@ function BankTransferManualPaymentForm({
         <div className="mt-4 space-y-4 text-sm" style={{ color: "#2B2B2B" }}>
           <div>
             <p className="font-medium" style={{ color: "#8C7967" }}>
+              Bank Name
+            </p>
+            <p className="mt-1 text-base font-semibold">
+              {BRAC_BANK_DETAILS.bankName}
+            </p>
+          </div>
+
+          <div>
+            <p className="font-medium" style={{ color: "#8C7967" }}>
               Account Name
             </p>
-            <p className="mt-1 text-base font-semibold">Selenite Care</p>
+            <p className="mt-1 text-base font-semibold">
+              {BRAC_BANK_DETAILS.accountName}
+            </p>
           </div>
 
           <div>
@@ -785,7 +797,7 @@ function BankTransferManualPaymentForm({
                   fontFamily: "Playfair Display, serif",
                 }}
               >
-                1501201908077001
+                {BRAC_BANK_DETAILS.accountNumber}
               </p>
               <button
                 type="button"
@@ -802,17 +814,20 @@ function BankTransferManualPaymentForm({
             <p className="font-medium" style={{ color: "#8C7967" }}>
               Branch
             </p>
-            <p className="mt-1 text-base font-semibold">Gulshan Branch</p>
+            <p className="mt-1 text-base font-semibold">
+              {BRAC_BANK_DETAILS.branchName}
+            </p>
           </div>
         </div>
       </div>
 
       <ol className="mt-6 space-y-3 text-sm leading-7" style={{ color: "#6E6257" }}>
-        <li>1. Open your banking app or visit your bank branch.</li>
-        <li>2. Transfer the exact membership amount to the BRAC Bank account above.</li>
-        <li>3. Enter the exact amount: {formatBdt(membership.price)}.</li>
-        <li>4. Keep your transaction reference number or transfer receipt ready.</li>
-        <li>5. Submit the transaction reference below so our team can verify your payment.</li>
+        <li>
+          1. Transfer the exact membership amount to the account above via
+          your bank app or branch visit.
+        </li>
+        <li>2. Note down your transaction reference number.</li>
+        <li>3. Enter the details below.</li>
       </ol>
 
       <form onSubmit={handleSubmit} className="mt-6 space-y-5">
@@ -842,7 +857,7 @@ function BankTransferManualPaymentForm({
             className="block text-sm font-medium"
             style={{ color: "#2B2B2B" }}
           >
-            Upload transfer screenshot (optional)
+            Upload payment confirmation screenshot (optional but recommended)
           </label>
           <input
             id="bank-transfer-proof"
