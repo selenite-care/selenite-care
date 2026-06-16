@@ -17,6 +17,11 @@ function LoginPageContent() {
   const callbackUrl = searchParams.get("callbackUrl");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [email, setEmail] = useState("");
+  const [showResendVerification, setShowResendVerification] = useState(false);
+  const [isResending, setIsResending] = useState(false);
+  const [resendCountdown, setResendCountdown] = useState(0);
+  const [resendMessage, setResendMessage] = useState("");
 
   useEffect(() => {
     if (status !== "authenticated") {
@@ -30,6 +35,18 @@ function LoginPageContent() {
     else if (role === "CRM") router.replace("/crm");
     else router.replace("/dashboard");
   }, [router, session?.user?.role, status]);
+
+  useEffect(() => {
+    if (resendCountdown <= 0) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      setResendCountdown((current) => current - 1);
+    }, 1000);
+
+    return () => window.clearTimeout(timer);
+  }, [resendCountdown]);
 
   if (status === "authenticated") {
     return (
@@ -51,14 +68,16 @@ function LoginPageContent() {
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
+    setResendMessage("");
+    setShowResendVerification(false);
     setIsSubmitting(true);
 
     const formData = new FormData(event.currentTarget);
-    const email = String(formData.get("email") ?? "");
+    const submittedEmail = String(formData.get("email") ?? "");
     const password = String(formData.get("password") ?? "");
 
     const result = await signIn("credentials", {
-      email,
+      email: submittedEmail,
       password,
       redirect: false,
     });
@@ -66,6 +85,7 @@ function LoginPageContent() {
     if (result?.error) {
       if (result.code === "email_not_verified") {
         setError("Please verify your email before logging in. Check your inbox.");
+        setShowResendVerification(true);
       } else {
         setError("Invalid email or password.");
       }
@@ -81,6 +101,49 @@ function LoginPageContent() {
     else if (role === "DOCTOR") router.push("/doctor");
     else if (role === "CRM") router.push("/crm");
     else router.push("/dashboard");
+  }
+
+  async function handleResendVerification() {
+    if (!email || resendCountdown > 0) {
+      return;
+    }
+
+    setIsResending(true);
+    setResendMessage("");
+
+    try {
+      const response = await fetch("/api/resend-verification", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = (await response.json().catch(() => null)) as
+        | { message?: string; error?: string }
+        | null;
+
+      if (!response.ok) {
+        throw new Error(
+          data?.error ?? "Unable to resend verification email right now.",
+        );
+      }
+
+      setResendMessage(
+        data?.message ??
+          "If an account with that email exists, a verification link has been sent.",
+      );
+      setResendCountdown(60);
+    } catch (resendError) {
+      setResendMessage(
+        resendError instanceof Error
+          ? resendError.message
+          : "Unable to resend verification email right now.",
+      );
+    } finally {
+      setIsResending(false);
+    }
   }
 
   return (
@@ -156,6 +219,8 @@ function LoginPageContent() {
               type="email"
               autoComplete="email"
               required
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
               style={{
                 height: '44px',
                 width: '100%',
@@ -217,12 +282,69 @@ function LoginPageContent() {
                 e.currentTarget.style.borderColor = '#D8C7B5';
               }}
             />
+            <div style={{ marginTop: '8px', textAlign: 'right' }}>
+              <a
+                href="/forgot-password"
+                style={{
+                  fontSize: '13px',
+                  color: '#C6A56B',
+                  textDecoration: 'underline',
+                }}
+              >
+                Forgot password?
+              </a>
+            </div>
           </div>
 
           {error ? <p style={{
             fontSize: '14px',
             color: '#dc2626',
           }}>{error}</p> : null}
+
+          {showResendVerification ? (
+            <div style={{ marginTop: '-8px' }}>
+              <button
+                type="button"
+                onClick={handleResendVerification}
+                disabled={isResending || resendCountdown > 0 || !email}
+                style={{
+                  padding: 0,
+                  border: 'none',
+                  background: 'none',
+                  color:
+                    isResending || resendCountdown > 0 || !email
+                      ? '#B8A89A'
+                      : '#C6A56B',
+                  fontSize: '14px',
+                  textDecoration: 'underline',
+                  cursor:
+                    isResending || resendCountdown > 0 || !email
+                      ? 'not-allowed'
+                      : 'pointer',
+                }}
+              >
+                {isResending
+                  ? 'Sending...'
+                  : resendCountdown > 0
+                    ? `Resend in ${resendCountdown}s`
+                    : 'Resend verification email'}
+              </button>
+              {resendMessage ? (
+                <p
+                  style={{
+                    marginTop: '8px',
+                    fontSize: '13px',
+                    lineHeight: '1.5',
+                    color: resendMessage.includes('already verified')
+                      ? '#8A6A2F'
+                      : '#6E6257',
+                  }}
+                >
+                  {resendMessage}
+                </p>
+              ) : null}
+            </div>
+          ) : null}
 
           <button
             type="submit"

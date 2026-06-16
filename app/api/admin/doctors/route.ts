@@ -161,6 +161,7 @@ export async function POST(request: Request) {
         email: parsed.data.email,
         password: hashedPassword,
         isTemporaryPassword: true,
+        emailVerified: new Date(),
         role: "DOCTOR",
       },
       select: {
