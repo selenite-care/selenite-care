@@ -119,14 +119,16 @@ export default function AdminManualMembershipPage() {
         throw new Error(data?.error ?? "Unable to create manual membership.");
       }
 
-      if (data?.temporaryPassword && data.userEmail) {
+      if (data?.existingUser) {
+        setSuccessMessage("Membership added to existing account successfully.");
+      } else if (data?.temporaryPassword && data.userEmail) {
         setCredentialsModal({
           email: data.userEmail,
           temporaryPassword: data.temporaryPassword,
         });
         setIsPasswordCopied(false);
       } else {
-        setSuccessMessage("Membership added to existing account.");
+        setSuccessMessage("Membership created successfully.");
       }
 
       setForm({

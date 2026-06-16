@@ -193,20 +193,10 @@ export async function POST(request: Request) {
     const hashedPassword = temporaryPassword
       ? await bcrypt.hash(temporaryPassword, 10)
       : null;
-    const surveyNote = buildSurveyNote({ gender, address });
-
     const result = await db.$transaction(async (tx) => {
       const user = existingUser
-        ? await tx.user.update({
-            where: { email },
-            data: {
-              name,
-              phone: phone || null,
-              age: age || null,
-              gender: gender || null,
-              address: address || null,
-              emailVerified: new Date(),
-            },
+        ? await tx.user.findUniqueOrThrow({
+            where: { id: existingUser.id },
             select: {
               id: true,
               name: true,
@@ -245,30 +235,24 @@ export async function POST(request: Request) {
             },
           });
 
-      await tx.surveyProfile.upsert({
-        where: {
-          userId: user.id,
-        },
-        update: {
-          name,
-          age: age || null,
-          phone: phone || null,
-          email,
-          note: surveyNote,
-        },
-        create: {
-          userId: user.id,
-          name,
-          age: age || null,
-          phone: phone || null,
-          email,
-          note: surveyNote,
-          skinIssues: [],
-          currentProducts: [],
-          allergicIngredients: [],
-          skinImages: [],
-        },
-      });
+      if (!existingUser) {
+        const surveyNote = buildSurveyNote({ gender, address });
+
+        await tx.surveyProfile.create({
+          data: {
+            userId: user.id,
+            name,
+            age: age || null,
+            phone: phone || null,
+            email,
+            note: surveyNote,
+            skinIssues: [],
+            currentProducts: [],
+            allergicIngredients: [],
+            skinImages: [],
+          },
+        });
+      }
 
       const membership = await tx.membership.create({
         data: {
