@@ -68,13 +68,18 @@ model Membership {
 }
 
 model MembershipPayment {
-  id              String        @id @default(cuid())
-  membershipId    String        @unique
-  membership      Membership    @relation(fields: [membershipId], references: [id])
-  stripePaymentId String        @unique
+  id              String         @id @default(cuid())
+  membershipId    String         @unique
+  membership      Membership     @relation(fields: [membershipId], references: [id])
+  paymentMethod   PaymentMethod  @default(STRIPE)
+  stripePaymentId String?        @unique
+  bkashPaymentId  String?        @unique
+  bkashTrxId      String?
+  bankTransactionRef String?
+  bankTransferProof  String?
   amount          Float
-  status          PaymentStatus @default(UNPAID)
-  createdAt       DateTime      @default(now())
+  status          PaymentStatus  @default(UNPAID)
+  createdAt       DateTime       @default(now())
 }
 
 model Service {
@@ -242,4 +247,9 @@ enum MembershipStatus {
   ACTIVE
   EXPIRED
   CANCELLED
+}
+enum PaymentMethod {
+  STRIPE
+  BKASH
+  BANK_TRANSFER
 }
