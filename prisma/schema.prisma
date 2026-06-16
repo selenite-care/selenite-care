@@ -26,6 +26,7 @@ model User {
   doctor              Doctor?
   memberships         Membership[]
   surveyProfile       SurveyProfile?
+  dateOfBirth DateTime?
 }
 
 model SurveyProfile {
