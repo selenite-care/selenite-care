@@ -8,6 +8,7 @@ type RegisterPayload = {
   email?: unknown;
   phone?: unknown;
   password?: unknown;
+  dateOfBirth?: unknown;
 };
 
 const INTERNATIONAL_PHONE_REGEX = /^\+[1-9]\d{7,14}$/;
@@ -19,6 +20,9 @@ export async function POST(request: Request) {
     typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
   const phone = typeof body.phone === "string" ? body.phone.trim() : "";
   const password = typeof body.password === "string" ? body.password : "";
+  const dateOfBirthValue =
+    typeof body.dateOfBirth === "string" ? body.dateOfBirth.trim() : "";
+  const dateOfBirth = dateOfBirthValue ? new Date(dateOfBirthValue) : null;
 
   if (!name || !email || !phone || !password) {
     return Response.json(
@@ -30,6 +34,13 @@ export async function POST(request: Request) {
   if (!INTERNATIONAL_PHONE_REGEX.test(phone)) {
     return Response.json(
       { error: "Please enter a valid phone number with country code" },
+      { status: 400 },
+    );
+  }
+
+  if (dateOfBirth && Number.isNaN(dateOfBirth.getTime())) {
+    return Response.json(
+      { error: "Please enter a valid date of birth." },
       { status: 400 },
     );
   }
@@ -54,6 +65,7 @@ export async function POST(request: Request) {
       name,
       email,
       phone,
+      dateOfBirth,
       password: hashedPassword,
       role: "CLIENT",
       verificationToken,
@@ -63,6 +75,7 @@ export async function POST(request: Request) {
       name: true,
       email: true,
       phone: true,
+      dateOfBirth: true,
       role: true,
     },
   });

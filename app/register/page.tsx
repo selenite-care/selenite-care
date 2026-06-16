@@ -20,6 +20,7 @@ function RegisterPageContent() {
     const name = String(formData.get("name") ?? "");
     const email = String(formData.get("email") ?? "");
     const password = String(formData.get("password") ?? "");
+    const dateOfBirth = String(formData.get("dateOfBirth") ?? "");
 
     if (!phone || !isValidPhoneNumber(phone)) {
       setError("Please enter a valid phone number.");
@@ -33,7 +34,7 @@ function RegisterPageContent() {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ name, phone, email, password }),
+      body: JSON.stringify({ name, phone, email, password, dateOfBirth }),
     });
 
     if (!response.ok) {
@@ -193,6 +194,45 @@ function RegisterPageContent() {
               type="email"
               autoComplete="email"
               required
+              style={{
+                height: '44px',
+                width: '100%',
+                borderRadius: '8px',
+                border: '1px solid #D8C7B5',
+                backgroundColor: '#FFFFFF',
+                paddingLeft: '12px',
+                paddingRight: '12px',
+                fontSize: '14px',
+                color: '#2B2B2B',
+                outline: 'none',
+                transition: 'border-color 0.2s ease',
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = '#C6A56B';
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = '#D8C7B5';
+              }}
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="dateOfBirth"
+              style={{
+                display: 'block',
+                fontSize: '14px',
+                fontWeight: '500',
+                color: '#2B2B2B',
+                marginBottom: '8px',
+              }}
+            >
+              Date of Birth
+            </label>
+            <input
+              id="dateOfBirth"
+              name="dateOfBirth"
+              type="date"
               style={{
                 height: '44px',
                 width: '100%',
