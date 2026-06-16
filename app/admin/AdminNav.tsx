@@ -9,6 +9,7 @@ const adminLinks = [
   { href: "/admin", label: "Dashboard Overview" },
   { href: "/admin/bookings", label: "All Bookings" },
   { href: "/admin/memberships", label: "Memberships" },
+  { href: "/admin/memberships/manual", label: "Add Manual Membership" },
   { href: "/admin/memberships/pending", label: "Pending Verifications" },
   { href: "/admin/users", label: "All Users" },
   { href: "/admin/products", label: "Products" },

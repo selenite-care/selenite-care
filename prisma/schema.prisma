@@ -13,6 +13,9 @@ model User {
   name                String?
   email               String         @unique
   phone               String?
+  age                 String?
+  gender              String?
+  address             String?
   password            String?
   role                Role           @default(CLIENT)
   isTemporaryPassword Boolean        @default(false)
@@ -252,4 +255,5 @@ enum PaymentMethod {
   STRIPE
   BKASH
   BANK_TRANSFER
+  CASH
 }
