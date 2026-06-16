@@ -73,8 +73,6 @@ export async function PATCH(request: Request, context: RouteContext) {
           createdAt: true,
         },
       },
-      createdAt: true,
-      expiresAt: true,
     },
   });
 
