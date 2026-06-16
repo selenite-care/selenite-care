@@ -1,0 +1,332 @@
+import { randomBytes } from "node:crypto";
+import bcrypt from "bcryptjs";
+import { auth } from "@/auth";
+import { db } from "@/lib/db";
+import type { MembershipStatus, MembershipTier, PaymentMethod } from "@prisma/client";
+
+export const runtime = "nodejs";
+
+type ManualMembershipPayload = {
+  name?: unknown;
+  email?: unknown;
+  phone?: unknown;
+  age?: unknown;
+  gender?: unknown;
+  address?: unknown;
+  tier?: unknown;
+  amountPaid?: unknown;
+  paymentMethod?: unknown;
+  purchaseDate?: unknown;
+};
+
+const ALLOWED_PAYMENT_METHODS: PaymentMethod[] = [
+  "CASH",
+  "BKASH",
+  "BANK_TRANSFER",
+];
+
+function generateTemporaryPassword(length = 10) {
+  const alphabet =
+    "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
+  const bytes = randomBytes(length);
+
+  return Array.from(bytes, (byte) => alphabet[byte % alphabet.length]).join("");
+}
+
+function parseString(value: unknown) {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function parseTier(value: unknown): MembershipTier | null {
+  if (typeof value !== "string") {
+    return null;
+  }
+
+  const normalized = value.trim().toUpperCase();
+
+  if (
+    normalized === "SIGNATURE" ||
+    normalized === "CRYSTAL" ||
+    normalized === "PLATINUM"
+  ) {
+    return normalized;
+  }
+
+  return null;
+}
+
+function parsePaymentMethod(value: unknown): PaymentMethod | null {
+  if (typeof value !== "string") {
+    return null;
+  }
+
+  const normalized = value.trim().toUpperCase() as PaymentMethod;
+  return ALLOWED_PAYMENT_METHODS.includes(normalized) ? normalized : null;
+}
+
+function getMembershipDurationDays(tier: MembershipTier) {
+  switch (tier) {
+    case "SIGNATURE":
+      return 90;
+    case "CRYSTAL":
+      return 365;
+    case "PLATINUM":
+      return 1095;
+  }
+}
+
+function buildSurveyNote({
+  gender,
+  address,
+}: {
+  gender: string;
+  address: string;
+}) {
+  const entries = [
+    gender ? `Gender: ${gender}` : "",
+    address ? `Address: ${address}` : "",
+  ].filter(Boolean);
+
+  return entries.length > 0 ? entries.join("\n") : null;
+}
+
+async function generateMembershipId(purchaseDate: Date) {
+  const yearSuffix = purchaseDate.getFullYear().toString().slice(-2);
+  const prefix = `SCM${yearSuffix}`;
+
+  const latestMembership = await db.membership.findFirst({
+    where: {
+      membershipId: {
+        startsWith: prefix,
+      },
+    },
+    orderBy: {
+      membershipId: "desc",
+    },
+    select: {
+      membershipId: true,
+    },
+  });
+
+  const latestSerial = latestMembership
+    ? Number(latestMembership.membershipId.slice(-4))
+    : 0;
+
+  return `${prefix}${String(latestSerial + 1).padStart(4, "0")}`;
+}
+
+export async function POST(request: Request) {
+  const session = await auth();
+
+  if (!session?.user) {
+    return Response.json({ error: "Unauthorized." }, { status: 401 });
+  }
+
+  if (session.user.role !== "ADMIN") {
+    return Response.json({ error: "Forbidden." }, { status: 403 });
+  }
+
+  const body = (await request.json()) as ManualMembershipPayload;
+
+  const name = parseString(body.name);
+  const email = parseString(body.email).toLowerCase();
+  const phone = parseString(body.phone);
+  const age = parseString(body.age);
+  const gender = parseString(body.gender);
+  const address = parseString(body.address);
+  const tier = parseTier(body.tier);
+  const paymentMethod = parsePaymentMethod(body.paymentMethod);
+  const amountPaid =
+    typeof body.amountPaid === "number"
+      ? body.amountPaid
+      : typeof body.amountPaid === "string"
+        ? Number(body.amountPaid)
+        : Number.NaN;
+  const purchaseDateValue = parseString(body.purchaseDate);
+  const purchaseDate = purchaseDateValue ? new Date(purchaseDateValue) : null;
+
+  if (!name || !email || !phone || !tier || !paymentMethod || !purchaseDate) {
+    return Response.json(
+      {
+        error:
+          "Name, email, phone, tier, paymentMethod, and purchaseDate are required.",
+      },
+      { status: 400 },
+    );
+  }
+
+  if (!email.includes("@")) {
+    return Response.json({ error: "A valid email is required." }, { status: 400 });
+  }
+
+  if (!Number.isFinite(amountPaid) || amountPaid <= 0) {
+    return Response.json(
+      { error: "amountPaid must be a valid positive number." },
+      { status: 400 },
+    );
+  }
+
+  if (Number.isNaN(purchaseDate.getTime())) {
+    return Response.json(
+      { error: "purchaseDate must be a valid date." },
+      { status: 400 },
+    );
+  }
+
+  const expiresAt = new Date(purchaseDate);
+  expiresAt.setDate(expiresAt.getDate() + getMembershipDurationDays(tier));
+
+  const status: MembershipStatus =
+    expiresAt.getTime() < Date.now() ? "EXPIRED" : "ACTIVE";
+
+  try {
+    const existingUser = await db.user.findUnique({
+      where: { email },
+      select: {
+        id: true,
+        email: true,
+      },
+    });
+
+    const membershipId = await generateMembershipId(purchaseDate);
+    const temporaryPassword = existingUser ? null : generateTemporaryPassword();
+    const hashedPassword = temporaryPassword
+      ? await bcrypt.hash(temporaryPassword, 10)
+      : null;
+    const surveyNote = buildSurveyNote({ gender, address });
+
+    const result = await db.$transaction(async (tx) => {
+      const user = existingUser
+        ? await tx.user.update({
+            where: { email },
+            data: {
+              name,
+              phone: phone || null,
+              age: age || null,
+              gender: gender || null,
+              address: address || null,
+              emailVerified: new Date(),
+            },
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              phone: true,
+              age: true,
+              gender: true,
+              address: true,
+              role: true,
+              createdAt: true,
+            },
+          })
+        : await tx.user.create({
+            data: {
+              name,
+              email,
+              phone: phone || null,
+              age: age || null,
+              gender: gender || null,
+              address: address || null,
+              password: hashedPassword,
+              role: "CLIENT",
+              isTemporaryPassword: true,
+              emailVerified: new Date(),
+            },
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              phone: true,
+              age: true,
+              gender: true,
+              address: true,
+              role: true,
+              createdAt: true,
+            },
+          });
+
+      await tx.surveyProfile.upsert({
+        where: {
+          userId: user.id,
+        },
+        update: {
+          name,
+          age: age || null,
+          phone: phone || null,
+          email,
+          note: surveyNote,
+        },
+        create: {
+          userId: user.id,
+          name,
+          age: age || null,
+          phone: phone || null,
+          email,
+          note: surveyNote,
+          skinIssues: [],
+          currentProducts: [],
+          allergicIngredients: [],
+          skinImages: [],
+        },
+      });
+
+      const membership = await tx.membership.create({
+        data: {
+          membershipId,
+          userId: user.id,
+          tier,
+          status,
+          createdAt: purchaseDate,
+          expiresAt,
+        },
+        select: {
+          id: true,
+          membershipId: true,
+          userId: true,
+          tier: true,
+          status: true,
+          createdAt: true,
+          expiresAt: true,
+        },
+      });
+
+      const payment = await tx.membershipPayment.create({
+        data: {
+          membershipId: membership.id,
+          paymentMethod,
+          amount: amountPaid,
+          status: "PAID",
+          createdAt: purchaseDate,
+        },
+        select: {
+          id: true,
+          paymentMethod: true,
+          amount: true,
+          status: true,
+          createdAt: true,
+        },
+      });
+
+      return { user, membership, payment };
+    });
+
+    return Response.json(
+      {
+        membership: {
+          ...result.membership,
+          payment: result.payment,
+        },
+        userEmail: result.user.email,
+        temporaryPassword,
+        existingUser: Boolean(existingUser),
+      },
+      { status: 201 },
+    );
+  } catch (error) {
+    console.error("Failed to create manual membership", error);
+    return Response.json(
+      { error: "Failed to create manual membership." },
+      { status: 500 },
+    );
+  }
+}
