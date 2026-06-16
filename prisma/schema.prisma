@@ -22,6 +22,8 @@ model User {
   createdAt           DateTime       @default(now())
   emailVerified       DateTime?
   verificationToken   String?        @unique
+  resetPasswordToken  String?        @unique
+  resetPasswordExpires DateTime?
   bookings            Booking[]
   doctor              Doctor?
   memberships         Membership[]
