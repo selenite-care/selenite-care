@@ -13,6 +13,7 @@ type ManualMembershipFormState = {
   email: string;
   phone: string;
   age: string;
+  dateOfBirth: string;
   gender: string;
   address: string;
   tier: MembershipTier;
@@ -50,6 +51,7 @@ const initialFormState: ManualMembershipFormState = {
   email: "",
   phone: "",
   age: "",
+  dateOfBirth: "",
   gender: "Female",
   address: "",
   tier: "SIGNATURE",
@@ -102,6 +104,7 @@ export default function AdminManualMembershipPage() {
           email: form.email,
           phone: form.phone,
           age: form.age,
+          dateOfBirth: form.dateOfBirth,
           gender: form.gender,
           address: form.address,
           tier: form.tier,
@@ -364,6 +367,27 @@ export default function AdminManualMembershipPage() {
                   setForm((current) => ({
                     ...current,
                     age: event.target.value,
+                  }))
+                }
+                className="mt-2 h-11 w-full rounded-md border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="dateOfBirth"
+                className="block text-sm font-medium text-[#2B2B2B]"
+              >
+                Date of Birth
+              </label>
+              <input
+                id="dateOfBirth"
+                type="date"
+                value={form.dateOfBirth}
+                onChange={(event) =>
+                  setForm((current) => ({
+                    ...current,
+                    dateOfBirth: event.target.value,
                   }))
                 }
                 className="mt-2 h-11 w-full rounded-md border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"

@@ -11,6 +11,7 @@ type ManualMembershipPayload = {
   email?: unknown;
   phone?: unknown;
   age?: unknown;
+  dateOfBirth?: unknown;
   gender?: unknown;
   address?: unknown;
   tier?: unknown;
@@ -132,6 +133,7 @@ export async function POST(request: Request) {
   const email = parseString(body.email).toLowerCase();
   const phone = parseString(body.phone);
   const age = parseString(body.age);
+  const dateOfBirthValue = parseString(body.dateOfBirth);
   const gender = parseString(body.gender);
   const address = parseString(body.address);
   const tier = parseTier(body.tier);
@@ -144,6 +146,7 @@ export async function POST(request: Request) {
         : Number.NaN;
   const purchaseDateValue = parseString(body.purchaseDate);
   const purchaseDate = purchaseDateValue ? new Date(purchaseDateValue) : null;
+  const dateOfBirth = dateOfBirthValue ? new Date(dateOfBirthValue) : null;
 
   if (!name || !email || !phone || !tier || !paymentMethod || !purchaseDate) {
     return Response.json(
@@ -169,6 +172,13 @@ export async function POST(request: Request) {
   if (Number.isNaN(purchaseDate.getTime())) {
     return Response.json(
       { error: "purchaseDate must be a valid date." },
+      { status: 400 },
+    );
+  }
+
+  if (dateOfBirth && Number.isNaN(dateOfBirth.getTime())) {
+    return Response.json(
+      { error: "dateOfBirth must be a valid date." },
       { status: 400 },
     );
   }
@@ -203,6 +213,7 @@ export async function POST(request: Request) {
               name,
               phone: phone || null,
               age: age || null,
+              dateOfBirth,
               gender: gender || null,
               address: address || null,
               emailVerified: new Date(),
@@ -213,6 +224,7 @@ export async function POST(request: Request) {
               email: true,
               phone: true,
               age: true,
+              dateOfBirth: true,
               gender: true,
               address: true,
               role: true,
@@ -225,6 +237,7 @@ export async function POST(request: Request) {
               email,
               phone: phone || null,
               age: age || null,
+              dateOfBirth,
               gender: gender || null,
               address: address || null,
               password: hashedPassword,
@@ -238,6 +251,7 @@ export async function POST(request: Request) {
               email: true,
               phone: true,
               age: true,
+              dateOfBirth: true,
               gender: true,
               address: true,
               role: true,
