@@ -9,6 +9,10 @@ class EmailNotVerifiedError extends CredentialsSignin {
   code = "email_not_verified";
 }
 
+class AccountInactiveError extends CredentialsSignin {
+  code = "account_inactive";
+}
+
 declare module "next-auth" {
   interface Session {
     user: {
@@ -62,6 +66,7 @@ export const authConfig = {
             email: true,
             password: true,
             emailVerified: true,
+            isActive: true,
             role: true,
           },
         });
@@ -78,6 +83,10 @@ export const authConfig = {
 
         if (!isValidPassword) {
           return null;
+        }
+
+        if (!user.isActive) {
+          throw new AccountInactiveError();
         }
 
         return {

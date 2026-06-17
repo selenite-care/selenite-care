@@ -10,6 +10,7 @@ type Doctor = {
   availability: string;
   bio: string | null;
   image: string | null;
+  isActive: boolean;
 };
 
 type DoctorFormState = {
@@ -75,6 +76,7 @@ export default function AdminDoctorsPage() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [updatingDoctorId, setUpdatingDoctorId] = useState<string | null>(null);
   const [doctorCredentials, setDoctorCredentials] =
     useState<DoctorCredentials | null>(null);
   const [isPasswordCopied, setIsPasswordCopied] = useState(false);
@@ -203,15 +205,16 @@ export default function AdminDoctorsPage() {
     }
   }
 
-  async function handleDelete(doctorId: string) {
+  async function handleStatusToggle(doctorId: string, isActive: boolean) {
     setError("");
+    setUpdatingDoctorId(doctorId);
 
-    const response = await fetch("/api/admin/doctors", {
-      method: "DELETE",
+    const response = await fetch(`/api/admin/doctors/${doctorId}/status`, {
+      method: "PATCH",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ id: doctorId }),
+      body: JSON.stringify({ isActive }),
     });
 
     if (!response.ok) {
@@ -221,11 +224,13 @@ export default function AdminDoctorsPage() {
           }
         | null;
 
-      setError(data?.error ?? "Unable to delete doctor.");
+      setError(data?.error ?? "Unable to update doctor status.");
+      setUpdatingDoctorId(null);
       return;
     }
 
     await loadDoctors();
+    setUpdatingDoctorId(null);
   }
 
   async function copyTemporaryPassword() {
@@ -404,7 +409,20 @@ export default function AdminDoctorsPage() {
                         className="border-b border-black/10 last:border-0 dark:border-white/10"
                       >
                         <td className="px-6 py-4 font-medium text-foreground">
-                          {doctor.name}
+                          <div className="flex items-center gap-3">
+                            <span>{doctor.name}</span>
+                            {!doctor.isActive ? (
+                              <span
+                                className="inline-flex rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em]"
+                                style={{
+                                  backgroundColor: "rgba(239, 68, 68, 0.12)",
+                                  color: "#B91C1C",
+                                }}
+                              >
+                                Inactive
+                              </span>
+                            ) : null}
+                          </div>
                         </td>
                         <td className="px-6 py-4 text-foreground/70">
                           {doctor.designation}
@@ -418,10 +436,22 @@ export default function AdminDoctorsPage() {
                         <td className="px-6 py-4">
                           <button
                             type="button"
-                            onClick={() => handleDelete(doctor.id)}
-                            className="inline-flex h-9 items-center justify-center rounded-md border border-red-200 px-3 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 dark:border-red-900/60 dark:hover:bg-red-950/30"
+                            onClick={() =>
+                              handleStatusToggle(doctor.id, !doctor.isActive)
+                            }
+                            disabled={updatingDoctorId === doctor.id}
+                            className="inline-flex h-9 items-center justify-center rounded-md border px-3 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+                            style={{
+                              borderColor: doctor.isActive ? "#E5B4B4" : "#C6A56B",
+                              color: doctor.isActive ? "#B91C1C" : "#2B2B2B",
+                              backgroundColor: doctor.isActive ? "#FFF7F7" : "#FFFFFF",
+                            }}
                           >
-                            Delete
+                            {updatingDoctorId === doctor.id
+                              ? "Updating..."
+                              : doctor.isActive
+                                ? "Deactivate"
+                                : "Reactivate"}
                           </button>
                         </td>
                       </tr>

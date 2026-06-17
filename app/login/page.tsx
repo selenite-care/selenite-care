@@ -86,6 +86,8 @@ function LoginPageContent() {
       if (result.code === "email_not_verified") {
         setError("Please verify your email before logging in. Check your inbox.");
         setShowResendVerification(true);
+      } else if (result.code === "account_inactive") {
+        setError("This account has been deactivated. Please contact the admin.");
       } else {
         setError("Invalid email or password.");
       }

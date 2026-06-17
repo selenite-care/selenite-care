@@ -29,6 +29,8 @@ model User {
   memberships         Membership[]
   surveyProfile       SurveyProfile?
   dateOfBirth DateTime?
+  isActive Boolean @default(true)
+
 }
 
 model SurveyProfile {
@@ -109,6 +111,7 @@ model Doctor {
   userId       String?   @unique
   user         User?     @relation(fields: [userId], references: [id])
   bookings     Booking[]
+  isActive Boolean @default(true)
 }
 
 model Booking {
