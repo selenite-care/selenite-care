@@ -629,7 +629,7 @@ export default function AdminMembershipsPage() {
                                     ) : quotaData.quota.type === "specialization" ? (
                                       <div className="mt-4 grid gap-4 md:grid-cols-3">
                                         {specializationKeys.map((key) => {
-                                          const quota = quotaData.quota[key];
+                                          const quota = (quotaData.quota as SpecializationQuota)[key];
                                           const label = specializationLabels[key];
 
                                           return (
