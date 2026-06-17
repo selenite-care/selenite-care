@@ -150,14 +150,13 @@ export async function PATCH(request: Request, context: RouteContext) {
       id: true,
       name: true,
       designation: true,
-      specialization: true,
-      availability: true,
       bio: true,
+      availability: true,
       image: true,
+      slotDuration: true,
+      specialization: true,
       isActive: true,
       userId: true,
-      createdAt: true,
-      updatedAt: true,
     },
   });
 
