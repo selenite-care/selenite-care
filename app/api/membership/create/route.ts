@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
+import { isMembershipAvailable } from "@/lib/membershipAvailability";
 import type { MembershipTier } from "@prisma/client";
 
 export const runtime = "nodejs";
@@ -12,8 +13,8 @@ type CreateMembershipPayload = {
 
 const MEMBERSHIP_AMOUNTS: Record<MembershipTier, number> = {
   SIGNATURE: 490,
-  CRYSTAL: 2900,
-  PLATINUM: 6900,
+  CRYSTAL: 3990,
+  PLATINUM: 9990,
 };
 
 const MEMBERSHIP_TIER_ORDER: Record<MembershipTier, number> = {
@@ -106,7 +107,7 @@ function buildBenefitsSummary(tier: MembershipTier) {
 function getMembershipDurationDays(tier: MembershipTier) {
   switch (tier) {
     case "SIGNATURE":
-      return 90;
+      return 60;
     case "CRYSTAL":
       return 365;
     case "PLATINUM":
@@ -145,6 +146,13 @@ export async function POST(request: Request) {
     return Response.json(
       { error: "Tier and stripePaymentId are required." },
       { status: 400 },
+    );
+  }
+
+  if (!isMembershipAvailable(tier)) {
+    return Response.json(
+      { error: "This membership is coming soon and is not available yet." },
+      { status: 403 },
     );
   }
 

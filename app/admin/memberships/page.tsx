@@ -1,7 +1,7 @@
 "use client";
 
 import Papa from "papaparse";
-import { useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 
 type AdminMembership = {
   id: string;
@@ -26,12 +26,56 @@ type MembershipResponse = {
   error?: string;
 };
 
+type TotalQuota = {
+  type: "total";
+  limit: number;
+  used: number;
+  remaining: number;
+  isUnlimited: false;
+};
+
+type SpecializationQuotaValue = {
+  limit: number | null;
+  used: number;
+  remaining: number | null;
+  isUnlimited: boolean;
+};
+
+type SpecializationQuota = {
+  type: "specialization";
+  AESTHETICIAN: SpecializationQuotaValue;
+  NUTRITIONIST: SpecializationQuotaValue;
+  PSYCHIATRIST: SpecializationQuotaValue;
+};
+
+type MembershipQuotaResponse = {
+  membership: {
+    id: string;
+    tier: "SIGNATURE" | "CRYSTAL" | "PLATINUM";
+    status: "PENDING" | "ACTIVE" | "EXPIRED" | "CANCELLED";
+    expiresAt: string | null;
+  };
+  quota: TotalQuota | SpecializationQuota;
+};
+
 const membershipStatuses = [
   "All",
   "PENDING",
   "ACTIVE",
   "EXPIRED",
   "CANCELLED",
+] as const;
+
+const specializationLabels = {
+  AESTHETICIAN: "Aesthetician",
+  NUTRITIONIST: "Nutritionist",
+  PSYCHIATRIST: "Psychiatrist",
+} as const;
+
+const specializationKeys = [
+  "AESTHETICIAN",
+  "NUTRITIONIST",
+  "PSYCHIATRIST",
 ] as const;
 
 function getTierBadgeStyles(tier: AdminMembership["tier"]) {
@@ -114,6 +158,10 @@ function getDaysRemaining(expiresAt: string | null) {
   );
 }
 
+function formatQuotaValue(value: number | null) {
+  return value === null ? "Unlimited" : String(value);
+}
+
 export default function AdminMembershipsPage() {
   const [memberships, setMemberships] = useState<AdminMembership[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -122,6 +170,11 @@ export default function AdminMembershipsPage() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [expandedQuotaId, setExpandedQuotaId] = useState<string | null>(null);
+  const [quotaByMembershipId, setQuotaByMembershipId] = useState<
+    Record<string, MembershipQuotaResponse>
+  >({});
+  const [quotaLoadingId, setQuotaLoadingId] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadMemberships() {
@@ -181,6 +234,48 @@ export default function AdminMembershipsPage() {
       );
     } finally {
       setUpdatingId(null);
+    }
+  }
+
+  async function toggleQuotaView(membershipId: string) {
+    if (expandedQuotaId === membershipId) {
+      setExpandedQuotaId(null);
+      return;
+    }
+
+    setExpandedQuotaId(membershipId);
+
+    if (quotaByMembershipId[membershipId]) {
+      return;
+    }
+
+    setQuotaLoadingId(membershipId);
+
+    try {
+      const response = await fetch(`/api/admin/memberships/${membershipId}/quota`);
+      const data = (await response.json().catch(() => null)) as
+        | MembershipQuotaResponse
+        | { error?: string }
+        | null;
+
+      if (!response.ok || !data || !("quota" in data)) {
+        throw new Error(
+          data && "error" in data ? data.error ?? "Unable to load quota." : "Unable to load quota.",
+        );
+      }
+
+      setQuotaByMembershipId((current) => ({
+        ...current,
+        [membershipId]: data,
+      }));
+    } catch (quotaError) {
+      setError(
+        quotaError instanceof Error
+          ? quotaError.message
+          : "Unable to load membership quota.",
+      );
+    } finally {
+      setQuotaLoadingId(null);
     }
   }
 
@@ -370,98 +465,218 @@ export default function AdminMembershipsPage() {
                   </thead>
                   <tbody>
                     {filteredMemberships.map((membership) => {
-                  const paymentStatus = membership.payment?.status ?? "N/A";
-                  const isUpdating = updatingId === membership.id;
-                  const daysRemaining = getDaysRemaining(membership.expiresAt);
+                      const paymentStatus = membership.payment?.status ?? "N/A";
+                      const isUpdating = updatingId === membership.id;
+                      const daysRemaining = getDaysRemaining(membership.expiresAt);
+                      const isQuotaExpanded = expandedQuotaId === membership.id;
+                      const quotaData = quotaByMembershipId[membership.id];
+                      const isQuotaLoading = quotaLoadingId === membership.id;
 
-                  return (
-                    <tr
-                      key={membership.id}
-                      className="border-b border-black/10 last:border-0 dark:border-white/10"
-                    >
-                      <td className="px-4 py-4 font-mono text-xs text-foreground/70">
-                        {membership.membershipId}
-                      </td>
-                      <td className="px-4 py-4 text-foreground">
-                        {membership.user.name ?? membership.user.email}
-                      </td>
-                      <td className="px-4 py-4 text-foreground/70">
-                        {membership.user.phone ?? "-"}
-                      </td>
-                      <td className="px-4 py-4">
-                        <span
-                          className="inline-flex rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em]"
-                          style={getTierBadgeStyles(membership.tier)}
-                        >
-                          {membership.tier}
-                        </span>
-                      </td>
-                      <td className="px-4 py-4">
-                        <span
-                          className="inline-flex rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em]"
-                          style={getStatusBadgeStyles(membership.status)}
-                        >
-                          {membership.status}
-                        </span>
-                      </td>
-                      <td className="px-4 py-4">
-                        {membership.status === "PENDING" ? (
-                          <span className="text-sm font-medium text-foreground/70">
-                            Pending
-                          </span>
-                        ) : membership.status === "ACTIVE" && daysRemaining !== null ? (
-                          daysRemaining > 0 ? (
-                            <span className="text-sm font-medium text-emerald-600">
-                              {daysRemaining} day{daysRemaining === 1 ? "" : "s"}
-                            </span>
-                          ) : (
-                            <span className="text-sm font-medium text-red-600">
-                              Expired
-                            </span>
-                          )
-                        ) : membership.status === "EXPIRED" ? (
-                          <span className="text-sm font-medium text-red-600">
-                            Expired
-                          </span>
-                        ) : (
-                          <span className="text-sm font-medium text-foreground/70">
-                            -
-                          </span>
-                        )}
-                      </td>
-                      <td className="px-4 py-4">
-                        <span
-                          className="inline-flex rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em]"
-                          style={getPaymentBadgeStyles(paymentStatus)}
-                        >
-                          {paymentStatus}
-                        </span>
-                      </td>
-                      <td className="px-4 py-4 text-foreground/70">
-                        {new Date(membership.createdAt).toLocaleString()}
-                      </td>
-                      <td className="px-4 py-4">
-                        <div className="flex flex-wrap gap-2">
-                          {membership.status === "ACTIVE" ||
-                          membership.status === "PENDING" ? (
-                            <button
-                              type="button"
-                              onClick={() => handleCancelMembership(membership.id)}
-                              disabled={isUpdating}
-                              className="inline-flex h-9 items-center justify-center rounded-md border px-3 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
-                              style={{
-                                borderColor: "#C6A56B",
-                                color: "#2B2B2B",
-                                backgroundColor: "#FFFFFF",
-                              }}
-                            >
-                              {isUpdating ? "Cancelling..." : "Cancel"}
-                            </button>
+                      return (
+                        <Fragment key={membership.id}>
+                          <tr className="border-b border-black/10 last:border-0 dark:border-white/10">
+                            <td className="px-4 py-4 font-mono text-xs text-foreground/70">
+                              {membership.membershipId}
+                            </td>
+                            <td className="px-4 py-4 text-foreground">
+                              {membership.user.name ?? membership.user.email}
+                            </td>
+                            <td className="px-4 py-4 text-foreground/70">
+                              {membership.user.phone ?? "-"}
+                            </td>
+                            <td className="px-4 py-4">
+                              <span
+                                className="inline-flex rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em]"
+                                style={getTierBadgeStyles(membership.tier)}
+                              >
+                                {membership.tier}
+                              </span>
+                            </td>
+                            <td className="px-4 py-4">
+                              <span
+                                className="inline-flex rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em]"
+                                style={getStatusBadgeStyles(membership.status)}
+                              >
+                                {membership.status}
+                              </span>
+                            </td>
+                            <td className="px-4 py-4">
+                              {membership.status === "PENDING" ? (
+                                <span className="text-sm font-medium text-foreground/70">
+                                  Pending
+                                </span>
+                              ) : membership.status === "ACTIVE" && daysRemaining !== null ? (
+                                daysRemaining > 0 ? (
+                                  <span className="text-sm font-medium text-emerald-600">
+                                    {daysRemaining} day{daysRemaining === 1 ? "" : "s"}
+                                  </span>
+                                ) : (
+                                  <span className="text-sm font-medium text-red-600">
+                                    Expired
+                                  </span>
+                                )
+                              ) : membership.status === "EXPIRED" ? (
+                                <span className="text-sm font-medium text-red-600">
+                                  Expired
+                                </span>
+                              ) : (
+                                <span className="text-sm font-medium text-foreground/70">
+                                  -
+                                </span>
+                              )}
+                            </td>
+                            <td className="px-4 py-4">
+                              <span
+                                className="inline-flex rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em]"
+                                style={getPaymentBadgeStyles(paymentStatus)}
+                              >
+                                {paymentStatus}
+                              </span>
+                            </td>
+                            <td className="px-4 py-4 text-foreground/70">
+                              {new Date(membership.createdAt).toLocaleString()}
+                            </td>
+                            <td className="px-4 py-4">
+                              <div className="flex flex-wrap gap-2">
+                                {membership.status === "ACTIVE" ? (
+                                  <button
+                                    type="button"
+                                    onClick={() => toggleQuotaView(membership.id)}
+                                    disabled={isQuotaLoading}
+                                    className="inline-flex h-9 items-center justify-center rounded-md border px-3 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+                                    style={{
+                                      borderColor: "#D8C7B5",
+                                      color: "#2B2B2B",
+                                      backgroundColor: "#F8F5F0",
+                                    }}
+                                  >
+                                    {isQuotaLoading
+                                      ? "Loading quota..."
+                                      : isQuotaExpanded
+                                        ? "Hide Quota"
+                                        : "View Quota"}
+                                  </button>
+                                ) : null}
+                                {membership.status === "ACTIVE" ||
+                                membership.status === "PENDING" ? (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleCancelMembership(membership.id)}
+                                    disabled={isUpdating}
+                                    className="inline-flex h-9 items-center justify-center rounded-md border px-3 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+                                    style={{
+                                      borderColor: "#C6A56B",
+                                      color: "#2B2B2B",
+                                      backgroundColor: "#FFFFFF",
+                                    }}
+                                  >
+                                    {isUpdating ? "Cancelling..." : "Cancel"}
+                                  </button>
+                                ) : null}
+                              </div>
+                            </td>
+                          </tr>
+                          {isQuotaExpanded ? (
+                            <tr className="border-b border-black/10 bg-[#FCFAF7] dark:border-white/10">
+                              <td colSpan={9} className="px-4 py-5">
+                                {quotaData ? (
+                                  <div className="rounded-lg border border-[#D8C7B5] bg-white p-4">
+                                    <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                                      <div>
+                                        <p
+                                          className="text-sm font-medium"
+                                          style={{ color: "#B8A89A" }}
+                                        >
+                                          Consultation Usage Breakdown
+                                        </p>
+                                        <p
+                                          className="mt-2 text-base font-semibold"
+                                          style={{ color: "#2B2B2B" }}
+                                        >
+                                          Current usage within this membership period
+                                        </p>
+                                      </div>
+                                      <span
+                                        className="inline-flex rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em]"
+                                        style={getTierBadgeStyles(membership.tier)}
+                                      >
+                                        {membership.tier}
+                                      </span>
+                                    </div>
+
+                                    {quotaData.quota.type === "total" ? (
+                                      <div
+                                        className="mt-4 rounded-xl border px-4 py-3"
+                                        style={{
+                                          borderColor: "#D8C7B5",
+                                          backgroundColor: "#F8F5F0",
+                                        }}
+                                      >
+                                        <p
+                                          className="text-sm font-medium"
+                                          style={{ color: "#2B2B2B" }}
+                                        >
+                                          {quotaData.quota.used} of {quotaData.quota.limit} consultations used
+                                        </p>
+                                        <p
+                                          className="mt-2 text-sm"
+                                          style={{ color: "#6E6257" }}
+                                        >
+                                          {quotaData.quota.remaining} consultation
+                                          {quotaData.quota.remaining === 1 ? "" : "s"} remaining
+                                        </p>
+                                      </div>
+                                    ) : quotaData.quota.type === "specialization" ? (
+                                      <div className="mt-4 grid gap-4 md:grid-cols-3">
+                                        {specializationKeys.map((key) => {
+                                          const quota = (quotaData.quota as SpecializationQuota)[key];
+                                          const label = specializationLabels[key];
+
+                                          return (
+                                            <div
+                                              key={key}
+                                              className="rounded-xl border px-4 py-3"
+                                              style={{
+                                                borderColor: "#D8C7B5",
+                                                backgroundColor: "#F8F5F0",
+                                              }}
+                                            >
+                                              <p
+                                                className="text-sm font-semibold"
+                                                style={{ color: "#2B2B2B" }}
+                                              >
+                                                {label}
+                                              </p>
+                                              <p
+                                                className="mt-2 text-sm font-medium"
+                                                style={{ color: "#6E6257" }}
+                                              >
+                                                {quota.used}/{formatQuotaValue(quota.limit)} used
+                                              </p>
+                                              <p
+                                                className="mt-1 text-xs"
+                                                style={{ color: "#8C7967" }}
+                                              >
+                                                {quota.isUnlimited
+                                                  ? "Unlimited remaining"
+                                                  : `${quota.remaining ?? 0} remaining`}
+                                              </p>
+                                            </div>
+                                          );
+                                        })}
+                                      </div>
+                                    ) : null}
+                                  </div>
+                                ) : (
+                                  <p className="text-sm text-foreground/70">
+                                    Quota details are not available yet.
+                                  </p>
+                                )}
+                              </td>
+                            </tr>
                           ) : null}
-                        </div>
-                      </td>
-                    </tr>
-                  );
+                        </Fragment>
+                      );
                     })}
                   </tbody>
                 </table>

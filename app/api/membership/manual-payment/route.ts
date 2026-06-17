@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
+import { isMembershipAvailable } from "@/lib/membershipAvailability";
 import type { MembershipTier, PaymentMethod } from "@prisma/client";
 
 export const runtime = "nodejs";
@@ -13,9 +14,10 @@ type ManualPaymentPayload = {
   proofImageUrl?: unknown;
 };
 
-const STATIC_MEMBERSHIP_AMOUNTS: Record<Exclude<MembershipTier, "SIGNATURE">, number> = {
-  CRYSTAL: 2900,
-  PLATINUM: 6900,
+const MEMBERSHIP_AMOUNTS: Record<MembershipTier, number> = {
+  SIGNATURE: 490,
+  CRYSTAL: 3990,
+  PLATINUM: 9990,
 };
 
 function parseTier(value: unknown): MembershipTier | null {
@@ -75,31 +77,8 @@ async function generateMembershipId() {
   return `${prefix}${String(latestSerial + 1).padStart(4, "0")}`;
 }
 
-async function resolveMembershipAmount(tier: MembershipTier) {
-  if (tier !== "SIGNATURE") {
-    return STATIC_MEMBERSHIP_AMOUNTS[tier];
-  }
-
-  const signatureService = await db.service.findFirst({
-    where: {
-      name: {
-        contains: "Signature",
-        mode: "insensitive",
-      },
-    },
-    select: {
-      price: true,
-    },
-    orderBy: {
-      price: "asc",
-    },
-  });
-
-  if (!signatureService) {
-    throw new Error("Signature membership service not found.");
-  }
-
-  return signatureService.price;
+function resolveMembershipAmount(tier: MembershipTier) {
+  return MEMBERSHIP_AMOUNTS[tier];
 }
 
 function formatTierLabel(tier: MembershipTier) {
@@ -155,6 +134,13 @@ export async function POST(request: Request) {
     );
   }
 
+  if (!isMembershipAvailable(tier)) {
+    return Response.json(
+      { error: "This membership is coming soon and is not available yet." },
+      { status: 403 },
+    );
+  }
+
   const user = await db.user.findUnique({
     where: { id: session.user.id },
     select: {
@@ -170,7 +156,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const amount = await resolveMembershipAmount(tier);
+    const amount = resolveMembershipAmount(tier);
     const membershipId = await generateMembershipId();
     const bankTransactionRef =
       senderNumber.length > 0

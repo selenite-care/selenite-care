@@ -15,6 +15,7 @@ export async function GET() {
       availability: true,
       bio: true,
       image: true,
+      specialization: true,
     },
   });
 

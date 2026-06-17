@@ -13,6 +13,7 @@ import {
 } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
+import { isMembershipAvailable } from "@/lib/membershipAvailability";
 import { BRAC_BANK_DETAILS } from "@/lib/bankDetails";
 
 const stripePublishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
@@ -25,6 +26,7 @@ type MembershipTier = "SIGNATURE" | "CRYSTAL" | "PLATINUM";
 type MembershipTierDetails = {
   name: string;
   price: number;
+  originalPrice?: number;
   benefits: string[];
 };
 
@@ -48,6 +50,7 @@ const MEMBERSHIPS: Record<MembershipTier, MembershipTierDetails> = {
   SIGNATURE: {
     name: "Signature Membership",
     price: 490,
+    originalPrice: 990,
     benefits: [
       "100% off on the 2nd consultation",
       "120 days of online support",
@@ -56,7 +59,7 @@ const MEMBERSHIPS: Record<MembershipTier, MembershipTierDetails> = {
   },
   CRYSTAL: {
     name: "Crystal Membership",
-    price: 2900,
+    price: 3990,
     benefits: [
       "5 complimentary follow-up consultations",
       "Specialist access with aesthetician, nutritionist, and psychiatrist support",
@@ -65,7 +68,7 @@ const MEMBERSHIPS: Record<MembershipTier, MembershipTierDetails> = {
   },
   PLATINUM: {
     name: "Platinum Membership",
-    price: 6900,
+    price: 9990,
     benefits: [
       "30 complimentary follow-up consultations",
       "Extended specialist access and long-term online support",
@@ -940,8 +943,70 @@ function MembershipPaymentPageContent() {
   }
 
   const membership = MEMBERSHIPS[tier];
+  const isTierAvailable = isMembershipAvailable(tier);
 
   const cardPaymentsAvailable = Boolean(stripePublishableKey && stripePromise);
+
+  if (!isTierAvailable) {
+    return (
+      <section className="flex flex-1 bg-[#F8F5F0] px-6 py-16">
+        <div className="mx-auto w-full max-w-4xl">
+          <div
+            className="rounded-2xl border bg-white p-8 text-center"
+            style={{ borderColor: "#D8C7B5" }}
+          >
+            <div
+              className="mx-auto inline-flex rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em]"
+              style={{
+                backgroundColor: "#2B2B2B",
+                color: "#F8F5F0",
+              }}
+            >
+              Coming Soon
+            </div>
+            <h1
+              className="mt-5 text-3xl font-bold tracking-tight sm:text-4xl"
+              style={{
+                color: "#2B2B2B",
+                fontFamily: "Playfair Display, serif",
+              }}
+            >
+              {membership.name} is not available yet
+            </h1>
+            <p
+              className="mx-auto mt-4 max-w-2xl text-sm leading-7 sm:text-base"
+              style={{ color: "#6E6257" }}
+            >
+              We are preparing this membership for launch. Please sit tight — we will make it available soon.
+            </p>
+            <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
+              <a
+                href="/services"
+                className="inline-flex h-12 items-center justify-center rounded-md px-5 text-sm font-medium transition-colors hover:bg-[#B8A89A]"
+                style={{
+                  backgroundColor: "#2B2B2B",
+                  color: "#F8F5F0",
+                }}
+              >
+                Back to Memberships
+              </a>
+              <a
+                href="/contact"
+                className="inline-flex h-12 items-center justify-center rounded-md border px-5 text-sm font-medium transition-colors"
+                style={{
+                  borderColor: "#D8C7B5",
+                  backgroundColor: "#F8F5F0",
+                  color: "#2B2B2B",
+                }}
+              >
+                Contact Us
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="flex flex-1 bg-[#F8F5F0] px-6 py-16">
@@ -1059,15 +1124,53 @@ function MembershipPaymentPageContent() {
               <p className="text-base font-semibold" style={{ color: "#2B2B2B" }}>
                 {membership.name}
               </p>
-              <p
-                className="mt-3 text-2xl font-semibold"
-                style={{
-                  color: "#C6A56B",
-                  fontFamily: "Playfair Display, serif",
-                }}
-              >
-                {formatBdt(membership.price)}
-              </p>
+              {tier === "SIGNATURE" && membership.originalPrice ? (
+                <>
+                  <div
+                    className="mt-3 inline-flex rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em]"
+                    style={{
+                      backgroundColor: "#2B2B2B",
+                      color: "#F8F5F0",
+                    }}
+                  >
+                    LIMITED TIME - 51% OFF
+                  </div>
+                  <div className="mt-3 flex flex-wrap items-baseline gap-3">
+                    <span
+                      className="text-sm font-semibold"
+                      style={{
+                        color: "#8C7967",
+                        textDecoration: "line-through",
+                        textDecorationThickness: "1.5px",
+                      }}
+                    >
+                      {formatBdt(membership.originalPrice)}
+                    </span>
+                    <p
+                      className="text-3xl font-semibold"
+                      style={{
+                        color: "#C6A56B",
+                        fontFamily: "Playfair Display, serif",
+                      }}
+                    >
+                      {formatBdt(membership.price)}
+                    </p>
+                  </div>
+                  <p className="mt-2 text-xs leading-6" style={{ color: "#8C7967" }}>
+                    Offer valid for a limited time and subject to change.
+                  </p>
+                </>
+              ) : (
+                <p
+                  className="mt-3 text-2xl font-semibold"
+                  style={{
+                    color: "#C6A56B",
+                    fontFamily: "Playfair Display, serif",
+                  }}
+                >
+                  {formatBdt(membership.price)}
+                </p>
+              )}
             </div>
 
             <div className="mt-6 border-t pt-5" style={{ borderColor: "#D8C7B5" }}>

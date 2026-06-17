@@ -68,7 +68,7 @@ function parsePaymentMethod(value: unknown): PaymentMethod | null {
 function getMembershipDurationDays(tier: MembershipTier) {
   switch (tier) {
     case "SIGNATURE":
-      return 90;
+      return 60;
     case "CRYSTAL":
       return 365;
     case "PLATINUM":

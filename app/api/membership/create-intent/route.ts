@@ -1,4 +1,5 @@
 import { auth } from "@/auth";
+import { isMembershipAvailable } from "@/lib/membershipAvailability";
 import { stripe } from "@/lib/stripe";
 
 export const runtime = "nodejs";
@@ -13,8 +14,8 @@ const BDT_PER_USD = 122;
 
 const MEMBERSHIP_AMOUNTS: Record<MembershipTier, number> = {
   SIGNATURE: 490,
-  CRYSTAL: 2900,
-  PLATINUM: 6900,
+  CRYSTAL: 3990,
+  PLATINUM: 9990,
 };
 
 async function requireSession() {
@@ -59,6 +60,13 @@ export async function POST(request: Request) {
     return Response.json(
       { error: "A valid membership tier is required." },
       { status: 400 },
+    );
+  }
+
+  if (!isMembershipAvailable(tier)) {
+    return Response.json(
+      { error: "This membership is coming soon and is not available yet." },
+      { status: 403 },
     );
   }
 

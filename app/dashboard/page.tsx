@@ -1,16 +1,18 @@
 import Link from "next/link";
 import NextAuth from "next-auth";
 import { redirect } from "next/navigation";
+import ClientQuotaSummaryCard from "@/components/membership/ClientQuotaSummaryCard";
 import MembershipCountdown from "@/components/membership/MembershipCountdown";
 import { authConfig } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { isMembershipAvailable } from "@/lib/membershipAvailability";
 
 const { auth } = NextAuth(authConfig);
 
 const MEMBERSHIP_AMOUNTS = {
   SIGNATURE: 490,
-  CRYSTAL: 2900,
-  PLATINUM: 6900,
+  CRYSTAL: 3990,
+  PLATINUM: 9990,
 } as const;
 
 function getTierStyles(tier: "SIGNATURE" | "CRYSTAL" | "PLATINUM" | string) {
@@ -39,22 +41,22 @@ function getUpgradeOptions(tier: "SIGNATURE" | "CRYSTAL" | "PLATINUM") {
     return [
       {
         tier: "CRYSTAL" as const,
-        label: `Upgrade to Crystal — ${MEMBERSHIP_AMOUNTS.CRYSTAL} BDT`,
+        label: `Upgrade to Crystal - ${MEMBERSHIP_AMOUNTS.CRYSTAL} BDT`,
       },
       {
         tier: "PLATINUM" as const,
-        label: `Upgrade to Platinum — ${MEMBERSHIP_AMOUNTS.PLATINUM} BDT`,
+        label: `Upgrade to Platinum - ${MEMBERSHIP_AMOUNTS.PLATINUM} BDT`,
       },
-    ];
+    ].filter((option) => isMembershipAvailable(option.tier));
   }
 
   if (tier === "CRYSTAL") {
     return [
       {
         tier: "PLATINUM" as const,
-        label: `Upgrade to Platinum — ${MEMBERSHIP_AMOUNTS.PLATINUM} BDT`,
+        label: `Upgrade to Platinum - ${MEMBERSHIP_AMOUNTS.PLATINUM} BDT`,
       },
-    ];
+    ].filter((option) => isMembershipAvailable(option.tier));
   }
 
   return [];
@@ -112,6 +114,11 @@ export default async function DashboardPage() {
       (membership.status === "ACTIVE" &&
         (!membership.expiresAt || membership.expiresAt.getTime() <= Date.now())));
 
+  const upgradeOptions =
+    membership?.tier && membership.status === "ACTIVE"
+      ? getUpgradeOptions(membership.tier)
+      : [];
+
   return (
     <section>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
@@ -155,7 +162,9 @@ export default async function DashboardPage() {
                 tier={membership.tier}
               />
 
-              {membership.tier !== "PLATINUM" ? (
+              <ClientQuotaSummaryCard />
+
+              {membership.tier !== "PLATINUM" && upgradeOptions.length > 0 ? (
                 <article
                   className="rounded-lg border p-6"
                   style={{
@@ -189,7 +198,7 @@ export default async function DashboardPage() {
                     </div>
 
                     <div className="flex w-full flex-col gap-3 sm:w-auto">
-                      {getUpgradeOptions(membership.tier).map((option) => (
+                      {upgradeOptions.map((option) => (
                         <Link
                           key={option.tier}
                           href={`/membership/payment?tier=${option.tier}`}

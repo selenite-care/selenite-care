@@ -107,6 +107,7 @@ model Doctor {
   bio          String?
   availability String
   image        String?
+  specialization DoctorSpecialization @default(AESTHETICIAN)
   slotDuration Int       @default(15)
   userId       String?   @unique
   user         User?     @relation(fields: [userId], references: [id])
@@ -230,6 +231,11 @@ enum Role {
   DOCTOR
   CRM
   ADMIN
+}
+enum DoctorSpecialization {
+  AESTHETICIAN
+  NUTRITIONIST
+  PSYCHIATRIST
 }
 
 enum BookingStatus {

@@ -68,9 +68,9 @@ function getMembershipAmount(tier: MembershipTier) {
     case "SIGNATURE":
       return "490 BDT";
     case "CRYSTAL":
-      return "2900 BDT";
+      return "3990 BDT";
     case "PLATINUM":
-      return "6900 BDT";
+      return "9990 BDT";
     default:
       return "0 BDT";
   }

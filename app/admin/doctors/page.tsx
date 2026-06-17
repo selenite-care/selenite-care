@@ -7,6 +7,7 @@ type Doctor = {
   id: string;
   name: string;
   designation: string;
+  specialization: "AESTHETICIAN" | "NUTRITIONIST" | "PSYCHIATRIST";
   availability: string;
   bio: string | null;
   image: string | null;
@@ -17,6 +18,7 @@ type DoctorFormState = {
   name: string;
   email: string;
   designation: string;
+  specialization: "AESTHETICIAN" | "NUTRITIONIST" | "PSYCHIATRIST";
   startDay: string;
   endDay: string;
   startTime: string;
@@ -34,6 +36,7 @@ const emptyForm: DoctorFormState = {
   name: "",
   email: "",
   designation: "",
+  specialization: "AESTHETICIAN",
   startDay: "Wed",
   endDay: "Fri",
   startTime: "1PM",
@@ -42,6 +45,11 @@ const emptyForm: DoctorFormState = {
 };
 
 const dayOptions = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const specializationOptions = [
+  { value: "AESTHETICIAN", label: "Aesthetician" },
+  { value: "NUTRITIONIST", label: "Nutritionist" },
+  { value: "PSYCHIATRIST", label: "Psychiatrist" },
+] as const;
 
 const timeOptions = [
   "6AM",
@@ -173,6 +181,7 @@ export default function AdminDoctorsPage() {
           name: form.name,
           email: form.email,
           designation: form.designation,
+          specialization: form.specialization,
           availability: formatAvailability(form),
           bio: form.bio,
           image,
@@ -397,6 +406,7 @@ export default function AdminDoctorsPage() {
                     <tr>
                       <th className="px-6 py-3 font-medium">Name</th>
                       <th className="px-6 py-3 font-medium">Designation</th>
+                      <th className="px-6 py-3 font-medium">Specialization</th>
                       <th className="px-6 py-3 font-medium">Availability</th>
                       <th className="px-6 py-3 font-medium">Bio</th>
                       <th className="px-6 py-3 font-medium">Action</th>
@@ -426,6 +436,11 @@ export default function AdminDoctorsPage() {
                         </td>
                         <td className="px-6 py-4 text-foreground/70">
                           {doctor.designation}
+                        </td>
+                        <td className="px-6 py-4 text-foreground/70">
+                          {specializationOptions.find(
+                            (option) => option.value === doctor.specialization,
+                          )?.label ?? doctor.specialization}
                         </td>
                         <td className="px-6 py-4 text-foreground/70">
                           {doctor.availability}
@@ -528,6 +543,33 @@ export default function AdminDoctorsPage() {
                     required
                     className="mt-2 h-11 w-full rounded-md border border-black/10 bg-transparent px-3 text-sm outline-none transition-colors focus:border-foreground dark:border-white/10"
                   />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="specialization"
+                    className="block text-sm font-medium text-foreground"
+                  >
+                    Specialization
+                  </label>
+                  <select
+                    id="specialization"
+                    value={form.specialization}
+                    onChange={(event) =>
+                      setForm((current) => ({
+                        ...current,
+                        specialization: event.target.value as DoctorFormState["specialization"],
+                      }))
+                    }
+                    required
+                    className="mt-2 h-11 w-full rounded-md border border-black/10 bg-transparent px-3 text-sm outline-none transition-colors focus:border-foreground dark:border-white/10"
+                  >
+                    {specializationOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
 
