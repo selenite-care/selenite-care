@@ -23,14 +23,16 @@ const values = [
 
 const teamMembers = [
   {
-    name: "Dr. Safna",
+    name: "Dr. Safna Mehreen",
     role: "Wellness Consultant",
+    image: "/doctors/dr safna.jpeg",
     description:
       "Focused on calm, practical care plans that help clients feel understood and supported from the very first conversation.",
   },
   {
     name: "Dr. Hritisha",
     role: "Care Specialist",
+    image: null,
     description:
       "Guides clients through their next steps with clarity, warmth, and routines that feel realistic to maintain.",
   },
@@ -280,18 +282,35 @@ export default function AboutPage() {
                   borderColor: "#D8C7B5",
                 }}
               >
-                <div className="flex items-center justify-between">
-                  <div
-                    className="flex h-14 w-14 items-center justify-center rounded-full text-lg font-semibold"
-                    style={{
-                      backgroundColor: "#C6A56B",
-                      color: "#F8F5F0",
-                    }}
-                  >
-                    {index + 1}
+                <div className="flex items-start justify-between gap-4">
+                  <div className="relative h-24 w-24 overflow-hidden rounded-2xl border" style={{ borderColor: "#D8C7B5", backgroundColor: "#F8F5F0" }}>
+                    {member.image ? (
+                      <Image
+                        src={member.image}
+                        alt={member.name}
+                        fill
+                        className="object-cover"
+                        sizes="96px"
+                      />
+                    ) : (
+                      <div
+                        className="flex h-full w-full items-center justify-center text-lg font-semibold"
+                        style={{
+                          backgroundColor: "#C6A56B",
+                          color: "#F8F5F0",
+                        }}
+                      >
+                        {member.name
+                          .split(" ")
+                          .filter(Boolean)
+                          .slice(0, 2)
+                          .map((part) => part[0])
+                          .join("")}
+                      </div>
+                    )}
                   </div>
                   <div
-                    className="h-px w-16"
+                    className="mt-12 h-px flex-1"
                     style={{ backgroundColor: "rgba(198, 165, 107, 0.45)" }}
                   />
                 </div>
