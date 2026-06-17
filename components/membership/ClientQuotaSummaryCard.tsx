@@ -197,7 +197,6 @@ export default function ClientQuotaSummaryCard() {
     {specializationKeys.map((key) => {
       const quota = (quotaData.quota as SpecializationQuota)[key];
       const label = specializationLabels[key];
-//quota fixed
       return (
               <div
                 key={key}
