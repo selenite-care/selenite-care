@@ -72,6 +72,12 @@ const specializationLabels = {
   PSYCHIATRIST: "Psychiatrist",
 } as const;
 
+const specializationKeys = [
+  "AESTHETICIAN",
+  "NUTRITIONIST",
+  "PSYCHIATRIST",
+] as const;
+
 function getTierBadgeStyles(tier: AdminMembership["tier"]) {
   switch (tier) {
     case "PLATINUM":
@@ -620,50 +626,46 @@ export default function AdminMembershipsPage() {
                                           {quotaData.quota.remaining === 1 ? "" : "s"} remaining
                                         </p>
                                       </div>
-                                    ) : (
+                                    ) : quotaData.quota.type === "specialization" ? (
                                       <div className="mt-4 grid gap-4 md:grid-cols-3">
-                                        {Object.entries(specializationLabels).map(
-                                          ([key, label]) => {
-                                            const quota =
-                                              quotaData.quota[
-                                                key as keyof typeof specializationLabels
-                                              ];
+                                        {specializationKeys.map((key) => {
+                                          const quota = quotaData.quota[key];
+                                          const label = specializationLabels[key];
 
-                                            return (
-                                              <div
-                                                key={key}
-                                                className="rounded-xl border px-4 py-3"
-                                                style={{
-                                                  borderColor: "#D8C7B5",
-                                                  backgroundColor: "#F8F5F0",
-                                                }}
+                                          return (
+                                            <div
+                                              key={key}
+                                              className="rounded-xl border px-4 py-3"
+                                              style={{
+                                                borderColor: "#D8C7B5",
+                                                backgroundColor: "#F8F5F0",
+                                              }}
+                                            >
+                                              <p
+                                                className="text-sm font-semibold"
+                                                style={{ color: "#2B2B2B" }}
                                               >
-                                                <p
-                                                  className="text-sm font-semibold"
-                                                  style={{ color: "#2B2B2B" }}
-                                                >
-                                                  {label}
-                                                </p>
-                                                <p
-                                                  className="mt-2 text-sm font-medium"
-                                                  style={{ color: "#6E6257" }}
-                                                >
-                                                  {quota.used}/{formatQuotaValue(quota.limit)} used
-                                                </p>
-                                                <p
-                                                  className="mt-1 text-xs"
-                                                  style={{ color: "#8C7967" }}
-                                                >
-                                                  {quota.isUnlimited
-                                                    ? "Unlimited remaining"
-                                                    : `${quota.remaining ?? 0} remaining`}
-                                                </p>
-                                              </div>
-                                            );
-                                          },
-                                        )}
+                                                {label}
+                                              </p>
+                                              <p
+                                                className="mt-2 text-sm font-medium"
+                                                style={{ color: "#6E6257" }}
+                                              >
+                                                {quota.used}/{formatQuotaValue(quota.limit)} used
+                                              </p>
+                                              <p
+                                                className="mt-1 text-xs"
+                                                style={{ color: "#8C7967" }}
+                                              >
+                                                {quota.isUnlimited
+                                                  ? "Unlimited remaining"
+                                                  : `${quota.remaining ?? 0} remaining`}
+                                              </p>
+                                            </div>
+                                          );
+                                        })}
                                       </div>
-                                    )}
+                                    ) : null}
                                   </div>
                                 ) : (
                                   <p className="text-sm text-foreground/70">

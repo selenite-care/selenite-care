@@ -40,6 +40,12 @@ const specializationLabels = {
   PSYCHIATRIST: "Psychiatrist",
 } as const;
 
+const specializationKeys = [
+  "AESTHETICIAN",
+  "NUTRITIONIST",
+  "PSYCHIATRIST",
+] as const;
+
 function formatQuotaValue(value: number | null) {
   return value === null ? "Unlimited" : String(value);
 }
@@ -186,12 +192,13 @@ export default function ClientQuotaSummaryCard() {
             {quotaData.quota.remaining === 1 ? "" : "s"} remaining
           </p>
         </div>
-      ) : (
-        <div className="mt-5 grid gap-4 md:grid-cols-3">
-          {Object.entries(specializationLabels).map(([key, label]) => {
-            const quota = quotaData.quota[key as keyof typeof specializationLabels];
+      ) : quotaData.quota.type === "specialization" ? (
+  <div className="mt-5 grid gap-4 md:grid-cols-3">
+    {specializationKeys.map((key) => {
+      const quota = (quotaData.quota as SpecializationQuota)[key];
+      const label = specializationLabels[key];
 
-            return (
+      return (
               <div
                 key={key}
                 className="rounded-2xl border px-5 py-4"
@@ -215,7 +222,7 @@ export default function ClientQuotaSummaryCard() {
             );
           })}
         </div>
-      )}
+      ) : null}
     </article>
   );
 }
