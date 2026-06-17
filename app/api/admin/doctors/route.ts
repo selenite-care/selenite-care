@@ -7,7 +7,6 @@ import { sendEmail } from "@/lib/email";
 const { auth } = NextAuth(authConfig);
 
 type DoctorPayload = {
-  id?: unknown;
   name?: unknown;
   email?: unknown;
   designation?: unknown;
@@ -115,6 +114,7 @@ export async function GET() {
       availability: true,
       bio: true,
       image: true,
+      isActive: true,
     },
   });
 
@@ -205,25 +205,4 @@ export async function POST(request: Request) {
     },
     { status: 201 },
   );
-}
-
-export async function DELETE(request: Request) {
-  const adminError = await requireAdmin();
-
-  if (adminError) {
-    return adminError;
-  }
-
-  const body = (await request.json()) as DoctorPayload;
-  const id = typeof body.id === "string" ? body.id : "";
-
-  if (!id) {
-    return Response.json({ error: "Doctor ID is required." }, { status: 400 });
-  }
-
-  await db.doctor.delete({
-    where: { id },
-  });
-
-  return Response.json({ success: true });
 }
