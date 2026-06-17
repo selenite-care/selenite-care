@@ -25,7 +25,7 @@ const teamMembers = [
   {
     name: "Dr. Safna Mehreen",
     role: "Wellness Consultant",
-    image: "/doctors/dr safna.jpeg",
+    image: "/doctors/dr safna2.jpeg",
     description:
       "Focused on calm, practical care plans that help clients feel understood and supported from the very first conversation.",
   },
