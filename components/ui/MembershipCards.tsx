@@ -122,6 +122,10 @@ type Step = {
   title: string;
   validity: string;
   cost: string;
+  originalCost?: string;
+  discountBadge?: string;
+  priceNote?: string;
+  statusBadge?: string;
   description: string;
   tier: string;
 };
@@ -255,6 +259,26 @@ export function MembershipCard({
         {cfg.label}
       </div>
 
+      {step.statusBadge ? (
+        <div
+          style={{
+            position: "absolute",
+            top: 18,
+            right: 92,
+            backgroundColor: "#2B2B2B",
+            color: "#F8F5F0",
+            fontSize: 10,
+            fontWeight: 700,
+            letterSpacing: "0.08em",
+            textTransform: "uppercase",
+            padding: "3px 10px",
+            borderRadius: 99,
+          }}
+        >
+          {step.statusBadge}
+        </div>
+      ) : null}
+
       <div
         style={{
           width: 44, height: 44, background: cfg.badgeBg, borderRadius: "50%",
@@ -276,12 +300,71 @@ export function MembershipCard({
 
       <div style={{ height: 1.5, width: 40, background: cfg.badgeBg, borderRadius: 99, margin: "12px 0" }} />
 
-      <p style={{ color: cfg.costColor, fontSize: 22, fontWeight: 800, fontFamily: "Playfair Display, serif", letterSpacing: "-0.01em" }}>
-        {step.cost}
-      </p>
+      {step.discountBadge ? (
+        <div
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            borderRadius: 999,
+            backgroundColor: "#2B2B2B",
+            color: "#F8F5F0",
+            fontSize: 10,
+            fontWeight: 700,
+            letterSpacing: "0.08em",
+            textTransform: "uppercase",
+            padding: "5px 10px",
+            marginBottom: 10,
+          }}
+        >
+          {step.discountBadge}
+        </div>
+      ) : null}
+
+      {step.originalCost ? (
+        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "baseline", gap: 10 }}>
+          <span
+            style={{
+              color: "#8C7967",
+              fontSize: 14,
+              fontWeight: 600,
+              textDecoration: "line-through",
+              textDecorationThickness: "1.5px",
+            }}
+          >
+            {step.originalCost}
+          </span>
+          <p
+            style={{
+              color: "#C6A56B",
+              fontSize: 24,
+              fontWeight: 800,
+              fontFamily: "Playfair Display, serif",
+              letterSpacing: "-0.01em",
+            }}
+          >
+            {step.cost}
+          </p>
+        </div>
+      ) : (
+        <p style={{ color: cfg.costColor, fontSize: 22, fontWeight: 800, fontFamily: "Playfair Display, serif", letterSpacing: "-0.01em" }}>
+          {step.cost}
+        </p>
+      )}
       <p style={{ color: cfg.validityColor, fontSize: 12, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase", marginTop: 4 }}>
         {step.validity}
       </p>
+      {step.priceNote ? (
+        <p
+          style={{
+            color: "#8C7967",
+            fontSize: 11,
+            lineHeight: 1.5,
+            marginTop: 8,
+          }}
+        >
+          {step.priceNote}
+        </p>
+      ) : null}
       <p style={{ color: cfg.descColor, fontSize: 13, lineHeight: 1.65, marginTop: 14 }}>
         {step.description}
       </p>

@@ -3,6 +3,10 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
+import {
+  getMembershipAvailabilityLabel,
+  isMembershipAvailable,
+} from "@/lib/membershipAvailability";
 import TermsAndConditionsModal from "@/components/membership/TermsAndConditionsModal";
 import ViewportAnimatedSection from "@/components/ui/ViewportAnimatedSection";
 import { MembershipCard } from "@/components/ui/MembershipCards";
@@ -10,8 +14,11 @@ import { MembershipCard } from "@/components/ui/MembershipCards";
 const steps = [
   {
     title: "Signature Membership",
-    validity: "Valid for 3 Months",
-    cost: "BDT 490",
+    validity: "Valid for 2 Months",
+    cost: "490 BDT",
+    originalCost: "990 BDT",
+    discountBadge: "LIMITED TIME - 51% OFF",
+    priceNote: "Offer valid for a limited time and subject to change.",
     description:
       "A perfect starting point for individuals seeking professional skincare guidance and routine development.",
     tier: "signature",
@@ -19,7 +26,7 @@ const steps = [
   {
     title: "Crystal Membership",
     validity: "Valid for 12 Months",
-    cost: "BDT 2,900",
+    cost: "3,990 BDT",
     description:
       "Designed for individuals committed to achieving long-term skin improvement through regular monitoring and expert guidance.",
     tier: "crystal",
@@ -27,7 +34,7 @@ const steps = [
   {
     title: "Platinum Membership",
     validity: "Valid for 36 Months",
-    cost: "BDT 6,900",
+    cost: "9,990 BDT",
     description:
       "A complete skin transformation program combining skincare, nutrition, wellness, and continuous progress monitoring.",
     tier: "platinum",
@@ -45,6 +52,9 @@ type MembershipTier = {
   title: string;
   validity: string;
   cost: string;
+  originalCost?: string;
+  discountBadge?: string;
+  priceNote?: string;
   description: string;
   accentColor: string;
   benefits: BenefitItem[];
@@ -78,8 +88,11 @@ const memberships: MembershipTier[] = [
     key: "signature",
     tierValue: "SIGNATURE",
     title: "Signature Membership",
-    validity: "Valid for 3 Months",
-    cost: "BDT 490",
+    validity: "Valid for 2 Months",
+    cost: "490 BDT",
+    originalCost: "990 BDT",
+    discountBadge: "LIMITED TIME - 51% OFF",
+    priceNote: "Offer valid for a limited time and subject to change.",
     description:
       "A perfect starting point for individuals seeking professional skincare guidance and routine development.",
     accentColor: "#C6A56B",
@@ -104,7 +117,7 @@ const memberships: MembershipTier[] = [
     tierValue: "CRYSTAL",
     title: "Crystal Membership",
     validity: "Valid for 12 Months",
-    cost: "BDT 2,900",
+    cost: "3,990 BDT",
     description:
       "Designed for individuals committed to achieving long-term skin improvement through regular monitoring and expert guidance.",
     accentColor: "#4B9DD3",
@@ -152,7 +165,7 @@ const memberships: MembershipTier[] = [
     tierValue: "PLATINUM",
     title: "Platinum Membership",
     validity: "Valid for 36 Months",
-    cost: "BDT 6,900",
+    cost: "9,990 BDT",
     description:
       "A complete skin transformation program combining skincare, nutrition, wellness, and continuous progress monitoring.",
     accentColor: "#C6A56B",
@@ -336,18 +349,51 @@ function MembershipModal({
           </p>
 
           <div className="mt-5 flex flex-wrap items-center gap-3">
-            <span
-              className="text-2xl font-semibold"
-              style={{
-                color:
-                  membership.key === "platinum"
-                    ? "#F3E0B5"
-                    : membership.accentColor,
-                fontFamily: "Playfair Display, serif",
-              }}
-            >
-              {membership.cost}
-            </span>
+            {membership.key === "signature" ? (
+              <div className="flex flex-wrap items-center gap-3">
+                <span
+                  className="inline-flex rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em]"
+                  style={{
+                    backgroundColor: "#2B2B2B",
+                    color: "#F8F5F0",
+                  }}
+                >
+                  LIMITED TIME - 51% OFF
+                </span>
+                <span
+                  className="text-sm font-semibold"
+                  style={{
+                    color: "#8C7967",
+                    textDecoration: "line-through",
+                    textDecorationThickness: "1.5px",
+                  }}
+                >
+                  {membership.originalCost}
+                </span>
+                <span
+                  className="text-3xl font-semibold"
+                  style={{
+                    color: "#C6A56B",
+                    fontFamily: "Playfair Display, serif",
+                  }}
+                >
+                  {membership.cost}
+                </span>
+              </div>
+            ) : (
+              <span
+                className="text-2xl font-semibold"
+                style={{
+                  color:
+                    membership.key === "platinum"
+                      ? "#F3E0B5"
+                      : membership.accentColor,
+                  fontFamily: "Playfair Display, serif",
+                }}
+              >
+                {membership.cost}
+              </span>
+            )}
             <span
               className="text-xs font-semibold uppercase tracking-[0.14em]"
               style={{
@@ -357,6 +403,14 @@ function MembershipModal({
               {membership.validity}
             </span>
           </div>
+          {membership.key === "signature" && membership.priceNote ? (
+            <p
+              className="mt-3 text-xs leading-6"
+              style={{ color: "#8C7967" }}
+            >
+              {membership.priceNote}
+            </p>
+          ) : null}
         </div>
 
         <div className="min-h-0 flex-1 overflow-y-auto px-6 py-6 sm:px-8">
@@ -524,6 +578,14 @@ export default function MembershipSection() {
     membership: MembershipTier,
   ): MembershipActionState {
     if (!session?.user) {
+      if (!isMembershipAvailable(membership.tierValue)) {
+        return {
+          disabled: true,
+          href: null,
+          label: "Available Soon",
+        };
+      }
+
       return {
         disabled: false,
         href: "/login?callbackUrl=/services",
@@ -536,6 +598,14 @@ export default function MembershipSection() {
         disabled: true,
         href: null,
         label: "Checking Plan...",
+      };
+    }
+
+    if (!isMembershipAvailable(membership.tierValue)) {
+      return {
+        disabled: true,
+        href: null,
+        label: "Available Soon",
       };
     }
 
@@ -639,7 +709,12 @@ export default function MembershipSection() {
                   style={{ borderRadius: 20 }}
                 >
                   <MembershipCard
-                    step={step}
+                    step={{
+                      ...step,
+                      statusBadge: !isMembershipAvailable(membership.tierValue)
+                        ? getMembershipAvailabilityLabel(membership.tierValue)
+                        : undefined,
+                    }}
                     index={index}
                     footerText="View details ->"
                   />

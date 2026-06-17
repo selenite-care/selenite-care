@@ -10,10 +10,17 @@ type DoctorPayload = {
   name?: unknown;
   email?: unknown;
   designation?: unknown;
+  specialization?: unknown;
   availability?: unknown;
   bio?: unknown;
   image?: unknown;
 };
+
+const doctorSpecializations = new Set([
+  "AESTHETICIAN",
+  "NUTRITIONIST",
+  "PSYCHIATRIST",
+] as const);
 
 async function requireAdmin() {
   const session = await auth();
@@ -35,13 +42,16 @@ function parseDoctorPayload(body: DoctorPayload) {
     typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
   const designation =
     typeof body.designation === "string" ? body.designation.trim() : "";
+  const specialization =
+    typeof body.specialization === "string" ? body.specialization.trim() : "";
   const availability =
     typeof body.availability === "string" ? body.availability.trim() : "";
   const bio = typeof body.bio === "string" ? body.bio.trim() : "";
   const image = typeof body.image === "string" ? body.image.trim() : "";
-  if (!name || !email || !designation || !availability) {
+  if (!name || !email || !designation || !specialization || !availability) {
     return {
-      error: "Name, email, designation, and availability are required.",
+      error:
+        "Name, email, designation, specialization, and availability are required.",
     };
   }
 
@@ -51,11 +61,21 @@ function parseDoctorPayload(body: DoctorPayload) {
     };
   }
 
+  if (!doctorSpecializations.has(specialization as never)) {
+    return {
+      error: "A valid specialization is required.",
+    };
+  }
+
   return {
     data: {
       name,
       email,
       designation,
+      specialization: specialization as
+        | "AESTHETICIAN"
+        | "NUTRITIONIST"
+        | "PSYCHIATRIST",
       availability,
       bio: bio || null,
       image: image || null,
@@ -111,6 +131,7 @@ export async function GET() {
       id: true,
       name: true,
       designation: true,
+      specialization: true,
       availability: true,
       bio: true,
       image: true,
@@ -177,6 +198,7 @@ export async function POST(request: Request) {
       data: {
         name: parsed.data.name,
         designation: parsed.data.designation,
+        specialization: parsed.data.specialization,
         availability: parsed.data.availability,
         bio: parsed.data.bio,
         image: parsed.data.image,

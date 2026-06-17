@@ -13,6 +13,7 @@ type AppointmentDoctor = {
   availability: string;
   bio: string | null;
   image: string | null;
+  specialization: "AESTHETICIAN" | "NUTRITIONIST" | "PSYCHIATRIST";
 };
 
 type DoctorsResponse = {
@@ -30,6 +31,49 @@ type MembershipResponse = {
   error?: string;
 };
 
+type TotalQuota = {
+  type: "total";
+  limit: number;
+  used: number;
+  remaining: number;
+  isUnlimited: false;
+};
+
+type SpecializationQuotaValue = {
+  limit: number | null;
+  used: number;
+  remaining: number | null;
+  isUnlimited: boolean;
+};
+
+type SpecializationQuota = {
+  type: "specialization";
+  AESTHETICIAN: SpecializationQuotaValue;
+  NUTRITIONIST: SpecializationQuotaValue;
+  PSYCHIATRIST: SpecializationQuotaValue;
+};
+
+type MembershipQuotaResponse = {
+  membership: {
+    tier: "SIGNATURE" | "CRYSTAL" | "PLATINUM";
+    status: "PENDING" | "ACTIVE" | "EXPIRED" | "CANCELLED";
+    expiresAt: string | null;
+  };
+  quota: TotalQuota | SpecializationQuota;
+} | null;
+
+const specializationOrder = [
+  "AESTHETICIAN",
+  "NUTRITIONIST",
+  "PSYCHIATRIST",
+] as const;
+
+const specializationLabels: Record<(typeof specializationOrder)[number], string> = {
+  AESTHETICIAN: "Aesthetician",
+  NUTRITIONIST: "Nutritionist",
+  PSYCHIATRIST: "Psychiatrist",
+};
+
 function getInitials(name: string) {
   return name
     .split(" ")
@@ -39,11 +83,16 @@ function getInitials(name: string) {
     .toUpperCase();
 }
 
+function formatQuotaValue(value: number | null) {
+  return value === null ? "Unlimited" : String(value);
+}
+
 export default function AppointmentPage() {
   const [membershipStatus, setMembershipStatus] = useState<
     "loading" | "active" | "inactive" | "expired"
   >("loading");
   const [doctors, setDoctors] = useState<AppointmentDoctor[]>([]);
+  const [quotaData, setQuotaData] = useState<MembershipQuotaResponse>(null);
   const [isLoadingDoctors, setIsLoadingDoctors] = useState(false);
   const [error, setError] = useState("");
   const [showMembershipModal, setShowMembershipModal] = useState(false);
@@ -53,11 +102,16 @@ export default function AppointmentPage() {
 
     async function loadPageData() {
       try {
-        const membershipResponse = await fetch("/api/client/membership");
+        const [membershipResponse, quotaResponse] = await Promise.all([
+          fetch("/api/client/membership"),
+          fetch("/api/client/membership-quota"),
+        ]);
         const membershipData =
           (await membershipResponse.json().catch(() => null)) as
             | MembershipResponse
             | null;
+        const quotaPayload =
+          (await quotaResponse.json().catch(() => null)) as MembershipQuotaResponse;
 
         const membership = membershipData?.membership;
         const hasActiveMembership =
@@ -69,6 +123,8 @@ export default function AppointmentPage() {
         if (!isMounted) {
           return;
         }
+
+        setQuotaData(quotaResponse.ok ? quotaPayload : null);
 
         if (hasActiveMembership) {
           setMembershipStatus("active");
@@ -126,10 +182,21 @@ export default function AppointmentPage() {
   }, []);
 
   const hasActiveMembership = membershipStatus === "active";
+  const totalQuotaExhausted =
+    hasActiveMembership &&
+    quotaData?.quota.type === "total" &&
+    quotaData.quota.remaining === 0;
   const membershipPromptMessage =
     membershipStatus === "expired"
       ? "Your membership has expired. Please renew your membership to book appointments."
       : "Please purchase a membership first.";
+  const doctorsBySpecialization = specializationOrder
+    .map((specialization) => ({
+      specialization,
+      label: specializationLabels[specialization],
+      doctors: doctors.filter((doctor) => doctor.specialization === specialization),
+    }))
+    .filter((group) => group.doctors.length > 0);
 
   return (
     <main className="min-h-screen px-6 py-16" style={{ backgroundColor: "#F8F5F0" }}>
@@ -204,6 +271,91 @@ export default function AppointmentPage() {
           </section>
         ) : null}
 
+        {hasActiveMembership && quotaData ? (
+          <section
+            className="mt-10 rounded-[24px] border bg-white px-6 py-6"
+            style={{
+              borderColor: "#D8C7B5",
+              boxShadow: "0 18px 48px rgba(43, 43, 43, 0.06)",
+            }}
+          >
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <h2
+                  className="text-2xl font-semibold"
+                  style={{
+                    color: "#2B2B2B",
+                    fontFamily: "Playfair Display, serif",
+                  }}
+                >
+                  Membership Quota Summary
+                </h2>
+                <p className="mt-2 text-sm leading-6" style={{ color: "#6E6257" }}>
+                  Track how many consultations remain in your current membership.
+                </p>
+              </div>
+
+              <div
+                className="inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em]"
+                style={{
+                  borderColor: "#D8C7B5",
+                  backgroundColor: "#F8F5F0",
+                  color: "#8C7967",
+                }}
+              >
+                {quotaData.membership.tier}
+              </div>
+            </div>
+
+            {quotaData.quota.type === "total" ? (
+              <div
+                className="mt-5 rounded-2xl border px-5 py-4"
+                style={{
+                  borderColor: "#D8C7B5",
+                  backgroundColor: "#F8F5F0",
+                }}
+              >
+                <p className="text-base font-medium" style={{ color: "#2B2B2B" }}>
+                  {quotaData.quota.used} of {quotaData.quota.limit} consultations used
+                </p>
+                <p className="mt-2 text-sm" style={{ color: "#6E6257" }}>
+                  {quotaData.quota.remaining} consultation
+                  {quotaData.quota.remaining === 1 ? "" : "s"} remaining
+                </p>
+              </div>
+            ) : (
+              <div className="mt-5 grid gap-4 md:grid-cols-3">
+                {specializationOrder.map((specialization) => {
+                  const quota = quotaData.quota[specialization];
+
+                  return (
+                    <div
+                      key={specialization}
+                      className="rounded-2xl border px-5 py-4"
+                      style={{
+                        borderColor: "#D8C7B5",
+                        backgroundColor: "#F8F5F0",
+                      }}
+                    >
+                      <p className="text-sm font-semibold" style={{ color: "#2B2B2B" }}>
+                        {specializationLabels[specialization]}
+                      </p>
+                      <p className="mt-2 text-base font-medium" style={{ color: "#6E6257" }}>
+                        {quota.used}/{formatQuotaValue(quota.limit)} used
+                      </p>
+                      <p className="mt-1 text-sm" style={{ color: "#8C7967" }}>
+                        {quota.isUnlimited
+                          ? "Unlimited remaining"
+                          : `${quota.remaining ?? 0} remaining`}
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </section>
+        ) : null}
+
         {membershipStatus !== "loading" ? (
           <>
             {isLoadingDoctors ? (
@@ -219,110 +371,179 @@ export default function AppointmentPage() {
             ) : null}
 
             {!isLoadingDoctors && doctors.length > 0 ? (
-              <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-3">
-                {doctors.map((doctor) => (
-                  <article
-                    key={doctor.id}
-                    className="relative overflow-hidden rounded-[20px] border bg-white"
-                    style={{
-                      borderColor: "#D8C7B5",
-                      boxShadow: "0 14px 40px rgba(43, 43, 43, 0.06)",
-                    }}
-                  >
-                    {doctor.image ? (
-                      <div className="relative h-64 w-full bg-[#EFE7DC]">
-                        <Image
-                          src={doctor.image}
-                          alt={doctor.name}
-                          fill
-                          sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
-                          className="object-cover"
-                        />
-                      </div>
-                    ) : (
+              <div className="mt-12 space-y-10">
+                {doctorsBySpecialization.map((group) => (
+                  <section key={group.specialization}>
+                    <div className="flex items-center gap-4">
                       <div
-                        className="flex h-64 w-full items-center justify-center"
-                        style={{ backgroundColor: "#E8DDD3" }}
-                      >
-                        <span
-                          className="text-3xl font-semibold"
-                          style={{ color: "#2B2B2B" }}
-                        >
-                          {getInitials(doctor.name)}
-                        </span>
-                      </div>
-                    )}
-
-                    <div className="p-6">
-                      {!hasActiveMembership ? (
-                        <div
-                          className="mb-4 inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em]"
-                          style={{
-                            borderColor: "#D8C7B5",
-                            backgroundColor: "#F8F5F0",
-                            color: "#8C7967",
-                          }}
-                        >
-                          Locked
-                        </div>
-                      ) : null}
-
+                        className="h-px flex-1"
+                        style={{ backgroundColor: "#D8C7B5" }}
+                      />
                       <h2
-                        className="text-xl font-semibold"
+                        className="text-2xl font-semibold"
                         style={{
                           color: "#2B2B2B",
                           fontFamily: "Playfair Display, serif",
                         }}
                       >
-                        {doctor.name}
+                        {group.label}
                       </h2>
-                      <p className="mt-2 text-sm font-medium" style={{ color: "#8C7967" }}>
-                        {doctor.designation}
-                      </p>
-                      <p className="mt-4 text-sm leading-6" style={{ color: "#6E6257" }}>
-                        {doctor.bio ?? "Doctor profile coming soon."}
-                      </p>
-
                       <div
-                        className="mt-5 rounded-xl border px-4 py-3 text-sm"
-                        style={{
-                          borderColor: "#D8C7B5",
-                          backgroundColor: "#F8F5F0",
-                          color: "#6E6257",
-                        }}
-                      >
-                        <span className="font-medium" style={{ color: "#2B2B2B" }}>
-                          Availability:
-                        </span>{" "}
-                        {doctor.availability}
-                      </div>
-
-                      {hasActiveMembership ? (
-                        <Link
-                          href={`/appointment/date?doctorId=${encodeURIComponent(doctor.id)}`}
-                          className="mt-6 inline-flex h-12 w-full items-center justify-center rounded-md px-5 text-sm font-medium transition-colors hover:bg-[#B8A89A]"
-                          style={{
-                            backgroundColor: "#2B2B2B",
-                            color: "#F8F5F0",
-                          }}
-                        >
-                          Select Doctor
-                        </Link>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() => setShowMembershipModal(true)}
-                          className="mt-6 inline-flex h-12 w-full items-center justify-center rounded-md px-5 text-sm font-medium transition-colors hover:bg-[#B8A89A]"
-                          style={{
-                            backgroundColor: "#2B2B2B",
-                            color: "#F8F5F0",
-                          }}
-                        >
-                          Select Doctor
-                        </button>
-                      )}
+                        className="h-px flex-1"
+                        style={{ backgroundColor: "#D8C7B5" }}
+                      />
                     </div>
-                  </article>
+
+                    <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-3">
+                      {group.doctors.map((doctor) => {
+                        const specializationQuota =
+                          quotaData?.quota.type === "specialization"
+                            ? quotaData.quota[doctor.specialization]
+                            : null;
+                        const isQuotaLocked =
+                          hasActiveMembership &&
+                          (totalQuotaExhausted ||
+                            (!!specializationQuota &&
+                              !specializationQuota.isUnlimited &&
+                              (specializationQuota.remaining ?? 0) === 0));
+                        const isLocked = !hasActiveMembership || isQuotaLocked;
+                        const lockMessage = !hasActiveMembership
+                          ? membershipPromptMessage
+                          : totalQuotaExhausted
+                            ? "You have used all consultations included in your membership. Please contact us to discuss options."
+                            : "Consultation limit reached for this specialist type";
+
+                        return (
+                          <article
+                            key={doctor.id}
+                            className={`relative overflow-hidden rounded-[20px] border bg-white ${
+                              isLocked ? "opacity-70" : ""
+                            }`}
+                            style={{
+                              borderColor: "#D8C7B5",
+                              boxShadow: "0 14px 40px rgba(43, 43, 43, 0.06)",
+                            }}
+                          >
+                            {doctor.image ? (
+                              <div className="relative h-64 w-full bg-[#EFE7DC]">
+                                <Image
+                                  src={doctor.image}
+                                  alt={doctor.name}
+                                  fill
+                                  sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                                  className="object-cover"
+                                />
+                              </div>
+                            ) : (
+                              <div
+                                className="flex h-64 w-full items-center justify-center"
+                                style={{ backgroundColor: "#E8DDD3" }}
+                              >
+                                <span
+                                  className="text-3xl font-semibold"
+                                  style={{ color: "#2B2B2B" }}
+                                >
+                                  {getInitials(doctor.name)}
+                                </span>
+                              </div>
+                            )}
+
+                            <div className="p-6">
+                              {isLocked ? (
+                                <div
+                                  className="mb-4 inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em]"
+                                  style={{
+                                    borderColor: "#D8C7B5",
+                                    backgroundColor: "#F8F5F0",
+                                    color: "#8C7967",
+                                  }}
+                                >
+                                  Locked
+                                </div>
+                              ) : null}
+
+                              <h3
+                                className="text-xl font-semibold"
+                                style={{
+                                  color: "#2B2B2B",
+                                  fontFamily: "Playfair Display, serif",
+                                }}
+                              >
+                                {doctor.name}
+                              </h3>
+                              <p className="mt-2 text-sm font-medium" style={{ color: "#8C7967" }}>
+                                {doctor.designation}
+                              </p>
+                              <p className="mt-4 text-sm leading-6" style={{ color: "#6E6257" }}>
+                                {doctor.bio ?? "Doctor profile coming soon."}
+                              </p>
+
+                              <div
+                                className="mt-5 rounded-xl border px-4 py-3 text-sm"
+                                style={{
+                                  borderColor: "#D8C7B5",
+                                  backgroundColor: "#F8F5F0",
+                                  color: "#6E6257",
+                                }}
+                              >
+                                <span className="font-medium" style={{ color: "#2B2B2B" }}>
+                                  Availability:
+                                </span>{" "}
+                                {doctor.availability}
+                              </div>
+
+                              {isLocked ? (
+                                <>
+                                  <p
+                                    className="mt-5 text-sm leading-6"
+                                    style={{ color: "#8C7967" }}
+                                  >
+                                    {lockMessage}
+                                  </p>
+
+                                  {!hasActiveMembership ? (
+                                    <button
+                                      type="button"
+                                      onClick={() => setShowMembershipModal(true)}
+                                      className="mt-6 inline-flex h-12 w-full items-center justify-center rounded-md px-5 text-sm font-medium transition-colors hover:bg-[#B8A89A]"
+                                      style={{
+                                        backgroundColor: "#2B2B2B",
+                                        color: "#F8F5F0",
+                                      }}
+                                    >
+                                      Select Doctor
+                                    </button>
+                                  ) : (
+                                    <div
+                                      className="mt-6 inline-flex h-12 w-full items-center justify-center rounded-md border px-5 text-sm font-medium"
+                                      style={{
+                                        borderColor: "#D8C7B5",
+                                        backgroundColor: "#EFE7DC",
+                                        color: "#8C7967",
+                                      }}
+                                    >
+                                      Unavailable
+                                    </div>
+                                  )}
+                                </>
+                              ) : (
+                                <Link
+                                  href={`/appointment/date?doctorId=${encodeURIComponent(doctor.id)}`}
+                                  className="mt-6 inline-flex h-12 w-full items-center justify-center rounded-md px-5 text-sm font-medium transition-colors hover:bg-[#B8A89A]"
+                                  style={{
+                                    backgroundColor: "#2B2B2B",
+                                    color: "#F8F5F0",
+                                  }}
+                                >
+                                  Select Doctor
+                                </Link>
+                              )}
+                            </div>
+                          </article>
+                        );
+                      })}
+                    </div>
+                  </section>
                 ))}
               </div>
             ) : null}

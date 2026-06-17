@@ -1,8 +1,7 @@
 "use client";
 
 import Papa from "papaparse";
-import { useEffect, useState } from "react";
-import { useMemo } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 
 type CrmMembership = {
   id: string;
@@ -23,6 +22,38 @@ type MembershipResponse = {
   error?: string;
 };
 
+type TotalQuota = {
+  type: "total";
+  limit: number;
+  used: number;
+  remaining: number;
+  isUnlimited: false;
+};
+
+type SpecializationQuotaValue = {
+  limit: number | null;
+  used: number;
+  remaining: number | null;
+  isUnlimited: boolean;
+};
+
+type SpecializationQuota = {
+  type: "specialization";
+  AESTHETICIAN: SpecializationQuotaValue;
+  NUTRITIONIST: SpecializationQuotaValue;
+  PSYCHIATRIST: SpecializationQuotaValue;
+};
+
+type MembershipQuotaResponse = {
+  membership: {
+    id: string;
+    tier: "SIGNATURE" | "CRYSTAL" | "PLATINUM";
+    status: "PENDING" | "ACTIVE" | "EXPIRED" | "CANCELLED";
+    expiresAt: string | null;
+  };
+  quota: TotalQuota | SpecializationQuota;
+};
+
 const membershipStatuses = [
   "All",
   "PENDING",
@@ -30,6 +61,12 @@ const membershipStatuses = [
   "EXPIRED",
   "CANCELLED",
 ] as const;
+
+const specializationLabels = {
+  AESTHETICIAN: "Aesthetician",
+  NUTRITIONIST: "Nutritionist",
+  PSYCHIATRIST: "Psychiatrist",
+} as const;
 
 function getTierBadgeStyles(tier: CrmMembership["tier"]) {
   switch (tier) {
@@ -86,6 +123,10 @@ function getDaysRemaining(expiresAt: string | null) {
   );
 }
 
+function formatQuotaValue(value: number | null) {
+  return value === null ? "Unlimited" : String(value);
+}
+
 export default function CrmMembershipsPage() {
   const [memberships, setMemberships] = useState<CrmMembership[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -93,6 +134,11 @@ export default function CrmMembershipsPage() {
     useState<(typeof membershipStatuses)[number]>("All");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [expandedQuotaId, setExpandedQuotaId] = useState<string | null>(null);
+  const [quotaByMembershipId, setQuotaByMembershipId] = useState<
+    Record<string, MembershipQuotaResponse>
+  >({});
+  const [quotaLoadingId, setQuotaLoadingId] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadMemberships() {
@@ -118,6 +164,48 @@ export default function CrmMembershipsPage() {
 
     loadMemberships();
   }, []);
+
+  async function toggleQuotaView(membershipId: string) {
+    if (expandedQuotaId === membershipId) {
+      setExpandedQuotaId(null);
+      return;
+    }
+
+    setExpandedQuotaId(membershipId);
+
+    if (quotaByMembershipId[membershipId]) {
+      return;
+    }
+
+    setQuotaLoadingId(membershipId);
+
+    try {
+      const response = await fetch(`/api/crm/memberships/${membershipId}/quota`);
+      const data = (await response.json().catch(() => null)) as
+        | MembershipQuotaResponse
+        | { error?: string }
+        | null;
+
+      if (!response.ok || !data || !("quota" in data)) {
+        throw new Error(
+          data && "error" in data ? data.error ?? "Unable to load quota." : "Unable to load quota.",
+        );
+      }
+
+      setQuotaByMembershipId((current) => ({
+        ...current,
+        [membershipId]: data,
+      }));
+    } catch (quotaError) {
+      setError(
+        quotaError instanceof Error
+          ? quotaError.message
+          : "Unable to load membership quota.",
+      );
+    } finally {
+      setQuotaLoadingId(null);
+    }
+  }
 
   const filteredMemberships = useMemo(() => {
     const normalizedQuery = searchQuery.trim().toLowerCase();
@@ -266,7 +354,7 @@ export default function CrmMembershipsPage() {
             ) : (
               <div className="overflow-hidden rounded-lg border border-black/10 bg-background dark:border-white/10">
                 <div className="overflow-x-auto">
-                  <table className="w-full min-w-[920px] text-left text-sm">
+                  <table className="w-full min-w-[1100px] text-left text-sm">
                     <thead className="border-b border-black/10 bg-zinc-50 text-foreground/70 dark:border-white/10 dark:bg-white/5">
                       <tr>
                         <th className="px-4 py-3 font-medium">Membership ID</th>
@@ -276,72 +364,205 @@ export default function CrmMembershipsPage() {
                         <th className="px-4 py-3 font-medium">Status</th>
                         <th className="px-4 py-3 font-medium">Days Remaining</th>
                         <th className="px-4 py-3 font-medium">Purchase Date</th>
+                        <th className="px-4 py-3 font-medium">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
                       {filteredMemberships.map((membership) => {
-                    const daysRemaining = getDaysRemaining(membership.expiresAt);
+                        const daysRemaining = getDaysRemaining(membership.expiresAt);
+                        const isQuotaExpanded = expandedQuotaId === membership.id;
+                        const quotaData = quotaByMembershipId[membership.id];
+                        const isQuotaLoading = quotaLoadingId === membership.id;
 
-                    return (
-                      <tr
-                        key={membership.id}
-                        className="border-b border-black/10 last:border-0 dark:border-white/10"
-                      >
-                        <td className="px-4 py-4 font-mono text-xs text-foreground/70">
-                          {membership.membershipId}
-                        </td>
-                        <td className="px-4 py-4 text-foreground">
-                          {membership.user.name ?? membership.user.email}
-                        </td>
-                        <td className="px-4 py-4 text-foreground/70">
-                          {membership.user.phone ?? "-"}
-                        </td>
-                        <td className="px-4 py-4">
-                          <span
-                            className="inline-flex rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em]"
-                            style={getTierBadgeStyles(membership.tier)}
-                          >
-                            {membership.tier}
-                          </span>
-                        </td>
-                        <td className="px-4 py-4">
-                          <span
-                            className="inline-flex rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em]"
-                            style={getStatusBadgeStyles(membership.status)}
-                          >
-                            {membership.status}
-                          </span>
-                        </td>
-                        <td className="px-4 py-4">
-                          {membership.status === "PENDING" ? (
-                            <span className="text-sm font-medium text-foreground/70">
-                              Pending
-                            </span>
-                          ) : daysRemaining === null ? (
-                            <span className="text-sm font-medium text-foreground/70">
-                              -
-                            </span>
-                          ) : daysRemaining <= 0 ? (
-                            <span className="text-sm font-medium text-red-600">
-                              Expired
-                            </span>
-                          ) : (
-                            <span
-                              className={
-                                daysRemaining > 30
-                                  ? "text-sm font-medium text-emerald-600"
-                                  : "text-sm font-medium text-yellow-600"
-                              }
+                        return (
+                          <Fragment key={membership.id}>
+                            <tr
+                              className="border-b border-black/10 last:border-0 dark:border-white/10"
                             >
-                              {daysRemaining} day{daysRemaining === 1 ? "" : "s"}
-                            </span>
-                          )}
-                        </td>
-                        <td className="px-4 py-4 text-foreground/70">
-                          {new Date(membership.createdAt).toLocaleString()}
-                        </td>
-                      </tr>
-                    );
+                              <td className="px-4 py-4 font-mono text-xs text-foreground/70">
+                                {membership.membershipId}
+                              </td>
+                              <td className="px-4 py-4 text-foreground">
+                                {membership.user.name ?? membership.user.email}
+                              </td>
+                              <td className="px-4 py-4 text-foreground/70">
+                                {membership.user.phone ?? "-"}
+                              </td>
+                              <td className="px-4 py-4">
+                                <span
+                                  className="inline-flex rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em]"
+                                  style={getTierBadgeStyles(membership.tier)}
+                                >
+                                  {membership.tier}
+                                </span>
+                              </td>
+                              <td className="px-4 py-4">
+                                <span
+                                  className="inline-flex rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em]"
+                                  style={getStatusBadgeStyles(membership.status)}
+                                >
+                                  {membership.status}
+                                </span>
+                              </td>
+                              <td className="px-4 py-4">
+                                {membership.status === "PENDING" ? (
+                                  <span className="text-sm font-medium text-foreground/70">
+                                    Pending
+                                  </span>
+                                ) : daysRemaining === null ? (
+                                  <span className="text-sm font-medium text-foreground/70">
+                                    -
+                                  </span>
+                                ) : daysRemaining <= 0 ? (
+                                  <span className="text-sm font-medium text-red-600">
+                                    Expired
+                                  </span>
+                                ) : (
+                                  <span
+                                    className={
+                                      daysRemaining > 30
+                                        ? "text-sm font-medium text-emerald-600"
+                                        : "text-sm font-medium text-yellow-600"
+                                    }
+                                  >
+                                    {daysRemaining} day{daysRemaining === 1 ? "" : "s"}
+                                  </span>
+                                )}
+                              </td>
+                              <td className="px-4 py-4 text-foreground/70">
+                                {new Date(membership.createdAt).toLocaleString()}
+                              </td>
+                              <td className="px-4 py-4">
+                                {membership.status === "ACTIVE" ? (
+                                  <button
+                                    type="button"
+                                    onClick={() => toggleQuotaView(membership.id)}
+                                    disabled={isQuotaLoading}
+                                    className="inline-flex h-9 items-center justify-center rounded-md border px-3 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+                                    style={{
+                                      borderColor: "#D8C7B5",
+                                      color: "#2B2B2B",
+                                      backgroundColor: "#F8F5F0",
+                                    }}
+                                  >
+                                    {isQuotaLoading
+                                      ? "Loading quota..."
+                                      : isQuotaExpanded
+                                        ? "Hide Quota"
+                                        : "View Quota"}
+                                  </button>
+                                ) : (
+                                  <span className="text-xs text-foreground/50">
+                                    -
+                                  </span>
+                                )}
+                              </td>
+                            </tr>
+                            {isQuotaExpanded ? (
+                              <tr className="border-b border-black/10 bg-[#FCFAF7] dark:border-white/10">
+                                <td colSpan={8} className="px-4 py-5">
+                                  {quotaData ? (
+                                    <div className="rounded-lg border border-[#D8C7B5] bg-white p-4">
+                                      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                                        <div>
+                                          <p
+                                            className="text-sm font-medium"
+                                            style={{ color: "#B8A89A" }}
+                                          >
+                                            Quota Usage Snapshot
+                                          </p>
+                                          <p
+                                            className="mt-2 text-base font-semibold"
+                                            style={{ color: "#2B2B2B" }}
+                                          >
+                                            Useful for spotting members near their limit
+                                          </p>
+                                        </div>
+                                        <span
+                                          className="inline-flex rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em]"
+                                          style={getTierBadgeStyles(membership.tier)}
+                                        >
+                                          {membership.tier}
+                                        </span>
+                                      </div>
+
+                                      {quotaData.quota.type === "total" ? (
+                                        <div
+                                          className="mt-4 rounded-xl border px-4 py-3"
+                                          style={{
+                                            borderColor: "#D8C7B5",
+                                            backgroundColor: "#F8F5F0",
+                                          }}
+                                        >
+                                          <p
+                                            className="text-sm font-medium"
+                                            style={{ color: "#2B2B2B" }}
+                                          >
+                                            {quotaData.quota.used} of {quotaData.quota.limit} consultations used
+                                          </p>
+                                          <p
+                                            className="mt-2 text-sm"
+                                            style={{ color: "#6E6257" }}
+                                          >
+                                            {quotaData.quota.remaining} consultation
+                                            {quotaData.quota.remaining === 1 ? "" : "s"} remaining
+                                          </p>
+                                        </div>
+                                      ) : (
+                                        <div className="mt-4 grid gap-4 md:grid-cols-3">
+                                          {Object.entries(specializationLabels).map(
+                                            ([key, label]) => {
+                                              const quota =
+                                                quotaData.quota[
+                                                  key as keyof typeof specializationLabels
+                                                ];
+
+                                              return (
+                                                <div
+                                                  key={key}
+                                                  className="rounded-xl border px-4 py-3"
+                                                  style={{
+                                                    borderColor: "#D8C7B5",
+                                                    backgroundColor: "#F8F5F0",
+                                                  }}
+                                                >
+                                                  <p
+                                                    className="text-sm font-semibold"
+                                                    style={{ color: "#2B2B2B" }}
+                                                  >
+                                                    {label}
+                                                  </p>
+                                                  <p
+                                                    className="mt-2 text-sm font-medium"
+                                                    style={{ color: "#6E6257" }}
+                                                  >
+                                                    {quota.used}/{formatQuotaValue(quota.limit)} used
+                                                  </p>
+                                                  <p
+                                                    className="mt-1 text-xs"
+                                                    style={{ color: "#8C7967" }}
+                                                  >
+                                                    {quota.isUnlimited
+                                                      ? "Unlimited remaining"
+                                                      : `${quota.remaining ?? 0} remaining`}
+                                                  </p>
+                                                </div>
+                                              );
+                                            },
+                                          )}
+                                        </div>
+                                      )}
+                                    </div>
+                                  ) : (
+                                    <p className="text-sm text-foreground/70">
+                                      Quota details are not available yet.
+                                    </p>
+                                  )}
+                                </td>
+                              </tr>
+                            ) : null}
+                          </Fragment>
+                        );
                       })}
                     </tbody>
                   </table>

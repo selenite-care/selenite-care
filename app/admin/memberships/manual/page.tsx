@@ -42,8 +42,8 @@ type ManualMembershipResponse = {
 
 const TIER_PRICES: Record<MembershipTier, number> = {
   SIGNATURE: 490,
-  CRYSTAL: 2900,
-  PLATINUM: 6900,
+  CRYSTAL: 3990,
+  PLATINUM: 9990,
 };
 
 const initialFormState: ManualMembershipFormState = {
