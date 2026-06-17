@@ -326,7 +326,7 @@ export default function AppointmentPage() {
             ) : (
               <div className="mt-5 grid gap-4 md:grid-cols-3">
                 {specializationOrder.map((specialization) => {
-                  const quota = quotaData.quota[specialization];
+                  const quota = (quotaData.quota as SpecializationQuota)[specialization];
 
                   return (
                     <div
@@ -398,7 +398,9 @@ export default function AppointmentPage() {
                       {group.doctors.map((doctor) => {
                         const specializationQuota =
                           quotaData?.quota.type === "specialization"
-                            ? quotaData.quota[doctor.specialization]
+                            ? (quotaData.quota as SpecializationQuota)[
+                                doctor.specialization
+                              ]
                             : null;
                         const isQuotaLocked =
                           hasActiveMembership &&
