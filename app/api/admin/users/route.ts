@@ -4,7 +4,14 @@ import { db } from "@/lib/db";
 
 const { auth } = NextAuth(authConfig);
 
-export async function GET() {
+const MEMBERSHIP_STATUS_MAP = {
+  pending: "PENDING",
+  active: "ACTIVE",
+  expired: "EXPIRED",
+  cancelled: "CANCELLED",
+} as const;
+
+export async function GET(request: Request) {
   const session = await auth();
 
   if (!session?.user) {
@@ -15,7 +22,55 @@ export async function GET() {
     return Response.json({ error: "Forbidden." }, { status: 403 });
   }
 
+  const { searchParams } = new URL(request.url);
+  const search = searchParams.get("search")?.trim() ?? "";
+  const roleFilter = searchParams.get("roleFilter")?.trim().toUpperCase() ?? "ALL";
+  const membershipFilter =
+    searchParams.get("membershipFilter")?.trim().toLowerCase() ?? "all";
+
+  const where: {
+    OR?: Array<{
+      name?: { contains: string; mode: "insensitive" };
+      email?: { contains: string; mode: "insensitive" };
+      phone?: { contains: string; mode: "insensitive" };
+    }>;
+    role?: "CLIENT" | "DOCTOR" | "CRM" | "ADMIN";
+    memberships?:
+      | { none: Record<string, never> }
+      | {
+          some: {
+            status: (typeof MEMBERSHIP_STATUS_MAP)[keyof typeof MEMBERSHIP_STATUS_MAP];
+          };
+        };
+  } = {};
+
+  if (search) {
+    where.OR = [
+      { name: { contains: search, mode: "insensitive" } },
+      { email: { contains: search, mode: "insensitive" } },
+      { phone: { contains: search, mode: "insensitive" } },
+    ];
+  }
+
+  if (roleFilter === "CLIENT" || roleFilter === "DOCTOR" || roleFilter === "CRM" || roleFilter === "ADMIN") {
+    where.role = roleFilter;
+  }
+
+  if (membershipFilter === "none") {
+    where.memberships = { none: {} };
+  } else if (membershipFilter in MEMBERSHIP_STATUS_MAP) {
+    where.memberships = {
+      some: {
+        status:
+          MEMBERSHIP_STATUS_MAP[
+            membershipFilter as keyof typeof MEMBERSHIP_STATUS_MAP
+          ],
+      },
+    };
+  }
+
   const users = await db.user.findMany({
+    where,
     orderBy: {
       createdAt: "desc",
     },
@@ -26,6 +81,18 @@ export async function GET() {
       phone: true,
       role: true,
       createdAt: true,
+      memberships: {
+        orderBy: {
+          createdAt: "desc",
+        },
+        take: 1,
+        select: {
+          id: true,
+          tier: true,
+          status: true,
+          createdAt: true,
+        },
+      },
       _count: {
         select: {
           bookings: true,

@@ -10,6 +10,12 @@ type AdminUser = {
   phone: string | null;
   role: string;
   createdAt: string;
+  memberships: Array<{
+    id: string;
+    tier: "SIGNATURE" | "CRYSTAL" | "PLATINUM";
+    status: "PENDING" | "ACTIVE" | "EXPIRED" | "CANCELLED";
+    createdAt: string;
+  }>;
   _count: {
     bookings: number;
   };
@@ -17,6 +23,14 @@ type AdminUser = {
 
 const ROLES = ["CLIENT", "DOCTOR", "CRM", "ADMIN"];
 const ROLE_FILTERS = ["All", "CLIENT", "DOCTOR", "CRM", "ADMIN"] as const;
+const MEMBERSHIP_FILTERS = [
+  { value: "all", label: "All" },
+  { value: "none", label: "No Membership" },
+  { value: "pending", label: "Pending Verification" },
+  { value: "active", label: "Active" },
+  { value: "expired", label: "Expired" },
+  { value: "cancelled", label: "Cancelled" },
+] as const;
 
 const roleColors: Record<string, { badge: string; text: string }> = {
   CLIENT: { badge: "bg-blue-100 dark:bg-blue-900/20", text: "text-blue-800 dark:text-blue-300" },
@@ -25,12 +39,55 @@ const roleColors: Record<string, { badge: string; text: string }> = {
   ADMIN: { badge: "bg-red-100 dark:bg-red-900/20", text: "text-red-800 dark:text-red-300" },
 };
 
+function getMembershipStatusStyles(
+  status: "PENDING" | "ACTIVE" | "EXPIRED" | "CANCELLED",
+) {
+  switch (status) {
+    case "ACTIVE":
+      return {
+        badge: "bg-emerald-100",
+        text: "text-emerald-800",
+      };
+    case "PENDING":
+      return {
+        badge: "bg-amber-100",
+        text: "text-amber-800",
+      };
+    case "CANCELLED":
+      return {
+        badge: "bg-red-100",
+        text: "text-red-800",
+      };
+    case "EXPIRED":
+    default:
+      return {
+        badge: "bg-zinc-200",
+        text: "text-zinc-700",
+      };
+  }
+}
+
+function getTierLabel(tier: "SIGNATURE" | "CRYSTAL" | "PLATINUM") {
+  switch (tier) {
+    case "SIGNATURE":
+      return "Signature";
+    case "CRYSTAL":
+      return "Crystal";
+    case "PLATINUM":
+      return "Platinum";
+    default:
+      return tier;
+  }
+}
+
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [error, setError] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] =
     useState<(typeof ROLE_FILTERS)[number]>("All");
+  const [membershipFilter, setMembershipFilter] =
+    useState<(typeof MEMBERSHIP_FILTERS)[number]["value"]>("all");
   const [isLoading, setIsLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [updateError, setUpdateError] = useState<string | null>(null);
@@ -38,7 +95,18 @@ export default function AdminUsersPage() {
   useEffect(() => {
     async function loadUsers() {
       try {
-        const response = await fetch("/api/admin/users");
+        setError("");
+        setIsLoading(true);
+
+        const searchParams = new URLSearchParams();
+
+        if (membershipFilter !== "all") {
+          searchParams.set("membershipFilter", membershipFilter);
+        }
+
+        const response = await fetch(
+          `/api/admin/users${searchParams.toString() ? `?${searchParams.toString()}` : ""}`,
+        );
 
         if (!response.ok) {
           throw new Error("Unable to load users.");
@@ -54,7 +122,7 @@ export default function AdminUsersPage() {
     }
 
     loadUsers();
-  }, []);
+  }, [membershipFilter]);
 
   async function handleRoleChange(userId: string, newRole: string) {
     if (updatingId) return; // Prevent concurrent updates
@@ -111,6 +179,10 @@ export default function AdminUsersPage() {
         Email: user.email,
         Phone: user.phone ?? "",
         Role: user.role,
+        Membership:
+          user.memberships[0]
+            ? `${getTierLabel(user.memberships[0].tier)} (${user.memberships[0].status})`
+            : "No Membership",
         "Registration Date": new Date(user.createdAt).toLocaleDateString(),
         "Total Bookings": user._count.bookings,
       })),
@@ -120,6 +192,7 @@ export default function AdminUsersPage() {
           "Email",
           "Phone",
           "Role",
+          "Membership",
           "Registration Date",
           "Total Bookings",
         ],
@@ -167,7 +240,7 @@ export default function AdminUsersPage() {
       {!isLoading && !error && users.length > 0 ? (
         <>
           <div className="mt-8 rounded-lg border border-[#D8C7B5] bg-white p-4">
-            <div className="grid gap-4 md:grid-cols-[1fr_220px_auto] md:items-end">
+            <div className="grid gap-4 md:grid-cols-[1fr_220px_220px_auto] md:items-end">
               <div>
                 <label
                   htmlFor="user-search"
@@ -210,6 +283,31 @@ export default function AdminUsersPage() {
                 </select>
               </div>
 
+              <div>
+                <label
+                  htmlFor="membership-filter"
+                  className="text-sm font-medium text-[#2B2B2B]"
+                >
+                  Membership Status
+                </label>
+                <select
+                  id="membership-filter"
+                  value={membershipFilter}
+                  onChange={(event) =>
+                    setMembershipFilter(
+                      event.target.value as (typeof MEMBERSHIP_FILTERS)[number]["value"],
+                    )
+                  }
+                  className="mt-2 h-11 w-full rounded-md border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
+                >
+                  {MEMBERSHIP_FILTERS.map((filter) => (
+                    <option key={filter.value} value={filter.value}>
+                      {filter.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               <button
                 type="button"
                 onClick={handleExportCsv}
@@ -239,6 +337,7 @@ export default function AdminUsersPage() {
                       <th className="px-4 py-3 font-medium">Email</th>
                       <th className="px-4 py-3 font-medium">Phone</th>
                       <th className="px-4 py-3 font-medium">Role</th>
+                      <th className="px-4 py-3 font-medium">Membership</th>
                       <th className="px-4 py-3 font-medium">Registration Date</th>
                       <th className="px-4 py-3 font-medium">Total Bookings</th>
                     </tr>
@@ -246,6 +345,13 @@ export default function AdminUsersPage() {
                   <tbody>
                     {filteredUsers.map((user) => {
                       const colors = roleColors[user.role] || roleColors.CLIENT;
+                      const latestMembership = user.memberships[0];
+                      const membershipStyles = latestMembership
+                        ? getMembershipStatusStyles(latestMembership.status)
+                        : {
+                            badge: "bg-zinc-200",
+                            text: "text-zinc-700",
+                          };
                       return (
                         <tr
                           key={user.id}
@@ -275,6 +381,15 @@ export default function AdminUsersPage() {
                                 </option>
                               ))}
                             </select>
+                          </td>
+                          <td className="px-4 py-4">
+                            <span
+                              className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ${membershipStyles.badge} ${membershipStyles.text}`}
+                            >
+                              {latestMembership
+                                ? `${getTierLabel(latestMembership.tier)} • ${latestMembership.status}`
+                                : "No Membership"}
+                            </span>
                           </td>
                           <td className="px-4 py-4 text-foreground/70">
                             {new Date(user.createdAt).toLocaleDateString()}

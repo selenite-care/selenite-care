@@ -27,6 +27,18 @@ export default async function CrmClientsPage() {
       email: true,
       phone: true,
       createdAt: true,
+      memberships: {
+        orderBy: {
+          createdAt: "desc",
+        },
+        take: 1,
+        select: {
+          id: true,
+          tier: true,
+          status: true,
+          createdAt: true,
+        },
+      },
       _count: {
         select: {
           bookings: true,
@@ -38,6 +50,10 @@ export default async function CrmClientsPage() {
   const clientItems = clients.map((client) => ({
     ...client,
     createdAt: client.createdAt.toISOString(),
+    memberships: client.memberships.map((membership) => ({
+      ...membership,
+      createdAt: membership.createdAt.toISOString(),
+    })),
   }));
 
   return (
