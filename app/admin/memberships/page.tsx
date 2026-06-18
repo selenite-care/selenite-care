@@ -357,24 +357,34 @@ export default function AdminMembershipsPage() {
   }
 
   return (
-    <section>
+    <section className="min-h-screen bg-[#F8F5F0] px-6 py-10">
       <div>
-        <h1 className="text-3xl font-semibold tracking-tight text-foreground">
+        <h1
+          className="text-3xl font-semibold tracking-tight"
+          style={{
+            color: "#2B2B2B",
+            fontFamily: "Playfair Display, serif",
+          }}
+        >
           Memberships
         </h1>
-        <p className="mt-3 text-sm leading-6 text-foreground/70">
+        <p className="mt-3 text-sm leading-6" style={{ color: "#6E6257" }}>
           Review membership purchases and keep an eye on expiry windows.
         </p>
       </div>
 
       {isLoading ? (
-        <p className="mt-8 text-sm text-foreground/70">Loading memberships...</p>
+        <p className="mt-8 text-sm" style={{ color: "#6E6257" }}>
+          Loading memberships...
+        </p>
       ) : null}
 
       {error ? <p className="mt-8 text-sm text-red-600">{error}</p> : null}
 
       {!isLoading && !error && !hasMemberships ? (
-        <p className="mt-8 text-sm text-foreground/70">No memberships found.</p>
+        <p className="mt-8 text-sm" style={{ color: "#6E6257" }}>
+          No memberships found.
+        </p>
       ) : null}
 
       {!isLoading && hasMemberships ? (
@@ -443,14 +453,24 @@ export default function AdminMembershipsPage() {
           </div>
 
           {filteredMemberships.length === 0 ? (
-            <p className="mt-8 text-sm text-foreground/70">
+            <p className="mt-8 text-sm" style={{ color: "#6E6257" }}>
               No memberships match your filters.
             </p>
           ) : (
-            <div className="mt-6 overflow-hidden rounded-lg border border-black/10 bg-background dark:border-white/10">
+            <div
+              className="mt-6 overflow-hidden rounded-2xl border bg-white shadow-sm"
+              style={{ borderColor: "#D8C7B5" }}
+            >
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[1120px] text-left text-sm">
-                  <thead className="border-b border-black/10 bg-zinc-50 text-foreground/70 dark:border-white/10 dark:bg-white/5">
+                  <thead
+                    className="border-b"
+                    style={{
+                      borderColor: "#D8C7B5",
+                      backgroundColor: "#F4ECE3",
+                      color: "#6E6257",
+                    }}
+                  >
                     <tr>
                       <th className="px-4 py-3 font-medium">Membership ID</th>
                       <th className="px-4 py-3 font-medium">Client Name</th>
@@ -474,14 +494,14 @@ export default function AdminMembershipsPage() {
 
                       return (
                         <Fragment key={membership.id}>
-                          <tr className="border-b border-black/10 last:border-0 dark:border-white/10">
-                            <td className="px-4 py-4 font-mono text-xs text-foreground/70">
+                          <tr className="border-b last:border-0" style={{ borderColor: "#EFE4D8" }}>
+                            <td className="px-4 py-4 font-mono text-xs" style={{ color: "#8C7967" }}>
                               {membership.membershipId}
                             </td>
-                            <td className="px-4 py-4 text-foreground">
+                            <td className="px-4 py-4" style={{ color: "#2B2B2B" }}>
                               {membership.user.name ?? membership.user.email}
                             </td>
-                            <td className="px-4 py-4 text-foreground/70">
+                            <td className="px-4 py-4" style={{ color: "#6E6257" }}>
                               {membership.user.phone ?? "-"}
                             </td>
                             <td className="px-4 py-4">
@@ -502,7 +522,7 @@ export default function AdminMembershipsPage() {
                             </td>
                             <td className="px-4 py-4">
                               {membership.status === "PENDING" ? (
-                                <span className="text-sm font-medium text-foreground/70">
+                                <span className="text-sm font-medium" style={{ color: "#6E6257" }}>
                                   Pending
                                 </span>
                               ) : membership.status === "ACTIVE" && daysRemaining !== null ? (
@@ -520,7 +540,7 @@ export default function AdminMembershipsPage() {
                                   Expired
                                 </span>
                               ) : (
-                                <span className="text-sm font-medium text-foreground/70">
+                                <span className="text-sm font-medium" style={{ color: "#6E6257" }}>
                                   -
                                 </span>
                               )}
@@ -533,7 +553,7 @@ export default function AdminMembershipsPage() {
                                 {paymentStatus}
                               </span>
                             </td>
-                            <td className="px-4 py-4 text-foreground/70">
+                            <td className="px-4 py-4" style={{ color: "#6E6257" }}>
                               {new Date(membership.createdAt).toLocaleString()}
                             </td>
                             <td className="px-4 py-4">
@@ -577,7 +597,13 @@ export default function AdminMembershipsPage() {
                             </td>
                           </tr>
                           {isQuotaExpanded ? (
-                            <tr className="border-b border-black/10 bg-[#FCFAF7] dark:border-white/10">
+                            <tr
+                              className="border-b"
+                              style={{
+                                borderColor: "#EFE4D8",
+                                backgroundColor: "#FCFAF7",
+                              }}
+                            >
                               <td colSpan={9} className="px-4 py-5">
                                 {quotaData ? (
                                   <div className="rounded-lg border border-[#D8C7B5] bg-white p-4">
@@ -668,7 +694,7 @@ export default function AdminMembershipsPage() {
                                     ) : null}
                                   </div>
                                 ) : (
-                                  <p className="text-sm text-foreground/70">
+                                  <p className="text-sm" style={{ color: "#6E6257" }}>
                                     Quota details are not available yet.
                                   </p>
                                 )}
@@ -681,7 +707,7 @@ export default function AdminMembershipsPage() {
                   </tbody>
                 </table>
               </div>
-              <p className="px-4 pb-4 text-xs text-foreground/60 md:hidden">
+              <p className="px-4 pb-4 text-xs md:hidden" style={{ color: "#8C7967" }}>
                 Scroll to see more
               </p>
             </div>

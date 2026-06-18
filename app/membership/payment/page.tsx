@@ -3,7 +3,7 @@
 import "react-phone-number-input/style.css";
 
 import Image from "next/image";
-import { ChangeEvent, FormEvent, Suspense, useEffect, useMemo, useState } from "react";
+import { FormEvent, Suspense, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   CardElement,
@@ -15,6 +15,7 @@ import { loadStripe } from "@stripe/stripe-js";
 import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
 import { isMembershipAvailable } from "@/lib/membershipAvailability";
 import { BRAC_BANK_DETAILS } from "@/lib/bankDetails";
+import FileUploadButton from "@/components/ui/FileUploadButton";
 
 const stripePublishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
 const stripePromise = stripePublishableKey
@@ -282,13 +283,7 @@ function BkashManualPaymentForm({
     }
   }
 
-  async function handleProofUpload(event: ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
-
-    if (!file) {
-      return;
-    }
-
+  async function handleProofUpload(file: File) {
     setUploadingProof(true);
     setError("");
 
@@ -318,7 +313,6 @@ function BkashManualPaymentForm({
       );
     } finally {
       setUploadingProof(false);
-      event.target.value = "";
     }
   }
 
@@ -490,14 +484,20 @@ function BkashManualPaymentForm({
           >
             Upload payment confirmation screenshot (optional but recommended)
           </label>
-          <input
-            id="bkash-proof"
-            type="file"
-            accept="image/*"
-            onChange={handleProofUpload}
-            disabled={uploadingProof || isSubmitting}
-            className="mt-2 block w-full text-sm text-[#2B2B2B]"
-          />
+          <div className="mt-2">
+            <FileUploadButton
+              onFileSelected={(file) => {
+                if (uploadingProof || isSubmitting) {
+                  return;
+                }
+
+                void handleProofUpload(file);
+              }}
+              label={uploadingProof ? "Uploading..." : "Choose Screenshot"}
+              accept="image/*"
+              currentPreviewUrl={proofImageUrl || undefined}
+            />
+          </div>
           {uploadingProof ? (
             <p className="mt-2 text-sm" style={{ color: "#B8A89A" }}>
               Uploading screenshot...
@@ -652,13 +652,7 @@ function BankTransferManualPaymentForm({
     }
   }
 
-  async function handleProofUpload(event: ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
-
-    if (!file) {
-      return;
-    }
-
+  async function handleProofUpload(file: File) {
     setUploadingProof(true);
     setError("");
 
@@ -688,7 +682,6 @@ function BankTransferManualPaymentForm({
       );
     } finally {
       setUploadingProof(false);
-      event.target.value = "";
     }
   }
 
@@ -864,14 +857,20 @@ function BankTransferManualPaymentForm({
           >
             Upload payment confirmation screenshot (optional but recommended)
           </label>
-          <input
-            id="bank-transfer-proof"
-            type="file"
-            accept="image/*"
-            onChange={handleProofUpload}
-            disabled={uploadingProof || isSubmitting}
-            className="mt-2 block w-full text-sm text-[#2B2B2B]"
-          />
+          <div className="mt-2">
+            <FileUploadButton
+              onFileSelected={(file) => {
+                if (uploadingProof || isSubmitting) {
+                  return;
+                }
+
+                void handleProofUpload(file);
+              }}
+              label={uploadingProof ? "Uploading..." : "Choose Screenshot"}
+              accept="image/*"
+              currentPreviewUrl={proofImageUrl || undefined}
+            />
+          </div>
           {uploadingProof ? (
             <p className="mt-2 text-sm" style={{ color: "#B8A89A" }}>
               Uploading screenshot...

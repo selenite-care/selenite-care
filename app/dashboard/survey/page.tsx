@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { FormEvent, useEffect, useState } from "react";
+import FileUploadButton from "@/components/ui/FileUploadButton";
 
 const skinIssuesOptions = [
   "Excess Sebum",
@@ -769,22 +770,21 @@ export default function DashboardSurveyPage() {
             Uploading photos is optional. Add up to 4 images to keep your skin profile current.
           </p>
 
-          <input
-            type="file"
-            accept="image/*"
-            multiple
-            disabled={isUploadingSkinImage || formState.skinImages.length >= 4}
-            onChange={(event) => {
-              void handleSkinImageUpload(event.target.files);
-              event.target.value = "";
-            }}
-            style={{
-              borderColor: "#D8C7B5",
-              color: "#2B2B2B",
-              backgroundColor: "#FFFFFF",
-            }}
-            className="mt-4 block w-full rounded-md border px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-50"
-          />
+          <div className="mt-4">
+            <FileUploadButton
+              onFileSelected={(file) => {
+                if (isUploadingSkinImage || formState.skinImages.length >= 4) {
+                  return;
+                }
+
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+                void handleSkinImageUpload(dataTransfer.files);
+              }}
+              label={isUploadingSkinImage ? "Uploading..." : "Upload Skin Photo"}
+              accept="image/*"
+            />
+          </div>
 
           <div className="mt-3 flex items-center justify-between gap-3 text-sm">
             <span style={{ color: "#B8A89A" }}>
