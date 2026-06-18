@@ -124,11 +124,20 @@ export async function POST(request: Request) {
   const proofImageUrl =
     typeof body.proofImageUrl === "string" ? body.proofImageUrl.trim() : "";
 
-  if (!tier || !paymentMethod || !transactionRef) {
+  if (!tier || !paymentMethod) {
+    return Response.json(
+      {
+        error: "Tier and paymentMethod are required.",
+      },
+      { status: 400 },
+    );
+  }
+
+  if (!transactionRef && !proofImageUrl) {
     return Response.json(
       {
         error:
-          "Tier, paymentMethod, and transactionRef are required.",
+          "Please provide either a Transaction ID or a payment confirmation screenshot.",
       },
       { status: 400 },
     );
@@ -158,10 +167,13 @@ export async function POST(request: Request) {
   try {
     const amount = resolveMembershipAmount(tier);
     const membershipId = await generateMembershipId();
-    const bankTransactionRef =
-      senderNumber.length > 0
+    const bankTransactionRef = transactionRef
+      ? senderNumber.length > 0
         ? `TrxID: ${transactionRef} | Sender: ${senderNumber}`
-        : transactionRef;
+        : transactionRef
+      : senderNumber.length > 0
+        ? `Sender: ${senderNumber}`
+        : null;
 
     const membership = await db.$transaction(async (tx) => {
       const createdMembership = await tx.membership.create({
@@ -185,7 +197,8 @@ export async function POST(request: Request) {
           amount,
           bankTransactionRef,
           bankTransferProof: proofImageUrl || null,
-          bkashTrxId: paymentMethod === "BKASH" ? transactionRef : null,
+          bkashTrxId:
+            paymentMethod === "BKASH" && transactionRef ? transactionRef : null,
         },
       });
 
@@ -233,7 +246,7 @@ export async function POST(request: Request) {
                 </tr>
                 <tr>
                   <td style="padding: 10px 0; border-bottom: 1px solid #EEE0D0; color: #6E6257;">Transaction Reference</td>
-                  <td style="padding: 10px 0; border-bottom: 1px solid #EEE0D0;">${transactionRef}</td>
+                  <td style="padding: 10px 0; border-bottom: 1px solid #EEE0D0;">${transactionRef || "Not provided"}</td>
                 </tr>
                 ${
                   senderNumber

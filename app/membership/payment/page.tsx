@@ -326,8 +326,10 @@ function BkashManualPaymentForm({
     event.preventDefault();
     setError("");
 
-    if (!transactionId.trim()) {
-      setError("Please enter your bKash Transaction ID.");
+    if (!transactionId.trim() && !proofImageUrl.trim()) {
+      setError(
+        "Please provide either a Transaction ID or a payment confirmation screenshot.",
+      );
       return;
     }
 
@@ -349,7 +351,7 @@ function BkashManualPaymentForm({
           paymentMethod: "BKASH",
           transactionRef: transactionId.trim(),
           senderNumber,
-          proofImageUrl,
+          proofImageUrl: proofImageUrl.trim() || null,
         }),
       });
 
@@ -449,7 +451,6 @@ function BkashManualPaymentForm({
             type="text"
             value={transactionId}
             onChange={(event) => setTransactionId(event.target.value)}
-            required
             className="mt-2 h-11 w-full rounded-md border bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors placeholder:text-[#B8A89A] focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
             style={{ borderColor: "#D8C7B5" }}
             placeholder="Enter your TrxID"
@@ -695,8 +696,10 @@ function BankTransferManualPaymentForm({
     event.preventDefault();
     setError("");
 
-    if (!transactionRef.trim()) {
-      setError("Please enter your transaction reference number.");
+    if (!transactionRef.trim() && !proofImageUrl.trim()) {
+      setError(
+        "Please provide either a Transaction ID or a payment confirmation screenshot.",
+      );
       return;
     }
 
@@ -712,7 +715,7 @@ function BankTransferManualPaymentForm({
           tier,
           paymentMethod: "BANK_TRANSFER",
           transactionRef: transactionRef.trim(),
-          proofImageUrl,
+          proofImageUrl: proofImageUrl.trim() || null,
         }),
       });
 
@@ -847,7 +850,6 @@ function BankTransferManualPaymentForm({
             type="text"
             value={transactionRef}
             onChange={(event) => setTransactionRef(event.target.value)}
-            required
             className="mt-2 h-11 w-full rounded-md border bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors placeholder:text-[#B8A89A] focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
             style={{ borderColor: "#D8C7B5" }}
             placeholder="Enter your transfer reference"
@@ -916,7 +918,7 @@ function MembershipPaymentPageContent() {
     [searchParams],
   );
   const [paymentMethod, setPaymentMethod] = useState<"card" | "bkash" | "bank">(
-    stripePromise ? "card" : "bkash",
+    "bkash",
   );
 
   if (!tier) {
@@ -1032,6 +1034,9 @@ function MembershipPaymentPageContent() {
               className="flex flex-wrap gap-2 rounded-2xl border bg-white p-1"
               style={{ borderColor: "#D8C7B5" }}
             >
+              {/*
+                Card payments are temporarily unavailable.
+                Re-enable this tab button when Stripe card checkout is ready again.
               <button
                 type="button"
                 onClick={() => setPaymentMethod("card")}
@@ -1047,6 +1052,7 @@ function MembershipPaymentPageContent() {
               >
                 Pay with Card
               </button>
+              */}
               <button
                 type="button"
                 onClick={() => setPaymentMethod("bkash")}
@@ -1073,6 +1079,9 @@ function MembershipPaymentPageContent() {
               </button>
             </div>
 
+            {/*
+              Card payments are temporarily unavailable.
+              Re-enable this content block when Stripe card checkout is ready again.
             {paymentMethod === "card" ? (
               cardPaymentsAvailable ? (
                 <MembershipPaymentForm tier={tier} membership={membership} />
@@ -1100,6 +1109,13 @@ function MembershipPaymentPageContent() {
                 </section>
               )
             ) : paymentMethod === "bkash" ? (
+              <BkashManualPaymentForm tier={tier} membership={membership} />
+            ) : (
+              <BankTransferManualPaymentForm tier={tier} membership={membership} />
+            )}
+            */}
+
+            {paymentMethod === "bkash" ? (
               <BkashManualPaymentForm tier={tier} membership={membership} />
             ) : (
               <BankTransferManualPaymentForm tier={tier} membership={membership} />
