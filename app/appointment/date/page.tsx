@@ -30,35 +30,70 @@ function getInitials(name: string) {
 }
 
 function parseAvailableDays(availability: string) {
-  const [daySegment] = availability.split(",");
-  const normalized = daySegment.trim().replace(/\s+/g, "");
-  const separator = normalized.includes("–") ? "–" : "-";
-  const [startDay, endDay] = normalized.split(separator);
-
-  const startIndex = dayOrder.indexOf(startDay);
-  const endIndex = dayOrder.indexOf(endDay ?? startDay);
-
-  if (startIndex === -1) {
-    return new Set<number>();
-  }
-
-  if (endIndex === -1 || startIndex === endIndex) {
-    return new Set<number>([startIndex]);
-  }
-
   const allowed = new Set<number>();
+  const normalizedAvailability = availability
+    .replaceAll("Ã¢â‚¬â€œ", "–")
+    .replaceAll("â€“", "–")
+    .replaceAll("—", "–")
+    .trim();
+  const segments = normalizedAvailability
+    .split(",")
+    .map((segment) => segment.trim())
+    .filter(Boolean);
 
-  if (startIndex < endIndex) {
-    for (let index = startIndex; index <= endIndex; index += 1) {
-      allowed.add(index);
-    }
-  } else {
-    for (let index = startIndex; index < dayOrder.length; index += 1) {
-      allowed.add(index);
+  const timeSegmentIndex = [...segments]
+    .reverse()
+    .findIndex(
+      (segment) => /(?:AM|PM)/i.test(segment) && segment.includes("–"),
+    );
+
+  const daySegments =
+    timeSegmentIndex === -1
+      ? segments
+      : segments.slice(0, segments.length - timeSegmentIndex - 1);
+
+  for (const segment of daySegments) {
+    const compactSegment = segment.replace(/\s+/g, "");
+
+    if (!compactSegment) {
+      continue;
     }
 
-    for (let index = 0; index <= endIndex; index += 1) {
-      allowed.add(index);
+    if (compactSegment.includes("–")) {
+      const [startDay, endDay] = compactSegment.split("–");
+      const startIndex = dayOrder.indexOf(startDay);
+      const endIndex = dayOrder.indexOf(endDay ?? startDay);
+
+      if (startIndex === -1) {
+        continue;
+      }
+
+      if (endIndex === -1 || startIndex === endIndex) {
+        allowed.add(startIndex);
+        continue;
+      }
+
+      if (startIndex < endIndex) {
+        for (let index = startIndex; index <= endIndex; index += 1) {
+          allowed.add(index);
+        }
+      } else {
+        for (let index = startIndex; index < dayOrder.length; index += 1) {
+          allowed.add(index);
+        }
+
+        for (let index = 0; index <= endIndex; index += 1) {
+          allowed.add(index);
+        }
+      }
+
+      continue;
+    }
+
+    const dayIndex = dayOrder.indexOf(compactSegment);
+
+    if (dayIndex !== -1) {
+      allowed.add(dayIndex);
     }
   }
 
