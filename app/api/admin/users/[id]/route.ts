@@ -56,8 +56,21 @@ export async function PATCH(request: Request, context: RouteContext) {
         id: true,
         name: true,
         email: true,
+        phone: true,
         role: true,
         createdAt: true,
+        memberships: {
+          orderBy: {
+            createdAt: "desc",
+          },
+          take: 1,
+          select: {
+            id: true,
+            tier: true,
+            status: true,
+            createdAt: true,
+          },
+        },
         _count: {
           select: {
             bookings: true,
