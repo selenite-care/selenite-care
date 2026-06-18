@@ -269,23 +269,38 @@ export default function CrmMembershipsPage() {
   }
 
   return (
-    <section className="min-h-screen bg-zinc-50 px-6 py-10 dark:bg-black">
+    <section className="min-h-screen bg-[#F8F5F0] px-6 py-10">
       <div className="mx-auto w-full max-w-7xl">
-        <div className="mb-8 rounded-3xl border border-black/10 bg-background p-8 shadow-sm dark:border-white/10 dark:bg-zinc-950">
-          <h1 className="text-3xl font-semibold text-foreground">Memberships</h1>
-          <p className="mt-2 text-sm text-foreground/70">
+        <div
+          className="mb-8 rounded-3xl border bg-white p-8 shadow-sm"
+          style={{ borderColor: "#D8C7B5" }}
+        >
+          <h1
+            className="text-3xl font-semibold"
+            style={{
+              color: "#2B2B2B",
+              fontFamily: "Playfair Display, serif",
+            }}
+          >
+            Memberships
+          </h1>
+          <p className="mt-2 text-sm" style={{ color: "#6E6257" }}>
             Review membership records, client details, and current activation status.
           </p>
         </div>
 
         {isLoading ? (
-          <p className="text-sm text-foreground/70">Loading memberships...</p>
+          <p className="text-sm" style={{ color: "#6E6257" }}>
+            Loading memberships...
+          </p>
         ) : null}
 
         {error ? <p className="text-sm text-red-600">{error}</p> : null}
 
         {!isLoading && !error && memberships.length === 0 ? (
-          <p className="text-sm text-foreground/70">No memberships found.</p>
+          <p className="text-sm" style={{ color: "#6E6257" }}>
+            No memberships found.
+          </p>
         ) : null}
 
         {!isLoading && !error && memberships.length > 0 ? (
@@ -354,14 +369,24 @@ export default function CrmMembershipsPage() {
             </div>
 
             {filteredMemberships.length === 0 ? (
-              <p className="text-sm text-foreground/70">
+              <p className="text-sm" style={{ color: "#6E6257" }}>
                 No memberships match your filters.
               </p>
             ) : (
-              <div className="overflow-hidden rounded-lg border border-black/10 bg-background dark:border-white/10">
+              <div
+                className="overflow-hidden rounded-2xl border bg-white shadow-sm"
+                style={{ borderColor: "#D8C7B5" }}
+              >
                 <div className="overflow-x-auto">
                   <table className="w-full min-w-[1100px] text-left text-sm">
-                    <thead className="border-b border-black/10 bg-zinc-50 text-foreground/70 dark:border-white/10 dark:bg-white/5">
+                    <thead
+                      className="border-b"
+                      style={{
+                        borderColor: "#D8C7B5",
+                        backgroundColor: "#F4ECE3",
+                        color: "#6E6257",
+                      }}
+                    >
                       <tr>
                         <th className="px-4 py-3 font-medium">Membership ID</th>
                         <th className="px-4 py-3 font-medium">Client Name</th>
@@ -382,16 +407,14 @@ export default function CrmMembershipsPage() {
 
                         return (
                           <Fragment key={membership.id}>
-                            <tr
-                              className="border-b border-black/10 last:border-0 dark:border-white/10"
-                            >
-                              <td className="px-4 py-4 font-mono text-xs text-foreground/70">
+                            <tr className="border-b last:border-0" style={{ borderColor: "#EFE4D8" }}>
+                              <td className="px-4 py-4 font-mono text-xs" style={{ color: "#8C7967" }}>
                                 {membership.membershipId}
                               </td>
-                              <td className="px-4 py-4 text-foreground">
+                              <td className="px-4 py-4" style={{ color: "#2B2B2B" }}>
                                 {membership.user.name ?? membership.user.email}
                               </td>
-                              <td className="px-4 py-4 text-foreground/70">
+                              <td className="px-4 py-4" style={{ color: "#6E6257" }}>
                                 {membership.user.phone ?? "-"}
                               </td>
                               <td className="px-4 py-4">
@@ -412,11 +435,11 @@ export default function CrmMembershipsPage() {
                               </td>
                               <td className="px-4 py-4">
                                 {membership.status === "PENDING" ? (
-                                  <span className="text-sm font-medium text-foreground/70">
+                                  <span className="text-sm font-medium" style={{ color: "#6E6257" }}>
                                     Pending
                                   </span>
                                 ) : daysRemaining === null ? (
-                                  <span className="text-sm font-medium text-foreground/70">
+                                  <span className="text-sm font-medium" style={{ color: "#6E6257" }}>
                                     -
                                   </span>
                                 ) : daysRemaining <= 0 ? (
@@ -435,7 +458,7 @@ export default function CrmMembershipsPage() {
                                   </span>
                                 )}
                               </td>
-                              <td className="px-4 py-4 text-foreground/70">
+                              <td className="px-4 py-4" style={{ color: "#6E6257" }}>
                                 {new Date(membership.createdAt).toLocaleString()}
                               </td>
                               <td className="px-4 py-4">
@@ -458,14 +481,20 @@ export default function CrmMembershipsPage() {
                                         : "View Quota"}
                                   </button>
                                 ) : (
-                                  <span className="text-xs text-foreground/50">
+                                  <span className="text-xs" style={{ color: "#8C7967" }}>
                                     -
                                   </span>
                                 )}
                               </td>
                             </tr>
                             {isQuotaExpanded ? (
-                              <tr className="border-b border-black/10 bg-[#FCFAF7] dark:border-white/10">
+                              <tr
+                                className="border-b"
+                                style={{
+                                  borderColor: "#EFE4D8",
+                                  backgroundColor: "#FCFAF7",
+                                }}
+                              >
                                 <td colSpan={8} className="px-4 py-5">
                                   {quotaData ? (
                                     <div className="rounded-lg border border-[#D8C7B5] bg-white p-4">
@@ -556,7 +585,7 @@ export default function CrmMembershipsPage() {
                                       ) : null}
                                     </div>
                                   ) : (
-                                    <p className="text-sm text-foreground/70">
+                                    <p className="text-sm" style={{ color: "#6E6257" }}>
                                       Quota details are not available yet.
                                     </p>
                                   )}
@@ -569,7 +598,7 @@ export default function CrmMembershipsPage() {
                     </tbody>
                   </table>
                 </div>
-                <p className="px-4 pb-4 text-xs text-foreground/60 md:hidden">
+                <p className="px-4 pb-4 text-xs md:hidden" style={{ color: "#8C7967" }}>
                   Scroll to see more
                 </p>
               </div>

@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import {
   FormEvent,
   type MutableRefObject,
@@ -8,6 +7,7 @@ import {
   useRef,
   useState,
 } from "react";
+import FileUploadButton from "@/components/ui/FileUploadButton";
 
 type Doctor = {
   id: string;
@@ -76,6 +76,12 @@ const timeOptions = [
   "9PM",
   "10PM",
 ];
+
+const inputClassName =
+  "mt-2 h-11 w-full rounded-md border bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]";
+const textareaClassName =
+  "mt-2 w-full resize-none rounded-md border bg-white px-3 py-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]";
+const inputStyle = { borderColor: "#D8C7B5" } as const;
 
 function formatAvailability(form: DoctorFormState) {
   return `${form.startDay}–${form.endDay}, ${form.startTime}–${form.endTime}`;
@@ -440,7 +446,7 @@ export default function AdminDoctorsPage() {
   }
 
   return (
-    <section className="space-y-8">
+    <section className="min-h-screen space-y-8 bg-[#F8F5F0] px-6 py-10">
       {editingDoctor ? (
         <div
           role="dialog"
@@ -491,10 +497,7 @@ export default function AdminDoctorsPage() {
             <form onSubmit={handleEditSubmit} className="mt-6 space-y-5">
               <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
                 <div>
-                  <label
-                    htmlFor="edit-name"
-                    className="block text-sm font-medium text-foreground"
-                  >
+                  <label htmlFor="edit-name" className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
                     Name
                   </label>
                   <input
@@ -507,15 +510,13 @@ export default function AdminDoctorsPage() {
                       }))
                     }
                     required
-                    className="mt-2 h-11 w-full rounded-md border border-black/10 bg-transparent px-3 text-sm outline-none transition-colors focus:border-foreground dark:border-white/10"
+                    className={inputClassName}
+                    style={inputStyle}
                   />
                 </div>
 
                 <div>
-                  <label
-                    htmlFor="edit-designation"
-                    className="block text-sm font-medium text-foreground"
-                  >
+                  <label htmlFor="edit-designation" className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
                     Designation
                   </label>
                   <input
@@ -528,15 +529,13 @@ export default function AdminDoctorsPage() {
                       }))
                     }
                     required
-                    className="mt-2 h-11 w-full rounded-md border border-black/10 bg-transparent px-3 text-sm outline-none transition-colors focus:border-foreground dark:border-white/10"
+                    className={inputClassName}
+                    style={inputStyle}
                   />
                 </div>
 
                 <div>
-                  <label
-                    htmlFor="edit-specialization"
-                    className="block text-sm font-medium text-foreground"
-                  >
+                  <label htmlFor="edit-specialization" className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
                     Specialization
                   </label>
                   <select
@@ -550,7 +549,8 @@ export default function AdminDoctorsPage() {
                       }))
                     }
                     required
-                    className="mt-2 h-11 w-full rounded-md border border-black/10 bg-transparent px-3 text-sm outline-none transition-colors focus:border-foreground dark:border-white/10"
+                    className={inputClassName}
+                    style={inputStyle}
                   >
                     {specializationOptions.map((option) => (
                       <option key={option.value} value={option.value}>
@@ -562,15 +562,12 @@ export default function AdminDoctorsPage() {
               </div>
 
               <div>
-                <p className="block text-sm font-medium text-foreground">
+                <p className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
                   Availability
                 </p>
                 <div className="mt-2 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
                   <div>
-                    <label
-                      htmlFor="edit-startDay"
-                      className="block text-sm font-medium text-foreground/70"
-                    >
+                    <label htmlFor="edit-startDay" className="block text-sm font-medium" style={{ color: "#6E6257" }}>
                       Start Day
                     </label>
                     <select
@@ -583,7 +580,8 @@ export default function AdminDoctorsPage() {
                         }))
                       }
                       required
-                      className="mt-2 h-11 w-full rounded-md border border-black/10 bg-transparent px-3 text-sm outline-none transition-colors focus:border-foreground dark:border-white/10"
+                      className={inputClassName}
+                      style={inputStyle}
                     >
                       {dayOptions.map((day) => (
                         <option key={day} value={day}>
@@ -594,10 +592,7 @@ export default function AdminDoctorsPage() {
                   </div>
 
                   <div>
-                    <label
-                      htmlFor="edit-endDay"
-                      className="block text-sm font-medium text-foreground/70"
-                    >
+                    <label htmlFor="edit-endDay" className="block text-sm font-medium" style={{ color: "#6E6257" }}>
                       End Day
                     </label>
                     <select
@@ -610,7 +605,8 @@ export default function AdminDoctorsPage() {
                         }))
                       }
                       required
-                      className="mt-2 h-11 w-full rounded-md border border-black/10 bg-transparent px-3 text-sm outline-none transition-colors focus:border-foreground dark:border-white/10"
+                      className={inputClassName}
+                      style={inputStyle}
                     >
                       {dayOptions.map((day) => (
                         <option key={day} value={day}>
@@ -621,10 +617,7 @@ export default function AdminDoctorsPage() {
                   </div>
 
                   <div>
-                    <label
-                      htmlFor="edit-startTime"
-                      className="block text-sm font-medium text-foreground/70"
-                    >
+                    <label htmlFor="edit-startTime" className="block text-sm font-medium" style={{ color: "#6E6257" }}>
                       Start Time
                     </label>
                     <select
@@ -637,7 +630,8 @@ export default function AdminDoctorsPage() {
                         }))
                       }
                       required
-                      className="mt-2 h-11 w-full rounded-md border border-black/10 bg-transparent px-3 text-sm outline-none transition-colors focus:border-foreground dark:border-white/10"
+                      className={inputClassName}
+                      style={inputStyle}
                     >
                       {timeOptions.map((time) => (
                         <option key={time} value={time}>
@@ -648,10 +642,7 @@ export default function AdminDoctorsPage() {
                   </div>
 
                   <div>
-                    <label
-                      htmlFor="edit-endTime"
-                      className="block text-sm font-medium text-foreground/70"
-                    >
+                    <label htmlFor="edit-endTime" className="block text-sm font-medium" style={{ color: "#6E6257" }}>
                       End Time
                     </label>
                     <select
@@ -664,7 +655,8 @@ export default function AdminDoctorsPage() {
                         }))
                       }
                       required
-                      className="mt-2 h-11 w-full rounded-md border border-black/10 bg-transparent px-3 text-sm outline-none transition-colors focus:border-foreground dark:border-white/10"
+                      className={inputClassName}
+                      style={inputStyle}
                     >
                       {timeOptions.map((time) => (
                         <option key={time} value={time}>
@@ -674,16 +666,13 @@ export default function AdminDoctorsPage() {
                     </select>
                   </div>
                 </div>
-                <p className="mt-2 text-sm text-foreground/60">
+                <p className="mt-2 text-sm" style={{ color: "#8C7967" }}>
                   Preview: {formatStructuredAvailability(editForm)}
                 </p>
               </div>
 
               <div>
-                <label
-                  htmlFor="edit-bio"
-                  className="block text-sm font-medium text-foreground"
-                >
+                <label htmlFor="edit-bio" className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
                   Bio
                 </label>
                 <textarea
@@ -696,55 +685,49 @@ export default function AdminDoctorsPage() {
                     }))
                   }
                   rows={4}
-                  className="mt-2 w-full resize-none rounded-md border border-black/10 bg-transparent px-3 py-3 text-sm outline-none transition-colors focus:border-foreground dark:border-white/10"
+                  className={textareaClassName}
+                  style={inputStyle}
                 />
               </div>
 
               <div>
-                <label
-                  htmlFor="edit-doctor-image"
-                  className="block text-sm font-medium text-foreground"
-                >
+                <label htmlFor="edit-doctor-image" className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
                   Profile Image
                 </label>
-                <input
-                  id="edit-doctor-image"
-                  type="file"
-                  accept="image/*"
-                  onChange={(event) =>
-                    updateImageFile(event.target.files?.[0] ?? null, {
-                      setFile: setEditImageFile,
-                      setPreview: setEditImagePreview,
-                      previewRef: editImagePreviewRef,
-                    })
-                  }
-                  className="mt-2 block w-full rounded-md border border-black/10 bg-transparent px-3 py-2 text-sm text-foreground file:mr-4 file:rounded-md file:border-0 file:bg-foreground file:px-3 file:py-2 file:text-sm file:font-medium file:text-background dark:border-white/10"
-                />
-                {editImagePreview || editingDoctor.image ? (
-                  <div className="relative mt-4 h-48 overflow-hidden rounded-md border border-black/10 bg-zinc-100 dark:border-white/10 dark:bg-zinc-900">
-                    <Image
-                      src={editImagePreview || editingDoctor.image || ""}
-                      alt={`${editingDoctor.name} preview`}
-                      fill
-                      unoptimized
-                      className="object-cover"
-                    />
-                  </div>
-                ) : null}
+                <div className="mt-2">
+                  <FileUploadButton
+                    onFileSelected={(file) =>
+                      updateImageFile(file, {
+                        setFile: setEditImageFile,
+                        setPreview: setEditImagePreview,
+                        previewRef: editImagePreviewRef,
+                      })
+                    }
+                    label="Choose Image"
+                    accept="image/*"
+                    currentPreviewUrl={editImagePreview || editingDoctor.image || undefined}
+                  />
+                </div>
               </div>
 
               <div className="flex items-center justify-end gap-3">
                 <button
                   type="button"
                   onClick={closeEditModal}
-                  className="inline-flex h-11 items-center justify-center rounded-md border px-5 text-sm font-medium transition-colors hover:bg-black/5 dark:hover:bg-white/5"
+                  className="inline-flex h-11 items-center justify-center rounded-md border px-5 text-sm font-medium transition-colors hover:bg-[#F8F5F0]"
+                  style={{
+                    borderColor: "#D8C7B5",
+                    color: "#2B2B2B",
+                    backgroundColor: "#FFFFFF",
+                  }}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isEditSubmitting}
-                  className="inline-flex h-11 items-center justify-center rounded-md bg-foreground px-5 text-sm font-medium text-background transition-colors hover:bg-foreground/85 disabled:cursor-not-allowed disabled:opacity-70"
+                  className="inline-flex h-11 items-center justify-center rounded-md px-5 text-sm font-medium transition-colors hover:bg-[#B8A89A] disabled:cursor-not-allowed disabled:opacity-70"
+                  style={{ backgroundColor: "#2B2B2B", color: "#F8F5F0" }}
                 >
                   {isEditSubmitting ? "Saving..." : "Save Changes"}
                 </button>
@@ -873,10 +856,16 @@ export default function AdminDoctorsPage() {
       ) : null}
 
       <div>
-        <h1 className="text-3xl font-semibold tracking-tight text-foreground">
+        <h1
+          className="text-3xl font-semibold tracking-tight"
+          style={{
+            color: "#2B2B2B",
+            fontFamily: "Playfair Display, serif",
+          }}
+        >
           Doctors
         </h1>
-        <p className="mt-3 text-sm leading-6 text-foreground/70">
+        <p className="mt-3 text-sm leading-6" style={{ color: "#6E6257" }}>
           Manage doctor profiles and keep their availability up to date.
         </p>
         {successMessage ? (
@@ -885,24 +874,38 @@ export default function AdminDoctorsPage() {
       </div>
 
       {isLoading ? (
-        <p className="text-sm text-foreground/70">Loading doctors...</p>
+        <p className="text-sm" style={{ color: "#6E6257" }}>
+          Loading doctors...
+        </p>
       ) : (
         <>
-          <div className="rounded-lg border border-black/10 bg-background dark:border-white/10">
-            <div className="border-b border-black/10 bg-zinc-50 px-6 py-4 dark:border-white/10 dark:bg-white/5">
-              <h2 className="text-lg font-semibold text-foreground">
+          <div
+            className="rounded-2xl border bg-white shadow-sm"
+            style={{ borderColor: "#D8C7B5" }}
+          >
+            <div
+              className="border-b px-6 py-4"
+              style={{ borderColor: "#D8C7B5", backgroundColor: "#F4ECE3" }}
+            >
+              <h2
+                className="text-lg font-semibold"
+                style={{ color: "#2B2B2B", fontFamily: "Playfair Display, serif" }}
+              >
                 All Doctors
               </h2>
             </div>
 
             {doctors.length === 0 ? (
-              <p className="px-6 py-6 text-sm text-foreground/70">
+              <p className="px-6 py-6 text-sm" style={{ color: "#6E6257" }}>
                 No doctors added yet.
               </p>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[820px] text-left text-sm">
-                  <thead className="border-b border-black/10 text-foreground/70 dark:border-white/10">
+                  <thead
+                    className="border-b"
+                    style={{ borderColor: "#D8C7B5", color: "#6E6257" }}
+                  >
                     <tr>
                       <th className="px-6 py-3 font-medium">Name</th>
                       <th className="px-6 py-3 font-medium">Designation</th>
@@ -916,9 +919,10 @@ export default function AdminDoctorsPage() {
                     {doctors.map((doctor) => (
                       <tr
                         key={doctor.id}
-                        className="border-b border-black/10 last:border-0 dark:border-white/10"
+                        className="border-b last:border-0"
+                        style={{ borderColor: "#EFE4D8" }}
                       >
-                        <td className="px-6 py-4 font-medium text-foreground">
+                        <td className="px-6 py-4 font-medium" style={{ color: "#2B2B2B" }}>
                           <div className="flex items-center gap-3">
                             <span>{doctor.name}</span>
                             {!doctor.isActive ? (
@@ -934,18 +938,18 @@ export default function AdminDoctorsPage() {
                             ) : null}
                           </div>
                         </td>
-                        <td className="px-6 py-4 text-foreground/70">
+                        <td className="px-6 py-4" style={{ color: "#6E6257" }}>
                           {doctor.designation}
                         </td>
-                        <td className="px-6 py-4 text-foreground/70">
+                        <td className="px-6 py-4" style={{ color: "#6E6257" }}>
                           {specializationOptions.find(
                             (option) => option.value === doctor.specialization,
                           )?.label ?? doctor.specialization}
                         </td>
-                        <td className="px-6 py-4 text-foreground/70">
+                        <td className="px-6 py-4" style={{ color: "#6E6257" }}>
                           {doctor.availability}
                         </td>
-                        <td className="max-w-sm px-6 py-4 text-foreground/70">
+                        <td className="max-w-sm px-6 py-4" style={{ color: "#6E6257" }}>
                           {doctor.bio ?? "Not provided"}
                         </td>
                         <td className="px-6 py-4">
@@ -953,7 +957,7 @@ export default function AdminDoctorsPage() {
                             <button
                               type="button"
                               onClick={() => openEditModal(doctor)}
-                              className="inline-flex h-9 items-center justify-center rounded-md border px-3 text-sm font-medium transition-colors hover:bg-black/5 dark:hover:bg-white/5"
+                              className="inline-flex h-9 items-center justify-center rounded-md border px-3 text-sm font-medium transition-colors hover:bg-[#F8F5F0]"
                               style={{
                                 borderColor: "#D8C7B5",
                                 color: "#2B2B2B",
@@ -991,15 +995,20 @@ export default function AdminDoctorsPage() {
             )}
           </div>
 
-          <div className="rounded-lg border border-black/10 bg-background p-6 dark:border-white/10">
-            <h2 className="text-lg font-semibold text-foreground">Add Doctor</h2>
+          <div
+            className="rounded-2xl border bg-white p-6 shadow-sm"
+            style={{ borderColor: "#D8C7B5" }}
+          >
+            <h2
+              className="text-lg font-semibold"
+              style={{ color: "#2B2B2B", fontFamily: "Playfair Display, serif" }}
+            >
+              Add Doctor
+            </h2>
             <form onSubmit={handleSubmit} className="mt-5 space-y-5">
               <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
                 <div>
-                  <label
-                    htmlFor="name"
-                    className="block text-sm font-medium text-foreground"
-                  >
+                  <label htmlFor="name" className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
                     Name
                   </label>
                   <input
@@ -1012,15 +1021,13 @@ export default function AdminDoctorsPage() {
                       }))
                     }
                     required
-                    className="mt-2 h-11 w-full rounded-md border border-black/10 bg-transparent px-3 text-sm outline-none transition-colors focus:border-foreground dark:border-white/10"
+                    className={inputClassName}
+                    style={inputStyle}
                   />
                 </div>
 
                 <div>
-                  <label
-                    htmlFor="email"
-                    className="block text-sm font-medium text-foreground"
-                  >
+                  <label htmlFor="email" className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
                     Email
                   </label>
                   <input
@@ -1034,15 +1041,13 @@ export default function AdminDoctorsPage() {
                       }))
                     }
                     required
-                    className="mt-2 h-11 w-full rounded-md border border-black/10 bg-transparent px-3 text-sm outline-none transition-colors focus:border-foreground dark:border-white/10"
+                    className={inputClassName}
+                    style={inputStyle}
                   />
                 </div>
 
                 <div>
-                  <label
-                    htmlFor="designation"
-                    className="block text-sm font-medium text-foreground"
-                  >
+                  <label htmlFor="designation" className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
                     Designation
                   </label>
                   <input
@@ -1055,15 +1060,13 @@ export default function AdminDoctorsPage() {
                       }))
                     }
                     required
-                    className="mt-2 h-11 w-full rounded-md border border-black/10 bg-transparent px-3 text-sm outline-none transition-colors focus:border-foreground dark:border-white/10"
+                    className={inputClassName}
+                    style={inputStyle}
                   />
                 </div>
 
                 <div>
-                  <label
-                    htmlFor="specialization"
-                    className="block text-sm font-medium text-foreground"
-                  >
+                  <label htmlFor="specialization" className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
                     Specialization
                   </label>
                   <select
@@ -1076,7 +1079,8 @@ export default function AdminDoctorsPage() {
                       }))
                     }
                     required
-                    className="mt-2 h-11 w-full rounded-md border border-black/10 bg-transparent px-3 text-sm outline-none transition-colors focus:border-foreground dark:border-white/10"
+                    className={inputClassName}
+                    style={inputStyle}
                   >
                     {specializationOptions.map((option) => (
                       <option key={option.value} value={option.value}>
@@ -1088,15 +1092,12 @@ export default function AdminDoctorsPage() {
               </div>
 
               <div>
-                <p className="block text-sm font-medium text-foreground">
+                <p className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
                   Availability
                 </p>
                 <div className="mt-2 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
                   <div>
-                    <label
-                      htmlFor="startDay"
-                      className="block text-sm font-medium text-foreground/70"
-                    >
+                    <label htmlFor="startDay" className="block text-sm font-medium" style={{ color: "#6E6257" }}>
                       Start Day
                     </label>
                     <select
@@ -1109,7 +1110,8 @@ export default function AdminDoctorsPage() {
                         }))
                       }
                       required
-                      className="mt-2 h-11 w-full rounded-md border border-black/10 bg-transparent px-3 text-sm outline-none transition-colors focus:border-foreground dark:border-white/10"
+                      className={inputClassName}
+                      style={inputStyle}
                     >
                       {dayOptions.map((day) => (
                         <option key={day} value={day}>
@@ -1120,10 +1122,7 @@ export default function AdminDoctorsPage() {
                   </div>
 
                   <div>
-                    <label
-                      htmlFor="endDay"
-                      className="block text-sm font-medium text-foreground/70"
-                    >
+                    <label htmlFor="endDay" className="block text-sm font-medium" style={{ color: "#6E6257" }}>
                       End Day
                     </label>
                     <select
@@ -1136,7 +1135,8 @@ export default function AdminDoctorsPage() {
                         }))
                       }
                       required
-                      className="mt-2 h-11 w-full rounded-md border border-black/10 bg-transparent px-3 text-sm outline-none transition-colors focus:border-foreground dark:border-white/10"
+                      className={inputClassName}
+                      style={inputStyle}
                     >
                       {dayOptions.map((day) => (
                         <option key={day} value={day}>
@@ -1147,10 +1147,7 @@ export default function AdminDoctorsPage() {
                   </div>
 
                   <div>
-                    <label
-                      htmlFor="startTime"
-                      className="block text-sm font-medium text-foreground/70"
-                    >
+                    <label htmlFor="startTime" className="block text-sm font-medium" style={{ color: "#6E6257" }}>
                       Start Time
                     </label>
                     <select
@@ -1163,7 +1160,8 @@ export default function AdminDoctorsPage() {
                         }))
                       }
                       required
-                      className="mt-2 h-11 w-full rounded-md border border-black/10 bg-transparent px-3 text-sm outline-none transition-colors focus:border-foreground dark:border-white/10"
+                      className={inputClassName}
+                      style={inputStyle}
                     >
                       {timeOptions.map((time) => (
                         <option key={time} value={time}>
@@ -1174,10 +1172,7 @@ export default function AdminDoctorsPage() {
                   </div>
 
                   <div>
-                    <label
-                      htmlFor="endTime"
-                      className="block text-sm font-medium text-foreground/70"
-                    >
+                    <label htmlFor="endTime" className="block text-sm font-medium" style={{ color: "#6E6257" }}>
                       End Time
                     </label>
                     <select
@@ -1190,7 +1185,8 @@ export default function AdminDoctorsPage() {
                         }))
                       }
                       required
-                      className="mt-2 h-11 w-full rounded-md border border-black/10 bg-transparent px-3 text-sm outline-none transition-colors focus:border-foreground dark:border-white/10"
+                      className={inputClassName}
+                      style={inputStyle}
                     >
                       {timeOptions.map((time) => (
                         <option key={time} value={time}>
@@ -1200,16 +1196,13 @@ export default function AdminDoctorsPage() {
                     </select>
                   </div>
                 </div>
-                <p className="mt-2 text-sm text-foreground/60">
+                <p className="mt-2 text-sm" style={{ color: "#8C7967" }}>
                   Preview: {formatStructuredAvailability(form)}
                 </p>
               </div>
 
               <div>
-                <label
-                  htmlFor="bio"
-                  className="block text-sm font-medium text-foreground"
-                >
+                <label htmlFor="bio" className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
                   Bio
                 </label>
                 <textarea
@@ -1222,41 +1215,29 @@ export default function AdminDoctorsPage() {
                     }))
                   }
                   rows={4}
-                  className="mt-2 w-full resize-none rounded-md border border-black/10 bg-transparent px-3 py-3 text-sm outline-none transition-colors focus:border-foreground dark:border-white/10"
+                  className={textareaClassName}
+                  style={inputStyle}
                 />
               </div>
 
               <div>
-                <label
-                  htmlFor="doctor-image"
-                  className="block text-sm font-medium text-foreground"
-                >
+                <label htmlFor="doctor-image" className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
                   Image
                 </label>
-                <input
-                  id="doctor-image"
-                  type="file"
-                  accept="image/*"
-                  onChange={(event) =>
-                    updateImageFile(event.target.files?.[0] ?? null, {
-                      setFile: setImageFile,
-                      setPreview: setImagePreview,
-                      previewRef: imagePreviewRef,
-                    })
-                  }
-                  className="mt-2 block w-full rounded-md border border-black/10 bg-transparent px-3 py-2 text-sm text-foreground file:mr-4 file:rounded-md file:border-0 file:bg-foreground file:px-3 file:py-2 file:text-sm file:font-medium file:text-background dark:border-white/10"
-                />
-                {imagePreview ? (
-                  <div className="relative mt-4 h-48 overflow-hidden rounded-md border border-black/10 bg-zinc-100 dark:border-white/10 dark:bg-zinc-900">
-                    <Image
-                      src={imagePreview}
-                      alt="Doctor preview"
-                      fill
-                      unoptimized
-                      className="object-cover"
-                    />
-                  </div>
-                ) : null}
+                <div className="mt-2">
+                  <FileUploadButton
+                    onFileSelected={(file) =>
+                      updateImageFile(file, {
+                        setFile: setImageFile,
+                        setPreview: setImagePreview,
+                        previewRef: imagePreviewRef,
+                      })
+                    }
+                    label="Choose Image"
+                    accept="image/*"
+                    currentPreviewUrl={imagePreview || undefined}
+                  />
+                </div>
               </div>
 
               <div className="flex items-center justify-between gap-4">
@@ -1266,7 +1247,8 @@ export default function AdminDoctorsPage() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="inline-flex h-11 items-center justify-center rounded-md bg-foreground px-5 text-sm font-medium text-background transition-colors hover:bg-foreground/85 disabled:cursor-not-allowed disabled:opacity-70"
+                  className="inline-flex h-11 items-center justify-center rounded-md px-5 text-sm font-medium transition-colors hover:bg-[#B8A89A] disabled:cursor-not-allowed disabled:opacity-70"
+                  style={{ backgroundColor: "#2B2B2B", color: "#F8F5F0" }}
                 >
                   {isSubmitting ? "Saving..." : "Add Doctor"}
                 </button>

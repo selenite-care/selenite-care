@@ -239,16 +239,22 @@ export default function AdminPendingMembershipsPage() {
   return (
     <section>
       <div>
-        <h1 className="text-3xl font-semibold tracking-tight text-foreground">
+        <h1
+          className="text-3xl font-semibold tracking-tight"
+          style={{
+            color: "#2B2B2B",
+            fontFamily: "Playfair Display, serif",
+          }}
+        >
           Pending Membership Verifications
         </h1>
-        <p className="mt-3 text-sm leading-6 text-foreground/70">
+        <p className="mt-3 text-sm leading-6" style={{ color: "#6E6257" }}>
           Review manually submitted membership payments and either verify or reject them.
         </p>
       </div>
 
       {isLoading ? (
-        <p className="mt-8 text-sm text-foreground/70">
+        <p className="mt-8 text-sm" style={{ color: "#6E6257" }}>
           Loading pending memberships...
         </p>
       ) : null}
@@ -256,7 +262,7 @@ export default function AdminPendingMembershipsPage() {
       {error ? <p className="mt-8 text-sm text-red-600">{error}</p> : null}
 
       {!isLoading && !error && pendingMemberships.length === 0 ? (
-        <p className="mt-8 text-sm text-foreground/70">
+        <p className="mt-8 text-sm" style={{ color: "#6E6257" }}>
           No pending membership verifications found.
         </p>
       ) : null}

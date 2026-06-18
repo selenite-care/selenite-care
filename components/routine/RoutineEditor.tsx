@@ -135,6 +135,15 @@ export default function RoutineEditor({
           >
             Routine
           </p>
+          <h2
+            className="mt-2 text-2xl font-semibold"
+            style={{
+              color: "#2B2B2B",
+              fontFamily: "Playfair Display, serif",
+            }}
+          >
+            Routine & Guidelines
+          </h2>
         </div>
 
         {canEdit ? (

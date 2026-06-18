@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { FormEvent, Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import FileUploadButton from "@/components/ui/FileUploadButton";
 
 const skinIssuesOptions = [
   "Excess Sebum",
@@ -150,39 +151,34 @@ function AppointmentSurveyPageContent() {
     });
   }
 
-  async function handleSkinImageUpload(files: FileList | null) {
-    if (!files?.length) {
+  async function handleSkinImageUpload(file: File) {
+    setError("");
+    if (formState.skinImages.length >= 4) {
+      setError("You can upload up to 4 skin photos.");
       return;
     }
 
-    setError("");
     setIsUploadingSkinImage(true);
-
-    const remainingSlots = 4 - formState.skinImages.length;
-    const filesToUpload = Array.from(files).slice(0, remainingSlots);
-
     try {
-      for (const file of filesToUpload) {
-        const formData = new FormData();
-        formData.append("file", file);
+      const formData = new FormData();
+      formData.append("file", file);
 
-        const response = await fetch("/api/booking/upload-skin-image", {
-          method: "POST",
-          body: formData,
-        });
-        const data = (await response.json().catch(() => null)) as
-          | { secure_url?: string; error?: string }
-          | null;
+      const response = await fetch("/api/booking/upload-skin-image", {
+        method: "POST",
+        body: formData,
+      });
+      const data = (await response.json().catch(() => null)) as
+        | { secure_url?: string; error?: string }
+        | null;
 
-        if (!response.ok || !data?.secure_url) {
-          throw new Error(data?.error ?? "Failed to upload skin image.");
-        }
-
-        setFormState((current) => ({
-          ...current,
-          skinImages: [...current.skinImages, data.secure_url as string].slice(0, 4),
-        }));
+      if (!response.ok || !data?.secure_url) {
+        throw new Error(data?.error ?? "Failed to upload skin image.");
       }
+
+      setFormState((current) => ({
+        ...current,
+        skinImages: [...current.skinImages, data.secure_url as string].slice(0, 4),
+      }));
     } catch (uploadError) {
       setError(
         uploadError instanceof Error
@@ -691,22 +687,19 @@ function AppointmentSurveyPageContent() {
               Uploading photos is optional. You can submit the survey without photos if you prefer.
             </p>
 
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              disabled={isUploadingSkinImage || formState.skinImages.length >= 4}
-              onChange={(event) => {
-                void handleSkinImageUpload(event.target.files);
-                event.target.value = "";
-              }}
-              style={{
-                borderColor: "#D8C7B5",
-                color: "#2B2B2B",
-                backgroundColor: "#FFFFFF",
-              }}
-              className="mt-4 block w-full rounded-md border px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-50"
-            />
+            <div className="mt-4">
+              <FileUploadButton
+                onFileSelected={(file) => {
+                  if (isUploadingSkinImage || formState.skinImages.length >= 4) {
+                    return;
+                  }
+
+                  void handleSkinImageUpload(file);
+                }}
+                label={isUploadingSkinImage ? "Uploading..." : "Upload Skin Photo"}
+                accept="image/*"
+              />
+            </div>
 
             <div className="mt-3 flex items-center justify-between gap-3 text-sm">
               <span style={{ color: "#B8A89A" }}>

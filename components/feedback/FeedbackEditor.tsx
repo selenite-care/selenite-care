@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import FileUploadButton from "@/components/ui/FileUploadButton";
 
 type FeedbackEditorProps = {
   bookingId: string;
@@ -80,16 +81,9 @@ export default function FeedbackEditor({
     };
   }, [bookingId]);
 
-  async function handleUpload(event: React.ChangeEvent<HTMLInputElement>) {
-    const files = event.target.files;
-
-    if (!files?.length) {
-      return;
-    }
-
+  async function handleUpload(file: File) {
     if (images.length >= 2) {
       setError("You can upload a maximum of 2 images.");
-      event.target.value = "";
       return;
     }
 
@@ -97,29 +91,24 @@ export default function FeedbackEditor({
     setError("");
 
     try {
-      const availableSlots = 2 - images.length;
-      const selectedFiles = Array.from(files).slice(0, availableSlots);
       const uploadedUrls: string[] = [];
+      const formData = new FormData();
+      formData.append("file", file);
 
-      for (const file of selectedFiles) {
-        const formData = new FormData();
-        formData.append("file", file);
+      const response = await fetch("/api/feedback/upload", {
+        method: "POST",
+        body: formData,
+      });
 
-        const response = await fetch("/api/feedback/upload", {
-          method: "POST",
-          body: formData,
-        });
+      const data = (await response.json().catch(() => null)) as
+        | { secure_url?: string; error?: string }
+        | null;
 
-        const data = (await response.json().catch(() => null)) as
-          | { secure_url?: string; error?: string }
-          | null;
-
-        if (!response.ok || !data?.secure_url) {
-          throw new Error(data?.error ?? "Unable to upload image.");
-        }
-
-        uploadedUrls.push(data.secure_url);
+      if (!response.ok || !data?.secure_url) {
+        throw new Error(data?.error ?? "Unable to upload image.");
       }
+
+      uploadedUrls.push(data.secure_url);
 
       setImages((currentImages) => [...currentImages, ...uploadedUrls].slice(0, 2));
     } catch (uploadError) {
@@ -128,7 +117,6 @@ export default function FeedbackEditor({
       );
     } finally {
       setIsUploading(false);
-      event.target.value = "";
     }
   }
 
@@ -252,16 +240,19 @@ export default function FeedbackEditor({
             <p className="mt-1 text-sm" style={{ color: "#6E6257" }}>
               You can upload up to 2 images.
             </p>
-            <input
-              id={`feedback-images-${bookingId}`}
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={handleUpload}
-              disabled={isUploading || images.length >= 2}
-              className="mt-3 block w-full text-sm"
-              style={{ color: "#2B2B2B" }}
-            />
+            <div className="mt-3">
+              <FileUploadButton
+                onFileSelected={(file) => {
+                  if (isUploading || images.length >= 2) {
+                    return;
+                  }
+
+                  void handleUpload(file);
+                }}
+                label={isUploading ? "Uploading..." : "Upload Image"}
+                accept="image/*"
+              />
+            </div>
           </div>
 
           {images.length > 0 ? (

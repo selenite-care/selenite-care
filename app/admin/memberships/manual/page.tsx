@@ -266,10 +266,16 @@ export default function AdminManualMembershipPage() {
       ) : null}
 
       <div>
-        <h1 className="text-3xl font-semibold tracking-tight text-foreground">
+        <h1
+          className="text-3xl font-semibold tracking-tight"
+          style={{
+            color: "#2B2B2B",
+            fontFamily: "Playfair Display, serif",
+          }}
+        >
           Add Membership
         </h1>
-        <p className="mt-3 text-sm leading-6 text-foreground/70">
+        <p className="mt-3 text-sm leading-6" style={{ color: "#6E6257" }}>
           Add a membership manually for walk-in customers or verified offline
           payments.
         </p>
