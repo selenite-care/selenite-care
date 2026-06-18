@@ -25,8 +25,7 @@ type DoctorFormState = {
   email: string;
   designation: string;
   specialization: "AESTHETICIAN" | "NUTRITIONIST" | "PSYCHIATRIST";
-  startDay: string;
-  endDay: string;
+  selectedDays: string[];
   startTime: string;
   endTime: string;
   bio: string;
@@ -43,14 +42,21 @@ const emptyForm: DoctorFormState = {
   email: "",
   designation: "",
   specialization: "AESTHETICIAN",
-  startDay: "Wed",
-  endDay: "Fri",
+  selectedDays: ["Wed", "Thu", "Fri"],
   startTime: "1PM",
   endTime: "5PM",
   bio: "",
 };
 
-const dayOptions = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const dayOptions = [
+  { value: "Sun", label: "Sunday" },
+  { value: "Mon", label: "Monday" },
+  { value: "Tue", label: "Tuesday" },
+  { value: "Wed", label: "Wednesday" },
+  { value: "Thu", label: "Thursday" },
+  { value: "Fri", label: "Friday" },
+  { value: "Sat", label: "Saturday" },
+] as const;
 const specializationOptions = [
   { value: "AESTHETICIAN", label: "Aesthetician" },
   { value: "NUTRITIONIST", label: "Nutritionist" },
@@ -83,43 +89,88 @@ const textareaClassName =
   "mt-2 w-full resize-none rounded-md border bg-white px-3 py-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]";
 const inputStyle = { borderColor: "#D8C7B5" } as const;
 
-function formatAvailability(form: DoctorFormState) {
-  return `${form.startDay}–${form.endDay}, ${form.startTime}–${form.endTime}`;
+function isDayOption(value: string): value is (typeof dayOptions)[number]["value"] {
+  return dayOptions.some((day) => day.value === value);
+}
+
+function expandDayToken(token: string) {
+  const normalizedToken = token.replaceAll("Ã¢â‚¬â€œ", "–").replaceAll("-", "–");
+  const orderedDays = dayOptions.map((day) => day.value);
+
+  if (!normalizedToken.includes("–")) {
+    return isDayOption(normalizedToken) ? [normalizedToken] : [];
+  }
+
+  const [startDay, endDay] = normalizedToken.split("–").map((part) => part.trim());
+
+  if (!isDayOption(startDay) || !isDayOption(endDay)) {
+    return [];
+  }
+
+  const startIndex = orderedDays.indexOf(startDay);
+  const endIndex = orderedDays.indexOf(endDay);
+
+  if (startIndex === -1 || endIndex === -1) {
+    return [];
+  }
+
+  if (startIndex <= endIndex) {
+    return orderedDays.slice(startIndex, endIndex + 1);
+  }
+
+  return [...orderedDays.slice(startIndex), ...orderedDays.slice(0, endIndex + 1)];
 }
 
 function parseAvailability(availability: string) {
   const defaults = {
-    startDay: emptyForm.startDay,
-    endDay: emptyForm.endDay,
+    selectedDays: [...emptyForm.selectedDays],
     startTime: emptyForm.startTime,
     endTime: emptyForm.endTime,
   };
 
   const normalized = availability
-    .replaceAll("â€“", "–")
+    .replaceAll("Ã¢â‚¬â€œ", "–")
     .replaceAll("-", "–")
     .trim();
-  const [daysPart, timesPart] = normalized.split(",").map((part) => part.trim());
+  const segments = normalized
+    .split(",")
+    .map((part) => part.trim())
+    .filter(Boolean);
+  const timeSegmentIndex = segments.findLastIndex(
+    (segment) => /(?:AM|PM)/i.test(segment) && segment.includes("–"),
+  );
 
-  if (!daysPart || !timesPart) {
+  if (timeSegmentIndex === -1) {
     return defaults;
   }
 
-  const [startDay, endDay] = daysPart.split("–").map((part) => part.trim());
+  const dayTokens = segments.slice(0, timeSegmentIndex);
+  const timesPart = segments[timeSegmentIndex];
   const [startTime, endTime] = timesPart.split("–").map((part) => part.trim());
+  const selectedDays = Array.from(
+    new Set(dayTokens.flatMap((token) => expandDayToken(token))),
+  );
 
   return {
-    startDay: dayOptions.includes(startDay) ? startDay : defaults.startDay,
-    endDay: dayOptions.includes(endDay) ? endDay : defaults.endDay,
+    selectedDays: selectedDays.length > 0 ? selectedDays : defaults.selectedDays,
     startTime: timeOptions.includes(startTime) ? startTime : defaults.startTime,
     endTime: timeOptions.includes(endTime) ? endTime : defaults.endTime,
   };
 }
 
 function formatStructuredAvailability(form: DoctorFormState) {
-  return `${form.startDay}\u2013${form.endDay}, ${form.startTime}\u2013${form.endTime}`;
+  return `${form.selectedDays.join(", ")}, ${form.startTime}\u2013${form.endTime}`;
 }
 
+function toggleSelectedDay(selectedDays: string[], dayValue: string) {
+  if (selectedDays.includes(dayValue)) {
+    return selectedDays.filter((day) => day !== dayValue);
+  }
+
+  return dayOptions
+    .map((day) => day.value)
+    .filter((day) => [...selectedDays, dayValue].includes(day));
+}
 export default function AdminDoctorsPage() {
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [form, setForm] = useState<DoctorFormState>(emptyForm);
@@ -243,8 +294,7 @@ export default function AdminDoctorsPage() {
       email: "",
       designation: doctor.designation,
       specialization: doctor.specialization,
-      startDay: availability.startDay,
-      endDay: availability.endDay,
+      selectedDays: availability.selectedDays,
       startTime: availability.startTime,
       endTime: availability.endTime,
       bio: doctor.bio ?? "",
@@ -261,6 +311,12 @@ export default function AdminDoctorsPage() {
     event.preventDefault();
     setError("");
     setSuccessMessage("");
+
+    if (form.selectedDays.length === 0) {
+      setError("Please select at least one available day.");
+      return;
+    }
+
     setIsSubmitting(true);
 
     let image = "";
@@ -340,6 +396,12 @@ export default function AdminDoctorsPage() {
 
     setError("");
     setSuccessMessage("");
+
+    if (editForm.selectedDays.length === 0) {
+      setError("Please select at least one available day.");
+      return;
+    }
+
     setIsEditSubmitting(true);
 
     let image = editingDoctor.image ?? "";
@@ -565,57 +627,49 @@ export default function AdminDoctorsPage() {
                 <p className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
                   Availability
                 </p>
-                <div className="mt-2 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
-                  <div>
-                    <label htmlFor="edit-startDay" className="block text-sm font-medium" style={{ color: "#6E6257" }}>
-                      Start Day
-                    </label>
-                    <select
-                      id="edit-startDay"
-                      value={editForm.startDay}
-                      onChange={(event) =>
-                        setEditForm((current) => ({
-                          ...current,
-                          startDay: event.target.value,
-                        }))
-                      }
-                      required
-                      className={inputClassName}
-                      style={inputStyle}
-                    >
-                      {dayOptions.map((day) => (
-                        <option key={day} value={day}>
-                          {day}
-                        </option>
-                      ))}
-                    </select>
+                <div
+                  className="mt-2 rounded-lg border p-4"
+                  style={{ borderColor: "#D8C7B5", backgroundColor: "#F8F5F0" }}
+                >
+                  <p className="text-sm font-medium" style={{ color: "#6E6257" }}>
+                    Available Days
+                  </p>
+                  <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                    {dayOptions.map((day) => (
+                      <label
+                        key={day.value}
+                        className="flex min-h-11 cursor-pointer items-center gap-3 rounded-md border px-3 py-2 text-sm transition-colors"
+                        style={{
+                          borderColor: editForm.selectedDays.includes(day.value)
+                            ? "#C6A56B"
+                            : "#D8C7B5",
+                          backgroundColor: editForm.selectedDays.includes(day.value)
+                            ? "#FFF8EC"
+                            : "#FFFFFF",
+                          color: "#2B2B2B",
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={editForm.selectedDays.includes(day.value)}
+                          onChange={() =>
+                            setEditForm((current) => ({
+                              ...current,
+                              selectedDays: toggleSelectedDay(
+                                current.selectedDays,
+                                day.value,
+                              ),
+                            }))
+                          }
+                          className="h-4 w-4 accent-[#C6A56B]"
+                        />
+                        <span>{day.label}</span>
+                      </label>
+                    ))}
                   </div>
+                </div>
 
-                  <div>
-                    <label htmlFor="edit-endDay" className="block text-sm font-medium" style={{ color: "#6E6257" }}>
-                      End Day
-                    </label>
-                    <select
-                      id="edit-endDay"
-                      value={editForm.endDay}
-                      onChange={(event) =>
-                        setEditForm((current) => ({
-                          ...current,
-                          endDay: event.target.value,
-                        }))
-                      }
-                      required
-                      className={inputClassName}
-                      style={inputStyle}
-                    >
-                      {dayOptions.map((day) => (
-                        <option key={day} value={day}>
-                          {day}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
+                <div className="mt-5 grid gap-5 sm:grid-cols-2">
                   <div>
                     <label htmlFor="edit-startTime" className="block text-sm font-medium" style={{ color: "#6E6257" }}>
                       Start Time
@@ -666,6 +720,11 @@ export default function AdminDoctorsPage() {
                     </select>
                   </div>
                 </div>
+                {editForm.selectedDays.length === 0 ? (
+                  <p className="mt-2 text-sm text-red-600">
+                    Please select at least one available day.
+                  </p>
+                ) : null}
                 <p className="mt-2 text-sm" style={{ color: "#8C7967" }}>
                   Preview: {formatStructuredAvailability(editForm)}
                 </p>
@@ -725,7 +784,7 @@ export default function AdminDoctorsPage() {
                 </button>
                 <button
                   type="submit"
-                  disabled={isEditSubmitting}
+                  disabled={isEditSubmitting || editForm.selectedDays.length === 0}
                   className="inline-flex h-11 items-center justify-center rounded-md px-5 text-sm font-medium transition-colors hover:bg-[#B8A89A] disabled:cursor-not-allowed disabled:opacity-70"
                   style={{ backgroundColor: "#2B2B2B", color: "#F8F5F0" }}
                 >
@@ -1095,57 +1154,49 @@ export default function AdminDoctorsPage() {
                 <p className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
                   Availability
                 </p>
-                <div className="mt-2 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
-                  <div>
-                    <label htmlFor="startDay" className="block text-sm font-medium" style={{ color: "#6E6257" }}>
-                      Start Day
-                    </label>
-                    <select
-                      id="startDay"
-                      value={form.startDay}
-                      onChange={(event) =>
-                        setForm((current) => ({
-                          ...current,
-                          startDay: event.target.value,
-                        }))
-                      }
-                      required
-                      className={inputClassName}
-                      style={inputStyle}
-                    >
-                      {dayOptions.map((day) => (
-                        <option key={day} value={day}>
-                          {day}
-                        </option>
-                      ))}
-                    </select>
+                <div
+                  className="mt-2 rounded-lg border p-4"
+                  style={{ borderColor: "#D8C7B5", backgroundColor: "#F8F5F0" }}
+                >
+                  <p className="text-sm font-medium" style={{ color: "#6E6257" }}>
+                    Available Days
+                  </p>
+                  <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                    {dayOptions.map((day) => (
+                      <label
+                        key={day.value}
+                        className="flex min-h-11 cursor-pointer items-center gap-3 rounded-md border px-3 py-2 text-sm transition-colors"
+                        style={{
+                          borderColor: form.selectedDays.includes(day.value)
+                            ? "#C6A56B"
+                            : "#D8C7B5",
+                          backgroundColor: form.selectedDays.includes(day.value)
+                            ? "#FFF8EC"
+                            : "#FFFFFF",
+                          color: "#2B2B2B",
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={form.selectedDays.includes(day.value)}
+                          onChange={() =>
+                            setForm((current) => ({
+                              ...current,
+                              selectedDays: toggleSelectedDay(
+                                current.selectedDays,
+                                day.value,
+                              ),
+                            }))
+                          }
+                          className="h-4 w-4 accent-[#C6A56B]"
+                        />
+                        <span>{day.label}</span>
+                      </label>
+                    ))}
                   </div>
+                </div>
 
-                  <div>
-                    <label htmlFor="endDay" className="block text-sm font-medium" style={{ color: "#6E6257" }}>
-                      End Day
-                    </label>
-                    <select
-                      id="endDay"
-                      value={form.endDay}
-                      onChange={(event) =>
-                        setForm((current) => ({
-                          ...current,
-                          endDay: event.target.value,
-                        }))
-                      }
-                      required
-                      className={inputClassName}
-                      style={inputStyle}
-                    >
-                      {dayOptions.map((day) => (
-                        <option key={day} value={day}>
-                          {day}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
+                <div className="mt-5 grid gap-5 sm:grid-cols-2">
                   <div>
                     <label htmlFor="startTime" className="block text-sm font-medium" style={{ color: "#6E6257" }}>
                       Start Time
@@ -1196,6 +1247,11 @@ export default function AdminDoctorsPage() {
                     </select>
                   </div>
                 </div>
+                {form.selectedDays.length === 0 ? (
+                  <p className="mt-2 text-sm text-red-600">
+                    Please select at least one available day.
+                  </p>
+                ) : null}
                 <p className="mt-2 text-sm" style={{ color: "#8C7967" }}>
                   Preview: {formatStructuredAvailability(form)}
                 </p>
@@ -1246,7 +1302,7 @@ export default function AdminDoctorsPage() {
                 </div>
                 <button
                   type="submit"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || form.selectedDays.length === 0}
                   className="inline-flex h-11 items-center justify-center rounded-md px-5 text-sm font-medium transition-colors hover:bg-[#B8A89A] disabled:cursor-not-allowed disabled:opacity-70"
                   style={{ backgroundColor: "#2B2B2B", color: "#F8F5F0" }}
                 >
@@ -1260,3 +1316,4 @@ export default function AdminDoctorsPage() {
     </section>
   );
 }
+
