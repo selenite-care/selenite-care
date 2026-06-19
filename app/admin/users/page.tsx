@@ -232,12 +232,8 @@ export default function AdminUsersPage() {
           {updateError}
         </p>
       ) : null}
-
-      {!isLoading && !error && users.length === 0 ? (
-        <p className="mt-8 text-sm text-foreground/70">No users found.</p>
-      ) : null}
-
-      {!isLoading && !error && users.length > 0 ? (
+{/* fixed filtering issue */}
+      {!isLoading && !error ? (
         <>
           <div className="mt-8 rounded-lg border border-[#D8C7B5] bg-white p-4">
             <div className="grid gap-4 md:grid-cols-[1fr_220px_220px_auto] md:items-end">
@@ -323,27 +319,33 @@ export default function AdminUsersPage() {
             </div>
           </div>
 
-          {filteredUsers.length === 0 ? (
-            <p className="mt-8 text-sm text-foreground/70">
-              No users match your filters.
-            </p>
-          ) : (
-            <div className="mt-6 overflow-hidden rounded-lg border border-black/10 bg-background dark:border-white/10">
-              <div className="overflow-x-auto">
-                <table className="w-full min-w-[720px] text-left text-sm">
-                  <thead className="border-b border-black/10 bg-zinc-50 text-foreground/70 dark:border-white/10 dark:bg-white/5">
+          <div className="mt-6 overflow-hidden rounded-lg border border-black/10 bg-background dark:border-white/10">
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[720px] text-left text-sm">
+                <thead className="border-b border-black/10 bg-zinc-50 text-foreground/70 dark:border-white/10 dark:bg-white/5">
+                  <tr>
+                    <th className="px-4 py-3 font-medium">Name</th>
+                    <th className="px-4 py-3 font-medium">Email</th>
+                    <th className="px-4 py-3 font-medium">Phone</th>
+                    <th className="px-4 py-3 font-medium">Role</th>
+                    <th className="px-4 py-3 font-medium">Membership</th>
+                    <th className="px-4 py-3 font-medium">Registration Date</th>
+                    <th className="px-4 py-3 font-medium">Total Bookings</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredUsers.length === 0 ? (
                     <tr>
-                      <th className="px-4 py-3 font-medium">Name</th>
-                      <th className="px-4 py-3 font-medium">Email</th>
-                      <th className="px-4 py-3 font-medium">Phone</th>
-                      <th className="px-4 py-3 font-medium">Role</th>
-                      <th className="px-4 py-3 font-medium">Membership</th>
-                      <th className="px-4 py-3 font-medium">Registration Date</th>
-                      <th className="px-4 py-3 font-medium">Total Bookings</th>
+                      <td
+                        colSpan={7}
+                        className="px-4 py-8 text-center text-sm"
+                        style={{ color: "#B8A89A" }}
+                      >
+                        No users match the selected filters.
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {filteredUsers.map((user) => {
+                  ) : (
+                    filteredUsers.map((user) => {
                       const colors = roleColors[user.role] || roleColors.CLIENT;
                       const latestMembership = user.memberships[0];
                       const membershipStyles = latestMembership
@@ -399,7 +401,8 @@ export default function AdminUsersPage() {
                           </td>
                         </tr>
                       );
-                    })}
+                      })
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -407,7 +410,6 @@ export default function AdminUsersPage() {
                 Scroll to see more
               </p>
             </div>
-          )}
         </>
       ) : null}
     </section>

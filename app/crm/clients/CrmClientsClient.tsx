@@ -284,8 +284,12 @@ export default function CrmClientsClient({ clients }: CrmClientsClientProps) {
             <tbody className="divide-y divide-black/10 bg-white text-sm dark:divide-white/10 dark:bg-zinc-900">
               {filteredClients.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-foreground/70">
-                    No clients match your search.
+                  <td
+                    colSpan={6}
+                    className="px-4 py-8 text-center text-sm"
+                    style={{ color: "#B8A89A" }}
+                  >
+                    No users match the selected filters.
                   </td>
                 </tr>
               ) : (
