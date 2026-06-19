@@ -232,7 +232,7 @@ export default function AdminUsersPage() {
           {updateError}
         </p>
       ) : null}
-
+{/* fixed filtering issue */}
       {!isLoading && !error ? (
         <>
           <div className="mt-8 rounded-lg border border-[#D8C7B5] bg-white p-4">
