@@ -101,6 +101,50 @@ export default function Home() {
 
       {/* ── Our Blogs & Articles ── */}
       <BlogCarousel />
+      <section
+      style={{ backgroundColor: "#FFFFFF" }}
+      className="px-6 py-20"
+      >
+      <div className="mx-auto max-w-5xl text-center">
+     <span
+      style={{ color: "#C6A56B" }}
+      className="text-sm font-medium uppercase tracking-[0.2em]"
+      >
+      Client Community
+      </span>
+
+      <h2
+      style={{
+        color: "#2B2B2B",
+        fontFamily: "Playfair Display, serif",
+      }}
+      className="mt-4 text-4xl font-bold"
+      >
+      Join Our Private Wellness Community
+      </h2>
+
+      <p
+      style={{ color: "#B8A89A" }}
+      className="mx-auto mt-6 max-w-2xl text-lg"
+      >
+      Connect with other members, share your skincare journey,
+      read real experiences, and receive exclusive wellness updates.
+      </p>
+
+      <a
+      href="https://www.facebook.com/groups/1487525968606577/"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="mt-8 inline-flex h-12 items-center justify-center rounded-md px-8 text-sm font-medium"
+      style={{
+        backgroundColor: "#1877F2",
+        color: "#FFFFFF",
+      }}
+      >
+      Join Facebook Community
+      </a>
+    </div>
+    </section>
     </div>
   );
 }

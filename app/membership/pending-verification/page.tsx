@@ -46,7 +46,7 @@ function PendingVerificationContent() {
             style={{ color: "#6E6257" }}
           >
             Your payment is being verified. This usually takes a few hours during
-            business hours. You will receive an email once your membership is
+            office hours. You will receive an email once your membership is
             activated.
           </p>
 

@@ -423,11 +423,14 @@ function BkashManualPaymentForm({
         <li>1. Open your bKash app.</li>
         <li>2. Tap Payment (not Send Money).</li>
         <li>3. Enter the merchant number above: 01810835553.</li>
-        <li>4. Enter the exact amount: {formatBdt(membership.price)}.</li>
+        <li>4. Enter the exact amount: {formatBdt(membership.price)}. or your membership won't be activated.</li>
         <li>5. Complete the payment using your bKash PIN.</li>
         <li>
           6. You will receive a Transaction ID (TrxID) via SMS confirmation -
           enter it below.
+        </li>
+        <li>
+          7. You can include either the Transaction ID or a screenshot of your payment confirmation as proof of payment.
         </li>
       </ol>
 
