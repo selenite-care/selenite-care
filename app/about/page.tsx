@@ -31,8 +31,8 @@ const teamMembers = [
   },
   {
     name: "Dr. Hritisha",
-    role: "Care Specialist",
-    image: null,
+    role: "Wellness Consultant",
+    image: "/doctors/dr hritisha.jpeg",
     description:
       "Guides clients through their next steps with clarity, warmth, and routines that feel realistic to maintain.",
   },
@@ -78,7 +78,18 @@ export default function AboutPage() {
               Selenite Care is a professional skincare consultation platform dedicated to addressing acne, dark spots, pigmentation, and other skin concerns through personalized guidance from certified aestheticians. Our mission is to help every client achieve healthier, clearer, and more confident skin with expert care and customized solutions.
             </p><br></br>
             <hr></hr><br></br>
-            <p>Since 2024</p>
+            <div className="mt-6 flex items-center gap-4">
+            <div
+            className="h-px w-12"
+            style={{ backgroundColor: "#C6A56B" }}
+            />
+            <span
+            className="text-sm uppercase tracking-[0.2em]"
+            style={{ color: "#C6A56B" }}
+            >
+             Founded in 2024
+            </span>
+            </div>
 
             <div className="mt-8 flex flex-col gap-4 sm:flex-row">
               <Link
@@ -149,6 +160,52 @@ export default function AboutPage() {
                   </p>
                 </div>
               </div>
+              <div className="mt-8 grid grid-cols-3 gap-4">
+  <div className="text-center">
+    <p
+      className="text-3xl font-bold"
+      style={{
+        color: "#C6A56B",
+        fontFamily: "Playfair Display, serif",
+      }}
+    >
+      500+
+    </p>
+    <p className="text-xs uppercase tracking-wider text-[#B8A89A]">
+      Consultations
+    </p>
+  </div>
+
+  <div className="text-center">
+    <p
+      className="text-3xl font-bold"
+      style={{
+        color: "#C6A56B",
+        fontFamily: "Playfair Display, serif",
+      }}
+    >
+      95%
+    </p>
+    <p className="text-xs uppercase tracking-wider text-[#B8A89A]">
+      Satisfaction
+    </p>
+  </div>
+
+  <div className="text-center">
+    <p
+      className="text-3xl font-bold"
+      style={{
+        color: "#C6A56B",
+        fontFamily: "Playfair Display, serif",
+      }}
+    >
+      24/7
+    </p>
+    <p className="text-xs uppercase tracking-wider text-[#B8A89A]">
+      Support
+    </p>
+  </div>
+</div>
 
               <div className="mt-8 grid gap-4 sm:grid-cols-3">
                 {[
@@ -249,6 +306,84 @@ export default function AboutPage() {
           </div>
         </div>
       </section>
+            <section
+       style={{ backgroundColor: "#FFFFFF" }}
+       className="px-6 py-20"
+      >
+      <div className="mx-auto max-w-5xl text-center">
+      <span
+      style={{ color: "#C6A56B" }}
+      className="text-sm font-medium uppercase tracking-[0.2em]"
+      >
+      Client Community
+      </span>
+
+      <h2
+      style={{
+        color: "#2B2B2B",
+        fontFamily: "Playfair Display, serif",
+      }}
+      className="mt-4 text-4xl font-bold"
+      >
+      Join Our Private Wellness Community
+      </h2>
+
+      <p
+      style={{ color: "#B8A89A" }}
+      className="mx-auto mt-6 max-w-2xl text-lg"
+      >
+      Connect with other members, share your skincare journey,
+      read real experiences, and receive exclusive wellness updates.
+      </p>
+
+        <a
+      href="https://www.facebook.com/groups/1487525968606577/"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="mt-8 inline-flex h-12 items-center justify-center rounded-md px-8 text-sm font-medium"
+      style={{
+        backgroundColor: "#1877F2",
+        color: "#FFFFFF",
+        }}
+         >
+        Join Facebook Community
+        </a>
+      </div>
+      </section>
+      <section
+      className="px-6 py-20"
+      style={{ backgroundColor: "#FFFFFF" }}
+      >
+      <div className="mx-auto max-w-4xl text-center">
+      <p
+      className="text-4xl"
+      style={{
+        color: "#C6A56B",
+        fontFamily: "Playfair Display, serif",
+      }}
+      >
+      ""
+      </p>
+
+      <blockquote
+      className="mt-4 text-2xl leading-relaxed"
+      style={{
+        color: "#2B2B2B",
+        fontFamily: "Playfair Display, serif",
+      }}
+      >
+      Beautiful skin begins with understanding, consistency, and care that
+      feels personal.
+      </blockquote>
+
+      <p
+      className="mt-6 text-sm uppercase tracking-[0.2em]"
+      style={{ color: "#B8A89A" }}
+      >
+      SELENITE CARE
+      </p>
+      </div>
+      </section>
 
       <section className="px-6 py-16" style={{ backgroundColor: "#F8F5F0" }}>
         <div className="mx-auto w-full max-w-6xl">
@@ -334,6 +469,41 @@ export default function AboutPage() {
             ))}
           </div>
         </div>
+      </section>
+      <section
+        className="px-6 py-20"
+        style={{ backgroundColor: "#2B2B2B" }}
+      >
+      <div className="mx-auto max-w-4xl text-center">
+      <h2
+      className="text-4xl font-semibold"
+      style={{
+        color: "#F8F5F0",
+        fontFamily: "Playfair Display, serif",
+      }}
+      >
+      Ready to Begin Your Skin Journey?
+      </h2>
+
+      <p
+      className="mt-4 text-lg"
+      style={{ color: "#D8C7B5" }}
+      >
+      Book your consultation today and receive personalized guidance from
+      experienced skincare professionals.
+      </p>
+
+      <Link
+      href="/services"
+      className="mt-8 inline-flex h-12 items-center justify-center rounded-md px-8 text-sm font-medium"
+      style={{
+        backgroundColor: "#C6A56B",
+        color: "#F8F5F0",
+      }}
+      >
+        Explore Memberships
+      </Link>
+      </div>
       </section>
     </div>
   );
