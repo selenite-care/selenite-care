@@ -250,17 +250,15 @@ export default function AdminServicesPage() {
 
       {isModalOpen ? (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center px-4 py-6"
+          className="modal-overlay fixed inset-0 z-50 flex items-center justify-center px-4 py-6"
           style={{ backgroundColor: "rgba(43, 43, 43, 0.72)" }}
         >
           <div
             role="dialog"
             aria-modal="true"
             aria-labelledby="service-modal-title"
-            className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg border p-6 shadow-2xl"
+            className="modal-card max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg border border-[#D8C7B5] bg-white p-6 shadow-2xl dark:border-[#3D3530] dark:bg-[#242220]"
             style={{
-              backgroundColor: "#FFFFFF",
-              borderColor: "#D8C7B5",
               boxShadow: "0 24px 80px rgba(43, 43, 43, 0.28)",
             }}
           >
@@ -268,23 +266,21 @@ export default function AdminServicesPage() {
               <div>
                 <h2
                   id="service-modal-title"
-                  className="text-xl font-semibold"
+                  className="text-xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]"
                   style={{
-                    color: "#2B2B2B",
                     fontFamily: "Playfair Display, serif",
                   }}
                 >
                   {editingService ? "Edit Service" : "Add Service"}
                 </h2>
-                <p className="mt-2 text-sm" style={{ color: "#B8A89A" }}>
+                <p className="mt-2 text-sm text-[#B8A89A] dark:text-[#8A7D75]">
                   Enter the details clients will see when choosing a service.
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => setIsModalOpen(false)}
-                className="rounded-md px-2 py-1 text-sm font-medium transition-colors hover:bg-[#F8F5F0]"
-                style={{ color: "#2B2B2B" }}
+                className="rounded-md px-2 py-1 text-sm font-medium text-[#2B2B2B] transition-colors hover:bg-[#F8F5F0] dark:text-[#F0EDE8] dark:hover:bg-[#2A2724]"
               >
                 Close
               </button>
@@ -294,8 +290,7 @@ export default function AdminServicesPage() {
               <div>
                 <label
                   htmlFor="name"
-                  className="block text-sm font-medium"
-                  style={{ color: "#2B2B2B" }}
+                  className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]"
                 >
                   Name
                 </label>
@@ -309,19 +304,14 @@ export default function AdminServicesPage() {
                     }))
                   }
                   required
-                  className="mt-2 h-11 w-full rounded-md border bg-white px-3 text-sm outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
-                  style={{
-                    borderColor: "#D8C7B5",
-                    color: "#2B2B2B",
-                  }}
+                  className="mt-2 h-11 w-full rounded-md border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
                 />
               </div>
 
               <div>
                 <label
                   htmlFor="description"
-                  className="block text-sm font-medium"
-                  style={{ color: "#2B2B2B" }}
+                  className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]"
                 >
                   Description
                 </label>
@@ -335,19 +325,14 @@ export default function AdminServicesPage() {
                     }))
                   }
                   rows={4}
-                  className="mt-2 w-full resize-none rounded-md border bg-white px-3 py-3 text-sm outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
-                  style={{
-                    borderColor: "#D8C7B5",
-                    color: "#2B2B2B",
-                  }}
+                  className="mt-2 w-full resize-none rounded-md border border-[#D8C7B5] bg-white px-3 py-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
                 />
               </div>
 
               <div>
                 <label
                   htmlFor="details"
-                  className="block text-sm font-medium"
-                  style={{ color: "#2B2B2B" }}
+                  className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]"
                 >
                   Details
                 </label>
@@ -361,19 +346,14 @@ export default function AdminServicesPage() {
                     }))
                   }
                   rows={5}
-                  className="mt-2 w-full resize-none rounded-md border bg-white px-3 py-3 text-sm outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
-                  style={{
-                    borderColor: "#D8C7B5",
-                    color: "#2B2B2B",
-                  }}
+                  className="mt-2 w-full resize-none rounded-md border border-[#D8C7B5] bg-white px-3 py-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
                 />
               </div>
 
               <div>
                 <label
                   htmlFor="price"
-                  className="block text-sm font-medium"
-                  style={{ color: "#2B2B2B" }}
+                  className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]"
                 >
                   Price
                 </label>
@@ -390,19 +370,14 @@ export default function AdminServicesPage() {
                     }))
                   }
                   required
-                  className="mt-2 h-11 w-full rounded-md border bg-white px-3 text-sm outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
-                  style={{
-                    borderColor: "#D8C7B5",
-                    color: "#2B2B2B",
-                  }}
+                  className="mt-2 h-11 w-full rounded-md border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
                 />
               </div>
 
               <div>
                 <label
                   htmlFor="originalPrice"
-                  className="block text-sm font-medium"
-                  style={{ color: "#2B2B2B" }}
+                  className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]"
                 >
                   Original Price
                 </label>
@@ -418,11 +393,7 @@ export default function AdminServicesPage() {
                       originalPrice: event.target.value,
                     }))
                   }
-                  className="mt-2 h-11 w-full rounded-md border bg-white px-3 text-sm outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
-                  style={{
-                    borderColor: "#D8C7B5",
-                    color: "#2B2B2B",
-                  }}
+                  className="mt-2 h-11 w-full rounded-md border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
                 />
               </div>
 
@@ -430,12 +401,7 @@ export default function AdminServicesPage() {
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="inline-flex h-11 items-center justify-center rounded-md border px-5 text-sm font-medium transition-colors hover:bg-[#C6A56B]/10"
-                  style={{
-                    borderColor: "#C6A56B",
-                    color: "#2B2B2B",
-                    backgroundColor: "#FFFFFF",
-                  }}
+                  className="inline-flex h-11 items-center justify-center rounded-md border border-[#C6A56B] bg-white px-5 text-sm font-medium text-[#2B2B2B] transition-colors hover:bg-[#C6A56B]/10 dark:bg-[#242220] dark:text-[#F0EDE8]"
                 >
                   Cancel
                 </button>

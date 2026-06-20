@@ -28,25 +28,16 @@ export default function FAQPage() {
         }}
       />
 
-      <section
-        className="min-h-screen px-6 py-16 sm:py-20"
-        style={{ backgroundColor: "#F8F5F0" }}
-      >
+      <section className="bg-page text-page min-h-screen px-6 py-16 sm:py-20">
         <div className="mx-auto max-w-4xl">
           <div className="text-center">
             <h1
-              className="text-4xl font-semibold sm:text-5xl"
-              style={{
-                color: "#2B2B2B",
-                fontFamily: "Playfair Display, serif",
-              }}
+              className="text-page text-4xl font-semibold sm:text-5xl"
+              style={{ fontFamily: "Playfair Display, serif" }}
             >
               Frequently Asked Questions
             </h1>
-            <p
-              className="mx-auto mt-4 max-w-2xl text-base leading-7 sm:text-lg"
-              style={{ color: "#6E6257" }}
-            >
+            <p className="text-muted mx-auto mt-4 max-w-2xl text-base leading-7 sm:text-lg">
               Find answers to common questions about Selenite Care.
             </p>
           </div>

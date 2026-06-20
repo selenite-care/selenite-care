@@ -207,24 +207,19 @@ function AppointmentDatePageContent() {
   }
 
   return (
-    <main
-      className="min-h-screen px-6 py-16"
-      style={{ backgroundColor: "#F8F5F0" }}
-    >
+    <main className="min-h-screen bg-[#F8F5F0] px-6 py-16 dark:bg-[#1A1814]">
       <div className="mx-auto w-full max-w-6xl">
         <div className="max-w-3xl">
           <h1
-            className="text-4xl font-bold sm:text-5xl"
+            className="text-4xl font-bold text-[#2B2B2B] dark:text-[#F0EDE8] sm:text-5xl"
             style={{
               fontFamily: "Playfair Display, serif",
-              color: "#2B2B2B",
             }}
           >
             Choose Appointment Date
           </h1>
           <p
-            className="mt-5 text-base leading-8 sm:text-lg"
-            style={{ color: "#6E6257" }}
+            className="mt-5 text-base leading-8 text-[#6E6257] dark:text-[#8A7D75] sm:text-lg"
           >
             Select a preferred date within the next 30 days based on your
             doctor&apos;s schedule.
@@ -232,7 +227,7 @@ function AppointmentDatePageContent() {
         </div>
 
         {isLoading ? (
-          <p className="mt-10 text-sm" style={{ color: "#B8A89A" }}>
+          <p className="mt-10 text-sm text-[#B8A89A] dark:text-[#8A7D75]">
             Loading doctor details...
           </p>
         ) : null}
@@ -249,7 +244,7 @@ function AppointmentDatePageContent() {
         {!isLoading && !error && doctor ? (
           <div className="mt-10 grid gap-8 lg:grid-cols-[320px_minmax(0,1fr)]">
             <section
-              className="overflow-hidden rounded-[24px] border bg-white"
+              className="overflow-hidden rounded-[24px] border bg-white dark:bg-[#242220] dark:border-[#3D3530]"
               style={{
                 borderColor: "#D8C7B5",
                 boxShadow: "0 18px 48px rgba(43, 43, 43, 0.06)",
@@ -267,12 +262,11 @@ function AppointmentDatePageContent() {
                 </div>
               ) : (
                 <div
-                  className="flex h-72 w-full items-center justify-center"
+                  className="flex h-72 w-full items-center justify-center dark:bg-[#2B2724]"
                   style={{ backgroundColor: "#E8DDD3" }}
                 >
                   <span
-                    className="text-4xl font-semibold"
-                    style={{ color: "#2B2B2B" }}
+                    className="text-4xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]"
                   >
                     {getInitials(doctor.name)}
                   </span>
@@ -281,30 +275,29 @@ function AppointmentDatePageContent() {
 
               <div className="p-6">
                 <h2
-                  className="text-2xl font-semibold"
+                  className="text-2xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]"
                   style={{
-                    color: "#2B2B2B",
                     fontFamily: "Playfair Display, serif",
                   }}
                 >
                   {doctor.name}
                 </h2>
-                <p className="mt-2 text-sm font-medium" style={{ color: "#8C7967" }}>
+                <p className="mt-2 text-sm font-medium text-[#8C7967] dark:text-[#8A7D75]">
                   {doctor.designation}
                 </p>
-                <p className="mt-4 text-sm leading-6" style={{ color: "#6E6257" }}>
+                <p className="mt-4 text-sm leading-6 text-[#6E6257] dark:text-[#8A7D75]">
                   {doctor.bio ?? "Doctor profile coming soon."}
                 </p>
 
                 <div
-                  className="mt-5 rounded-xl border px-4 py-3 text-sm"
+                  className="mt-5 rounded-xl border px-4 py-3 text-sm dark:bg-[#1A1814] dark:border-[#3D3530] dark:text-[#8A7D75]"
                   style={{
                     borderColor: "#D8C7B5",
                     backgroundColor: "#F8F5F0",
                     color: "#6E6257",
                   }}
                 >
-                  <span className="font-medium" style={{ color: "#2B2B2B" }}>
+                  <span className="font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
                     Availability:
                   </span>{" "}
                   {doctor.availability}
@@ -313,7 +306,7 @@ function AppointmentDatePageContent() {
             </section>
 
             <section
-              className="rounded-[24px] border bg-white p-6 sm:p-8"
+              className="rounded-[24px] border bg-white p-6 dark:bg-[#242220] dark:border-[#3D3530] sm:p-8"
               style={{
                 borderColor: "#D8C7B5",
                 boxShadow: "0 18px 48px rgba(43, 43, 43, 0.06)",
@@ -322,15 +315,14 @@ function AppointmentDatePageContent() {
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <h2
-                    className="text-2xl font-semibold"
+                    className="text-2xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]"
                     style={{
-                      color: "#2B2B2B",
                       fontFamily: "Playfair Display, serif",
                     }}
                   >
                     Available Dates
                   </h2>
-                  <p className="mt-2 text-sm leading-6" style={{ color: "#6E6257" }}>
+                  <p className="mt-2 text-sm leading-6 text-[#6E6257] dark:text-[#8A7D75]">
                     Only the highlighted weekdays can be selected.
                   </p>
                 </div>
@@ -394,14 +386,14 @@ function AppointmentDatePageContent() {
               </div>
 
               <div
-                className="mt-8 rounded-xl border px-4 py-3 text-sm"
+                className="mt-8 rounded-xl border px-4 py-3 text-sm dark:bg-[#1A1814] dark:border-[#3D3530] dark:text-[#8A7D75]"
                 style={{
                   borderColor: "#D8C7B5",
                   backgroundColor: "#F8F5F0",
                   color: "#6E6257",
                 }}
               >
-                <span className="font-medium" style={{ color: "#2B2B2B" }}>
+                <span className="font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
                   Selected Date:
                 </span>{" "}
                 {selectedDate
@@ -436,12 +428,9 @@ function AppointmentDatePageContent() {
 
 function AppointmentDateLoadingFallback() {
   return (
-    <section
-      className="flex min-h-screen flex-col px-6 py-16"
-      style={{ backgroundColor: "#F8F5F0" }}
-    >
+    <section className="flex min-h-screen flex-col bg-[#F8F5F0] px-6 py-16 dark:bg-[#1A1814]">
       <div className="mx-auto w-full max-w-6xl">
-        <p className="text-sm" style={{ color: "#B8A89A" }}>
+        <p className="text-sm text-[#B8A89A] dark:text-[#8A7D75]">
           Loading...
         </p>
       </div>

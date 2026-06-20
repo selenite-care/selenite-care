@@ -391,9 +391,6 @@ export function FeatureCard({ feature, index, total }: { feature: Feature; index
   return (
     <article
       style={{
-        backgroundColor: "#FFFFFF",
-        borderColor: "#D8C7B5",
-        borderWidth: "1px",
         animationDelay: `${(total - 1 - index) * 400}ms`,
         borderRadius: 16,
         padding: "28px 24px",
@@ -401,7 +398,7 @@ export function FeatureCard({ feature, index, total }: { feature: Feature; index
         overflow: "hidden",
         transition: "box-shadow 0.3s ease, transform 0.3s ease",
       }}
-      className="feature-card-slide-in group"
+      className="feature-card-slide-in group border border-[#D8C7B5] bg-white dark:border-[#3D3530] dark:bg-[#242220]"
       onMouseEnter={(e) => {
         (e.currentTarget as HTMLElement).style.boxShadow = "0 12px 40px rgba(198,165,107,0.18)";
         (e.currentTarget as HTMLElement).style.transform = "translateY(-3px)";
@@ -429,22 +426,35 @@ export function FeatureCard({ feature, index, total }: { feature: Feature; index
         className="group-hover:opacity-100"
       />
 
-      <div
-        style={{
-          width: 46, height: 46,
-          background: "linear-gradient(135deg, #C6A56B 0%, #a8864d 100%)",
-          borderRadius: 14, display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: 20, color: "#FFF8EE", boxShadow: "0 4px 16px rgba(198,165,107,0.3)",
-        }}
-      >
-        {feature.icon}
+      <div className="flex items-start justify-between gap-4">
+        <div
+          style={{
+            width: 46, height: 46,
+            background: "linear-gradient(135deg, #C6A56B 0%, #a8864d 100%)",
+            borderRadius: 14, display: "flex", alignItems: "center", justifyContent: "center",
+            fontSize: 20, color: "#FFF8EE", boxShadow: "0 4px 16px rgba(198,165,107,0.3)",
+          }}
+        >
+          {feature.icon}
+        </div>
+
+        <span className="rounded-full border border-[#D8C7B5] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#B8A89A] dark:border-[#3D3530] dark:text-[#8A7D75]">
+          0{index + 1}
+        </span>
       </div>
 
-      <h3 style={{ color: "#2B2B2B", marginTop: 18, fontSize: 16, fontWeight: 700, fontFamily: "Playfair Display, Georgia, serif" }}>
+      <h3
+        className="mt-5 text-[18px] font-bold text-[#2B2B2B] dark:text-[#F0EDE8]"
+        style={{ fontFamily: "Playfair Display, Georgia, serif" }}
+      >
         {feature.title}
       </h3>
-      <p style={{ color: "#B8A89A", marginTop: 10, fontSize: 13, lineHeight: 1.65 }}>
+      <div className="mt-4 h-px w-14 rounded-full bg-gradient-to-r from-[#C6A56B] to-transparent" />
+      <p className="mt-4 text-[13px] leading-7 text-[#6E6257] dark:text-[#8A7D75]">
         {feature.description}
+      </p>
+      <p className="mt-6 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#C6A56B] dark:text-[#D4B47A]">
+        Thoughtful care, clearly delivered
       </p>
     </article>
   );

@@ -145,27 +145,27 @@ export default function AdminProductsPage() {
         throw new Error(data?.error ?? "Unable to delete product.");
       }
 
-      const nextPage =
-        products.length === 1 && page > 1 ? page - 1 : page;
+      const nextPage = products.length === 1 && page > 1 ? page - 1 : page;
       setPage(nextPage);
       await loadProducts(nextPage, searchQuery);
     } catch (deleteError) {
       setError(
-        deleteError instanceof Error
-          ? deleteError.message
-          : "Unable to delete product.",
+        deleteError instanceof Error ? deleteError.message : "Unable to delete product.",
       );
     }
   }
 
   return (
-    <section>
+    <section className="min-h-screen bg-[#F8F5F0] px-6 py-10 dark:bg-[#1A1814]">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight text-foreground">
+          <h1 className="text-3xl font-semibold tracking-tight text-[#2B2B2B] dark:text-[#F0EDE8]"
+          style={{
+            fontFamily: "Playfair Display, serif",
+          }}>
             Products
           </h1>
-          <p className="mt-3 text-sm leading-6 text-foreground/70">
+          <p className="mt-3 text-sm leading-6 text-[#B8A89A] dark:text-[#8A7D75]">
             Search, add, and manage product recommendations.
           </p>
         </div>
@@ -173,8 +173,7 @@ export default function AdminProductsPage() {
         <div className="w-full max-w-md">
           <label
             htmlFor="product-search"
-            className="block text-sm font-medium"
-            style={{ color: "#2B2B2B" }}
+            className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]"
           >
             Search Products
           </label>
@@ -186,31 +185,27 @@ export default function AdminProductsPage() {
               setPage(1);
             }}
             placeholder="Search by name, type, or skin type"
-            className="mt-2 h-11 w-full rounded-md border bg-white px-3 text-sm outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
-            style={{
-              borderColor: "#D8C7B5",
-              color: "#2B2B2B",
-            }}
+            className="mt-2 h-11 w-full rounded-md border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8] dark:placeholder-[#8A7D75]"
           />
         </div>
       </div>
 
       <div className="mt-8 grid gap-6 xl:grid-cols-[minmax(0,1.4fr)_minmax(320px,0.8fr)]">
-        <div className="rounded-lg border border-black/10 bg-background dark:border-white/10">
-          <div className="border-b border-black/10 px-5 py-4 dark:border-white/10">
-            <p className="text-sm text-foreground/70">
+        <div className="rounded-lg border border-themed bg-card">
+          <div className="border-b border-themed px-5 py-4">
+            <p className="text-sm text-muted">
               {totalCount} product{totalCount === 1 ? "" : "s"} found
             </p>
           </div>
 
           {isLoading ? (
-            <p className="px-5 py-6 text-sm text-foreground/70">Loading products...</p>
+            <p className="px-5 py-6 text-sm text-muted">Loading products...</p>
           ) : products.length === 0 ? (
-            <p className="px-5 py-6 text-sm text-foreground/70">No products found.</p>
+            <p className="px-5 py-6 text-sm text-muted">No products found.</p>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[640px] text-left text-sm">
-                <thead className="border-b border-black/10 bg-zinc-50 text-foreground/70 dark:border-white/10 dark:bg-white/5">
+              <table className="table-themed w-full min-w-[640px] text-left text-sm">
+                <thead>
                   <tr>
                     <th className="px-4 py-3 font-medium">Name</th>
                     <th className="px-4 py-3 font-medium">Type</th>
@@ -220,19 +215,10 @@ export default function AdminProductsPage() {
                 </thead>
                 <tbody>
                   {products.map((product) => (
-                    <tr
-                      key={product.id}
-                      className="border-b border-black/10 last:border-0 dark:border-white/10"
-                    >
-                      <td className="px-4 py-4 font-medium text-foreground">
-                        {product.name}
-                      </td>
-                      <td className="px-4 py-4 text-foreground/70">
-                        {product.type}
-                      </td>
-                      <td className="px-4 py-4 text-foreground/70">
-                        {formatBdt(product.price)}
-                      </td>
+                    <tr key={product.id}>
+                      <td className="px-4 py-4 font-medium">{product.name}</td>
+                      <td className="cell-muted px-4 py-4">{product.type}</td>
+                      <td className="cell-muted px-4 py-4">{formatBdt(product.price)}</td>
                       <td className="px-4 py-4">
                         <button
                           type="button"
@@ -249,17 +235,16 @@ export default function AdminProductsPage() {
             </div>
           )}
 
-          <div className="flex items-center justify-between gap-3 border-t border-black/10 px-5 py-4 text-sm dark:border-white/10">
+          <div className="flex items-center justify-between gap-3 border-t border-themed px-5 py-4 text-sm">
             <button
               type="button"
               onClick={() => setPage((current) => Math.max(current - 1, 1))}
               disabled={page <= 1 || isLoading}
-              className="inline-flex h-10 items-center justify-center rounded-md border px-4 font-medium transition-colors hover:bg-[#C6A56B]/10 disabled:cursor-not-allowed disabled:opacity-60"
-              style={{ borderColor: "#C6A56B", color: "#2B2B2B" }}
+              className="inline-flex h-10 items-center justify-center rounded-md border border-[#C6A56B] px-4 font-medium text-[#2B2B2B] transition-colors hover:bg-[#C6A56B]/10 disabled:cursor-not-allowed disabled:opacity-60 dark:text-[#F0EDE8]"
             >
               Previous
             </button>
-            <span style={{ color: "#6E6257" }}>
+            <span className="text-[#B8A89A] dark:text-[#8A7D75]">
               Page {page} of {totalPages}
             </span>
             <button
@@ -268,8 +253,7 @@ export default function AdminProductsPage() {
                 setPage((current) => Math.min(current + 1, totalPages))
               }
               disabled={page >= totalPages || isLoading}
-              className="inline-flex h-10 items-center justify-center rounded-md border px-4 font-medium transition-colors hover:bg-[#C6A56B]/10 disabled:cursor-not-allowed disabled:opacity-60"
-              style={{ borderColor: "#C6A56B", color: "#2B2B2B" }}
+              className="inline-flex h-10 items-center justify-center rounded-md border border-[#C6A56B] px-4 font-medium text-[#2B2B2B] transition-colors hover:bg-[#C6A56B]/10 disabled:cursor-not-allowed disabled:opacity-60 dark:text-[#F0EDE8]"
             >
               Next
             </button>
@@ -278,9 +262,8 @@ export default function AdminProductsPage() {
 
         <section className="rounded-lg border border-black/10 bg-background p-6 dark:border-white/10">
           <h2
-            className="text-xl font-semibold"
+            className="text-xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]"
             style={{
-              color: "#2B2B2B",
               fontFamily: "Playfair Display, serif",
             }}
           >
@@ -294,8 +277,7 @@ export default function AdminProductsPage() {
             <div>
               <label
                 htmlFor="name"
-                className="block text-sm font-medium"
-                style={{ color: "#2B2B2B" }}
+                className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]"
               >
                 Name
               </label>
@@ -306,16 +288,14 @@ export default function AdminProductsPage() {
                   setForm((current) => ({ ...current, name: event.target.value }))
                 }
                 required
-                className="mt-2 h-11 w-full rounded-md border bg-white px-3 text-sm outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
-                style={{ borderColor: "#D8C7B5", color: "#2B2B2B" }}
+                className="mt-2 h-11 w-full rounded-md border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
               />
             </div>
 
             <div>
               <label
                 htmlFor="type"
-                className="block text-sm font-medium"
-                style={{ color: "#2B2B2B" }}
+                className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]"
               >
                 Type
               </label>
@@ -326,16 +306,14 @@ export default function AdminProductsPage() {
                   setForm((current) => ({ ...current, type: event.target.value }))
                 }
                 required
-                className="mt-2 h-11 w-full rounded-md border bg-white px-3 text-sm outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
-                style={{ borderColor: "#D8C7B5", color: "#2B2B2B" }}
+                className="mt-2 h-11 w-full rounded-md border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
               />
             </div>
 
             <div>
               <label
                 htmlFor="price"
-                className="block text-sm font-medium"
-                style={{ color: "#2B2B2B" }}
+                className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]"
               >
                 Price
               </label>
@@ -349,8 +327,7 @@ export default function AdminProductsPage() {
                   setForm((current) => ({ ...current, price: event.target.value }))
                 }
                 required
-                className="mt-2 h-11 w-full rounded-md border bg-white px-3 text-sm outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
-                style={{ borderColor: "#D8C7B5", color: "#2B2B2B" }}
+                className="mt-2 h-11 w-full rounded-md border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
               />
             </div>
 

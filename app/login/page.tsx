@@ -50,17 +50,8 @@ function LoginPageContent() {
 
   if (status === "authenticated") {
     return (
-      <section
-        style={{
-          display: "flex",
-          flex: 1,
-          alignItems: "center",
-          justifyContent: "center",
-          backgroundColor: "#F8F5F0",
-          minHeight: "100vh",
-        }}
-      >
-        <p style={{ color: "#B8A89A", fontSize: "14px" }}>Redirecting...</p>
+      <section className="bg-page flex min-h-screen flex-1 items-center justify-center px-4">
+        <p className="text-muted text-sm">Redirecting...</p>
       </section>
     );
   }
@@ -149,69 +140,28 @@ function LoginPageContent() {
   }
 
   return (
-    <section style={{
-      display: 'flex',
-      flex: 1,
-      alignItems: 'center',
-      justifyContent: 'center',
-      backgroundColor: '#F8F5F0',
-      paddingLeft: '16px',
-      paddingRight: '16px',
-      paddingTop: '0px',
-      paddingBottom: '64px',
-      minHeight: '100vh',
-    }}>
-      <div style={{
-        marginLeft: 'auto',
-        marginRight: 'auto',
-        width: '100%',
-        maxWidth: '384px',
-        boxSizing: 'border-box',
-      }}>
-        <div style={{ marginBottom: '32px', textAlign: 'center' }}>
-          <h1 style={{
-            fontSize: '28px',
-            fontWeight: '600',
-            letterSpacing: '-0.015em',
-            color: '#2B2B2B',
-            fontFamily: '"Playfair Display", serif',
-          }}>
+    <section className="bg-page flex min-h-screen flex-1 items-center justify-center px-4 pb-16 pt-0">
+      <div className="mx-auto w-full max-w-sm box-border">
+        <div className="mb-8 text-center">
+          <h1
+            className="text-page text-[28px] font-semibold tracking-[-0.015em]"
+            style={{ fontFamily: '"Playfair Display", serif' }}
+          >
             Selenite Care
           </h1>
-          <p style={{
-            marginTop: '12px',
-            fontSize: '14px',
-            lineHeight: '1.5',
-            color: '#B8A89A',
-          }}>
+          <p className="text-muted mt-3 text-sm leading-6">
             Sign in to manage your appointments and care plan.
           </p>
         </div>
 
         <form
           onSubmit={handleSubmit}
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '20px',
-            borderRadius: '12px',
-            border: '1px solid #D8C7B5',
-            backgroundColor: '#FFFFFF',
-            padding: '20px',
-            width: '100%',
-            boxSizing: 'border-box',
-          }}
+          className="border-themed bg-card flex w-full flex-col gap-5 rounded-xl border p-5 shadow-[0_16px_34px_rgba(43,43,43,0.06)] dark:shadow-none"
         >
           <div>
             <label
               htmlFor="email"
-              style={{
-                display: 'block',
-                fontSize: '14px',
-                fontWeight: '500',
-                color: '#2B2B2B',
-                marginBottom: '8px',
-              }}
+              className="text-page mb-2 block text-sm font-medium"
             >
               Email
             </label>
@@ -223,19 +173,7 @@ function LoginPageContent() {
               required
               value={email}
               onChange={(event) => setEmail(event.target.value)}
-              style={{
-                height: '44px',
-                width: '100%',
-                borderRadius: '8px',
-                border: '1px solid #D8C7B5',
-                backgroundColor: '#FFFFFF',
-                paddingLeft: '12px',
-                paddingRight: '12px',
-                fontSize: '14px',
-                color: '#2B2B2B',
-                outline: 'none',
-                transition: 'border-color 0.2s ease',
-              }}
+              className="h-11 w-full rounded-lg border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors dark:bg-[#1E1C1A] dark:border-[#3D3530] dark:text-[#F0EDE8] dark:placeholder-[#8A7D75]"
               onFocus={(e) => {
                 e.currentTarget.style.borderColor = '#C6A56B';
               }}
@@ -248,13 +186,7 @@ function LoginPageContent() {
           <div>
             <label
               htmlFor="password"
-              style={{
-                display: 'block',
-                fontSize: '14px',
-                fontWeight: '500',
-                color: '#2B2B2B',
-                marginBottom: '8px',
-              }}
+              className="text-page mb-2 block text-sm font-medium"
             >
               Password
             </label>
@@ -264,19 +196,7 @@ function LoginPageContent() {
               type="password"
               autoComplete="current-password"
               required
-              style={{
-                height: '44px',
-                width: '100%',
-                borderRadius: '8px',
-                border: '1px solid #D8C7B5',
-                backgroundColor: '#FFFFFF',
-                paddingLeft: '12px',
-                paddingRight: '12px',
-                fontSize: '14px',
-                color: '#2B2B2B',
-                outline: 'none',
-                transition: 'border-color 0.2s ease',
-              }}
+              className="h-11 w-full rounded-lg border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors dark:bg-[#1E1C1A] dark:border-[#3D3530] dark:text-[#F0EDE8] dark:placeholder-[#8A7D75]"
               onFocus={(e) => {
                 e.currentTarget.style.borderColor = '#C6A56B';
               }}
@@ -287,43 +207,28 @@ function LoginPageContent() {
             <div style={{ marginTop: '8px', textAlign: 'right' }}>
               <a
                 href="/forgot-password"
-                style={{
-                  fontSize: '13px',
-                  color: '#C6A56B',
-                  textDecoration: 'underline',
-                }}
+                className="text-[13px] text-[#C6A56B] underline transition-opacity hover:opacity-80 dark:text-[#D4B47A]"
               >
                 Forgot password?
               </a>
             </div>
           </div>
 
-          {error ? <p style={{
-            fontSize: '14px',
-            color: '#dc2626',
-          }}>{error}</p> : null}
+          {error ? (
+            <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+          ) : null}
 
           {showResendVerification ? (
-            <div style={{ marginTop: '-8px' }}>
+            <div className="-mt-2">
               <button
                 type="button"
                 onClick={handleResendVerification}
                 disabled={isResending || resendCountdown > 0 || !email}
-                style={{
-                  padding: 0,
-                  border: 'none',
-                  background: 'none',
-                  color:
-                    isResending || resendCountdown > 0 || !email
-                      ? '#B8A89A'
-                      : '#C6A56B',
-                  fontSize: '14px',
-                  textDecoration: 'underline',
-                  cursor:
-                    isResending || resendCountdown > 0 || !email
-                      ? 'not-allowed'
-                      : 'pointer',
-                }}
+                className={`bg-transparent p-0 text-sm underline transition-opacity ${
+                  isResending || resendCountdown > 0 || !email
+                    ? "cursor-not-allowed text-[#B8A89A] dark:text-[#8A7D75]"
+                    : "cursor-pointer text-[#C6A56B] hover:opacity-80 dark:text-[#D4B47A]"
+                }`}
               >
                 {isResending
                   ? 'Sending...'
@@ -333,14 +238,11 @@ function LoginPageContent() {
               </button>
               {resendMessage ? (
                 <p
-                  style={{
-                    marginTop: '8px',
-                    fontSize: '13px',
-                    lineHeight: '1.5',
-                    color: resendMessage.includes('already verified')
-                      ? '#8A6A2F'
-                      : '#6E6257',
-                  }}
+                  className={`mt-2 text-[13px] leading-6 ${
+                    resendMessage.includes('already verified')
+                      ? "text-[#8A6A2F] dark:text-[#D4B47A]"
+                      : "text-[#6E6257] dark:text-[#8A7D75]"
+                  }`}
                 >
                   {resendMessage}
                 </p>
@@ -351,55 +253,26 @@ function LoginPageContent() {
           <button
             type="submit"
             disabled={isSubmitting}
-            style={{
-              display: 'flex',
-              height: '44px',
-              width: '100%',
-              alignItems: 'center',
-              justifyContent: 'center',
-              borderRadius: '8px',
-              backgroundColor: isSubmitting ? '#D8C7B5' : '#2B2B2B',
-              paddingLeft: '16px',
-              paddingRight: '16px',
-              fontSize: '14px',
-              fontWeight: '500',
-              color: '#F8F5F0',
-              border: 'none',
-              cursor: isSubmitting ? 'not-allowed' : 'pointer',
-              opacity: isSubmitting ? 0.7 : 1,
-              transition: 'background-color 0.2s ease',
-            }}
+            className={`flex h-11 w-full items-center justify-center rounded-lg border-0 px-4 text-sm font-medium text-[#F8F5F0] transition-colors ${
+              isSubmitting
+                ? "cursor-not-allowed bg-[#D8C7B5] opacity-70 dark:bg-[#3D3530] dark:text-[#8A7D75]"
+                : "cursor-pointer bg-[#2B2B2B] hover:bg-[#B8A89A] dark:bg-[#C6A56B] dark:text-[#141210] dark:hover:bg-[#D4B47A]"
+            }`}
             onMouseEnter={(e) => {
-              if (!isSubmitting) {
-                e.currentTarget.style.backgroundColor = '#B8A89A';
-              }
+              void e;
             }}
             onMouseLeave={(e) => {
-              if (!isSubmitting) {
-                e.currentTarget.style.backgroundColor = '#2B2B2B';
-              }
+              void e;
             }}
           >
             {isSubmitting ? "Signing in..." : "Sign in"}
           </button>
-          <p style={{
-            marginTop: '12px',
-            fontSize: '14px',
-            lineHeight: '1.5',
-            textAlign: 'center',
-            color: '#B8A89A',
-          }}>
-            Not an User? 
+          <p className="text-muted mt-3 text-center text-sm leading-6">
+            Not a User?{" "}
             <a 
             href="/register"
-            style={{
-            marginTop: '12px',
-            fontSize: '14px',
-            lineHeight: '1.5',
-            textAlign: 'center',
-            color: '#2B2B2B',
-            textDecoration: 'underline',
-          }}> Register </a>here.
+            className="text-page underline transition-opacity hover:opacity-80"
+          > Register </a>here.
           </p>
         </form>
       </div>
@@ -409,17 +282,8 @@ function LoginPageContent() {
 
 function LoginLoadingFallback() {
   return (
-    <section
-      style={{
-        display: "flex",
-        flex: 1,
-        alignItems: "center",
-        justifyContent: "center",
-        backgroundColor: "#F8F5F0",
-        minHeight: "100vh",
-      }}
-    >
-      <p style={{ color: "#B8A89A", fontSize: "14px" }}>Loading...</p>
+    <section className="bg-page flex min-h-screen flex-1 items-center justify-center px-4">
+      <p className="text-muted text-sm">Loading...</p>
     </section>
   );
 }

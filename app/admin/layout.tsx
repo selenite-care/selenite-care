@@ -17,22 +17,13 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="flex flex-1" style={{ backgroundColor: "#F8F5F0" }}>
-      <aside
-        className="hidden w-72 px-6 py-8 md:block"
-        style={{ backgroundColor: "#2B2B2B" }}
-      >
+    <div className="bg-page flex flex-1">
+      <aside className="bg-sidebar-themed text-sidebar-themed hidden w-72 px-6 py-8 md:block">
         <div>
-          <p
-            className="text-sm font-medium uppercase"
-            style={{ color: "#B8A89A" }}
-          >
+          <p className="text-sm font-medium uppercase text-[var(--muted)]">
             Admin
           </p>
-          <h1
-            className="mt-2 text-xl font-semibold tracking-tight"
-            style={{ color: "#F8F5F0" }}
-          >
+          <h1 className="mt-2 text-xl font-semibold tracking-tight text-[var(--sidebar-text)]">
             Selenite Care
           </h1>
         </div>
@@ -41,20 +32,14 @@ export default async function AdminLayout({
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <div
-          className="flex items-center justify-between px-6 py-4 md:hidden"
-          style={{ backgroundColor: "#2B2B2B" }}
-        >
-          <p className="text-sm font-medium" style={{ color: "#F8F5F0" }}>
+        <div className="bg-sidebar-themed text-sidebar-themed flex items-center justify-between px-6 py-4 md:hidden">
+          <p className="text-sm font-medium text-[var(--sidebar-text)]">
             Admin
           </p>
           <AdminMobileNav />
         </div>
 
-        <main
-          className="admin-main flex-1 px-6 py-8 [&_thead]:bg-[#D8C7B5] [&_thead]:text-[#2B2B2B] [&_thead_th]:text-[#2B2B2B] [&_tbody_tr]:transition-colors [&_tbody_tr:hover]:bg-[#C6A56B]/10"
-          style={{ backgroundColor: "#F8F5F0" }}
-        >
+        <main className="admin-main bg-page flex-1 px-6 py-8 [&_thead]:bg-[#D8C7B5] [&_thead]:text-[#2B2B2B] [&_thead_th]:text-[#2B2B2B] [&_tbody_tr]:transition-colors [&_tbody_tr:hover]:bg-[#C6A56B]/10">
           <style>{`
             .admin-main table thead {
               background-color: #D8C7B5;

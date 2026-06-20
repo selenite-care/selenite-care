@@ -99,16 +99,8 @@ export default function ClientQuotaSummaryCard() {
 
   if (isLoading) {
     return (
-      <article
-        className="rounded-lg border p-6"
-        style={{
-          backgroundColor: "#FFFFFF",
-          borderColor: "#D8C7B5",
-          borderLeftColor: "#C6A56B",
-          borderLeftWidth: "4px",
-        }}
-      >
-        <p className="text-sm" style={{ color: "#B8A89A" }}>
+      <article className="rounded-lg border border-[#D8C7B5] border-l-4 border-l-[#C6A56B] bg-white p-6 dark:border-[#3D3530] dark:bg-[#242220]">
+        <p className="text-sm text-[#B8A89A] dark:text-[#8A7D75]">
           Loading quota summary...
         </p>
       </article>
@@ -117,25 +109,11 @@ export default function ClientQuotaSummaryCard() {
 
   if (error || !quotaData) {
     return (
-      <article
-        className="rounded-lg border p-6"
-        style={{
-          backgroundColor: "#FFFFFF",
-          borderColor: "#D8C7B5",
-          borderLeftColor: "#C6A56B",
-          borderLeftWidth: "4px",
-        }}
-      >
-        <h2
-          className="text-2xl font-semibold"
-          style={{
-            color: "#2B2B2B",
-            fontFamily: "Playfair Display, serif",
-          }}
-        >
+      <article className="rounded-lg border border-[#D8C7B5] border-l-4 border-l-[#C6A56B] bg-white p-6 dark:border-[#3D3530] dark:bg-[#242220]">
+        <h2 className="text-2xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]" style={{ fontFamily: "Playfair Display, serif" }}>
           Membership Quota Summary
         </h2>
-        <p className="mt-3 text-sm leading-6" style={{ color: "#6E6257" }}>
+        <p className="mt-3 text-sm leading-6 text-[#6E6257] dark:text-[#8A7D75]">
           {error || "Quota information is not available right now."}
         </p>
       </article>
@@ -143,21 +121,13 @@ export default function ClientQuotaSummaryCard() {
   }
 
   return (
-    <article
-      className="rounded-lg border p-6"
-      style={{
-        backgroundColor: "#FFFFFF",
-        borderColor: "#D8C7B5",
-        borderLeftColor: "#C6A56B",
-        borderLeftWidth: "4px",
-      }}
-    >
+    <article className="rounded-lg border border-[#D8C7B5] border-l-4 border-l-[#C6A56B] bg-white p-6 dark:border-[#3D3530] dark:bg-[#242220]">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-sm font-medium" style={{ color: "#B8A89A" }}>
+          <p className="text-sm font-medium text-[#B8A89A] dark:text-[#8A7D75]">
             Membership Quota Summary
           </p>
-          <p className="mt-3 text-lg font-semibold" style={{ color: "#2B2B2B" }}>
+          <p className="mt-3 text-lg font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]">
             Consultation usage for your current membership
           </p>
           <p className="mt-2 text-sm leading-6" style={{ color: "#6E6257" }}>
@@ -177,14 +147,8 @@ export default function ClientQuotaSummaryCard() {
       </div>
 
       {quotaData.quota.type === "total" ? (
-        <div
-          className="mt-5 rounded-2xl border px-5 py-4"
-          style={{
-            borderColor: "#D8C7B5",
-            backgroundColor: "#F8F5F0",
-          }}
-        >
-          <p className="text-base font-medium" style={{ color: "#2B2B2B" }}>
+        <div className="mt-5 rounded-2xl border border-[#D8C7B5] bg-[#F8F5F0] px-5 py-4 dark:border-[#3D3530] dark:bg-[#1A1814]">
+          <p className="text-base font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
             {quotaData.quota.used} of {quotaData.quota.limit} consultations used
           </p>
           <p className="mt-2 text-sm" style={{ color: "#6E6257" }}>
@@ -200,13 +164,9 @@ export default function ClientQuotaSummaryCard() {
       return (
               <div
                 key={key}
-                className="rounded-2xl border px-5 py-4"
-                style={{
-                  borderColor: "#D8C7B5",
-                  backgroundColor: "#F8F5F0",
-                }}
+                className="rounded-2xl border border-[#D8C7B5] bg-[#F8F5F0] px-5 py-4 dark:border-[#3D3530] dark:bg-[#1A1814]"
               >
-                <p className="text-sm font-semibold" style={{ color: "#2B2B2B" }}>
+                <p className="text-sm font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]">
                   {label}
                 </p>
                 <p className="mt-2 text-base font-medium" style={{ color: "#6E6257" }}>

@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --color-brand-ivory: #F8F5F0;
   --color-brand-nude: #D8C7B5;
@@ -16,11 +18,50 @@
   :root {
     --background: #F8F5F0;
     --foreground: #2B2B2B;
+
+    /* Dark-mode-aware tokens — light values */
+    --card: #FFFFFF;
+    --border: #D8C7B5;
+    --muted: #B8A89A;
+    --gold: #C6A56B;
+    --sidebar: #2B2B2B;
+    --sidebar-text: #F8F5F0;
+    --input-bg: #FFFFFF;
+  }
+
+  .dark {
+    --background: #1A1814;
+    --foreground: #F0EDE8;
+    --card: #242220;
+    --border: #3D3530;
+    --muted: #8A7D75;
+    --gold: #D4B47A;
+    --sidebar: #141210;
+    --sidebar-text: #F0EDE8;
+    --input-bg: #1E1C1A;
   }
 
   body {
     background-color: var(--background);
     color: var(--foreground);
+  }
+
+  .dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),
+  .dark textarea,
+  .dark select {
+    background-color: #1E1C1A !important;
+    border-color: #3D3530 !important;
+    color: #F0EDE8 !important;
+  }
+
+  .dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"])::placeholder,
+  .dark textarea::placeholder {
+    color: #8A7D75 !important;
+  }
+
+  .dark select option {
+    background-color: #1E1C1A;
+    color: #F0EDE8;
   }
 
   h1, h2, h3 {
@@ -45,18 +86,18 @@
     animation: horizontal-nudge 1.8s ease-in-out;
   }
 
-@keyframes marquee {
-  0% {
-    transform: translateX(-100%);
+  @keyframes marquee {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
   }
-  100% {
-    transform: translateX(100%);
-  }
-}
 
-.announcement-track {
-  animation: marquee 25s linear infinite;
-}
+  .announcement-track {
+    animation: marquee 25s linear infinite;
+  }
 
   @keyframes glitter-text-shimmer {
     from {
@@ -103,6 +144,27 @@
     -webkit-text-fill-color: transparent;
     filter: drop-shadow(0 0 8px rgb(216 199 181 / 0.35));
     animation: glitter-text-shimmer 3.6s linear infinite;
+  }
+
+  /* Glitter text stays legible in dark mode — swap the dark charcoal
+     segments of the gradient for a warm off-white so it doesn't vanish
+     against a dark background */
+  .dark .glitter-text {
+    background-image:
+      repeating-linear-gradient(
+        110deg,
+        #F0EDE8 0,
+        #F0EDE8 72px,
+        #3D3530 84px,
+        #1A1814 90px,
+        #3D3530 96px,
+        #F0EDE8 108px,
+        #F0EDE8 180px
+      ),
+      radial-gradient(circle, #1A1814 0 1px, transparent 1.5px),
+      radial-gradient(circle, #3D3530 0 1.5px, transparent 2px),
+      radial-gradient(circle, #1A1814 0 1px, transparent 1.5px);
+    filter: drop-shadow(0 0 8px rgb(212 180 122 / 0.35));
   }
 
   @keyframes feature-card-slide-in {
@@ -156,59 +218,260 @@
     }
   }
 
+  /* ── Buttons ── */
+
   .btn-primary {
     @apply bg-brand-charcoal text-brand-ivory px-6 py-3 rounded-md text-sm font-medium hover:bg-brand-taupe transition-colors duration-200;
+  }
+
+  .dark .btn-primary {
+    background-color: var(--gold);
+    color: #1A1814;
+  }
+
+  .dark .btn-primary:hover {
+    background-color: var(--muted);
   }
 
   .btn-secondary {
     @apply bg-transparent border border-brand-gold text-brand-gold px-6 py-3 rounded-md text-sm font-medium hover:bg-brand-gold hover:text-brand-ivory transition-colors duration-200;
   }
 
+  .dark .btn-secondary {
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+
+  .dark .btn-secondary:hover {
+    background-color: var(--gold);
+    color: #1A1814;
+  }
+
   .btn-ghost {
     @apply bg-transparent text-brand-charcoal px-6 py-3 rounded-md text-sm font-medium hover:bg-brand-nude transition-colors duration-200;
   }
+
+  .dark .btn-ghost {
+    color: var(--foreground);
+  }
+
+  .dark .btn-ghost:hover {
+    background-color: var(--border);
+  }
+
+  /* ── Card ── */
 
   .card {
     @apply bg-white border border-brand-nude rounded-xl p-6 shadow-sm;
   }
 
+  .dark .card {
+    background-color: var(--card);
+    border-color: var(--border);
+  }
+
+  /* ── Badges — kept on light backgrounds intentionally for status clarity,
+     but bumped contrast slightly so they don't look washed out on dark cards ── */
+
   .badge-pending {
     @apply bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-1 rounded-full;
+  }
+
+  .dark .badge-pending {
+    @apply bg-yellow-900/40 text-yellow-300;
   }
 
   .badge-confirmed {
     @apply bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-1 rounded-full;
   }
 
+  .dark .badge-confirmed {
+    @apply bg-blue-900/40 text-blue-300;
+  }
+
   .badge-completed {
     @apply bg-green-100 text-green-800 text-xs font-medium px-2.5 py-1 rounded-full;
+  }
+
+  .dark .badge-completed {
+    @apply bg-green-900/40 text-green-300;
   }
 
   .badge-cancelled {
     @apply bg-red-100 text-red-800 text-xs font-medium px-2.5 py-1 rounded-full;
   }
 
+  .dark .badge-cancelled {
+    @apply bg-red-900/40 text-red-300;
+  }
+
   .badge-paid {
     @apply bg-green-100 text-green-800 text-xs font-medium px-2.5 py-1 rounded-full;
+  }
+
+  .dark .badge-paid {
+    @apply bg-green-900/40 text-green-300;
   }
 
   .badge-unpaid {
     @apply bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-1 rounded-full;
   }
 
+  .dark .badge-unpaid {
+    @apply bg-yellow-900/40 text-yellow-300;
+  }
+
   .badge-refunded {
     @apply bg-gray-100 text-gray-600 text-xs font-medium px-2.5 py-1 rounded-full;
   }
+
+  .dark .badge-refunded {
+    @apply bg-gray-800 text-gray-300;
+  }
+
+  /* ── Inputs ── */
 
   .input-field {
     @apply h-11 w-full rounded-md border border-brand-nude bg-white px-3 text-sm text-brand-charcoal placeholder:text-brand-taupe focus:border-brand-gold focus:outline-none transition-colors;
   }
 
+  .dark .input-field {
+    background-color: var(--input-bg);
+    border-color: var(--border);
+    color: var(--foreground);
+  }
+
+  .dark .input-field::placeholder {
+    color: var(--muted);
+  }
+
+  .dark .input-field:focus {
+    border-color: var(--gold);
+  }
+
+  /* ── Section headers ── */
+
   .section-title {
     @apply font-serif text-3xl font-semibold text-brand-charcoal;
   }
 
+  .dark .section-title {
+    color: var(--foreground);
+  }
+
   .section-subtitle {
     @apply text-brand-taupe text-base leading-7;
+  }
+
+  .dark .section-subtitle {
+    color: var(--muted);
+  }
+
+  /* ── Generic themed utility classes ──
+     Use these in any component that needs to follow dark mode automatically:
+       bg-page         → page background
+       text-page       → page text
+       bg-card-themed  → card background (avoids clashing with Tailwind's "card" if used as a utility elsewhere)
+       border-themed   → border color
+       text-muted-themed → secondary/muted text
+       bg-sidebar-themed / text-sidebar-themed → dashboard sidebars
+  */
+
+  .bg-page {
+    background-color: var(--background);
+  }
+
+  .text-page {
+    color: var(--foreground);
+  }
+
+  .bg-card {
+    background-color: var(--card);
+  }
+
+  .bg-card-themed {
+    background-color: var(--card);
+  }
+
+  .border-themed {
+    border-color: var(--border);
+  }
+
+  .text-muted {
+    color: var(--muted);
+  }
+
+  .text-muted-themed {
+    color: var(--muted);
+  }
+
+  .bg-sidebar-themed {
+    background-color: var(--sidebar);
+  }
+
+  .text-sidebar-themed {
+    color: var(--sidebar-text);
+  }
+
+  .modal-overlay {
+    background-color: rgba(43, 43, 43, 0.72);
+  }
+
+  .dark .modal-overlay {
+    background-color: rgba(0, 0, 0, 0.8) !important;
+  }
+
+  .modal-card {
+    background-color: #FFFFFF;
+    border-color: #D8C7B5;
+  }
+
+  .dark .modal-card {
+    background-color: #242220 !important;
+    border-color: #3D3530 !important;
+    color: #F0EDE8 !important;
+  }
+
+  /* ── Tables — covers the exact issue you described with Chrome's
+     forced dark mode making table data unreadable. These classes give
+     you a drop-in table styling that always stays readable. ── */
+
+  .table-themed {
+    @apply w-full border-collapse;
+  }
+
+  .table-themed thead {
+    background-color: var(--sidebar);
+  }
+
+  .dark .table-themed thead {
+    background-color: #2A2724;
+  }
+
+  .table-themed thead th {
+    color: var(--sidebar-text);
+    @apply text-left text-xs font-semibold uppercase tracking-wide px-4 py-3;
+  }
+
+  .table-themed tbody tr {
+    background-color: var(--card);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .table-themed tbody tr:hover {
+    background-color: rgba(198, 165, 107, 0.06);
+  }
+
+  .dark .table-themed tbody tr:hover {
+    background-color: #2F2B28;
+  }
+
+  .table-themed tbody td {
+    color: var(--foreground);
+    @apply px-4 py-3 text-sm;
+  }
+
+  .table-themed tbody td.cell-muted {
+    color: var(--muted);
   }
 }

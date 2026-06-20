@@ -40,7 +40,7 @@ const teamMembers = [
 
 export default function AboutPage() {
   return (
-    <div className="flex flex-1 flex-col" style={{ backgroundColor: "#F8F5F0" }}>
+    <div className="bg-page text-page flex flex-1 flex-col">
       <section className="relative overflow-hidden px-6 py-20 sm:py-24">
         <div
           className="absolute left-0 top-0 h-64 w-64 rounded-full blur-3xl"
@@ -54,38 +54,32 @@ export default function AboutPage() {
         <div className="relative mx-auto grid w-full max-w-6xl gap-12 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
           <div>
             <div
-              className="mb-5 inline-flex rounded-full border px-4 py-1 text-xs font-semibold uppercase tracking-[0.18em]"
+              className="mb-5 inline-flex rounded-full border border-[#D8C7B5] bg-white/70 px-4 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#C6A56B] dark:border-[#3D3530] dark:bg-[#242220]/80 dark:text-[#D4B47A]"
               style={{
-                borderColor: "#D8C7B5",
-                color: "#C6A56B",
-                backgroundColor: "rgba(255,255,255,0.72)",
               }}
             >
               About Selenite Care
             </div>
 
             <h1
-              className="max-w-3xl text-4xl font-semibold tracking-tight sm:text-5xl lg:text-6xl"
+              className="max-w-3xl text-4xl font-semibold tracking-tight text-[#2B2B2B] dark:text-[#F0EDE8] sm:text-5xl lg:text-6xl"
               style={{
-                color: "#2B2B2B",
                 fontFamily: "Playfair Display, serif",
               }}
             >
               A calmer, more personal way to care for skin and self.
             </h1>
 
-            <p className="mt-6 max-w-2xl text-lg leading-8" style={{ color: "#6E6257" }}>
+            <p className="text-muted mt-6 max-w-2xl text-lg leading-8">
               Selenite Care is a professional skincare consultation platform dedicated to addressing acne, dark spots, pigmentation, and other skin concerns through personalized guidance from certified aestheticians. Our mission is to help every client achieve healthier, clearer, and more confident skin with expert care and customized solutions.
             </p><br></br>
-            <hr></hr><br></br>
+            <hr className="border-[#D8C7B5] dark:border-[#3D3530]"></hr><br></br>
             <div className="mt-6 flex items-center gap-4">
             <div
-            className="h-px w-12"
-            style={{ backgroundColor: "#C6A56B" }}
+            className="h-px w-12 bg-[#C6A56B]"
             />
             <span
-            className="text-sm uppercase tracking-[0.2em]"
-            style={{ color: "#C6A56B" }}
+            className="text-sm uppercase tracking-[0.2em] text-[#C6A56B] dark:text-[#D4B47A]"
             >
              Founded in 2024
             </span>
@@ -94,15 +88,13 @@ export default function AboutPage() {
             <div className="mt-8 flex flex-col gap-4 sm:flex-row">
               <Link
                 href="/services"
-                className="inline-flex h-12 items-center justify-center rounded-md px-6 text-sm font-medium transition-colors hover:bg-[#B8A89A]"
-                style={{ backgroundColor: "#2B2B2B", color: "#F8F5F0" }}
+                className="inline-flex h-12 items-center justify-center rounded-md bg-[var(--sidebar)] px-6 text-sm font-medium text-[var(--sidebar-text)] transition-colors hover:opacity-90"
               >
                 Explore Memberships
               </Link>
               <Link
                 href="/contact"
-                className="inline-flex h-12 items-center justify-center rounded-md border px-6 text-sm font-medium transition-colors hover:bg-white"
-                style={{ borderColor: "#D8C7B5", color: "#2B2B2B" }}
+                className="border-themed text-page inline-flex h-12 items-center justify-center rounded-md border px-6 text-sm font-medium transition-colors hover:bg-black/5 dark:hover:bg-white/5"
               >
                 Contact Us
               </Link>
@@ -115,9 +107,8 @@ export default function AboutPage() {
               style={{ backgroundColor: "rgba(198, 165, 107, 0.2)" }}
             />
             <div
-              className="relative overflow-hidden rounded-[28px] border p-6 sm:p-8"
+              className="relative overflow-hidden rounded-[28px] border border-[#D8C7B5] p-6 dark:border-[#3D3530] sm:p-8"
               style={{
-                borderColor: "#D8C7B5",
                 background:
                   "linear-gradient(155deg, rgba(255,255,255,0.95) 0%, rgba(245,236,224,0.9) 100%)",
                 boxShadow: "0 18px 50px rgba(43, 43, 43, 0.1)",
@@ -125,10 +116,8 @@ export default function AboutPage() {
             >
               <div className="grid gap-6 sm:grid-cols-[140px_minmax(0,1fr)] sm:items-center">
                 <div
-                  className="mx-auto flex h-36 w-36 items-center justify-center rounded-[24px] border p-4 sm:mx-0"
+                  className="mx-auto flex h-36 w-36 items-center justify-center rounded-[24px] border border-[#D8C7B5] bg-white p-4 dark:border-[#3D3530] dark:bg-[#242220] sm:mx-0"
                   style={{
-                    borderColor: "#D8C7B5",
-                    backgroundColor: "#FFFFFF",
                   }}
                 >
                   <Image
@@ -142,16 +131,12 @@ export default function AboutPage() {
                 </div>
 
                 <div>
-                  <p
-                    className="text-sm font-semibold uppercase tracking-[0.18em]"
-                    style={{ color: "#C6A56B" }}
-                  >
+                  <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#C6A56B] dark:text-[#D4B47A]">
                     Our Mission
                   </p>
                   <p
-                    className="mt-3 text-2xl font-semibold leading-9"
+                    className="mt-3 text-2xl font-semibold leading-9 text-[#2B2B2B] dark:text-[#000000]"
                     style={{
-                      color: "#2B2B2B",
                       fontFamily: "Playfair Display, serif",
                     }}
                   >
@@ -163,45 +148,42 @@ export default function AboutPage() {
               <div className="mt-8 grid grid-cols-3 gap-4">
   <div className="text-center">
     <p
-      className="text-3xl font-bold"
+      className="text-3xl font-bold text-[#C6A56B] dark:text-[#D4B47A]"
       style={{
-        color: "#C6A56B",
         fontFamily: "Playfair Display, serif",
       }}
     >
       500+
     </p>
-    <p className="text-xs uppercase tracking-wider text-[#B8A89A]">
+    <p className="text-xs uppercase tracking-wider text-[#B8A89A] dark:text-[#8A7D75]">
       Consultations
     </p>
   </div>
 
   <div className="text-center">
     <p
-      className="text-3xl font-bold"
+      className="text-3xl font-bold text-[#C6A56B] dark:text-[#D4B47A]"
       style={{
-        color: "#C6A56B",
         fontFamily: "Playfair Display, serif",
       }}
     >
       95%
     </p>
-    <p className="text-xs uppercase tracking-wider text-[#B8A89A]">
+    <p className="text-xs uppercase tracking-wider text-[#B8A89A] dark:text-[#8A7D75]">
       Satisfaction
     </p>
   </div>
 
   <div className="text-center">
     <p
-      className="text-3xl font-bold"
+      className="text-3xl font-bold text-[#C6A56B] dark:text-[#D4B47A]"
       style={{
-        color: "#C6A56B",
         fontFamily: "Playfair Display, serif",
       }}
     >
       24/7
     </p>
-    <p className="text-xs uppercase tracking-wider text-[#B8A89A]">
+    <p className="text-xs uppercase tracking-wider text-[#B8A89A] dark:text-[#8A7D75]">
       Support
     </p>
   </div>
@@ -215,19 +197,16 @@ export default function AboutPage() {
                 ].map((item) => (
                   <div
                     key={item.value}
-                    className="rounded-2xl border px-4 py-4 text-center"
+                    className="rounded-2xl border border-[#D8C7B5] bg-white/70 px-4 py-4 text-center dark:border-[#3D3530] dark:bg-[#1A1814]/80"
                     style={{
-                      borderColor: "#D8C7B5",
-                      backgroundColor: "rgba(255,255,255,0.72)",
                     }}
                   >
-                    <p className="text-xs font-semibold uppercase tracking-[0.16em]" style={{ color: "#B8A89A" }}>
+                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#B8A89A] dark:text-[#8A7D75]">
                       {item.label}
                     </p>
                     <p
-                      className="mt-2 text-lg font-semibold"
+                      className="mt-2 text-lg font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]"
                       style={{
-                        color: "#2B2B2B",
                         fontFamily: "Playfair Display, serif",
                       }}
                     >
@@ -241,7 +220,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="px-6 py-16" style={{ backgroundColor: "#FFFFFF" }}>
+      <section className="bg-card px-6 py-16">
         <div className="mx-auto grid w-full max-w-6xl gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
           <div>
             <div
@@ -249,21 +228,20 @@ export default function AboutPage() {
               style={{ backgroundColor: "#C6A56B" }}
             />
             <h2
-              className="text-3xl font-semibold tracking-tight sm:text-4xl"
+              className="text-3xl font-semibold tracking-tight text-[#2B2B2B] dark:text-[#F0EDE8] sm:text-4xl"
               style={{
-                color: "#2B2B2B",
                 fontFamily: "Playfair Display, serif",
               }}
             >
               Our Story
             </h2>
-            <p className="mt-4 text-base leading-8" style={{ color: "#6E6257" }}>
+            <p className="mt-4 text-base leading-8 text-[#6E6257] dark:text-[#8A7D75]">
               We believe people do better with care that feels calm, guided,
               and tailored rather than overwhelming. Selenite Care grew from
               that belief: a brand built around thoughtful consultations,
               better routines, and support that stays human at every step.
             </p>
-            <p className="mt-4 text-base leading-8" style={{ color: "#6E6257" }}>
+            <p className="mt-4 text-base leading-8 text-[#6E6257] dark:text-[#8A7D75]">
               From the first booking to ongoing follow-up, our goal is to make
               skincare and wellness feel less confusing and more achievable. We
               want clients to leave each interaction with clarity, trust, and a
@@ -275,28 +253,24 @@ export default function AboutPage() {
             {values.map((value) => (
               <article
                 key={value.title}
-                className="rounded-2xl border p-6"
+                className="rounded-2xl border border-[#D8C7B5] bg-[#F8F5F0] p-6 dark:border-[#3D3530] dark:bg-[#242220]"
                 style={{
-                  backgroundColor: "#F8F5F0",
-                  borderColor: "#D8C7B5",
                 }}
               >
                 <div className="flex items-start gap-4">
                   <div
-                    className="mt-1 h-3 w-3 rounded-full"
-                    style={{ backgroundColor: "#C6A56B" }}
+                    className="mt-1 h-3 w-3 rounded-full bg-[#C6A56B]"
                   />
                   <div>
                     <h3
-                      className="text-xl font-semibold"
+                      className="text-xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]"
                       style={{
-                        color: "#2B2B2B",
                         fontFamily: "Playfair Display, serif",
                       }}
                     >
                       {value.title}
                     </h3>
-                    <p className="mt-3 text-sm leading-7" style={{ color: "#6E6257" }}>
+                    <p className="mt-3 text-sm leading-7 text-[#6E6257] dark:text-[#8A7D75]">
                       {value.description}
                     </p>
                   </div>
@@ -306,59 +280,40 @@ export default function AboutPage() {
           </div>
         </div>
       </section>
-            <section
-       style={{ backgroundColor: "#FFFFFF" }}
-       className="px-6 py-20"
-      >
+      <section className="px-6 py-20 bg-white dark:bg-[#242220]">
       <div className="mx-auto max-w-5xl text-center">
-      <span
-      style={{ color: "#C6A56B" }}
-      className="text-sm font-medium uppercase tracking-[0.2em]"
-      >
+    <span
+      className="text-sm font-medium uppercase tracking-[0.2em] text-[#C6A56B] dark:text-[#D4B47A]"
+    >
       Client Community
-      </span>
-
-      <h2
-      style={{
-        color: "#2B2B2B",
-        fontFamily: "Playfair Display, serif",
-      }}
-      className="mt-4 text-4xl font-bold"
-      >
+    </span>
+    <h2
+      className="mt-4 text-4xl font-bold text-[#2B2B2B] dark:text-[#F0EDE8]"
+      style={{ fontFamily: "Playfair Display, serif" }}
+    >
       Join Our Private Wellness Community
-      </h2>
-
-      <p
-      style={{ color: "#B8A89A" }}
-      className="mx-auto mt-6 max-w-2xl text-lg"
-      >
+    </h2>
+    <p
+      className="mx-auto mt-6 max-w-2xl text-lg text-[#B8A89A] dark:text-[#8A7D75]"
+    >
       Connect with other members, share your skincare journey,
       read real experiences, and receive exclusive wellness updates.
-      </p>
-
-        <a
-      href="https://www.facebook.com/groups/1487525968606577/"
+    </p>
+    
+     <a href="https://www.facebook.com/groups/1487525968606577/"
       target="_blank"
       rel="noopener noreferrer"
-      className="mt-8 inline-flex h-12 items-center justify-center rounded-md px-8 text-sm font-medium"
-      style={{
-        backgroundColor: "#1877F2",
-        color: "#FFFFFF",
-        }}
-         >
-        Join Facebook Community
-        </a>
-      </div>
+      className="mt-8 inline-flex h-12 items-center justify-center rounded-md px-8 text-sm font-medium bg-[#1877F2] text-white hover:bg-[#1666d8] transition-colors"
+    >
+      Join Facebook Community
+    </a>
+  </div>
       </section>
-      <section
-      className="px-6 py-20"
-      style={{ backgroundColor: "#FFFFFF" }}
-      >
+      <section className="bg-card px-6 py-20">
       <div className="mx-auto max-w-4xl text-center">
       <p
-      className="text-4xl"
+      className="text-4xl text-[#C6A56B] dark:text-[#D4B47A]"
       style={{
-        color: "#C6A56B",
         fontFamily: "Playfair Display, serif",
       }}
       >
@@ -366,9 +321,8 @@ export default function AboutPage() {
       </p>
 
       <blockquote
-      className="mt-4 text-2xl leading-relaxed"
+      className="mt-4 text-2xl leading-relaxed text-[#2B2B2B] dark:text-[#F0EDE8]"
       style={{
-        color: "#2B2B2B",
         fontFamily: "Playfair Display, serif",
       }}
       >
@@ -377,15 +331,14 @@ export default function AboutPage() {
       </blockquote>
 
       <p
-      className="mt-6 text-sm uppercase tracking-[0.2em]"
-      style={{ color: "#B8A89A" }}
+      className="mt-6 text-sm uppercase tracking-[0.2em] text-[#B8A89A] dark:text-[#8A7D75]"
       >
       SELENITE CARE
       </p>
       </div>
       </section>
 
-      <section className="px-6 py-16" style={{ backgroundColor: "#F8F5F0" }}>
+      <section className="bg-page px-6 py-16">
         <div className="mx-auto w-full max-w-6xl">
           <div className="max-w-2xl">
             <div
@@ -393,15 +346,14 @@ export default function AboutPage() {
               style={{ backgroundColor: "#C6A56B" }}
             />
             <h2
-              className="text-3xl font-semibold tracking-tight sm:text-4xl"
+              className="text-3xl font-semibold tracking-tight text-[#2B2B2B] dark:text-[#F0EDE8] sm:text-4xl"
               style={{
-                color: "#2B2B2B",
                 fontFamily: "Playfair Display, serif",
               }}
             >
               Meet the Team
             </h2>
-            <p className="mt-4 text-base leading-7" style={{ color: "#6E6257" }}>
+            <p className="mt-4 text-base leading-7 text-[#6E6257] dark:text-[#8A7D75]">
               The people behind Selenite Care are here to make every interaction
               feel supportive, informed, and beautifully human.
             </p>
@@ -411,14 +363,12 @@ export default function AboutPage() {
             {teamMembers.map((member, index) => (
               <article
                 key={`${member.role}-${index}`}
-                className="rounded-2xl border p-6 transition-shadow duration-200 hover:shadow-lg"
+                className="rounded-2xl border border-[#D8C7B5] bg-white p-6 transition-shadow duration-200 hover:shadow-lg dark:border-[#3D3530] dark:bg-[#242220]"
                 style={{
-                  backgroundColor: "#FFFFFF",
-                  borderColor: "#D8C7B5",
                 }}
               >
                 <div className="flex items-start justify-between gap-4">
-                  <div className="relative h-24 w-24 overflow-hidden rounded-2xl border" style={{ borderColor: "#D8C7B5", backgroundColor: "#F8F5F0" }}>
+                  <div className="relative h-24 w-24 overflow-hidden rounded-2xl border border-[#D8C7B5] bg-[#F8F5F0] dark:border-[#3D3530] dark:bg-[#1A1814]">
                     {member.image ? (
                       <Image
                         src={member.image}
@@ -451,18 +401,17 @@ export default function AboutPage() {
                 </div>
 
                 <h3
-                  className="mt-5 text-lg font-semibold"
+                  className="mt-5 text-lg font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]"
                   style={{
-                    color: "#2B2B2B",
                     fontFamily: "Playfair Display, serif",
                   }}
                 >
                   {member.name}
                 </h3>
-                <p className="mt-1 text-sm font-medium" style={{ color: "#C6A56B" }}>
+                <p className="mt-1 text-sm font-medium text-[#C6A56B] dark:text-[#D4B47A]">
                   {member.role}
                 </p>
-                <p className="mt-4 text-sm leading-6" style={{ color: "#6E6257" }}>
+                <p className="mt-4 text-sm leading-6 text-[#6E6257] dark:text-[#8A7D75]">
                   {member.description}
                 </p>
               </article>
@@ -470,36 +419,25 @@ export default function AboutPage() {
           </div>
         </div>
       </section>
-      <section
-        className="px-6 py-20"
-        style={{ backgroundColor: "#2B2B2B" }}
-      >
+      <section className="bg-[#2B2B2B] px-6 py-20 dark:bg-[#141210]">
       <div className="mx-auto max-w-4xl text-center">
       <h2
-      className="text-4xl font-semibold"
+      className="text-4xl font-semibold text-[#F8F5F0] dark:text-[#F0EDE8]"
       style={{
-        color: "#F8F5F0",
         fontFamily: "Playfair Display, serif",
       }}
       >
       Ready to Begin Your Skin Journey?
       </h2>
 
-      <p
-      className="mt-4 text-lg"
-      style={{ color: "#D8C7B5" }}
-      >
+      <p className="mt-4 text-lg text-[#D8C7B5] dark:text-[#8A7D75]">
       Book your consultation today and receive personalized guidance from
       experienced skincare professionals.
       </p>
 
       <Link
       href="/services"
-      className="mt-8 inline-flex h-12 items-center justify-center rounded-md px-8 text-sm font-medium"
-      style={{
-        backgroundColor: "#C6A56B",
-        color: "#F8F5F0",
-      }}
+      className="mt-8 inline-flex h-12 items-center justify-center rounded-md bg-[#C6A56B] px-8 text-sm font-medium text-[#F8F5F0] transition-opacity hover:opacity-90 dark:bg-[#D4B47A] dark:text-[#141210]"
       >
         Explore Memberships
       </Link>

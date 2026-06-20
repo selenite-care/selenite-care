@@ -336,7 +336,7 @@ export default function DashboardSurveyPage() {
   if (isLoading) {
     return (
       <section>
-        <p className="text-sm" style={{ color: "#B8A89A" }}>
+        <p className="text-muted text-sm">
           Loading...
         </p>
       </section>
@@ -346,30 +346,22 @@ export default function DashboardSurveyPage() {
   return (
     <section>
       <div>
-        <p className="text-sm font-medium uppercase" style={{ color: "#B8A89A" }}>
+        <p className="text-muted text-sm font-medium uppercase">
           Client Dashboard
         </p>
         <h1
-          className="mt-2 text-3xl font-semibold tracking-tight"
-          style={{
-            color: "#2B2B2B",
-            fontFamily: "Playfair Display, serif",
-          }}
+          className="text-page mt-2 text-3xl font-semibold tracking-tight"
+          style={{ fontFamily: "Playfair Display, serif" }}
         >
           My Skin Profile
         </h1>
-        <p className="mt-3 text-sm leading-6" style={{ color: "#B8A89A" }}>
+        <p className="text-muted mt-3 text-sm leading-6">
           Keep your consultation details up to date so our team can support you better.
         </p>
       </div>
 
       <div
-        className="mt-6 rounded-lg border p-4 text-sm leading-6"
-        style={{
-          borderColor: "#D8C7B5",
-          backgroundColor: "#F8F5F0",
-          color: "#6E6257",
-        }}
+        className="bg-card border-themed text-muted mt-6 rounded-lg border p-4 text-sm leading-6"
       >
         Your skin profile is automatically updated when you submit an appointment
         survey. You can also update it manually anytime.
@@ -377,16 +369,11 @@ export default function DashboardSurveyPage() {
 
       <form
         onSubmit={handleSubmit}
-        style={{
-          backgroundColor: "#FFFFFF",
-          borderColor: "#D8C7B5",
-          borderWidth: "1px",
-        }}
-        className="survey-form mt-6 space-y-6 rounded-xl p-4 sm:p-6"
+        className="survey-form bg-card border-themed mt-6 space-y-6 rounded-xl border p-4 sm:p-6"
       >
         <style>{`
           .survey-form > div + div {
-            border-top: 1px solid #F1E7DC;
+            border-top: 1px solid var(--border);
             padding-top: 1.5rem;
           }
 
@@ -394,6 +381,9 @@ export default function DashboardSurveyPage() {
           .survey-form textarea {
             width: 100%;
             min-height: 44px;
+            background: var(--card);
+            color: var(--foreground);
+            border: 1px solid var(--border);
           }
 
           .survey-form label {
@@ -406,9 +396,9 @@ export default function DashboardSurveyPage() {
             min-height: 44px;
             width: 100%;
             align-items: center;
-            border: 1px solid #D8C7B5;
+            border: 1px solid var(--border);
             border-radius: 8px;
-            background: #FFFFFF;
+            background: var(--card);
             padding: 8px 10px;
             cursor: pointer;
           }
@@ -435,12 +425,7 @@ export default function DashboardSurveyPage() {
 
         {successMessage ? (
           <div
-            className="rounded-lg border p-4 text-sm"
-            style={{
-              borderColor: "#C6A56B",
-              backgroundColor: "#F8F5F0",
-              color: "#2B2B2B",
-            }}
+            className="bg-card text-page rounded-lg border border-[var(--gold)] p-4 text-sm"
           >
             {successMessage}
           </div>
@@ -448,71 +433,66 @@ export default function DashboardSurveyPage() {
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
+            <label className="text-page block text-sm font-medium">
               Name
             </label>
             <input
               value={formState.name}
               onChange={(event) => updateField("name", event.target.value)}
-              className="mt-2 h-11 rounded-md border px-3 focus:border-[#C6A56B] focus:outline-none focus:ring-1 focus:ring-[#C6A56B]"
-              style={{ borderColor: "#D8C7B5", color: "#2B2B2B" }}
+              className="border-themed bg-card text-page mt-2 h-11 rounded-md border px-3 focus:border-[var(--gold)] focus:outline-none focus:ring-1 focus:ring-[var(--gold)]"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
+            <label className="text-page block text-sm font-medium">
               Age
             </label>
             <input
               value={formState.age}
               onChange={(event) => updateField("age", event.target.value)}
-              className="mt-2 h-11 rounded-md border px-3 focus:border-[#C6A56B] focus:outline-none focus:ring-1 focus:ring-[#C6A56B]"
-              style={{ borderColor: "#D8C7B5", color: "#2B2B2B" }}
+              className="border-themed bg-card text-page mt-2 h-11 rounded-md border px-3 focus:border-[var(--gold)] focus:outline-none focus:ring-1 focus:ring-[var(--gold)]"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
+            <label className="text-page block text-sm font-medium">
               Phone
             </label>
             <input
               type="tel"
               value={formState.phone}
               onChange={(event) => updateField("phone", event.target.value)}
-              className="mt-2 h-11 rounded-md border px-3 focus:border-[#C6A56B] focus:outline-none focus:ring-1 focus:ring-[#C6A56B]"
-              style={{ borderColor: "#D8C7B5", color: "#2B2B2B" }}
+              className="border-themed bg-card text-page mt-2 h-11 rounded-md border px-3 focus:border-[var(--gold)] focus:outline-none focus:ring-1 focus:ring-[var(--gold)]"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
+            <label className="text-page block text-sm font-medium">
               Email
             </label>
             <input
               type="email"
               value={formState.email}
               onChange={(event) => updateField("email", event.target.value)}
-              className="mt-2 h-11 rounded-md border px-3 focus:border-[#C6A56B] focus:outline-none focus:ring-1 focus:ring-[#C6A56B]"
-              style={{ borderColor: "#D8C7B5", color: "#2B2B2B" }}
+              className="border-themed bg-card text-page mt-2 h-11 rounded-md border px-3 focus:border-[var(--gold)] focus:outline-none focus:ring-1 focus:ring-[var(--gold)]"
             />
           </div>
 
           <div className="sm:col-span-2">
-            <label className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
+            <label className="text-page block text-sm font-medium">
               Skin Type
             </label>
             <input
               value={formState.skinType}
               onChange={(event) => updateField("skinType", event.target.value)}
-              className="mt-2 h-11 rounded-md border px-3 focus:border-[#C6A56B] focus:outline-none focus:ring-1 focus:ring-[#C6A56B]"
-              style={{ borderColor: "#D8C7B5", color: "#2B2B2B" }}
+              className="border-themed bg-card text-page mt-2 h-11 rounded-md border px-3 focus:border-[var(--gold)] focus:outline-none focus:ring-1 focus:ring-[var(--gold)]"
             />
           </div>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <p className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
+            <p className="text-page block text-sm font-medium">
               Uses Korean Products
             </p>
             <div className="mt-2 grid gap-2 sm:grid-cols-2">
@@ -522,10 +502,9 @@ export default function DashboardSurveyPage() {
                     type="radio"
                     checked={formState.usesKoreanProducts === option}
                     onChange={() => updateField("usesKoreanProducts", option)}
-                    style={{ accentColor: "#C6A56B" }}
-                    className="mr-2"
+                    className="mr-2 accent-[#C6A56B]"
                   />
-                  <span style={{ color: "#2B2B2B" }}>
+                  <span className="text-page">
                     {option === "yes" ? "Yes" : "No"}
                   </span>
                 </label>
@@ -534,7 +513,7 @@ export default function DashboardSurveyPage() {
           </div>
 
           <div>
-            <p className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
+            <p className="text-page block text-sm font-medium">
               Facing Skin Issues
             </p>
             <div className="mt-2 grid gap-2 sm:grid-cols-2">
@@ -544,10 +523,9 @@ export default function DashboardSurveyPage() {
                     type="radio"
                     checked={formState.facingSkinIssues === option}
                     onChange={() => updateField("facingSkinIssues", option)}
-                    style={{ accentColor: "#C6A56B" }}
-                    className="mr-2"
+                    className="mr-2 accent-[#C6A56B]"
                   />
-                  <span style={{ color: "#2B2B2B" }}>
+                  <span className="text-page">
                     {option === "yes" ? "Yes" : "No"}
                   </span>
                 </label>
@@ -557,7 +535,7 @@ export default function DashboardSurveyPage() {
         </div>
 
         <div>
-          <p className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
+          <p className="text-page block text-sm font-medium">
             Skin Issues
           </p>
           <div className="mt-2 grid gap-2 sm:grid-cols-2">
@@ -567,17 +545,16 @@ export default function DashboardSurveyPage() {
                   type="checkbox"
                   checked={formState.skinIssues.includes(option)}
                   onChange={() => toggleArrayField("skinIssues", option)}
-                  style={{ accentColor: "#C6A56B" }}
-                  className="mr-2"
+                  className="mr-2 accent-[#C6A56B]"
                 />
-                <span style={{ color: "#2B2B2B" }}>{option}</span>
+                <span className="text-page">{option}</span>
               </label>
             ))}
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
+          <label className="text-page block text-sm font-medium">
             How long have you had these issues?
           </label>
           <input
@@ -585,13 +562,12 @@ export default function DashboardSurveyPage() {
             onChange={(event) =>
               updateField("skinIssueDuration", event.target.value)
             }
-            className="mt-2 h-11 rounded-md border px-3 focus:border-[#C6A56B] focus:outline-none focus:ring-1 focus:ring-[#C6A56B]"
-            style={{ borderColor: "#D8C7B5", color: "#2B2B2B" }}
+            className="border-themed bg-card text-page mt-2 h-11 rounded-md border px-3 focus:border-[var(--gold)] focus:outline-none focus:ring-1 focus:ring-[var(--gold)]"
           />
         </div>
 
         <div>
-          <p className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
+          <p className="text-page block text-sm font-medium">
             Current Products
           </p>
           <div className="mt-2 grid gap-2 sm:grid-cols-2">
@@ -601,17 +577,16 @@ export default function DashboardSurveyPage() {
                   type="checkbox"
                   checked={formState.currentProducts.includes(option)}
                   onChange={() => toggleArrayField("currentProducts", option)}
-                  style={{ accentColor: "#C6A56B" }}
-                  className="mr-2"
+                  className="mr-2 accent-[#C6A56B]"
                 />
-                <span style={{ color: "#2B2B2B" }}>{option}</span>
+                <span className="text-page">{option}</span>
               </label>
             ))}
           </div>
         </div>
 
         <div>
-          <p className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
+          <p className="text-page block text-sm font-medium">
             Allergic Ingredients
           </p>
           <div className="mt-2 flex flex-col gap-2">
@@ -621,16 +596,15 @@ export default function DashboardSurveyPage() {
                   type="checkbox"
                   checked={formState.allergicIngredients.includes(option)}
                   onChange={() => toggleArrayField("allergicIngredients", option)}
-                  style={{ accentColor: "#C6A56B" }}
-                  className="mr-2"
+                  className="mr-2 accent-[#C6A56B]"
                 />
-                <span style={{ color: "#2B2B2B" }}>{option}</span>
+                <span className="text-page">{option}</span>
               </label>
             ))}
           </div>
           {formState.allergicIngredients.includes("Others") ? (
             <div className="mt-3">
-              <label className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
+              <label className="text-page block text-sm font-medium">
                 Other Allergic Ingredients
               </label>
               <input
@@ -639,15 +613,14 @@ export default function DashboardSurveyPage() {
                   updateField("allergicIngredientsOther", event.target.value)
                 }
                 placeholder="Type custom allergic ingredients"
-                className="mt-2 h-11 rounded-md border px-3 focus:border-[#C6A56B] focus:outline-none focus:ring-1 focus:ring-[#C6A56B]"
-                style={{ borderColor: "#D8C7B5", color: "#2B2B2B" }}
+                className="border-themed bg-card text-page mt-2 h-11 rounded-md border px-3 focus:border-[var(--gold)] focus:outline-none focus:ring-1 focus:ring-[var(--gold)]"
               />
             </div>
           ) : null}
         </div>
 
         <div>
-          <p className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
+          <p className="text-page block text-sm font-medium">
             Double Cleanse Preference
           </p>
           <div className="mt-2 grid gap-2 sm:grid-cols-2">
@@ -658,10 +631,9 @@ export default function DashboardSurveyPage() {
                     type="radio"
                     checked={formState.doubleCleansePreference === option}
                     onChange={() => updateField("doubleCleansePreference", option)}
-                    style={{ accentColor: "#C6A56B" }}
-                    className="mr-2"
+                    className="mr-2 accent-[#C6A56B]"
                   />
-                  <span style={{ color: "#2B2B2B" }}>{option}</span>
+                  <span className="text-page">{option}</span>
                 </label>
               ),
             )}
@@ -669,7 +641,7 @@ export default function DashboardSurveyPage() {
         </div>
 
         <div>
-          <p className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
+          <p className="text-page block text-sm font-medium">
             Sleep Hours
           </p>
           <div className="mt-2 flex flex-col gap-2">
@@ -680,10 +652,9 @@ export default function DashboardSurveyPage() {
                     type="radio"
                     checked={formState.sleepHours === option}
                     onChange={() => updateField("sleepHours", option)}
-                    style={{ accentColor: "#C6A56B" }}
-                    className="mr-2"
+                    className="mr-2 accent-[#C6A56B]"
                   />
-                  <span style={{ color: "#2B2B2B" }}>{option}</span>
+                  <span className="text-page">{option}</span>
                 </label>
               ),
             )}
@@ -691,7 +662,7 @@ export default function DashboardSurveyPage() {
         </div>
 
         <div>
-          <p className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
+          <p className="text-page block text-sm font-medium">
             Water Intake
           </p>
           <div className="mt-2 grid gap-2 sm:grid-cols-2">
@@ -702,10 +673,9 @@ export default function DashboardSurveyPage() {
                     type="radio"
                     checked={formState.waterIntake === option}
                     onChange={() => updateField("waterIntake", option)}
-                    style={{ accentColor: "#C6A56B" }}
-                    className="mr-2"
+                    className="mr-2 accent-[#C6A56B]"
                   />
-                  <span style={{ color: "#2B2B2B" }}>{option}</span>
+                  <span className="text-page">{option}</span>
                 </label>
               ),
             )}
@@ -722,7 +692,7 @@ export default function DashboardSurveyPage() {
             },
           ].map((item) => (
             <div key={item.field}>
-              <p className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
+              <p className="text-page block text-sm font-medium">
                 {item.label}
               </p>
               <div className="mt-2 grid gap-2 sm:grid-cols-2">
@@ -732,10 +702,9 @@ export default function DashboardSurveyPage() {
                       type="radio"
                       checked={formState[item.field] === option}
                       onChange={() => updateField(item.field, option)}
-                      style={{ accentColor: "#C6A56B" }}
-                      className="mr-2"
+                      className="mr-2 accent-[#C6A56B]"
                     />
-                    <span style={{ color: "#2B2B2B" }}>
+                    <span className="text-page">
                       {option === "yes" ? "Yes" : "No"}
                     </span>
                   </label>
@@ -746,7 +715,7 @@ export default function DashboardSurveyPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
+          <label className="text-page block text-sm font-medium">
             Additional Notes
           </label>
           <textarea
@@ -754,19 +723,17 @@ export default function DashboardSurveyPage() {
             onChange={(event) => updateField("note", event.target.value)}
             placeholder="Any additional information..."
             rows={4}
-            className="mt-2 rounded-md border px-3 py-2 focus:border-[#C6A56B] focus:outline-none focus:ring-1 focus:ring-[#C6A56B]"
-            style={{ borderColor: "#D8C7B5", color: "#2B2B2B" }}
+            className="border-themed bg-card text-page mt-2 rounded-md border px-3 py-2 focus:border-[var(--gold)] focus:outline-none focus:ring-1 focus:ring-[var(--gold)]"
           />
         </div>
 
         <div
-          style={{ borderColor: "#D8C7B5", backgroundColor: "#F8F5F0" }}
-          className="rounded-lg border p-4"
+          className="bg-card border-themed rounded-lg border p-4"
         >
-          <label className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
+          <label className="text-page block text-sm font-medium">
             Skin Photos
           </label>
-          <p style={{ color: "#B8A89A" }} className="mt-2 text-sm leading-6">
+          <p className="text-muted mt-2 text-sm leading-6">
             Uploading photos is optional. Add up to 4 images to keep your skin profile current.
           </p>
 
@@ -787,11 +754,11 @@ export default function DashboardSurveyPage() {
           </div>
 
           <div className="mt-3 flex items-center justify-between gap-3 text-sm">
-            <span style={{ color: "#B8A89A" }}>
+            <span className="text-muted">
               {formState.skinImages.length}/4 images uploaded
             </span>
             {isUploadingSkinImage ? (
-              <span style={{ color: "#C6A56B" }}>Uploading...</span>
+              <span className="text-[var(--gold)]">Uploading...</span>
             ) : null}
           </div>
 
@@ -800,11 +767,7 @@ export default function DashboardSurveyPage() {
               {formState.skinImages.map((imageUrl) => (
                 <div
                   key={imageUrl}
-                  style={{
-                    borderColor: "#D8C7B5",
-                    backgroundColor: "#FFFFFF",
-                  }}
-                  className="overflow-hidden rounded-lg border"
+                  className="bg-card border-themed overflow-hidden rounded-lg border"
                 >
                   <div className="relative h-40 w-full">
                     <Image
@@ -818,8 +781,7 @@ export default function DashboardSurveyPage() {
                   <button
                     type="button"
                     onClick={() => removeSkinImage(imageUrl)}
-                    style={{ color: "#2B2B2B" }}
-                    className="w-full px-3 py-2 text-sm font-medium hover:bg-[#F8F5F0]"
+                    className="text-page w-full px-3 py-2 text-sm font-medium hover:bg-black/5 dark:hover:bg-white/5"
                   >
                     Remove
                   </button>
@@ -833,8 +795,7 @@ export default function DashboardSurveyPage() {
           <button
             type="submit"
             disabled={isSubmitting}
-            style={{ backgroundColor: "#2B2B2B", color: "#F8F5F0" }}
-            className="h-12 w-full rounded-md text-sm font-medium transition-colors duration-200 hover:bg-[#B8A89A] disabled:cursor-not-allowed disabled:opacity-50 sm:h-11 sm:flex-1"
+            className="h-12 w-full rounded-md bg-[var(--sidebar)] text-sm font-medium text-[var(--sidebar-text)] transition-colors duration-200 hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 sm:h-11 sm:flex-1"
           >
             {isSubmitting ? "Saving..." : "Save Changes"}
           </button>

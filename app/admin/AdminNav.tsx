@@ -91,20 +91,16 @@ export function AdminSidebarNav() {
           <Link
             key={link.href}
             href={link.href}
-            className="flex items-center justify-between rounded-md px-3 py-2 text-sm font-medium transition-colors hover:text-[#B8A89A]"
-            style={{
-              backgroundColor: isActive ? "rgba(198, 165, 107, 0.12)" : "transparent",
-              color: isActive ? "#C6A56B" : "#D8C7B5",
-            }}
+            className={`flex items-center justify-between rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+              isActive
+                ? "bg-[color-mix(in_srgb,var(--gold)_12%,transparent)] text-[var(--gold)]"
+                : "text-[var(--sidebar-text)]"
+            }`}
           >
             <span>{link.label}</span>
             {showPendingBadge ? (
               <span
-                className="inline-flex min-w-6 items-center justify-center rounded-full px-2 py-0.5 text-[11px] font-semibold"
-                style={{
-                  backgroundColor: "#C6A56B",
-                  color: "#2B2B2B",
-                }}
+                className="inline-flex min-w-6 items-center justify-center rounded-full bg-[var(--gold)] px-2 py-0.5 text-[11px] font-semibold text-[var(--sidebar)]"
               >
                 {pendingCount}
               </span>
@@ -126,8 +122,7 @@ export function AdminMobileNav() {
       <button
         type="button"
         onClick={() => setIsOpen(true)}
-        className="inline-flex h-10 w-10 items-center justify-center rounded-md border"
-        style={{ borderColor: "#C6A56B", color: "#F8F5F0" }}
+        className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-[var(--gold)] text-[var(--sidebar-text)]"
         aria-label="Open admin navigation"
         aria-expanded={isOpen}
       >
@@ -143,23 +138,21 @@ export function AdminMobileNav() {
             onClick={() => setIsOpen(false)}
           />
           <aside
-            className="relative z-10 flex h-full w-80 max-w-[85vw] flex-col px-6 py-6 shadow-2xl"
-            style={{ backgroundColor: "#2B2B2B" }}
+            className="relative z-10 flex h-full w-80 max-w-[85vw] flex-col bg-[var(--sidebar)] px-6 py-6 text-[var(--sidebar-text)] shadow-2xl"
           >
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="text-sm font-medium uppercase" style={{ color: "#B8A89A" }}>
+                <p className="text-sm font-medium uppercase text-[var(--muted)]">
                   Admin
                 </p>
-                <h2 className="mt-2 text-xl font-semibold tracking-tight" style={{ color: "#F8F5F0" }}>
+                <h2 className="mt-2 text-xl font-semibold tracking-tight text-[var(--sidebar-text)]">
                   Selenite Care
                 </h2>
               </div>
               <button
                 type="button"
                 onClick={() => setIsOpen(false)}
-                className="inline-flex h-10 w-10 items-center justify-center rounded-md border"
-                style={{ borderColor: "#C6A56B", color: "#F8F5F0" }}
+                className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-[var(--gold)] text-[var(--sidebar-text)]"
                 aria-label="Close admin navigation"
               >
                 <X className="h-5 w-5" aria-hidden="true" />
@@ -179,22 +172,16 @@ export function AdminMobileNav() {
                     key={link.href}
                     href={link.href}
                     onClick={() => setIsOpen(false)}
-                    className="flex items-center justify-between rounded-md px-3 py-3 text-sm font-medium transition-colors hover:text-[#B8A89A]"
-                    style={{
-                      backgroundColor: isActive
-                        ? "rgba(198, 165, 107, 0.12)"
-                        : "transparent",
-                      color: isActive ? "#C6A56B" : "#D8C7B5",
-                    }}
+                    className={`flex items-center justify-between rounded-md px-3 py-3 text-sm font-medium transition-colors ${
+                      isActive
+                        ? "bg-[color-mix(in_srgb,var(--gold)_12%,transparent)] text-[var(--gold)]"
+                        : "text-[var(--sidebar-text)]"
+                    }`}
                   >
                     <span>{link.label}</span>
                     {showPendingBadge ? (
                       <span
-                        className="inline-flex min-w-6 items-center justify-center rounded-full px-2 py-0.5 text-[11px] font-semibold"
-                        style={{
-                          backgroundColor: "#C6A56B",
-                          color: "#2B2B2B",
-                        }}
+                        className="inline-flex min-w-6 items-center justify-center rounded-full bg-[var(--gold)] px-2 py-0.5 text-[11px] font-semibold text-[var(--sidebar)]"
                       >
                         {pendingCount}
                       </span>

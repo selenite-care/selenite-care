@@ -276,27 +276,18 @@ export default function DiagnosisEditor({
 
   if (isLoading && !hasLoadedOnce) {
     return (
-      <section
-        className="rounded-2xl border p-6"
-        style={{ backgroundColor: "#F8F5F0", borderColor: "#D8C7B5" }}
-      >
-        <p style={{ color: "#6E6257" }}>Loading diagnosis...</p>
+      <section className="rounded-2xl border border-[#D8C7B5] bg-[#F8F5F0] p-6 dark:border-[#3D3530] dark:bg-[#242220]">
+        <p className="text-[#6E6257] dark:text-[#8A7D75]">Loading diagnosis...</p>
       </section>
     );
   }
 
   return (
     <section className="space-y-8">
-      <div
-        className="rounded-2xl border p-6"
-        style={{ backgroundColor: "#F8F5F0", borderColor: "#D8C7B5" }}
-      >
+      <div className="rounded-2xl border border-[#D8C7B5] bg-[#F8F5F0] p-6 dark:border-[#3D3530] dark:bg-[#242220]">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p
-              className="text-sm font-semibold uppercase tracking-[0.16em]"
-              style={{ color: "#C6A56B" }}
-            >
+            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[#C6A56B]">
               Section 1
             </p>
             <h2
@@ -311,7 +302,7 @@ export default function DiagnosisEditor({
           </div>
 
           {canEdit ? (
-            <div className="text-sm" style={{ color: "#6E6257" }}>
+            <div className="text-sm text-[#6E6257] dark:text-[#8A7D75]">
               Last saved: {formatTimestamp(lastSavedAt)}
             </div>
           ) : null}
@@ -321,8 +312,7 @@ export default function DiagnosisEditor({
           <div className="mt-5 space-y-4">
             <label
               htmlFor="problemIdentification"
-              className="block text-sm font-medium"
-              style={{ color: "#2B2B2B" }}
+              className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]"
             >
               Problem Identification
             </label>
@@ -332,8 +322,7 @@ export default function DiagnosisEditor({
               onChange={(event) => setProblemIdentification(event.target.value)}
               onBlur={() => void saveDiagnosis()}
               rows={6}
-              className="w-full rounded-xl border bg-white px-4 py-3 text-sm leading-7 outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
-              style={{ borderColor: "#D8C7B5", color: "#2B2B2B" }}
+              className="w-full rounded-xl border bg-white px-4 py-3 text-sm leading-7 text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#F0EDE8] dark:placeholder-[#8A7D75]"
               placeholder="Write the diagnosis or identified concern here..."
             />
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -341,8 +330,7 @@ export default function DiagnosisEditor({
                 type="button"
                 onClick={() => void saveDiagnosis()}
                 disabled={isSaving}
-                className="inline-flex h-11 items-center justify-center rounded-md px-5 text-sm font-medium transition-colors hover:bg-[#B8A89A] disabled:cursor-not-allowed disabled:opacity-60"
-                style={{ backgroundColor: "#2B2B2B", color: "#F8F5F0" }}
+                className="inline-flex h-11 items-center justify-center rounded-md bg-[#2B2B2B] px-5 text-sm font-medium text-[#F8F5F0] transition-colors hover:bg-[#B8A89A] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {isSaving ? "Saving..." : "Save"}
               </button>
@@ -355,23 +343,16 @@ export default function DiagnosisEditor({
           </div>
         ) : (
           <div
-            className="mt-5 rounded-2xl border bg-white px-4 py-4 text-sm leading-7"
-            style={{ borderColor: "#D8C7B5", color: "#6E6257" }}
+            className="mt-5 rounded-2xl border border-[#D8C7B5] bg-white px-4 py-4 text-sm leading-7 text-[#6E6257] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#8A7D75]"
           >
             {problemIdentification || "No problem identification added yet."}
           </div>
         )}
       </div>
 
-      <div
-        className="rounded-2xl border p-6"
-        style={{ backgroundColor: "#F8F5F0", borderColor: "#D8C7B5" }}
-      >
+      <div className="rounded-2xl border border-[#D8C7B5] bg-[#F8F5F0] p-6 dark:border-[#3D3530] dark:bg-[#242220]">
         <div>
-          <p
-            className="text-sm font-semibold uppercase tracking-[0.16em]"
-            style={{ color: "#C6A56B" }}
-          >
+          <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[#C6A56B]">
             Section 2
           </p>
           <h2
@@ -390,8 +371,7 @@ export default function DiagnosisEditor({
             <div ref={searchBoxRef} className="relative">
               <label
                 htmlFor="product-search"
-                className="block text-sm font-medium"
-                style={{ color: "#2B2B2B" }}
+                className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]"
               >
                 Search products
               </label>
@@ -404,17 +384,14 @@ export default function DiagnosisEditor({
                   setError("");
                 }}
                 placeholder="Search by name, type, or skin type"
-                className="mt-2 h-11 w-full rounded-xl border bg-white px-4 text-sm outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
-                style={{ borderColor: "#D8C7B5", color: "#2B2B2B" }}
+                className="mt-2 h-11 w-full rounded-xl border bg-white px-4 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#F0EDE8] dark:placeholder-[#8A7D75]"
+                style={{ borderColor: "#D8C7B5" }}
               />
 
               {(isSearching || searchResults.length > 0) && searchQuery.trim() ? (
-                <div
-                  className="absolute z-20 mt-2 max-h-72 w-full overflow-y-auto rounded-2xl border bg-white p-2 shadow-lg"
-                  style={{ borderColor: "#D8C7B5" }}
-                >
+                <div className="absolute z-20 mt-2 max-h-72 w-full overflow-y-auto rounded-2xl border border-[#D8C7B5] bg-white p-2 shadow-lg dark:border-[#3D3530] dark:bg-[#242220]">
                   {isSearching ? (
-                    <p className="px-3 py-3 text-sm" style={{ color: "#6E6257" }}>
+                    <p className="px-3 py-3 text-sm text-[#6E6257] dark:text-[#8A7D75]">
                       Searching products...
                     </p>
                   ) : (
@@ -424,18 +401,18 @@ export default function DiagnosisEditor({
                         type="button"
                         onClick={() => addRecommendedProduct(product)}
                         disabled={recommendedProductIds.has(product.id)}
-                        className="flex w-full items-start justify-between rounded-xl px-3 py-3 text-left transition-colors hover:bg-[#F8F5F0] disabled:cursor-not-allowed disabled:opacity-60"
+                        className="flex w-full items-start justify-between rounded-xl px-3 py-3 text-left transition-colors hover:bg-[#F8F5F0] dark:hover:bg-[#1A1814] disabled:cursor-not-allowed disabled:opacity-60"
                       >
                         <div>
-                          <p className="text-sm font-semibold" style={{ color: "#2B2B2B" }}>
+                          <p className="text-sm font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]">
                             {product.name}
                           </p>
-                          <p className="mt-1 text-xs" style={{ color: "#6E6257" }}>
+                          <p className="mt-1 text-xs text-[#6E6257] dark:text-[#8A7D75]">
                             {product.type}
                             {product.skinType ? ` • ${product.skinType}` : ""}
                           </p>
                         </div>
-                        <span className="text-sm font-medium" style={{ color: "#C6A56B" }}>
+                        <span className="text-sm font-medium text-[#C6A56B]">
                           {formatPrice(product.price)}
                         </span>
                       </button>
@@ -448,8 +425,7 @@ export default function DiagnosisEditor({
             <div className="grid gap-4">
               {recommendedProducts.length === 0 ? (
                 <div
-                  className="rounded-2xl border border-dashed bg-white px-4 py-5 text-sm"
-                  style={{ borderColor: "#D8C7B5", color: "#6E6257" }}
+                  className="rounded-2xl border border-dashed bg-white px-4 py-5 text-sm text-[#6E6257] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#8A7D75]"
                 >
                   No products recommended yet.
                 </div>
@@ -457,8 +433,8 @@ export default function DiagnosisEditor({
                 recommendedProducts.map((product) => (
                   <article
                     key={product.id}
-                    className="rounded-2xl border bg-white p-4"
-                    style={{ borderColor: "#D8C7B5" }}
+                    className="rounded-2xl border bg-white p-4 dark:bg-[#242220] dark:border-[#3D3530]"
+                    
                   >
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                       <div>
@@ -471,11 +447,11 @@ export default function DiagnosisEditor({
                         >
                           {product.name}
                         </h3>
-                        <p className="mt-1 text-sm" style={{ color: "#6E6257" }}>
+                        <p className="mt-1 text-sm text-[#6E6257] dark:text-[#8A7D75]">
                           {product.type}
                           {product.skinType ? ` • ${product.skinType}` : ""}
                         </p>
-                        <p className="mt-2 text-sm font-medium" style={{ color: "#C6A56B" }}>
+                        <p className="mt-2 text-sm font-medium text-[#C6A56B]">
                           {formatPrice(product.price)}
                         </p>
                       </div>
@@ -483,8 +459,7 @@ export default function DiagnosisEditor({
                       <button
                         type="button"
                         onClick={() => removeRecommendedProduct(product.id)}
-                        className="inline-flex h-10 items-center justify-center rounded-md border px-4 text-sm font-medium transition-colors hover:bg-[#F8F5F0]"
-                        style={{ borderColor: "#D8C7B5", color: "#2B2B2B" }}
+                        className="inline-flex h-10 items-center justify-center rounded-md border px-4 text-sm font-medium text-[#2B2B2B] transition-colors hover:bg-[#F8F5F0] dark:border-[#3D3530] dark:text-[#F0EDE8] dark:hover:bg-[#1A1814]"
                       >
                         Remove
                       </button>
@@ -493,8 +468,7 @@ export default function DiagnosisEditor({
                     <div className="mt-4">
                       <label
                         htmlFor={`note-${product.id}`}
-                        className="block text-sm font-medium"
-                        style={{ color: "#2B2B2B" }}
+                        className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]"
                       >
                         Optional note
                       </label>
@@ -506,8 +480,7 @@ export default function DiagnosisEditor({
                         }
                         onBlur={handleNoteBlur}
                         rows={3}
-                        className="mt-2 w-full rounded-xl border bg-[#F8F5F0] px-4 py-3 text-sm outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
-                        style={{ borderColor: "#D8C7B5", color: "#2B2B2B" }}
+                        className="mt-2 w-full rounded-xl border bg-[#F8F5F0] px-4 py-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#F0EDE8] dark:placeholder-[#8A7D75]"
                         placeholder="Add usage notes or context..."
                       />
                     </div>
@@ -525,18 +498,17 @@ export default function DiagnosisEditor({
         ) : (
           <div className="mt-6 space-y-4">
             {recommendedProducts.length === 0 ? (
-              <div
-                className="rounded-2xl border border-dashed bg-white px-4 py-5 text-sm"
-                style={{ borderColor: "#D8C7B5", color: "#6E6257" }}
-              >
+                <div
+                  className="rounded-2xl border border-dashed bg-white px-4 py-5 text-sm text-[#6E6257] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#8A7D75]"
+                >
                 No product recommendations added yet.
               </div>
             ) : (
               recommendedProducts.map((product) => (
                 <article
                   key={product.id}
-                  className="rounded-2xl border bg-white p-4"
-                  style={{ borderColor: "#D8C7B5" }}
+                  className="rounded-2xl border bg-white p-4 dark:bg-[#242220] dark:border-[#3D3530]"
+                  
                 >
                   <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                     <div>
@@ -549,19 +521,18 @@ export default function DiagnosisEditor({
                       >
                         {product.name}
                       </h3>
-                      <p className="mt-1 text-sm" style={{ color: "#6E6257" }}>
+                      <p className="mt-1 text-sm text-[#6E6257] dark:text-[#8A7D75]">
                         {product.type}
                         {product.skinType ? ` • ${product.skinType}` : ""}
                       </p>
                     </div>
-                    <p className="text-sm font-medium" style={{ color: "#C6A56B" }}>
+                    <p className="text-sm font-medium text-[#C6A56B]">
                       {formatPrice(product.price)}
                     </p>
                   </div>
                   {product.note ? (
                     <div
-                      className="mt-4 rounded-xl border bg-[#F8F5F0] px-4 py-3 text-sm leading-7"
-                      style={{ borderColor: "#D8C7B5", color: "#6E6257" }}
+                      className="mt-4 rounded-xl border bg-[#F8F5F0] px-4 py-3 text-sm leading-7 text-[#6E6257] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#8A7D75]"
                     >
                       {product.note}
                     </div>
