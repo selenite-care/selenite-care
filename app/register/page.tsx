@@ -7,6 +7,7 @@ import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
 
 function RegisterPageContent() {
   const [error, setError] = useState("");
+  const [showExistingAccountNotice, setShowExistingAccountNotice] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [phone, setPhone] = useState("");
   const [registeredEmail, setRegisteredEmail] = useState("");
@@ -29,7 +30,13 @@ function RegisterPageContent() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (isSubmitting) {
+      return;
+    }
+
+    setIsSubmitting(true);
     setError("");
+    setShowExistingAccountNotice(false);
 
     const formData = new FormData(event.currentTarget);
     const name = String(formData.get("name") ?? "");
@@ -39,32 +46,40 @@ function RegisterPageContent() {
 
     if (!phone || !isValidPhoneNumber(phone)) {
       setError("Please enter a valid phone number.");
-      return;
-    }
-
-    setIsSubmitting(true);
-
-    const response = await fetch("/api/register", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ name, phone, email, password, dateOfBirth }),
-    });
-
-    if (!response.ok) {
-      const data = (await response.json().catch(() => null)) as {
-        error?: string;
-      } | null;
-
-      setError(data?.error ?? "Registration failed. Please try again.");
       setIsSubmitting(false);
       return;
     }
 
-    setRegisteredEmail(email);
-    setResendCountdown(60);
-    setIsSubmitting(false);
+    try {
+      const response = await fetch("/api/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name, phone, email, password, dateOfBirth }),
+      });
+
+      if (!response.ok) {
+        const data = (await response.json().catch(() => null)) as {
+          error?: string;
+        } | null;
+
+        if (response.status === 409) {
+          setShowExistingAccountNotice(true);
+          return;
+        }
+
+        setError(data?.error ?? "Registration failed. Please try again.");
+        return;
+      }
+
+      setRegisteredEmail(email);
+      setResendCountdown(60);
+    } catch {
+      setError("Registration failed. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   async function handleResendVerification() {
@@ -470,6 +485,31 @@ function RegisterPageContent() {
                 }}
               />
             </div>
+
+            {showExistingAccountNotice ? (
+              <div
+                style={{
+                  borderRadius: '10px',
+                  border: '1px solid #C6A56B',
+                  backgroundColor: '#F8F5F0',
+                  padding: '14px 16px',
+                }}
+              >
+                <p
+                  style={{
+                    fontSize: '14px',
+                    lineHeight: '1.7',
+                    color: '#6E6257',
+                    margin: 0,
+                  }}
+                >
+                  An account with this email already exists. If you registered
+                  recently but haven&apos;t verified your email yet, please check
+                  your inbox for the verification link. You can also request a
+                  new verification email from the login page.
+                </p>
+              </div>
+            ) : null}
 
             {error ? <p style={{
               fontSize: '14px',
