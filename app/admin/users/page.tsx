@@ -33,10 +33,22 @@ const MEMBERSHIP_FILTERS = [
 ] as const;
 
 const roleColors: Record<string, { badge: string; text: string }> = {
-  CLIENT: { badge: "bg-blue-100 dark:bg-blue-900/20", text: "text-blue-800 dark:text-blue-300" },
-  DOCTOR: { badge: "bg-purple-100 dark:bg-purple-900/20", text: "text-purple-800 dark:text-purple-300" },
-  CRM: { badge: "bg-emerald-100 dark:bg-emerald-900/20", text: "text-emerald-800 dark:text-emerald-300" },
-  ADMIN: { badge: "bg-red-100 dark:bg-red-900/20", text: "text-red-800 dark:text-red-300" },
+  CLIENT: {
+    badge: "bg-blue-100 dark:bg-blue-900/20",
+    text: "text-blue-800 dark:text-blue-300",
+  },
+  DOCTOR: {
+    badge: "bg-purple-100 dark:bg-purple-900/20",
+    text: "text-purple-800 dark:text-purple-300",
+  },
+  CRM: {
+    badge: "bg-emerald-100 dark:bg-emerald-900/20",
+    text: "text-emerald-800 dark:text-emerald-300",
+  },
+  ADMIN: {
+    badge: "bg-red-100 dark:bg-red-900/20",
+    text: "text-red-800 dark:text-red-300",
+  },
 };
 
 function getMembershipStatusStyles(
@@ -45,24 +57,24 @@ function getMembershipStatusStyles(
   switch (status) {
     case "ACTIVE":
       return {
-        badge: "bg-emerald-100",
-        text: "text-emerald-800",
+        badge: "bg-emerald-100 dark:bg-emerald-900/20",
+        text: "text-emerald-800 dark:text-emerald-300",
       };
     case "PENDING":
       return {
-        badge: "bg-amber-100",
-        text: "text-amber-800",
+        badge: "bg-amber-100 dark:bg-amber-900/20",
+        text: "text-amber-800 dark:text-amber-300",
       };
     case "CANCELLED":
       return {
-        badge: "bg-red-100",
-        text: "text-red-800",
+        badge: "bg-red-100 dark:bg-red-900/20",
+        text: "text-red-800 dark:text-red-300",
       };
     case "EXPIRED":
     default:
       return {
-        badge: "bg-zinc-200",
-        text: "text-zinc-700",
+        badge: "bg-zinc-200 dark:bg-zinc-800",
+        text: "text-zinc-700 dark:text-zinc-300",
       };
   }
 }
@@ -99,7 +111,6 @@ export default function AdminUsersPage() {
         setIsLoading(true);
 
         const searchParams = new URLSearchParams();
-
         if (membershipFilter !== "all") {
           searchParams.set("membershipFilter", membershipFilter);
         }
@@ -125,7 +136,9 @@ export default function AdminUsersPage() {
   }, [membershipFilter]);
 
   async function handleRoleChange(userId: string, newRole: string) {
-    if (updatingId) return; // Prevent concurrent updates
+    if (updatingId) {
+      return;
+    }
 
     setUpdatingId(userId);
     setUpdateError(null);
@@ -140,18 +153,22 @@ export default function AdminUsersPage() {
       });
 
       if (!response.ok) {
-        const data = (await response.json().catch(() => null)) as { error?: string } | null;
+        const data = (await response.json().catch(() => null)) as
+          | { error?: string }
+          | null;
         throw new Error(data?.error ?? "Failed to update user role.");
       }
 
       const data = (await response.json()) as { user?: AdminUser };
       if (data.user) {
         setUsers((prevUsers) =>
-          prevUsers.map((u) => (u.id === userId ? data.user! : u))
+          prevUsers.map((user) => (user.id === userId ? data.user! : user)),
         );
       }
     } catch (err) {
-      setUpdateError(err instanceof Error ? err.message : "Failed to update user role.");
+      setUpdateError(
+        err instanceof Error ? err.message : "Failed to update user role.",
+      );
     } finally {
       setUpdatingId(null);
     }
@@ -179,10 +196,9 @@ export default function AdminUsersPage() {
         Email: user.email,
         Phone: user.phone ?? "",
         Role: user.role,
-        Membership:
-          user.memberships[0]
-            ? `${getTierLabel(user.memberships[0].tier)} (${user.memberships[0].status})`
-            : "No Membership",
+        Membership: user.memberships[0]
+          ? `${getTierLabel(user.memberships[0].tier)} (${user.memberships[0].status})`
+          : "No Membership",
         "Registration Date": new Date(user.createdAt).toLocaleDateString(),
         "Total Bookings": user._count.bookings,
       })),
@@ -211,12 +227,15 @@ export default function AdminUsersPage() {
   }
 
   return (
-    <section>
+    <section className="min-h-screen bg-[#F8F5F0] px-6 py-10 dark:bg-[#1A1814]">
       <div>
-        <h1 className="text-3xl font-semibold tracking-tight text-foreground">
+        <h1 className="text-3xl font-semibold tracking-tight text-[#2B2B2B] dark:text-[#F0EDE8]"
+          style={{
+            fontFamily: "Playfair Display, serif",
+          }}>
           All Users
         </h1>
-        <p className="mt-3 text-sm leading-6 text-foreground/70">
+        <p className="mt-3 text-sm leading-6 text-[#B8A89A] dark:text-[#8A7D75]">
           View registered users and their booking activity.
         </p>
       </div>
@@ -232,7 +251,7 @@ export default function AdminUsersPage() {
           {updateError}
         </p>
       ) : null}
-{/* fixed filtering issue */}
+
       {!isLoading && !error ? (
         <>
           <div className="mt-8 rounded-lg border border-[#D8C7B5] bg-white p-4">
@@ -319,10 +338,10 @@ export default function AdminUsersPage() {
             </div>
           </div>
 
-          <div className="mt-6 overflow-hidden rounded-lg border border-black/10 bg-background dark:border-white/10">
+          <div className="mt-6 overflow-hidden rounded-lg border border-themed bg-card">
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[720px] text-left text-sm">
-                <thead className="border-b border-black/10 bg-zinc-50 text-foreground/70 dark:border-white/10 dark:bg-white/5">
+              <table className="table-themed w-full min-w-[720px] text-left text-sm">
+                <thead>
                   <tr>
                     <th className="px-4 py-3 font-medium">Name</th>
                     <th className="px-4 py-3 font-medium">Email</th>
@@ -338,8 +357,7 @@ export default function AdminUsersPage() {
                     <tr>
                       <td
                         colSpan={7}
-                        className="px-4 py-8 text-center text-sm"
-                        style={{ color: "#B8A89A" }}
+                        className="cell-muted px-4 py-8 text-center text-sm"
                       >
                         No users match the selected filters.
                       </td>
@@ -351,31 +369,25 @@ export default function AdminUsersPage() {
                       const membershipStyles = latestMembership
                         ? getMembershipStatusStyles(latestMembership.status)
                         : {
-                            badge: "bg-zinc-200",
-                            text: "text-zinc-700",
+                            badge: "bg-zinc-200 dark:bg-zinc-800",
+                            text: "text-zinc-700 dark:text-zinc-300",
                           };
+
                       return (
-                        <tr
-                          key={user.id}
-                          className="border-b border-black/10 last:border-0 dark:border-white/10"
-                        >
-                          <td className="px-4 py-4 text-foreground">
-                            {user.name ?? "Not set"}
-                          </td>
-                          <td className="px-4 py-4 text-foreground/70">
-                            {user.email}
-                          </td>
-                          <td className="px-4 py-4 text-foreground/70">
+                        <tr key={user.id}>
+                          <td className="px-4 py-4">{user.name ?? "Not set"}</td>
+                          <td className="cell-muted px-4 py-4">{user.email}</td>
+                          <td className="cell-muted px-4 py-4">
                             {user.phone ?? "Not set"}
                           </td>
                           <td className="px-4 py-4">
                             <select
                               value={user.role}
-                              onChange={(e) =>
-                                handleRoleChange(user.id, e.target.value)
+                              onChange={(event) =>
+                                handleRoleChange(user.id, event.target.value)
                               }
                               disabled={updatingId === user.id}
-                              className={`rounded-lg px-3 py-2 text-sm font-medium outline-none transition-colors ${colors.badge} ${colors.text} disabled:opacity-50 disabled:cursor-not-allowed`}
+                              className={`rounded-lg px-3 py-2 text-sm font-medium outline-none transition-colors ${colors.badge} ${colors.text} disabled:cursor-not-allowed disabled:opacity-50`}
                             >
                               {ROLES.map((role) => (
                                 <option key={role} value={role}>
@@ -393,23 +405,23 @@ export default function AdminUsersPage() {
                                 : "No Membership"}
                             </span>
                           </td>
-                          <td className="px-4 py-4 text-foreground/70">
+                          <td className="cell-muted px-4 py-4">
                             {new Date(user.createdAt).toLocaleDateString()}
                           </td>
-                          <td className="px-4 py-4 text-foreground/70">
+                          <td className="cell-muted px-4 py-4">
                             {user._count.bookings}
                           </td>
                         </tr>
                       );
-                      })
-                    )}
-                  </tbody>
-                </table>
-              </div>
-              <p className="px-4 pb-4 text-xs text-foreground/60 md:hidden">
-                Scroll to see more
-              </p>
+                    })
+                  )}
+                </tbody>
+              </table>
             </div>
+            <p className="px-4 pb-4 text-xs text-muted md:hidden">
+              Scroll to see more
+            </p>
+          </div>
         </>
       ) : null}
     </section>

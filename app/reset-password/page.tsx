@@ -75,19 +75,10 @@ function ResetPasswordContent() {
   }
 
   return (
-    <section
-      className="flex min-h-screen items-center justify-center px-6 py-16"
-      style={{ backgroundColor: "#F8F5F0" }}
-    >
+    <section className="flex min-h-screen items-center justify-center bg-[#F8F5F0] px-6 py-16 dark:bg-[#1A1814]">
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
-          <h1
-            className="text-3xl font-semibold"
-            style={{
-              color: "#2B2B2B",
-              fontFamily: '"Playfair Display", serif',
-            }}
-          >
+          <h1 className="text-3xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]" style={{ fontFamily: '"Playfair Display", serif' }}>
             Reset Password
           </h1>
           <p className="mt-3 text-sm leading-6" style={{ color: "#6E6257" }}>
@@ -97,13 +88,11 @@ function ResetPasswordContent() {
 
         <form
           onSubmit={handleSubmit}
-          className="rounded-xl border bg-white p-6"
-          style={{ borderColor: "#D8C7B5" }}
+          className="rounded-xl border border-[#D8C7B5] bg-white p-6 dark:border-[#3D3530] dark:bg-[#242220]"
         >
           <label
             htmlFor="password"
-            className="block text-sm font-medium"
-            style={{ color: "#2B2B2B" }}
+            className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]"
           >
             New Password
           </label>
@@ -119,8 +108,7 @@ function ResetPasswordContent() {
 
           <label
             htmlFor="confirmPassword"
-            className="mt-4 block text-sm font-medium"
-            style={{ color: "#2B2B2B" }}
+            className="mt-4 block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]"
           >
             Confirm Password
           </label>
@@ -146,8 +134,7 @@ function ResetPasswordContent() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="mt-6 inline-flex h-11 w-full items-center justify-center rounded-md px-5 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-70"
-            style={{ backgroundColor: "#2B2B2B", color: "#F8F5F0" }}
+            className="mt-6 inline-flex h-11 w-full items-center justify-center rounded-md bg-[#2B2B2B] px-5 text-sm font-medium text-[#F8F5F0] transition-colors disabled:cursor-not-allowed disabled:opacity-70"
           >
             {isSubmitting ? "Resetting..." : "Reset Password"}
           </button>
@@ -156,8 +143,7 @@ function ResetPasswordContent() {
             <div className="mt-5 text-center">
               <Link
                 href="/login"
-                className="text-sm underline"
-                style={{ color: "#C6A56B" }}
+                className="text-sm underline text-[#C6A56B]"
               >
                 Go to Login
               </Link>
@@ -171,11 +157,8 @@ function ResetPasswordContent() {
 
 function ResetPasswordFallback() {
   return (
-    <section
-      className="flex min-h-screen items-center justify-center px-6 py-16"
-      style={{ backgroundColor: "#F8F5F0" }}
-    >
-      <p style={{ color: "#B8A89A" }}>Loading...</p>
+    <section className="flex min-h-screen items-center justify-center bg-[#F8F5F0] px-6 py-16 dark:bg-[#1A1814]">
+      <p className="text-[#B8A89A] dark:text-[#8A7D75]">Loading...</p>
     </section>
   );
 }

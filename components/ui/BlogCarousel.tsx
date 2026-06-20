@@ -89,6 +89,7 @@ function BlogCard({ post }: { post: BlogPost }) {
 
   return (
     <article
+      className="dark:border-[#3D3530] dark:bg-[#242220]"
       style={{
         background: "#FFFFFF",
         border: "1px solid #E8DDD5",
@@ -120,6 +121,7 @@ function BlogCard({ post }: { post: BlogPost }) {
 
         {/* Date badge — top-left */}
         <div
+          className="dark:bg-[#242220] dark:border dark:border-[#3D3530]"
           style={{
             position: "absolute", top: 14, left: 14,
             background: "#FFFFFF",
@@ -130,7 +132,7 @@ function BlogCard({ post }: { post: BlogPost }) {
             boxShadow: "0 2px 10px rgba(0,0,0,0.12)",
           }}
         >
-          <p style={{ fontSize: 18, fontWeight: 800, color: "#2B2B2B", lineHeight: 1, margin: 0 }}>
+          <p className="dark:text-[#F0EDE8]" style={{ fontSize: 18, fontWeight: 800, color: "#2B2B2B", lineHeight: 1, margin: 0 }}>
             {day}
           </p>
           <p style={{ fontSize: 9, fontWeight: 700, color: "#C6A56B", letterSpacing: "0.08em", margin: "2px 0 0" }}>
@@ -160,6 +162,7 @@ function BlogCard({ post }: { post: BlogPost }) {
       {/* Body */}
       <div style={{ padding: "20px 20px 16px", display: "flex", flexDirection: "column", flex: 1 }}>
         <h3
+          className="dark:text-[#F0EDE8]"
           style={{
             fontFamily: "Playfair Display, Georgia, serif",
             color: "#2B2B2B",
@@ -173,12 +176,13 @@ function BlogCard({ post }: { post: BlogPost }) {
         </h3>
 
         {/* Author row */}
-        <p style={{ fontSize: 11, color: "#B8A89A", margin: "0 0 12px", letterSpacing: "0.02em" }}>
+        <p className="dark:text-[#8A7D75]" style={{ fontSize: 11, color: "#B8A89A", margin: "0 0 12px", letterSpacing: "0.02em" }}>
           Posted by{" "}
           <span style={{ color: "#8C7355", fontWeight: 600 }}>{post.author}</span>
         </p>
 
         <p
+          className="dark:text-[#8A7D75]"
           style={{
             fontSize: 13,
             color: "#7A6A5A",
@@ -198,6 +202,7 @@ function BlogCard({ post }: { post: BlogPost }) {
         <div style={{ height: 1, background: "linear-gradient(90deg, #C6A56B44, transparent)", marginBottom: 14 }} />
 
         <Link
+          className="dark:text-[#F0EDE8]"
           href={`/blog/${post.slug}`}
           style={{
             fontSize: 11,
@@ -255,8 +260,8 @@ export default function BlogCarousel() {
 
   return (
     <section
-      style={{ backgroundColor: "#F8F5F0", position: "relative", overflow: "hidden" }}
-      className="px-6 py-16"
+      style={{ position: "relative", overflow: "hidden" }}
+      className="bg-page px-6 py-16"
     >
       {/* Subtle warm background orb */}
       <div
@@ -273,12 +278,12 @@ export default function BlogCarousel() {
         <div className="flex items-end justify-between gap-4">
           <div className="max-w-xl">
             <h2
-              style={{ fontFamily: "Playfair Display, serif", color: "#2B2B2B" }}
-              className="text-3xl font-bold tracking-tight"
+              style={{ fontFamily: "Playfair Display, serif" }}
+              className="text-page text-3xl font-bold tracking-tight"
             >
               Our Blogs &amp; Articles
             </h2>
-            <p style={{ color: "#B8A89A" }} className="mt-3 text-base leading-7">
+            <p className="text-muted mt-3 text-base leading-7">
               Skincare insights, wellness guidance, and expert perspectives — written for you.
             </p>
           </div>

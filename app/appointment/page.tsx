@@ -199,61 +199,53 @@ export default function AppointmentPage() {
     .filter((group) => group.doctors.length > 0);
 
   return (
-    <main className="min-h-screen px-6 py-16" style={{ backgroundColor: "#F8F5F0" }}>
+    <main className="min-h-screen bg-[#F8F5F0] px-6 py-16 dark:bg-[#1A1814]">
       <div className="mx-auto w-full max-w-6xl">
         <div className="max-w-3xl">
           <h1
-            className="text-4xl font-bold sm:text-5xl"
+            className="text-4xl font-bold text-[#2B2B2B] dark:text-[#F0EDE8] sm:text-5xl"
             style={{
               fontFamily: "Playfair Display, serif",
-              color: "#2B2B2B",
             }}
           >
             Book an Appointment
           </h1>
 
           <p
-            className="mt-5 text-base leading-8 sm:text-lg"
-            style={{ color: "#6E6257" }}
+            className="mt-5 text-base leading-8 text-[#6E6257] dark:text-[#8A7D75] sm:text-lg"
           >
             Select your preferred doctor to begin your consultation journey.
           </p>
         </div>
 
         {error ? (
-          <div
-            className="mt-10 rounded-2xl border px-5 py-4 text-sm text-red-600"
-            style={{ borderColor: "#F0C9C9", backgroundColor: "#FFF6F6" }}
-          >
+          <div className="mt-10 rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-600 dark:border-red-900/40 dark:bg-red-950/30 dark:text-red-300">
             {error}
           </div>
         ) : null}
 
         {membershipStatus === "loading" ? (
-          <p className="mt-10 text-sm" style={{ color: "#B8A89A" }}>
+          <p className="mt-10 text-sm text-[#B8A89A] dark:text-[#8A7D75]">
             Checking membership...
           </p>
         ) : null}
 
         {membershipStatus === "inactive" || membershipStatus === "expired" ? (
           <section
-            className="mt-10 rounded-[24px] border px-6 py-8 text-center"
+            className="mt-10 rounded-[24px] border bg-white px-6 py-8 text-center dark:bg-[#242220] dark:border-[#3D3530]"
             style={{
-              backgroundColor: "#FFFFFF",
-              borderColor: "#D8C7B5",
               boxShadow: "0 18px 48px rgba(43, 43, 43, 0.06)",
             }}
           >
             <h2
-              className="text-2xl font-semibold"
+              className="text-2xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]"
               style={{
-                color: "#2B2B2B",
                 fontFamily: "Playfair Display, serif",
               }}
             >
               Active Membership Required
             </h2>
-            <p className="mx-auto mt-4 max-w-2xl text-base leading-7" style={{ color: "#6E6257" }}>
+            <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-[#6E6257] dark:text-[#8A7D75]">
               {membershipStatus === "expired"
                 ? "Your membership has expired. Please renew your membership to book appointments."
                 : "You can browse our doctors below, but you will need an active membership before selecting one for an appointment."}
@@ -273,30 +265,28 @@ export default function AppointmentPage() {
 
         {hasActiveMembership && quotaData ? (
           <section
-            className="mt-10 rounded-[24px] border bg-white px-6 py-6"
+            className="mt-10 rounded-[24px] border bg-white px-6 py-6 dark:bg-[#242220] dark:border-[#3D3530]"
             style={{
-              borderColor: "#D8C7B5",
               boxShadow: "0 18px 48px rgba(43, 43, 43, 0.06)",
             }}
           >
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <h2
-                  className="text-2xl font-semibold"
+                  className="text-2xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]"
                   style={{
-                    color: "#2B2B2B",
                     fontFamily: "Playfair Display, serif",
                   }}
                 >
                   Membership Quota Summary
                 </h2>
-                <p className="mt-2 text-sm leading-6" style={{ color: "#6E6257" }}>
+                <p className="mt-2 text-sm leading-6 text-[#6E6257] dark:text-[#8A7D75]">
                   Track how many consultations remain in your current membership.
                 </p>
               </div>
 
               <div
-                className="inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em]"
+                className="inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#F0EDE8]"
                 style={{
                   borderColor: "#D8C7B5",
                   backgroundColor: "#F8F5F0",
@@ -309,16 +299,16 @@ export default function AppointmentPage() {
 
             {quotaData.quota.type === "total" ? (
               <div
-                className="mt-5 rounded-2xl border px-5 py-4"
+                className="mt-5 rounded-2xl border px-5 py-4 dark:border-[#3D3530] dark:bg-[#1A1814]"
                 style={{
                   borderColor: "#D8C7B5",
                   backgroundColor: "#F8F5F0",
                 }}
               >
-                <p className="text-base font-medium" style={{ color: "#2B2B2B" }}>
+                <p className="text-base font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
                   {quotaData.quota.used} of {quotaData.quota.limit} consultations used
                 </p>
-                <p className="mt-2 text-sm" style={{ color: "#6E6257" }}>
+                <p className="mt-2 text-sm text-[#6E6257] dark:text-[#8A7D75]">
                   {quotaData.quota.remaining} consultation
                   {quotaData.quota.remaining === 1 ? "" : "s"} remaining
                 </p>
@@ -331,19 +321,19 @@ export default function AppointmentPage() {
                   return (
                     <div
                       key={specialization}
-                      className="rounded-2xl border px-5 py-4"
+                      className="rounded-2xl border px-5 py-4 dark:border-[#3D3530] dark:bg-[#1A1814]"
                       style={{
                         borderColor: "#D8C7B5",
                         backgroundColor: "#F8F5F0",
                       }}
                     >
-                      <p className="text-sm font-semibold" style={{ color: "#2B2B2B" }}>
+                      <p className="text-sm font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]">
                         {specializationLabels[specialization]}
                       </p>
-                      <p className="mt-2 text-base font-medium" style={{ color: "#6E6257" }}>
+                      <p className="mt-2 text-base font-medium text-[#6E6257] dark:text-[#8A7D75]">
                         {quota.used}/{formatQuotaValue(quota.limit)} used
                       </p>
-                      <p className="mt-1 text-sm" style={{ color: "#8C7967" }}>
+                      <p className="mt-1 text-sm text-[#8C7967] dark:text-[#8A7D75]">
                         {quota.isUnlimited
                           ? "Unlimited remaining"
                           : `${quota.remaining ?? 0} remaining`}
@@ -359,13 +349,13 @@ export default function AppointmentPage() {
         {membershipStatus !== "loading" ? (
           <>
             {isLoadingDoctors ? (
-              <p className="mt-10 text-sm" style={{ color: "#B8A89A" }}>
+              <p className="mt-10 text-sm text-[#B8A89A] dark:text-[#8A7D75]">
                 Loading doctors...
               </p>
             ) : null}
 
             {!isLoadingDoctors && doctors.length === 0 ? (
-              <p className="mt-10 text-sm" style={{ color: "#B8A89A" }}>
+              <p className="mt-10 text-sm text-[#B8A89A] dark:text-[#8A7D75]">
                 No doctors are available right now.
               </p>
             ) : null}
@@ -380,9 +370,8 @@ export default function AppointmentPage() {
                         style={{ backgroundColor: "#D8C7B5" }}
                       />
                       <h2
-                        className="text-2xl font-semibold"
+                        className="text-2xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]"
                         style={{
-                          color: "#2B2B2B",
                           fontFamily: "Playfair Display, serif",
                         }}
                       >
@@ -418,11 +407,10 @@ export default function AppointmentPage() {
                         return (
                           <article
                             key={doctor.id}
-                            className={`relative overflow-hidden rounded-[20px] border bg-white ${
+                            className={`relative overflow-hidden rounded-[20px] border bg-white dark:bg-[#242220] dark:border-[#3D3530] ${
                               isLocked ? "opacity-70" : ""
                             }`}
                             style={{
-                              borderColor: "#D8C7B5",
                               boxShadow: "0 14px 40px rgba(43, 43, 43, 0.06)",
                             }}
                           >
@@ -442,8 +430,7 @@ export default function AppointmentPage() {
                                 style={{ backgroundColor: "#E8DDD3" }}
                               >
                                 <span
-                                  className="text-3xl font-semibold"
-                                  style={{ color: "#2B2B2B" }}
+                                  className="text-3xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]"
                                 >
                                   {getInitials(doctor.name)}
                                 </span>
@@ -453,7 +440,7 @@ export default function AppointmentPage() {
                             <div className="p-6">
                               {isLocked ? (
                                 <div
-                                  className="mb-4 inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em]"
+                                  className="mb-4 inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#8A7D75]"
                                   style={{
                                     borderColor: "#D8C7B5",
                                     backgroundColor: "#F8F5F0",
@@ -465,30 +452,29 @@ export default function AppointmentPage() {
                               ) : null}
 
                               <h3
-                                className="text-xl font-semibold"
+                                className="text-xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]"
                                 style={{
-                                  color: "#2B2B2B",
                                   fontFamily: "Playfair Display, serif",
                                 }}
                               >
                                 {doctor.name}
                               </h3>
-                              <p className="mt-2 text-sm font-medium" style={{ color: "#8C7967" }}>
+                              <p className="mt-2 text-sm font-medium text-[#8C7967] dark:text-[#8A7D75]">
                                 {doctor.designation}
                               </p>
-                              <p className="mt-4 text-sm leading-6" style={{ color: "#6E6257" }}>
+                              <p className="mt-4 text-sm leading-6 text-[#6E6257] dark:text-[#8A7D75]">
                                 {doctor.bio ?? "Doctor profile coming soon."}
                               </p>
 
                               <div
-                                className="mt-5 rounded-xl border px-4 py-3 text-sm"
+                                className="mt-5 rounded-xl border px-4 py-3 text-sm dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#8A7D75]"
                                 style={{
                                   borderColor: "#D8C7B5",
                                   backgroundColor: "#F8F5F0",
                                   color: "#6E6257",
                                 }}
                               >
-                                <span className="font-medium" style={{ color: "#2B2B2B" }}>
+                                <span className="font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
                                   Availability:
                                 </span>{" "}
                                 {doctor.availability}
@@ -497,8 +483,7 @@ export default function AppointmentPage() {
                               {isLocked ? (
                                 <>
                                   <p
-                                    className="mt-5 text-sm leading-6"
-                                    style={{ color: "#8C7967" }}
+                                    className="mt-5 text-sm leading-6 text-[#8C7967] dark:text-[#8A7D75]"
                                   >
                                     {lockMessage}
                                   </p>
@@ -517,7 +502,7 @@ export default function AppointmentPage() {
                                     </button>
                                   ) : (
                                     <div
-                                      className="mt-6 inline-flex h-12 w-full items-center justify-center rounded-md border px-5 text-sm font-medium"
+                                      className="mt-6 inline-flex h-12 w-full items-center justify-center rounded-md border px-5 text-sm font-medium dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#8A7D75]"
                                       style={{
                                         borderColor: "#D8C7B5",
                                         backgroundColor: "#EFE7DC",
@@ -555,26 +540,25 @@ export default function AppointmentPage() {
 
       {showMembershipModal ? (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 px-4"
+          className="modal-overlay fixed inset-0 z-50 flex items-center justify-center bg-black/55 px-4"
           onClick={() => setShowMembershipModal(false)}
         >
           <div
-            className="w-full max-w-md rounded-[24px] border bg-white p-6 shadow-2xl"
+            className="modal-card w-full max-w-md rounded-[24px] border bg-white p-6 shadow-2xl"
             style={{ borderColor: "#D8C7B5" }}
             onClick={(event) => event.stopPropagation()}
           >
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h2
-                  className="text-2xl font-semibold"
+                  className="text-2xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]"
                   style={{
                     fontFamily: "Playfair Display, serif",
-                    color: "#2B2B2B",
                   }}
                 >
                   Membership Required
                 </h2>
-                <p className="mt-3 text-sm leading-7" style={{ color: "#6E6257" }}>
+                <p className="mt-3 text-sm leading-7 text-[#6E6257] dark:text-[#8A7D75]">
                   {membershipPromptMessage}
                 </p>
               </div>
@@ -582,11 +566,9 @@ export default function AppointmentPage() {
               <button
                 type="button"
                 onClick={() => setShowMembershipModal(false)}
-                className="inline-flex h-10 w-10 items-center justify-center rounded-full border text-lg"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full border bg-[#F8F5F0] text-lg text-[#2B2B2B] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#F0EDE8]"
                 style={{
                   borderColor: "#D8C7B5",
-                  color: "#2B2B2B",
-                  backgroundColor: "#F8F5F0",
                 }}
                 aria-label="Close membership prompt"
               >
@@ -608,11 +590,9 @@ export default function AppointmentPage() {
               <button
                 type="button"
                 onClick={() => setShowMembershipModal(false)}
-                className="inline-flex h-12 flex-1 items-center justify-center rounded-md border px-5 text-sm font-medium transition-colors"
+                className="inline-flex h-12 flex-1 items-center justify-center rounded-md border bg-[#F8F5F0] px-5 text-sm font-medium text-[#2B2B2B] transition-colors dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#F0EDE8]"
                 style={{
                   borderColor: "#D8C7B5",
-                  color: "#2B2B2B",
-                  backgroundColor: "#F8F5F0",
                 }}
               >
                 Close

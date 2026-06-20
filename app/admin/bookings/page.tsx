@@ -117,12 +117,15 @@ export default function AdminBookingsPage() {
   }
 
   return (
-    <section>
+    <section className="min-h-screen bg-[#F8F5F0] px-6 py-10 dark:bg-[#1A1814]">
       <div>
-        <h1 className="text-3xl font-semibold tracking-tight text-foreground">
+        <h1 className="text-3xl font-semibold tracking-tight text-[#2B2B2B] dark:text-[#F0EDE8]"
+          style={{
+            fontFamily: "Playfair Display, serif",
+          }}>
           All Bookings
         </h1>
-        <p className="mt-3 text-sm leading-6 text-foreground/70">
+        <p className="mt-3 text-sm leading-6 text-[#B8A89A] dark:text-[#8A7D75]">
           Review every consultation booking and its current appointment status.
         </p>
       </div>
@@ -204,63 +207,65 @@ export default function AdminBookingsPage() {
             </p>
           </div>
 
-          {filteredBookings.length === 0 ? (
-            <p className="mt-8 text-sm text-foreground/70">
-              No bookings match your filters.
-            </p>
-          ) : (
-            <div className="mt-6 overflow-hidden rounded-lg border border-black/10 bg-background dark:border-white/10">
-              <div className="overflow-x-auto">
-                <table className="w-full min-w-[880px] text-left text-sm">
-                  <thead className="border-b border-black/10 bg-zinc-50 text-foreground/70 dark:border-white/10 dark:bg-white/5">
+          <div className="mt-6 overflow-hidden rounded-lg border border-themed bg-card">
+            <div className="overflow-x-auto">
+              <table className="table-themed w-full min-w-[880px] text-left text-sm">
+                <thead>
+                  <tr>
+                    <th className="px-4 py-3 font-medium">Booking Token</th>
+                    <th className="px-4 py-3 font-medium">Client Name</th>
+                    {/* <th className="px-4 py-3 font-medium">Service Name</th> */}
+                    <th className="px-4 py-3 font-medium">Preferred Date</th>
+                    <th className="px-4 py-3 font-medium">Booking Status</th>
+                    <th className="px-4 py-3 font-medium">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredBookings.length === 0 ? (
                     <tr>
-                      <th className="px-4 py-3 font-medium">Booking Token</th>
-                      <th className="px-4 py-3 font-medium">Client Name</th>
-                      {/* <th className="px-4 py-3 font-medium">Service Name</th> */}
-                      <th className="px-4 py-3 font-medium">Preferred Date</th>
-                      <th className="px-4 py-3 font-medium">Booking Status</th>
-                      <th className="px-4 py-3 font-medium">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredBookings.map((booking) => (
-                      <tr
-                        key={booking.id}
-                        className="border-b border-black/10 last:border-0 dark:border-white/10"
+                      <td
+                        colSpan={5}
+                        className="cell-muted px-4 py-8 text-center text-sm"
                       >
-                        <td className="px-4 py-4 font-mono text-xs text-foreground/70">
+                        No bookings match your filters.
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredBookings.map((booking) => (
+                      <tr key={booking.id}>
+                        <td className="cell-muted px-4 py-4 font-mono text-xs">
                           {booking.token ?? booking.id}
                         </td>
-                        <td className="px-4 py-4 text-foreground">
+                        <td className="px-4 py-4">
                           {booking.user.name ?? booking.user.email}
                         </td>
-                        {/* <td className="px-4 py-4 text-foreground/70">
+                        {/* <td className="cell-muted px-4 py-4">
                           {booking.service?.name ?? "No service attached"}
                         </td> */}
-                        <td className="px-4 py-4 text-foreground/70">
+                        <td className="cell-muted px-4 py-4">
                           {formatAppointmentTime(booking.appointmentTime)}
                         </td>
-                        <td className="px-4 py-4 text-foreground/70">
+                        <td className="cell-muted px-4 py-4">
                           {booking.status}
                         </td>
                         <td className="px-4 py-4">
                           <Link
                             href={`/admin/bookings/${booking.id}`}
-                            className="inline-flex h-9 items-center justify-center rounded-md border border-black/10 px-3 text-sm font-medium text-foreground transition-colors hover:bg-zinc-50 dark:border-white/10 dark:hover:bg-white/5"
+                            className="inline-flex h-9 items-center justify-center rounded-md border border-themed px-3 text-sm font-medium text-page transition-colors hover:bg-black/5 dark:hover:bg-white/5"
                           >
                             View Details
                           </Link>
                         </td>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              <p className="px-4 pb-4 text-xs text-foreground/60 md:hidden">
-                Scroll to see more
-              </p>
+                    ))
+                  )}
+                </tbody>
+              </table>
             </div>
-          )}
+            <p className="px-4 pb-4 text-xs text-muted md:hidden">
+              Scroll to see more
+            </p>
+          </div>
         </>
       ) : null}
     </section>

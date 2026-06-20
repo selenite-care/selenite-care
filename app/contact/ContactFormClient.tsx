@@ -14,15 +14,10 @@ export default function ContactFormClient() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="mt-10 space-y-5 rounded-lg border bg-white p-6"
-      style={{ borderColor: "#D8C7B5" }}
+      className="bg-card border-themed mt-10 space-y-5 rounded-lg border p-6"
     >
       <div>
-        <label
-          htmlFor="name"
-          className="block text-sm font-medium"
-          style={{ color: "#2B2B2B" }}
-        >
+        <label htmlFor="name" className="text-page block text-sm font-medium">
           Name
         </label>
         <input
@@ -31,20 +26,12 @@ export default function ContactFormClient() {
           type="text"
           autoComplete="name"
           required
-          className="mt-2 h-11 w-full rounded-md border bg-white px-3 text-sm outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
-          style={{
-            borderColor: "#D8C7B5",
-            color: "#2B2B2B",
-          }}
+          className="bg-card border-themed text-page mt-2 h-11 w-full rounded-md border px-3 text-sm outline-none transition-colors focus:border-[var(--gold)] focus:ring-1 focus:ring-[var(--gold)]"
         />
       </div>
 
       <div>
-        <label
-          htmlFor="email"
-          className="block text-sm font-medium"
-          style={{ color: "#2B2B2B" }}
-        >
+        <label htmlFor="email" className="text-page block text-sm font-medium">
           Email
         </label>
         <input
@@ -53,20 +40,12 @@ export default function ContactFormClient() {
           type="email"
           autoComplete="email"
           required
-          className="mt-2 h-11 w-full rounded-md border bg-white px-3 text-sm outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
-          style={{
-            borderColor: "#D8C7B5",
-            color: "#2B2B2B",
-          }}
+          className="bg-card border-themed text-page mt-2 h-11 w-full rounded-md border px-3 text-sm outline-none transition-colors focus:border-[var(--gold)] focus:ring-1 focus:ring-[var(--gold)]"
         />
       </div>
 
       <div>
-        <label
-          htmlFor="message"
-          className="block text-sm font-medium"
-          style={{ color: "#2B2B2B" }}
-        >
+        <label htmlFor="message" className="text-page block text-sm font-medium">
           Message
         </label>
         <textarea
@@ -74,24 +53,19 @@ export default function ContactFormClient() {
           name="message"
           rows={6}
           required
-          className="mt-2 w-full resize-none rounded-md border bg-white px-3 py-3 text-sm outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
-          style={{
-            borderColor: "#D8C7B5",
-            color: "#2B2B2B",
-          }}
+          className="bg-card border-themed text-page mt-2 w-full resize-none rounded-md border px-3 py-3 text-sm outline-none transition-colors focus:border-[var(--gold)] focus:ring-1 focus:ring-[var(--gold)]"
         />
       </div>
 
       {status ? (
-        <p className="text-sm" style={{ color: "#B8A89A" }}>
+        <p className="text-muted text-sm">
           {status}
         </p>
       ) : null}
 
       <button
         type="submit"
-        className="inline-flex h-11 items-center justify-center rounded-md px-5 text-sm font-medium transition-colors hover:opacity-90"
-        style={{ backgroundColor: "#2B2B2B", color: "#F8F5F0" }}
+        className="inline-flex h-11 items-center justify-center rounded-md bg-[var(--sidebar)] px-5 text-sm font-medium text-[var(--sidebar-text)] transition-colors hover:opacity-90"
       >
         Send Message
       </button>

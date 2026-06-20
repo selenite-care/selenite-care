@@ -2,10 +2,7 @@ import Link from "next/link";
 
 export function Footer() {
   return (
-    <footer
-      style={{ borderTop: "1px solid #C6A56B", backgroundColor: "#2B2B2B" }}
-      className="relative overflow-hidden px-6 pt-12 pb-6"
-    >
+    <footer className="relative overflow-hidden border-t border-[#C6A56B] bg-[#2B2B2B] px-6 pb-6 pt-12 text-[#F8F5F0] dark:border-[#3D3530] dark:bg-[#141210] dark:text-[#F0EDE8]">
       {/* Subtle decorative top glow */}
       <div
         style={{ background: "radial-gradient(ellipse 60% 40% at 50% 0%, rgba(198,165,107,0.12), transparent)" }}
@@ -20,8 +17,8 @@ export function Footer() {
           <div className="flex flex-col gap-4">
             <div>
               <p
-                style={{ fontFamily: "Playfair Display, serif", color: "#F8F5F0" }}
-                className="text-xl font-semibold tracking-tight"
+                style={{ fontFamily: "Playfair Display, serif" }}
+                className="text-xl font-semibold tracking-tight text-[#F8F5F0] dark:text-[#F0EDE8]"
               >
                 Selenite Care
               </p>
@@ -30,7 +27,7 @@ export function Footer() {
                 className="mt-2 h-px w-20"
               />
             </div>
-            <p style={{ color: "#B8A89A" }} className="text-sm leading-6">
+            <p className="text-sm leading-6 text-[#B8A89A] dark:text-[#8A7D75]">
               Compassionate, expert healthcare delivered with warmth and precision — right here in Dhaka.
             </p>
 
@@ -69,7 +66,7 @@ export function Footer() {
           {/* Contact column */}
           <div className="flex flex-col gap-4">
             <p
-              style={{ color: "#C6A56B", fontFamily: "Playfair Display, serif" }}
+              style={{ fontFamily: "Playfair Display, serif" }}
               className="text-sm font-semibold uppercase tracking-widest"
             >
               Contact
@@ -78,8 +75,7 @@ export function Footer() {
               {/* Email */}
               <a
                 href="mailto:careselenite@gmail.com"
-                style={{ color: "#D8C7B5" }}
-                className="group flex items-start gap-3 text-sm leading-6 transition-colors duration-200 hover:text-[#C6A56B]"
+                className="group flex items-start gap-3 text-sm leading-6 text-[#D8C7B5] transition-colors duration-200 hover:text-[#C6A56B] dark:text-[#F0EDE8]"
               >
                 <svg className="mt-0.5 shrink-0" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0l-9.75 6.75L2.25 6.75" />
@@ -90,8 +86,7 @@ export function Footer() {
               {/* Phone */}
               <a
                 href="tel:+8801681517169"
-                style={{ color: "#D8C7B5" }}
-                className="group flex items-start gap-3 text-sm leading-6 transition-colors duration-200 hover:text-[#C6A56B]"
+                className="group flex items-start gap-3 text-sm leading-6 text-[#D8C7B5] transition-colors duration-200 hover:text-[#C6A56B] dark:text-[#F0EDE8]"
               >
                 <svg className="mt-0.5 shrink-0" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
@@ -101,8 +96,7 @@ export function Footer() {
 
               {/* Location */}
               <div
-                style={{ color: "#D8C7B5" }}
-                className="flex items-start gap-3 text-sm leading-6"
+                className="flex items-start gap-3 text-sm leading-6 text-[#D8C7B5] dark:text-[#F0EDE8]"
               >
                 <svg className="mt-0.5 shrink-0" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -119,7 +113,7 @@ export function Footer() {
           {/* Quick links column */}
           <div className="flex flex-col gap-4">
             <p
-              style={{ color: "#C6A56B", fontFamily: "Playfair Display, serif" }}
+              style={{ fontFamily: "Playfair Display, serif" }}
               className="text-sm font-semibold uppercase tracking-widest"
             >
               Quick Links
@@ -135,8 +129,7 @@ export function Footer() {
                 <Link
                   key={href}
                   href={href}
-                  style={{ color: "#D8C7B5" }}
-                  className="group flex items-center gap-2 text-sm transition-colors duration-200 hover:text-[#C6A56B]"
+                  className="group flex items-center gap-2 text-sm text-[#D8C7B5] transition-colors duration-200 hover:text-[#C6A56B] dark:text-[#F0EDE8]"
                 >
                   <span
                     style={{ background: "#C6A56B" }}
@@ -152,15 +145,15 @@ export function Footer() {
         {/* ── Divider ── */}
         <div
           style={{ background: "linear-gradient(90deg, transparent, #C6A56B44, transparent)" }}
-          className="my-8 h-px w-full"
+          className="my-8 h-px w-full dark:bg-[#3D3530]"
         />
 
         {/* ── Bottom bar ── */}
         <div className="flex flex-col items-center justify-between gap-3 sm:flex-row">
-          <p style={{ color: "#B8A89A" }} className="text-xs">
+          <p className="text-xs text-[#B8A89A] dark:text-[#8A7D75]">
             &copy; {new Date().getFullYear()} Selenite Care. All rights reserved.
           </p>
-          <p style={{ color: "#6B5E54" }} className="text-xs">
+          <p className="text-xs text-[#6B5E54] dark:text-[#8A7D75]">
             Crafted with care &middot; Dhaka, Bangladesh
           </p>
         </div>

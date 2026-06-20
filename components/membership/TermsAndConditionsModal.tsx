@@ -13,7 +13,7 @@ export default function TermsAndConditionsModal({
         type="button"
         aria-label="Close terms and conditions"
         onClick={onClose}
-        className="absolute inset-0"
+        className="modal-overlay absolute inset-0"
         style={{ backgroundColor: "rgba(43, 43, 43, 0.82)" }}
       />
 
@@ -21,41 +21,33 @@ export default function TermsAndConditionsModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="terms-and-conditions-title"
-        className="relative z-10 flex max-h-[80vh] w-full max-w-2xl flex-col overflow-hidden rounded-[20px] border"
+        className="modal-card relative z-10 flex max-h-[80vh] w-full max-w-2xl flex-col overflow-hidden rounded-[20px] border border-[#D8C7B5] bg-[#F8F5F0] dark:border-[#3D3530] dark:bg-[#242220]"
         style={{
-          backgroundColor: "#F8F5F0",
-          borderColor: "#D8C7B5",
           boxShadow: "0 28px 80px rgba(43, 43, 43, 0.25)",
         }}
       >
         <div
-          className="border-b px-6 pb-5 pt-6 sm:px-8"
-          style={{ borderColor: "#D8C7B5" }}
+          className="border-b border-[#D8C7B5] px-6 pb-5 pt-6 dark:border-[#3D3530] sm:px-8"
         >
           <button
             type="button"
             onClick={onClose}
-            className="absolute right-5 top-5 inline-flex h-10 w-10 items-center justify-center rounded-full border text-lg transition-colors hover:bg-white"
+            className="absolute right-5 top-5 inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#D8C7B5] bg-white/90 text-lg text-[#2B2B2B] transition-colors hover:bg-white dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8] dark:hover:bg-[#2A2724]"
             style={{
-              borderColor: "#D8C7B5",
-              backgroundColor: "rgba(255,255,255,0.9)",
-              color: "#2B2B2B",
             }}
           >
             x
           </button>
 
           <p
-            className="text-sm font-semibold uppercase tracking-[0.18em]"
-            style={{ color: "#C6A56B" }}
+            className="text-sm font-semibold uppercase tracking-[0.18em] text-[#C6A56B] dark:text-[#D4B47A]"
           >
             Terms & Conditions
           </p>
           <h2
             id="terms-and-conditions-title"
-            className="mt-3 text-2xl font-semibold sm:text-3xl"
+            className="mt-3 text-2xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8] sm:text-3xl"
             style={{
-              color: "#2B2B2B",
               fontFamily: "Playfair Display, serif",
             }}
           >
@@ -64,7 +56,7 @@ export default function TermsAndConditionsModal({
         </div>
 
         <div className="overflow-y-auto px-6 py-6 sm:px-8">
-          <div className="space-y-5 text-sm leading-7" style={{ color: "#6E6257" }}>
+          <div className="space-y-5 text-sm leading-7 text-[#6E6257] dark:text-[#8A7D75]">
             <h1>1. Membership Validity</h1>
             <p>The membership shall remain valid for the specified duration from the date of activation.
             Platinum Membership must be renewed upon every year to continue enjoying member benefits.</p>

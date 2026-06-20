@@ -24,10 +24,7 @@ export default function FAQAccordion({
     <div className="space-y-12">
       {groups.map((group) => (
         <section key={group.category}>
-          <p
-            className="text-sm font-semibold uppercase tracking-[0.24em]"
-            style={{ color: "#C6A56B" }}
-          >
+          <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--gold)]">
             {group.category}
           </p>
 
@@ -38,8 +35,7 @@ export default function FAQAccordion({
               return (
                 <article
                   key={item.id}
-                  className="overflow-hidden rounded-2xl border bg-white shadow-sm transition-shadow duration-200 hover:shadow-md"
-                  style={{ borderColor: "#D8C7B5" }}
+                  className="bg-card border-themed overflow-hidden rounded-2xl border shadow-sm transition-shadow duration-200 hover:shadow-md"
                 >
                   <button
                     type="button"
@@ -51,19 +47,13 @@ export default function FAQAccordion({
                     className="flex w-full items-center justify-between gap-4 px-5 py-5 text-left sm:px-6"
                     aria-expanded={isOpen}
                   >
-                    <span
-                      className="text-base font-semibold leading-7 sm:text-lg"
-                      style={{ color: "#2B2B2B" }}
-                    >
+                    <span className="text-page text-base font-semibold leading-7 sm:text-lg">
                       {item.question}
                     </span>
 
                     <span
-                      className="shrink-0 transition-transform duration-300"
-                      style={{
-                        color: "#C6A56B",
-                        transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
-                      }}
+                      className="shrink-0 text-[var(--gold)] transition-transform duration-300"
+                      style={{ transform: isOpen ? "rotate(180deg)" : "rotate(0deg)" }}
                     >
                       <svg
                         aria-hidden="true"
@@ -92,11 +82,8 @@ export default function FAQAccordion({
                   >
                     <div className="overflow-hidden">
                       <div
-                        className="border-t px-5 py-5 text-sm leading-7 sm:px-6 sm:text-base"
-                        style={{
-                          borderColor: "#E9DDD0",
-                          color: "#6E6257",
-                        }}
+                        className="text-muted border-t px-5 py-5 text-sm leading-7 sm:px-6 sm:text-base"
+                        style={{ borderColor: "var(--border)" }}
                       >
                         {item.answer}
                       </div>

@@ -194,13 +194,12 @@ function MembershipPaymentForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="rounded-2xl border bg-white p-6"
+      className="rounded-2xl border bg-white p-6 dark:bg-[#242220] dark:border-[#3D3530]"
       style={{ borderColor: "#D8C7B5" }}
     >
       <h2
-        className="text-xl font-semibold"
+        className="text-xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]"
         style={{
-          color: "#2B2B2B",
           fontFamily: "Playfair Display, serif",
         }}
       >
@@ -374,52 +373,38 @@ function BkashManualPaymentForm({
   }
 
   return (
-    <section
-      className="rounded-2xl border bg-white p-6"
-      style={{ borderColor: "#D8C7B5" }}
-    >
+    <section className="rounded-2xl border border-[#D8C7B5] bg-white p-6 dark:border-[#3D3530] dark:bg-[#242220]">
       <h2
-        className="text-xl font-semibold"
+        className="text-xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]"
         style={{
-          color: "#2B2B2B",
           fontFamily: "Playfair Display, serif",
         }}
       >
         Pay with bKash
       </h2>
 
-      <div
-        className="mt-5 rounded-2xl border px-5 py-5"
-        style={{
-          borderColor: "#C6A56B",
-          backgroundColor: "rgba(198, 165, 107, 0.08)",
-        }}
-      >
-        <p
-          className="text-xs font-semibold uppercase tracking-[0.16em]"
-          style={{ color: "#8C7967" }}
-        >
+      <div className="mt-5 rounded-2xl border border-[#C6A56B] bg-[rgba(198,165,107,0.08)] px-5 py-5 dark:bg-[rgba(198,165,107,0.12)]">
+        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#8C7967] dark:text-[#8A7D75]">
           bKash Merchant Number
         </p>
         <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <p
-            className="text-3xl font-bold sm:text-4xl"
-            style={{ color: "#2B2B2B", fontFamily: "Playfair Display, serif" }}
+            className="text-3xl font-bold text-[#2B2B2B] dark:text-[#F0EDE8] sm:text-4xl"
+            style={{ fontFamily: "Playfair Display, serif" }}
           >
             01810835553
           </p>
           <button
             type="button"
             onClick={handleCopyNumber}
-            className="inline-flex h-11 items-center justify-center rounded-md px-5 text-sm font-medium transition-colors"
-            style={{ backgroundColor: "#2B2B2B", color: "#F8F5F0" }}
+            className="inline-flex h-11 items-center justify-center rounded-md bg-[#2B2B2B] px-5 text-sm font-medium text-[#F8F5F0] transition-colors hover:opacity-90 dark:bg-[#C6A56B] dark:text-[#141210]"
           >
             {copied ? "Copied!" : "Copy Number"}
           </button>
         </div>
       </div>
 
-      <ol className="mt-6 space-y-3 text-sm leading-7" style={{ color: "#6E6257" }}>
+      <ol className="mt-6 space-y-3 text-sm leading-7 text-[#6E6257] dark:text-[#8A7D75]">
         <li>1. Open your bKash app.</li>
         <li>2. Tap Payment (not Send Money).</li>
         <li>3. Enter the merchant number above: 01810835553.</li>
@@ -438,8 +423,7 @@ function BkashManualPaymentForm({
         <div>
           <label
             htmlFor="bkash-transaction-id"
-            className="block text-sm font-medium"
-            style={{ color: "#2B2B2B" }}
+            className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]"
           >
             bKash Transaction ID (TrxID)
           </label>
@@ -448,8 +432,7 @@ function BkashManualPaymentForm({
             type="text"
             value={transactionId}
             onChange={(event) => setTransactionId(event.target.value)}
-            className="mt-2 h-11 w-full rounded-md border bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors placeholder:text-[#B8A89A] focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
-            style={{ borderColor: "#D8C7B5" }}
+            className="mt-2 h-11 w-full rounded-md border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors placeholder:text-[#B8A89A] focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8] dark:placeholder:text-[#8A7D75]"
             placeholder="Enter your TrxID"
           />
         </div>
@@ -457,8 +440,7 @@ function BkashManualPaymentForm({
         <div>
           <label
             htmlFor="bkash-sender-number"
-            className="block text-sm font-medium"
-            style={{ color: "#2B2B2B" }}
+            className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]"
           >
             The bKash number you paid from
           </label>
@@ -482,8 +464,7 @@ function BkashManualPaymentForm({
         <div>
           <label
             htmlFor="bkash-proof"
-            className="block text-sm font-medium"
-            style={{ color: "#2B2B2B" }}
+            className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]"
           >
             Upload payment confirmation screenshot (optional but recommended)
           </label>
@@ -502,7 +483,7 @@ function BkashManualPaymentForm({
             />
           </div>
           {uploadingProof ? (
-            <p className="mt-2 text-sm" style={{ color: "#B8A89A" }}>
+            <p className="mt-2 text-sm text-[#B8A89A] dark:text-[#8A7D75]">
               Uploading screenshot...
             </p>
           ) : null}
@@ -511,8 +492,7 @@ function BkashManualPaymentForm({
               href={proofImageUrl}
               target="_blank"
               rel="noreferrer"
-              className="mt-2 inline-block text-sm underline"
-              style={{ color: "#C6A56B" }}
+              className="mt-2 inline-block text-sm text-[#C6A56B] underline"
             >
               View uploaded screenshot
             </a>
@@ -524,36 +504,29 @@ function BkashManualPaymentForm({
         <button
           type="submit"
           disabled={isSubmitting || uploadingProof}
-          className="inline-flex h-12 w-full items-center justify-center rounded-md px-5 text-sm font-medium transition-colors"
-          style={{
-            backgroundColor:
-              isSubmitting || uploadingProof ? "#D8C7B5" : "#2B2B2B",
-            color: "#F8F5F0",
-            cursor:
-              isSubmitting || uploadingProof ? "not-allowed" : "pointer",
-          }}
+          className={`inline-flex h-12 w-full items-center justify-center rounded-md px-5 text-sm font-medium transition-colors ${
+            isSubmitting || uploadingProof
+              ? "cursor-not-allowed bg-[#D8C7B5] text-[#F8F5F0] dark:bg-[#3D3530] dark:text-[#8A7D75]"
+              : "bg-[#2B2B2B] text-[#F8F5F0] hover:opacity-90 dark:bg-[#C6A56B] dark:text-[#141210]"
+          }`}
         >
           {isSubmitting ? "Submitting..." : "Submit bKash Payment"}
         </button>
       </form>
 
-      <div
-        className="mt-6 rounded-2xl border"
-        style={{ borderColor: "#D8C7B5", backgroundColor: "#FCFAF7" }}
-      >
+      <div className="mt-6 rounded-2xl border border-[#D8C7B5] bg-[#FCFAF7] dark:border-[#3D3530] dark:bg-[#1A1814]">
         <button
           type="button"
           onClick={() => setShowQr((current) => !current)}
-          className="flex w-full items-center justify-between px-5 py-4 text-left text-sm font-medium"
-          style={{ color: "#2B2B2B" }}
+          className="flex w-full items-center justify-between px-5 py-4 text-left text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]"
         >
           <span>Prefer to scan a QR code instead? (Best if using a second device)</span>
-          <span style={{ color: "#C6A56B" }}>{showQr ? "Hide" : "Show"}</span>
+          <span className="text-[#C6A56B]">{showQr ? "Hide" : "Show"}</span>
         </button>
 
         {showQr ? (
-          <div className="border-t px-5 py-5" style={{ borderColor: "#D8C7B5" }}>
-            <div className="mx-auto max-w-xs overflow-hidden rounded-2xl border bg-white p-3" style={{ borderColor: "#D8C7B5" }}>
+          <div className="border-t border-[#D8C7B5] px-5 py-5 dark:border-[#3D3530]">
+            <div className="mx-auto max-w-xs overflow-hidden rounded-2xl border border-[#D8C7B5] bg-white p-3 dark:border-[#3D3530] dark:bg-[#242220]">
               <div className="relative aspect-square w-full">
                 <Image
                   src="/images/bkash-qr.jpeg"
@@ -616,6 +589,23 @@ function BkashManualPaymentForm({
 
         .brand-phone-input-wrapper .PhoneInputInput::placeholder {
           color: #b8a89a;
+        }
+
+        .dark .brand-phone-input-wrapper .PhoneInput {
+          border-color: #3d3530;
+          background-color: #1e1c1a;
+        }
+
+        .dark .brand-phone-input-wrapper .PhoneInputCountrySelectArrow {
+          color: #8a7d75;
+        }
+
+        .dark .brand-phone-input-wrapper .PhoneInputInput {
+          color: #f0ede8;
+        }
+
+        .dark .brand-phone-input-wrapper .PhoneInputInput::placeholder {
+          color: #8a7d75;
         }
       `}</style>
     </section>
@@ -740,37 +730,24 @@ function BankTransferManualPaymentForm({
   }
 
   return (
-    <section
-      className="rounded-2xl border bg-white p-6"
-      style={{ borderColor: "#D8C7B5" }}
-    >
+    <section className="rounded-2xl border border-[#D8C7B5] bg-white p-6 dark:border-[#3D3530] dark:bg-[#242220]">
       <h2
-        className="text-xl font-semibold"
+        className="text-xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]"
         style={{
-          color: "#2B2B2B",
           fontFamily: "Playfair Display, serif",
         }}
       >
         Bank Transfer
       </h2>
 
-      <div
-        className="mt-5 rounded-2xl border px-5 py-5"
-        style={{
-          borderColor: "#C6A56B",
-          backgroundColor: "rgba(198, 165, 107, 0.08)",
-        }}
-      >
-        <p
-          className="text-xs font-semibold uppercase tracking-[0.16em]"
-          style={{ color: "#8C7967" }}
-        >
+      <div className="mt-5 rounded-2xl border border-[#C6A56B] bg-[rgba(198,165,107,0.08)] px-5 py-5 dark:bg-[rgba(198,165,107,0.12)]">
+        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#8C7967] dark:text-[#8A7D75]">
           BRAC Bank Account Details
         </p>
 
-        <div className="mt-4 space-y-4 text-sm" style={{ color: "#2B2B2B" }}>
+        <div className="mt-4 space-y-4 text-sm text-[#2B2B2B] dark:text-[#F0EDE8]">
           <div>
-            <p className="font-medium" style={{ color: "#8C7967" }}>
+            <p className="font-medium text-[#8C7967] dark:text-[#8A7D75]">
               Bank Name
             </p>
             <p className="mt-1 text-base font-semibold">
@@ -779,7 +756,7 @@ function BankTransferManualPaymentForm({
           </div>
 
           <div>
-            <p className="font-medium" style={{ color: "#8C7967" }}>
+            <p className="font-medium text-[#8C7967] dark:text-[#8A7D75]">
               Account Name
             </p>
             <p className="mt-1 text-base font-semibold">
@@ -788,24 +765,20 @@ function BankTransferManualPaymentForm({
           </div>
 
           <div>
-            <p className="font-medium" style={{ color: "#8C7967" }}>
+            <p className="font-medium text-[#8C7967] dark:text-[#8A7D75]">
               Account Number
             </p>
             <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <p
-                className="text-2xl font-bold sm:text-3xl"
-                style={{
-                  color: "#2B2B2B",
-                  fontFamily: "Playfair Display, serif",
-                }}
+                className="text-2xl font-bold text-[#2B2B2B] dark:text-[#F0EDE8] sm:text-3xl"
+                style={{ fontFamily: "Playfair Display, serif" }}
               >
                 {BRAC_BANK_DETAILS.accountNumber}
               </p>
               <button
                 type="button"
                 onClick={handleCopyAccountNumber}
-                className="inline-flex h-11 items-center justify-center rounded-md px-5 text-sm font-medium transition-colors"
-                style={{ backgroundColor: "#2B2B2B", color: "#F8F5F0" }}
+                className="inline-flex h-11 items-center justify-center rounded-md bg-[#2B2B2B] px-5 text-sm font-medium text-[#F8F5F0] transition-colors hover:opacity-90 dark:bg-[#C6A56B] dark:text-[#141210]"
               >
                 {copied ? "Copied!" : "Copy Number"}
               </button>
@@ -813,7 +786,7 @@ function BankTransferManualPaymentForm({
           </div>
 
           <div>
-            <p className="font-medium" style={{ color: "#8C7967" }}>
+            <p className="font-medium text-[#8C7967] dark:text-[#8A7D75]">
               Branch
             </p>
             <p className="mt-1 text-base font-semibold">
@@ -823,7 +796,7 @@ function BankTransferManualPaymentForm({
         </div>
       </div>
 
-      <ol className="mt-6 space-y-3 text-sm leading-7" style={{ color: "#6E6257" }}>
+      <ol className="mt-6 space-y-3 text-sm leading-7 text-[#6E6257] dark:text-[#8A7D75]">
         <li>
           1. Transfer the exact membership amount to the account above via
           your bank app or branch visit.
@@ -836,8 +809,7 @@ function BankTransferManualPaymentForm({
         <div>
           <label
             htmlFor="bank-transfer-ref"
-            className="block text-sm font-medium"
-            style={{ color: "#2B2B2B" }}
+            className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]"
           >
             Transaction Reference Number
           </label>
@@ -846,8 +818,7 @@ function BankTransferManualPaymentForm({
             type="text"
             value={transactionRef}
             onChange={(event) => setTransactionRef(event.target.value)}
-            className="mt-2 h-11 w-full rounded-md border bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors placeholder:text-[#B8A89A] focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
-            style={{ borderColor: "#D8C7B5" }}
+            className="mt-2 h-11 w-full rounded-md border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors placeholder:text-[#B8A89A] focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8] dark:placeholder:text-[#8A7D75]"
             placeholder="Enter your transfer reference"
           />
         </div>
@@ -855,8 +826,7 @@ function BankTransferManualPaymentForm({
         <div>
           <label
             htmlFor="bank-transfer-proof"
-            className="block text-sm font-medium"
-            style={{ color: "#2B2B2B" }}
+            className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]"
           >
             Upload payment confirmation screenshot (optional but recommended)
           </label>
@@ -875,7 +845,7 @@ function BankTransferManualPaymentForm({
             />
           </div>
           {uploadingProof ? (
-            <p className="mt-2 text-sm" style={{ color: "#B8A89A" }}>
+            <p className="mt-2 text-sm text-[#B8A89A] dark:text-[#8A7D75]">
               Uploading screenshot...
             </p>
           ) : null}
@@ -884,8 +854,7 @@ function BankTransferManualPaymentForm({
               href={proofImageUrl}
               target="_blank"
               rel="noreferrer"
-              className="mt-2 inline-block text-sm underline"
-              style={{ color: "#C6A56B" }}
+              className="mt-2 inline-block text-sm text-[#C6A56B] underline"
             >
               View uploaded screenshot
             </a>
@@ -897,14 +866,11 @@ function BankTransferManualPaymentForm({
         <button
           type="submit"
           disabled={isSubmitting || uploadingProof}
-          className="inline-flex h-12 w-full items-center justify-center rounded-md px-5 text-sm font-medium transition-colors"
-          style={{
-            backgroundColor:
-              isSubmitting || uploadingProof ? "#D8C7B5" : "#2B2B2B",
-            color: "#F8F5F0",
-            cursor:
-              isSubmitting || uploadingProof ? "not-allowed" : "pointer",
-          }}
+          className={`inline-flex h-12 w-full items-center justify-center rounded-md px-5 text-sm font-medium transition-colors ${
+            isSubmitting || uploadingProof
+              ? "cursor-not-allowed bg-[#D8C7B5] text-[#F8F5F0] dark:bg-[#3D3530] dark:text-[#8A7D75]"
+              : "bg-[#2B2B2B] text-[#F8F5F0] hover:opacity-90 dark:bg-[#C6A56B] dark:text-[#141210]"
+          }`}
         >
           {isSubmitting ? "Submitting..." : "Submit Bank Transfer"}
         </button>
@@ -926,19 +892,18 @@ function MembershipPaymentPageContent() {
   if (!tier) {
     return (
       <section
-        className="flex min-h-screen flex-1 bg-[#F8F5F0] px-6 py-16"
+        className="flex min-h-screen flex-1 bg-[#F8F5F0] px-6 py-16 dark:bg-[#1A1814]"
       >
         <div className="mx-auto w-full max-w-5xl">
           <h1
-            className="text-3xl font-bold sm:text-4xl"
+            className="text-3xl font-bold text-[#2B2B2B] dark:text-[#F0EDE8] sm:text-4xl"
             style={{
-              color: "#2B2B2B",
               fontFamily: "Playfair Display, serif",
             }}
           >
             Membership Payment
           </h1>
-          <p className="mt-4 text-sm" style={{ color: "#B8A89A" }}>
+          <p className="mt-4 text-sm text-[#B8A89A] dark:text-[#8A7D75]">
             A valid membership tier is required to continue.
           </p>
         </div>
@@ -953,54 +918,35 @@ function MembershipPaymentPageContent() {
 
   if (!isTierAvailable) {
     return (
-      <section className="flex flex-1 bg-[#F8F5F0] px-6 py-16">
+      <section className="flex flex-1 bg-[#F8F5F0] px-6 py-16 dark:bg-[#1A1814]">
         <div className="mx-auto w-full max-w-4xl">
-          <div
-            className="rounded-2xl border bg-white p-8 text-center"
-            style={{ borderColor: "#D8C7B5" }}
-          >
-            <div
-              className="mx-auto inline-flex rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em]"
-              style={{
-                backgroundColor: "#2B2B2B",
-                color: "#F8F5F0",
-              }}
-            >
+          <div className="rounded-2xl border border-[#D8C7B5] bg-white p-8 text-center dark:border-[#3D3530] dark:bg-[#242220]">
+            <div className="mx-auto inline-flex rounded-full bg-[#2B2B2B] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#F8F5F0] dark:bg-[#C6A56B] dark:text-[#141210]">
               Coming Soon
             </div>
             <h1
-              className="mt-5 text-3xl font-bold tracking-tight sm:text-4xl"
+              className="mt-5 text-3xl font-bold tracking-tight text-[#2B2B2B] dark:text-[#F0EDE8] sm:text-4xl"
               style={{
-                color: "#2B2B2B",
                 fontFamily: "Playfair Display, serif",
               }}
             >
               {membership.name} is not available yet
             </h1>
-            <p
-              className="mx-auto mt-4 max-w-2xl text-sm leading-7 sm:text-base"
-              style={{ color: "#6E6257" }}
-            >
-              We are preparing this membership for launch. Please sit tight — we will make it available soon.
+            <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-[#6E6257] dark:text-[#8A7D75] sm:text-base">
+              We are preparing this membership for launch. Please sit tight - we will make it available soon.
             </p>
             <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
               <a
                 href="/services"
-                className="inline-flex h-12 items-center justify-center rounded-md px-5 text-sm font-medium transition-colors hover:bg-[#B8A89A]"
-                style={{
-                  backgroundColor: "#2B2B2B",
-                  color: "#F8F5F0",
-                }}
+                className="inline-flex h-12 items-center justify-center rounded-md bg-[#2B2B2B] px-5 text-sm font-medium text-[#F8F5F0] transition-colors hover:bg-[#B8A89A] dark:bg-[#C6A56B] dark:text-[#141210]"
               >
                 Back to Memberships
               </a>
               <a
                 href="/contact"
-                className="inline-flex h-12 items-center justify-center rounded-md border px-5 text-sm font-medium transition-colors"
+                className="inline-flex h-12 items-center justify-center rounded-md border bg-[#F8F5F0] px-5 text-sm font-medium text-[#2B2B2B] transition-colors dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#F0EDE8]"
                 style={{
                   borderColor: "#D8C7B5",
-                  backgroundColor: "#F8F5F0",
-                  color: "#2B2B2B",
                 }}
               >
                 Contact Us
@@ -1013,29 +959,25 @@ function MembershipPaymentPageContent() {
   }
 
   return (
-    <section className="flex flex-1 bg-[#F8F5F0] px-6 py-16">
+    <section className="flex flex-1 bg-[#F8F5F0] px-6 py-16 dark:bg-[#1A1814]">
       <div className="mx-auto w-full max-w-6xl">
         <div className="max-w-2xl">
           <h1
-            className="text-3xl font-bold tracking-tight sm:text-4xl"
+            className="text-3xl font-bold tracking-tight text-[#2B2B2B] dark:text-[#F0EDE8] sm:text-4xl"
             style={{
-              color: "#2B2B2B",
               fontFamily: "Playfair Display, serif",
             }}
           >
             Membership Payment
           </h1>
-          <p className="mt-4 text-base leading-7" style={{ color: "#B8A89A" }}>
+          <p className="mt-4 text-base leading-7 text-[#B8A89A] dark:text-[#8A7D75]">
             Complete your payment to secure your Selenite Care membership.
           </p>
         </div>
 
         <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-8">
           <div className="order-2 flex flex-col gap-6 lg:order-1">
-            <div
-              className="flex flex-wrap gap-2 rounded-2xl border bg-white p-1"
-              style={{ borderColor: "#D8C7B5" }}
-            >
+            <div className="flex flex-wrap gap-2 rounded-2xl border border-[#D8C7B5] bg-white p-1 dark:border-[#3D3530] dark:bg-[#242220]">
               {/*
                 Card payments are temporarily unavailable.
                 Re-enable this tab button when Stripe card checkout is ready again.
@@ -1058,24 +1000,22 @@ function MembershipPaymentPageContent() {
               <button
                 type="button"
                 onClick={() => setPaymentMethod("bkash")}
-                className="h-11 rounded-xl px-5 text-sm font-medium transition-colors"
-                style={{
-                  backgroundColor:
-                    paymentMethod === "bkash" ? "#2B2B2B" : "transparent",
-                  color: paymentMethod === "bkash" ? "#F8F5F0" : "#B8A89A",
-                }}
+                className={`h-11 rounded-xl px-5 text-sm font-medium transition-colors ${
+                  paymentMethod === "bkash"
+                    ? "bg-[#2B2B2B] text-[#F8F5F0] dark:bg-[#C6A56B] dark:text-[#141210]"
+                    : "text-[#B8A89A] hover:bg-black/5 dark:text-[#8A7D75] dark:hover:bg-white/5"
+                }`}
               >
                 bKash
               </button>
               <button
                 type="button"
                 onClick={() => setPaymentMethod("bank")}
-                className="h-11 rounded-xl px-5 text-sm font-medium transition-colors"
-                style={{
-                  backgroundColor:
-                    paymentMethod === "bank" ? "#2B2B2B" : "transparent",
-                  color: paymentMethod === "bank" ? "#F8F5F0" : "#B8A89A",
-                }}
+                className={`h-11 rounded-xl px-5 text-sm font-medium transition-colors ${
+                  paymentMethod === "bank"
+                    ? "bg-[#2B2B2B] text-[#F8F5F0] dark:bg-[#C6A56B] dark:text-[#141210]"
+                    : "text-[#B8A89A] hover:bg-black/5 dark:text-[#8A7D75] dark:hover:bg-white/5"
+                }`}
               >
                 Bank Transfer
               </button>
@@ -1124,14 +1064,10 @@ function MembershipPaymentPageContent() {
             )}
           </div>
 
-          <aside
-            className="order-1 h-fit rounded-2xl border bg-white p-6 lg:order-2"
-            style={{ borderColor: "#D8C7B5" }}
-          >
+          <aside className="order-1 h-fit rounded-2xl border border-[#D8C7B5] bg-white p-6 dark:border-[#3D3530] dark:bg-[#242220] lg:order-2">
             <h2
-              className="text-xl font-semibold"
+              className="text-xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]"
               style={{
-                color: "#2B2B2B",
                 fontFamily: "Playfair Display, serif",
               }}
             >
@@ -1139,50 +1075,35 @@ function MembershipPaymentPageContent() {
             </h2>
 
             <div className="mt-5">
-              <p className="text-base font-semibold" style={{ color: "#2B2B2B" }}>
+              <p className="text-base font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]">
                 {membership.name}
               </p>
               {tier === "SIGNATURE" && membership.originalPrice ? (
                 <>
-                  <div
-                    className="mt-3 inline-flex rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em]"
-                    style={{
-                      backgroundColor: "#2B2B2B",
-                      color: "#F8F5F0",
-                    }}
-                  >
+                  <div className="mt-3 inline-flex rounded-full bg-[#2B2B2B] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#F8F5F0] dark:bg-[#C6A56B] dark:text-[#141210]">
                     LIMITED TIME - 51% OFF
                   </div>
                   <div className="mt-3 flex flex-wrap items-baseline gap-3">
-                    <span
-                      className="text-sm font-semibold"
-                      style={{
-                        color: "#8C7967",
-                        textDecoration: "line-through",
-                        textDecorationThickness: "1.5px",
-                      }}
-                    >
+                    <span className="text-sm font-semibold text-[#8C7967] line-through decoration-[1.5px] dark:text-[#8A7D75]">
                       {formatBdt(membership.originalPrice)}
                     </span>
                     <p
-                      className="text-3xl font-semibold"
+                      className="text-3xl font-semibold text-[#C6A56B]"
                       style={{
-                        color: "#C6A56B",
                         fontFamily: "Playfair Display, serif",
                       }}
                     >
                       {formatBdt(membership.price)}
                     </p>
                   </div>
-                  <p className="mt-2 text-xs leading-6" style={{ color: "#8C7967" }}>
+                  <p className="mt-2 text-xs leading-6 text-[#8C7967] dark:text-[#8A7D75]">
                     Offer valid for a limited time and subject to change.
                   </p>
                 </>
               ) : (
                 <p
-                  className="mt-3 text-2xl font-semibold"
+                  className="mt-3 text-2xl font-semibold text-[#C6A56B]"
                   style={{
-                    color: "#C6A56B",
                     fontFamily: "Playfair Display, serif",
                   }}
                 >
@@ -1191,21 +1112,17 @@ function MembershipPaymentPageContent() {
               )}
             </div>
 
-            <div className="mt-6 border-t pt-5" style={{ borderColor: "#D8C7B5" }}>
-              <p
-                className="text-sm font-semibold uppercase tracking-[0.12em]"
-                style={{ color: "#8C7967" }}
-              >
+            <div className="mt-6 border-t border-[#D8C7B5] pt-5 dark:border-[#3D3530]">
+              <p className="text-sm font-semibold uppercase tracking-[0.12em] text-[#8C7967] dark:text-[#8A7D75]">
                 Benefits
               </p>
               <ul className="mt-4 space-y-3">
                 {membership.benefits.map((benefit) => (
                   <li
                     key={benefit}
-                    className="flex gap-2 text-sm leading-6"
-                    style={{ color: "#6E6257" }}
+                    className="flex gap-2 text-sm leading-6 text-[#6E6257] dark:text-[#8A7D75]"
                   >
-                    <span style={{ color: "#C6A56B" }}>•</span>
+                    <span className="text-[#C6A56B]">*</span>
                     <span>{benefit}</span>
                   </li>
                 ))}
@@ -1220,9 +1137,9 @@ function MembershipPaymentPageContent() {
 
 function MembershipPaymentLoadingFallback() {
   return (
-    <section className="flex min-h-screen flex-1 bg-[#F8F5F0] px-6 py-16">
+    <section className="flex min-h-screen flex-1 bg-[#F8F5F0] px-6 py-16 dark:bg-[#1A1814]">
       <div className="mx-auto w-full max-w-6xl">
-        <p className="text-sm" style={{ color: "#B8A89A" }}>
+        <p className="text-sm text-[#B8A89A] dark:text-[#8A7D75]">
           Loading...
         </p>
       </div>

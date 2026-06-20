@@ -179,32 +179,31 @@ export default function CrmBookingsClient({ bookings }: CrmBookingsClientProps) 
         </p>
       </div>
 
-      <div className="overflow-hidden rounded-3xl border border-black/10 bg-background shadow-sm dark:border-white/10 dark:bg-zinc-950">
+      <div className="overflow-hidden rounded-3xl border border-themed bg-card shadow-sm">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-black/10 text-left dark:divide-white/10">
-            <thead className="bg-zinc-100 text-sm uppercase tracking-wide text-foreground/60 dark:bg-white/5">
+          <table className="table-themed min-w-full text-left text-sm">
+            <thead>
               <tr>
                 <th className="px-4 py-4">Booking Token</th>
                 <th className="px-4 py-4">Client Name</th>
                 <th className="px-4 py-4">Client Phone</th>
-                {/* <th className="px-4 py-4">Service</th> */}
                 <th className="px-4 py-4">Doctor</th>
                 <th className="px-4 py-4">Preferred Date</th>
                 <th className="px-4 py-4">Status</th>
                 <th className="px-4 py-4">Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-black/10 bg-white text-sm dark:divide-white/10 dark:bg-zinc-900">
+            <tbody>
               {filteredBookings.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="px-4 py-8 text-center text-foreground/70">
+                  <td colSpan={7} className="cell-muted px-4 py-8 text-center text-sm">
                     No bookings match your filters.
                   </td>
                 </tr>
               ) : (
                 filteredBookings.map((booking) => (
                   <tr key={booking.id}>
-                    <td className="px-4 py-4 font-mono text-xs text-foreground">
+                    <td className="px-4 py-4 font-mono text-xs">
                       <Link
                         href={`/crm/bookings/${booking.id}`}
                         className="transition-colors hover:text-foreground/70"
@@ -212,19 +211,16 @@ export default function CrmBookingsClient({ bookings }: CrmBookingsClientProps) 
                         {booking.token ?? booking.id}
                       </Link>
                     </td>
-                    <td className="px-4 py-4 font-medium text-foreground">
+                    <td className="px-4 py-4 font-medium">
                       {booking.user.name ?? "-"}
                     </td>
-                    <td className="px-4 py-4 text-foreground/70">
+                    <td className="cell-muted px-4 py-4">
                       {booking.user.phone ?? "-"}
                     </td>
-                    {/* <td className="px-4 py-4 text-foreground/70">
-                      {booking.service?.name ?? "No service attached"}
-                    </td> */}
-                    <td className="px-4 py-4 text-foreground/70">
+                    <td className="cell-muted px-4 py-4">
                       {booking.doctor?.name ?? "-"}
                     </td>
-                    <td className="px-4 py-4 text-foreground/70">
+                    <td className="cell-muted px-4 py-4">
                       {formatAppointmentTime(booking.appointmentTime)}
                     </td>
                     <td className="px-4 py-4">
@@ -239,7 +235,7 @@ export default function CrmBookingsClient({ bookings }: CrmBookingsClientProps) 
                     <td className="px-4 py-4">
                       <Link
                         href={`/crm/bookings/${booking.id}`}
-                        className="inline-flex h-9 items-center justify-center rounded-md border border-black/10 bg-background px-3 text-xs font-medium text-foreground transition-colors hover:bg-zinc-50 dark:border-white/10 dark:hover:bg-white/5"
+                        className="inline-flex h-9 items-center justify-center rounded-md border border-themed bg-card px-3 text-xs font-medium text-page transition-colors hover:bg-black/5 dark:hover:bg-white/5"
                       >
                         View Details
                       </Link>
@@ -250,6 +246,7 @@ export default function CrmBookingsClient({ bookings }: CrmBookingsClientProps) 
             </tbody>
           </table>
         </div>
+        <p className="px-4 pb-4 text-xs text-muted md:hidden">Scroll to see more</p>
       </div>
     </>
   );

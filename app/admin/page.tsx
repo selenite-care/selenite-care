@@ -57,21 +57,20 @@ export default function AdminPage() {
     <section>
       <div>
         <h1
-          className="text-3xl font-semibold tracking-tight"
+          className="text-3xl font-semibold tracking-tight text-[#2B2B2B] dark:text-[#F0EDE8]"
           style={{
-            color: "#2B2B2B",
             fontFamily: "Playfair Display, serif",
           }}
         >
           Dashboard Overview
         </h1>
-        <p className="mt-3 text-sm leading-6" style={{ color: "#B8A89A" }}>
+        <p className="mt-3 text-sm leading-6 text-[#B8A89A] dark:text-[#8A7D75]">
           A quick snapshot of Selenite Care activity.
         </p>
       </div>
 
       {isLoading ? (
-        <p className="mt-8 text-sm" style={{ color: "#B8A89A" }}>
+        <p className="mt-8 text-sm text-[#B8A89A] dark:text-[#8A7D75]">
           Loading stats...
         </p>
       ) : null}
@@ -83,21 +82,15 @@ export default function AdminPage() {
           {statLabels.map((stat) => (
             <article
               key={stat.key}
-              className="rounded-lg border p-6"
+              className="rounded-lg border border-[#D8C7B5] border-l-4 border-l-[#C6A56B] bg-white p-6 dark:border-[#3D3530] dark:bg-[#242220]"
               style={{
-                backgroundColor: "#FFFFFF",
-                borderColor: "#D8C7B5",
-                borderLeftColor: "#C6A56B",
                 borderLeftWidth: "4px",
               }}
             >
-              <p className="text-sm font-medium" style={{ color: "#B8A89A" }}>
+              <p className="text-sm font-medium text-[#B8A89A] dark:text-[#8A7D75]">
                 {stat.label}
               </p>
-              <p
-                className="mt-4 text-3xl font-semibold tracking-tight"
-                style={{ color: "#2B2B2B" }}
-              >
+              <p className="mt-4 text-3xl font-semibold tracking-tight text-[#2B2B2B] dark:text-[#F0EDE8]">
                 {formatStat(stat.key, stats[stat.key])}
               </p>
             </article>

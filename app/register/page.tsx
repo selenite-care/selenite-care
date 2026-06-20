@@ -124,47 +124,15 @@ function RegisterPageContent() {
   }
 
   return (
-    <section style={{
-      display: 'flex',
-      flex: 1,
-      alignItems: 'center',
-      justifyContent: 'center',
-      backgroundColor: '#F8F5F0',
-      paddingLeft: '16px',
-      paddingRight: '16px',
-      paddingTop: '64px',
-      paddingBottom: '64px',
-      minHeight: '100vh',
-    }}>
-      <div style={{
-        marginLeft: 'auto',
-        marginRight: 'auto',
-        width: '100%',
-        maxWidth: '384px',
-        boxSizing: 'border-box',
-      }}>
-        <div style={{ marginBottom: '32px', textAlign: 'center' }}>
+    <section className="bg-page flex min-h-screen flex-1 items-center justify-center px-4 py-16">
+      <div className="mx-auto w-full max-w-sm box-border">
+        <div className="mb-8 text-center">
           {registeredEmail ? (
             <div
-              style={{
-                borderRadius: '12px',
-                border: '1px solid #D8C7B5',
-                backgroundColor: '#FFFFFF',
-                padding: '28px 20px',
-              }}
+              className="border-themed bg-card rounded-xl border px-5 py-7 shadow-[0_16px_34px_rgba(43,43,43,0.06)] dark:shadow-none"
             >
               <div
-                style={{
-                  margin: '0 auto',
-                  display: 'flex',
-                  height: '64px',
-                  width: '64px',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  borderRadius: '9999px',
-                  backgroundColor: 'rgba(198, 165, 107, 0.12)',
-                  color: '#C6A56B',
-                }}
+                className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[rgba(198,165,107,0.12)] text-[#C6A56B] dark:bg-[rgba(212,180,122,0.16)] dark:text-[#D4B47A]"
               >
                 <svg
                   width="32"
@@ -184,57 +152,31 @@ function RegisterPageContent() {
                 </svg>
               </div>
 
-              <h1 style={{
-                marginTop: '20px',
-                fontSize: '30px',
-                fontWeight: '600',
-                letterSpacing: '-0.015em',
-                color: '#2B2B2B',
-                fontFamily: '"Playfair Display", serif',
-              }}>
+              <h1
+                className="text-page mt-5 text-[30px] font-semibold tracking-[-0.015em]"
+                style={{ fontFamily: '"Playfair Display", serif' }}
+              >
                 Verify Your Email
               </h1>
-              <p style={{
-                marginTop: '14px',
-                fontSize: '14px',
-                lineHeight: '1.7',
-                color: '#6E6257',
-              }}>
+              <p className="mt-[14px] text-sm leading-7 text-[#6E6257] dark:text-[#8A7D75]">
                 We've sent a verification link to{" "}
-                <span style={{ color: '#2B2B2B', fontWeight: 600 }}>
+                <span className="text-page font-semibold">
                   {registeredEmail}
                 </span>
                 . Please check your inbox (and spam folder) and click the link
                 to activate your account before logging in.
               </p>
 
-              <div style={{ marginTop: '24px' }}>
+              <div className="mt-6">
                 <button
                   type="button"
                   onClick={handleResendVerification}
                   disabled={isResending || resendCountdown > 0}
-                  style={{
-                    display: 'flex',
-                    height: '44px',
-                    width: '100%',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    borderRadius: '8px',
-                    backgroundColor:
-                      isResending || resendCountdown > 0 ? '#D8C7B5' : '#2B2B2B',
-                    paddingLeft: '16px',
-                    paddingRight: '16px',
-                    fontSize: '14px',
-                    fontWeight: '500',
-                    color: '#F8F5F0',
-                    border: 'none',
-                    cursor:
-                      isResending || resendCountdown > 0
-                        ? 'not-allowed'
-                        : 'pointer',
-                    opacity: isResending || resendCountdown > 0 ? 0.8 : 1,
-                    transition: 'background-color 0.2s ease',
-                  }}
+                  className={`flex h-11 w-full items-center justify-center rounded-lg border-0 px-4 text-sm font-medium text-[#F8F5F0] transition-colors ${
+                    isResending || resendCountdown > 0
+                      ? "cursor-not-allowed bg-[#D8C7B5] opacity-80 dark:bg-[#3D3530] dark:text-[#8A7D75]"
+                      : "cursor-pointer bg-[#2B2B2B] hover:bg-[#B8A89A] dark:bg-[#C6A56B] dark:text-[#141210] dark:hover:bg-[#D4B47A]"
+                  }`}
                 >
                   {isResending
                     ? 'Sending...'
@@ -245,34 +187,26 @@ function RegisterPageContent() {
               </div>
 
               {resendSuccess ? (
-                <p style={{ marginTop: '14px', fontSize: '14px', color: '#8A6A2F' }}>
+                <p className="mt-[14px] text-sm text-[#8A6A2F] dark:text-[#D4B47A]">
                   {resendSuccess}
                 </p>
               ) : null}
 
               {resendError ? (
-                <p style={{ marginTop: '14px', fontSize: '14px', color: '#dc2626' }}>
+                <p className="mt-[14px] text-sm text-red-600 dark:text-red-400">
                   {resendError}
                 </p>
               ) : null}
             </div>
           ) : (
             <>
-              <h1 style={{
-                fontSize: '28px',
-                fontWeight: '600',
-                letterSpacing: '-0.015em',
-                color: '#2B2B2B',
-                fontFamily: '"Playfair Display", serif',
-              }}>
+              <h1
+                className="text-page text-[28px] font-semibold tracking-[-0.015em]"
+                style={{ fontFamily: '"Playfair Display", serif' }}
+              >
                 Selenite Care
               </h1>
-              <p style={{
-                marginTop: '12px',
-                fontSize: '14px',
-                lineHeight: '1.5',
-                color: '#B8A89A',
-              }}>
+              <p className="text-muted mt-3 text-sm leading-6">
                 Join Selenite Care to book appointments and manage your care.
               </p>
             </>
@@ -282,28 +216,12 @@ function RegisterPageContent() {
         {!registeredEmail ? (
           <form
             onSubmit={handleSubmit}
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '20px',
-              borderRadius: '12px',
-              border: '1px solid #D8C7B5',
-              backgroundColor: '#FFFFFF',
-              padding: '20px',
-              width: '100%',
-              boxSizing: 'border-box',
-            }}
+            className="border-themed bg-card flex w-full flex-col gap-5 rounded-xl border p-5 shadow-[0_16px_34px_rgba(43,43,43,0.06)] dark:shadow-none"
           >
             <div>
               <label
                 htmlFor="name"
-                style={{
-                  display: 'block',
-                  fontSize: '14px',
-                  fontWeight: '500',
-                  color: '#2B2B2B',
-                  marginBottom: '8px',
-                }}
+                className="text-page mb-2 block text-sm font-medium"
               >
                 Name
               </label>
@@ -313,19 +231,7 @@ function RegisterPageContent() {
                 type="text"
                 autoComplete="name"
                 required
-                style={{
-                  height: '44px',
-                  width: '100%',
-                  borderRadius: '8px',
-                  border: '1px solid #D8C7B5',
-                  backgroundColor: '#FFFFFF',
-                  paddingLeft: '12px',
-                  paddingRight: '12px',
-                  fontSize: '14px',
-                  color: '#2B2B2B',
-                  outline: 'none',
-                  transition: 'border-color 0.2s ease',
-                }}
+                className="h-11 w-full rounded-lg border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors dark:bg-[#1E1C1A] dark:border-[#3D3530] dark:text-[#F0EDE8] dark:placeholder-[#8A7D75]"
                 onFocus={(e) => {
                   e.currentTarget.style.borderColor = '#C6A56B';
                 }}
@@ -338,13 +244,7 @@ function RegisterPageContent() {
             <div>
               <label
                 htmlFor="phone"
-                style={{
-                  display: 'block',
-                  fontSize: '14px',
-                  fontWeight: '500',
-                  color: '#2B2B2B',
-                  marginBottom: '8px',
-                }}
+                className="text-page mb-2 block text-sm font-medium"
               >
                 Phone
               </label>
@@ -368,13 +268,7 @@ function RegisterPageContent() {
             <div>
               <label
                 htmlFor="email"
-                style={{
-                  display: 'block',
-                  fontSize: '14px',
-                  fontWeight: '500',
-                  color: '#2B2B2B',
-                  marginBottom: '8px',
-                }}
+                className="text-page mb-2 block text-sm font-medium"
               >
                 Email
               </label>
@@ -384,19 +278,7 @@ function RegisterPageContent() {
                 type="email"
                 autoComplete="email"
                 required
-                style={{
-                  height: '44px',
-                  width: '100%',
-                  borderRadius: '8px',
-                  border: '1px solid #D8C7B5',
-                  backgroundColor: '#FFFFFF',
-                  paddingLeft: '12px',
-                  paddingRight: '12px',
-                  fontSize: '14px',
-                  color: '#2B2B2B',
-                  outline: 'none',
-                  transition: 'border-color 0.2s ease',
-                }}
+                className="h-11 w-full rounded-lg border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors dark:bg-[#1E1C1A] dark:border-[#3D3530] dark:text-[#F0EDE8] dark:placeholder-[#8A7D75]"
                 onFocus={(e) => {
                   e.currentTarget.style.borderColor = '#C6A56B';
                 }}
@@ -409,13 +291,7 @@ function RegisterPageContent() {
             <div>
               <label
                 htmlFor="dateOfBirth"
-                style={{
-                  display: 'block',
-                  fontSize: '14px',
-                  fontWeight: '500',
-                  color: '#2B2B2B',
-                  marginBottom: '8px',
-                }}
+                className="text-page mb-2 block text-sm font-medium"
               >
                 Date of Birth
               </label>
@@ -423,19 +299,7 @@ function RegisterPageContent() {
                 id="dateOfBirth"
                 name="dateOfBirth"
                 type="date"
-                style={{
-                  height: '44px',
-                  width: '100%',
-                  borderRadius: '8px',
-                  border: '1px solid #D8C7B5',
-                  backgroundColor: '#FFFFFF',
-                  paddingLeft: '12px',
-                  paddingRight: '12px',
-                  fontSize: '14px',
-                  color: '#2B2B2B',
-                  outline: 'none',
-                  transition: 'border-color 0.2s ease',
-                }}
+                className="h-11 w-full rounded-lg border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors dark:bg-[#1E1C1A] dark:border-[#3D3530] dark:text-[#F0EDE8]"
                 onFocus={(e) => {
                   e.currentTarget.style.borderColor = '#C6A56B';
                 }}
@@ -448,13 +312,7 @@ function RegisterPageContent() {
             <div>
               <label
                 htmlFor="password"
-                style={{
-                  display: 'block',
-                  fontSize: '14px',
-                  fontWeight: '500',
-                  color: '#2B2B2B',
-                  marginBottom: '8px',
-                }}
+                className="text-page mb-2 block text-sm font-medium"
               >
                 Password
               </label>
@@ -464,19 +322,7 @@ function RegisterPageContent() {
                 type="password"
                 autoComplete="new-password"
                 required
-                style={{
-                  height: '44px',
-                  width: '100%',
-                  borderRadius: '8px',
-                  border: '1px solid #D8C7B5',
-                  backgroundColor: '#FFFFFF',
-                  paddingLeft: '12px',
-                  paddingRight: '12px',
-                  fontSize: '14px',
-                  color: '#2B2B2B',
-                  outline: 'none',
-                  transition: 'border-color 0.2s ease',
-                }}
+                className="h-11 w-full rounded-lg border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors dark:bg-[#1E1C1A] dark:border-[#3D3530] dark:text-[#F0EDE8] dark:placeholder-[#8A7D75]"
                 onFocus={(e) => {
                   e.currentTarget.style.borderColor = '#C6A56B';
                 }}
@@ -488,20 +334,10 @@ function RegisterPageContent() {
 
             {showExistingAccountNotice ? (
               <div
-                style={{
-                  borderRadius: '10px',
-                  border: '1px solid #C6A56B',
-                  backgroundColor: '#F8F5F0',
-                  padding: '14px 16px',
-                }}
+                className="rounded-[10px] border border-[#C6A56B] bg-[#F8F5F0] px-4 py-[14px] dark:bg-[#242220]"
               >
                 <p
-                  style={{
-                    fontSize: '14px',
-                    lineHeight: '1.7',
-                    color: '#6E6257',
-                    margin: 0,
-                  }}
+                  className="m-0 text-sm leading-7 text-[#6E6257] dark:text-[#8A7D75]"
                 >
                   An account with this email already exists. If you registered
                   recently but haven&apos;t verified your email yet, please check
@@ -511,63 +347,31 @@ function RegisterPageContent() {
               </div>
             ) : null}
 
-            {error ? <p style={{
-              fontSize: '14px',
-              color: '#dc2626',
-            }}>{error}</p> : null}
+            {error ? <p className="text-sm text-red-600 dark:text-red-400">{error}</p> : null}
 
             <button
               type="submit"
               disabled={isSubmitting}
-              style={{
-                display: 'flex',
-                height: '44px',
-                width: '100%',
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: '8px',
-                backgroundColor: isSubmitting ? '#D8C7B5' : '#2B2B2B',
-                paddingLeft: '16px',
-                paddingRight: '16px',
-                fontSize: '14px',
-                fontWeight: '500',
-                color: '#F8F5F0',
-                border: 'none',
-                cursor: isSubmitting ? 'not-allowed' : 'pointer',
-                opacity: isSubmitting ? 0.7 : 1,
-                transition: 'background-color 0.2s ease',
-              }}
+              className={`flex h-11 w-full items-center justify-center rounded-lg border-0 px-4 text-sm font-medium text-[#F8F5F0] transition-colors ${
+                isSubmitting
+                  ? "cursor-not-allowed bg-[#D8C7B5] opacity-70 dark:bg-[#3D3530] dark:text-[#8A7D75]"
+                  : "cursor-pointer bg-[#2B2B2B] hover:bg-[#B8A89A] dark:bg-[#C6A56B] dark:text-[#141210] dark:hover:bg-[#D4B47A]"
+              }`}
               onMouseEnter={(e) => {
-                if (!isSubmitting) {
-                  e.currentTarget.style.backgroundColor = '#B8A89A';
-                }
+                void e;
               }}
               onMouseLeave={(e) => {
-                if (!isSubmitting) {
-                  e.currentTarget.style.backgroundColor = '#2B2B2B';
-                }
+                void e;
               }}
             >
               {isSubmitting ? "Creating account..." : "Create account"}
             </button>
-            <p style={{
-              marginTop: '12px',
-              fontSize: '14px',
-              lineHeight: '1.5',
-              textAlign: 'center',
-              color: '#B8A89A',
-            }}>
-              Already an User? 
+            <p className="text-muted mt-3 text-center text-sm leading-6">
+              Already a User?{" "}
               <a 
               href="/login"
-              style={{
-              marginTop: '12px',
-              fontSize: '14px',
-              lineHeight: '1.5',
-              textAlign: 'center',
-              color: '#2B2B2B',
-              textDecoration: 'underline',
-            }}> Login </a>here.
+              className="text-page underline transition-opacity hover:opacity-80"
+            > Login </a>here.
             </p>
           </form>
         ) : null}
@@ -623,6 +427,23 @@ function RegisterPageContent() {
         .brand-phone-input-wrapper .PhoneInputInput::placeholder {
           color: #b8a89a;
         }
+
+        .dark .brand-phone-input-wrapper .PhoneInput {
+          border-color: #3d3530;
+          background-color: #1e1c1a;
+        }
+
+        .dark .brand-phone-input-wrapper .PhoneInputCountrySelectArrow {
+          color: #8a7d75;
+        }
+
+        .dark .brand-phone-input-wrapper .PhoneInputInput {
+          color: #f0ede8;
+        }
+
+        .dark .brand-phone-input-wrapper .PhoneInputInput::placeholder {
+          color: #8a7d75;
+        }
       `}</style>
     </section>
   );
@@ -630,17 +451,8 @@ function RegisterPageContent() {
 
 function RegisterLoadingFallback() {
   return (
-    <section
-      style={{
-        display: "flex",
-        flex: 1,
-        alignItems: "center",
-        justifyContent: "center",
-        backgroundColor: "#F8F5F0",
-        minHeight: "100vh",
-      }}
-    >
-      <p style={{ color: "#B8A89A", fontSize: "14px" }}>Loading...</p>
+    <section className="bg-page flex min-h-screen flex-1 items-center justify-center px-4">
+      <p className="text-muted text-sm">Loading...</p>
     </section>
   );
 }

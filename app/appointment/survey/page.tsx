@@ -272,33 +272,26 @@ function AppointmentSurveyPageContent() {
 
   return (
     <section
-      style={{ backgroundColor: "#F8F5F0" }}
-      className="flex min-h-screen flex-col px-6 py-16"
+      className="flex min-h-screen flex-col bg-[#F8F5F0] px-6 py-16 dark:bg-[#1A1814]"
     >
       <div style={{ maxWidth: "48rem" }} className="mx-auto w-full">
         <div>
           <h1
+            className="text-3xl font-bold tracking-tight text-[#2B2B2B] dark:text-[#F0EDE8]"
             style={{
               fontFamily: "Playfair Display, serif",
-              color: "#2B2B2B",
             }}
-            className="text-3xl font-bold tracking-tight"
           >
             Appointment Survey
           </h1>
-          <p style={{ color: "#B8A89A" }} className="mt-2 text-sm">
+          <p className="mt-2 text-sm text-[#B8A89A] dark:text-[#8A7D75]">
             Please fill out the form to help us prepare for your consultation.
           </p>
         </div>
 
         <form
           onSubmit={handleSubmit}
-          style={{
-            backgroundColor: "#FFFFFF",
-            borderColor: "#D8C7B5",
-            borderWidth: "1px",
-          }}
-          className="survey-form mt-6 space-y-6 rounded-xl p-4 sm:p-6"
+          className="survey-form mt-6 space-y-6 rounded-xl border border-[#D8C7B5] bg-white p-4 dark:border-[#3D3530] dark:bg-[#242220] sm:p-6"
         >
           <style>{`
             .survey-form > div + div {
@@ -341,6 +334,16 @@ function AppointmentSurveyPageContent() {
                 width: auto;
               }
             }
+
+            .dark .survey-form > div + div {
+              border-top-color: #3D3530;
+            }
+
+            .dark .survey-form label:has(input[type="checkbox"]),
+            .dark .survey-form label:has(input[type="radio"]) {
+              border-color: #3D3530;
+              background: #1A1814;
+            }
           `}</style>
 
           {error ? (
@@ -351,32 +354,30 @@ function AppointmentSurveyPageContent() {
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
+              <label className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
                 Name
               </label>
               <input
                 value={formState.name}
                 onChange={(event) => updateField("name", event.target.value)}
                 required
-                className="mt-2 h-11 rounded-md border px-3 focus:border-[#C6A56B] focus:outline-none focus:ring-1 focus:ring-[#C6A56B]"
-                style={{ borderColor: "#D8C7B5", color: "#2B2B2B" }}
+                className="mt-2 h-11 rounded-md border border-[#D8C7B5] px-3 text-[#2B2B2B] focus:border-[#C6A56B] focus:outline-none focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:text-[#F0EDE8]"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
+              <label className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
                 Age
               </label>
               <input
                 value={formState.age}
                 onChange={(event) => updateField("age", event.target.value)}
-                className="mt-2 h-11 rounded-md border px-3 focus:border-[#C6A56B] focus:outline-none focus:ring-1 focus:ring-[#C6A56B]"
-                style={{ borderColor: "#D8C7B5", color: "#2B2B2B" }}
+                className="mt-2 h-11 rounded-md border border-[#D8C7B5] px-3 text-[#2B2B2B] focus:border-[#C6A56B] focus:outline-none focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:text-[#F0EDE8]"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
+              <label className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
                 Phone
               </label>
               <input
@@ -384,13 +385,12 @@ function AppointmentSurveyPageContent() {
                 value={formState.phone}
                 onChange={(event) => updateField("phone", event.target.value)}
                 required
-                className="mt-2 h-11 rounded-md border px-3 focus:border-[#C6A56B] focus:outline-none focus:ring-1 focus:ring-[#C6A56B]"
-                style={{ borderColor: "#D8C7B5", color: "#2B2B2B" }}
+                className="mt-2 h-11 rounded-md border border-[#D8C7B5] px-3 text-[#2B2B2B] focus:border-[#C6A56B] focus:outline-none focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:text-[#F0EDE8]"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
+              <label className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
                 Email
               </label>
               <input
@@ -398,28 +398,26 @@ function AppointmentSurveyPageContent() {
                 value={formState.email}
                 onChange={(event) => updateField("email", event.target.value)}
                 required
-                className="mt-2 h-11 rounded-md border px-3 focus:border-[#C6A56B] focus:outline-none focus:ring-1 focus:ring-[#C6A56B]"
-                style={{ borderColor: "#D8C7B5", color: "#2B2B2B" }}
+                className="mt-2 h-11 rounded-md border border-[#D8C7B5] px-3 text-[#2B2B2B] focus:border-[#C6A56B] focus:outline-none focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:text-[#F0EDE8]"
               />
             </div>
 
             <div className="sm:col-span-2">
-              <label className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
+              <label className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
                 Skin Type
               </label>
               <input
                 value={formState.skinType}
                 onChange={(event) => updateField("skinType", event.target.value)}
                 required
-                className="mt-2 h-11 rounded-md border px-3 focus:border-[#C6A56B] focus:outline-none focus:ring-1 focus:ring-[#C6A56B]"
-                style={{ borderColor: "#D8C7B5", color: "#2B2B2B" }}
+                className="mt-2 h-11 rounded-md border border-[#D8C7B5] px-3 text-[#2B2B2B] focus:border-[#C6A56B] focus:outline-none focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:text-[#F0EDE8]"
               />
             </div>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <p className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
+              <p className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
                 Uses Korean Products
               </p>
               <div className="mt-2 grid gap-2 sm:grid-cols-2">
@@ -433,7 +431,7 @@ function AppointmentSurveyPageContent() {
                       style={{ accentColor: "#C6A56B" }}
                       className="mr-2"
                     />
-                    <span style={{ color: "#2B2B2B" }}>
+                    <span className="text-[#2B2B2B] dark:text-[#F0EDE8]">
                       {option === "yes" ? "Yes" : "No"}
                     </span>
                   </label>
@@ -442,7 +440,7 @@ function AppointmentSurveyPageContent() {
             </div>
 
             <div>
-              <p className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
+              <p className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
                 Facing Skin Issues
               </p>
               <div className="mt-2 grid gap-2 sm:grid-cols-2">
@@ -456,7 +454,7 @@ function AppointmentSurveyPageContent() {
                       style={{ accentColor: "#C6A56B" }}
                       className="mr-2"
                     />
-                    <span style={{ color: "#2B2B2B" }}>
+                    <span className="text-[#2B2B2B] dark:text-[#F0EDE8]">
                       {option === "yes" ? "Yes" : "No"}
                     </span>
                   </label>
@@ -466,7 +464,7 @@ function AppointmentSurveyPageContent() {
           </div>
 
           <div>
-            <p className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
+            <p className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
               Skin Issues
             </p>
             <div className="mt-2 grid gap-2 sm:grid-cols-2">
@@ -479,14 +477,14 @@ function AppointmentSurveyPageContent() {
                     style={{ accentColor: "#C6A56B" }}
                     className="mr-2"
                   />
-                  <span style={{ color: "#2B2B2B" }}>{option}</span>
+                  <span className="text-[#2B2B2B] dark:text-[#F0EDE8]">{option}</span>
                 </label>
               ))}
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
+            <label className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
               How long have you had these issues?
             </label>
             <input
@@ -494,13 +492,12 @@ function AppointmentSurveyPageContent() {
               onChange={(event) =>
                 updateField("skinIssueDuration", event.target.value)
               }
-              className="mt-2 h-11 rounded-md border px-3 focus:border-[#C6A56B] focus:outline-none focus:ring-1 focus:ring-[#C6A56B]"
-              style={{ borderColor: "#D8C7B5", color: "#2B2B2B" }}
+              className="mt-2 h-11 rounded-md border border-[#D8C7B5] px-3 text-[#2B2B2B] focus:border-[#C6A56B] focus:outline-none focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:text-[#F0EDE8]"
             />
           </div>
 
           <div>
-            <p className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
+            <p className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
               Current Products
             </p>
             <div className="mt-2 grid gap-2 sm:grid-cols-2">
@@ -513,14 +510,14 @@ function AppointmentSurveyPageContent() {
                     style={{ accentColor: "#C6A56B" }}
                     className="mr-2"
                   />
-                  <span style={{ color: "#2B2B2B" }}>{option}</span>
+                  <span className="text-[#2B2B2B] dark:text-[#F0EDE8]">{option}</span>
                 </label>
               ))}
             </div>
           </div>
 
           <div>
-            <p className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
+            <p className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
               Allergic Ingredients
             </p>
             <div className="mt-2 flex flex-col gap-2">
@@ -533,13 +530,13 @@ function AppointmentSurveyPageContent() {
                     style={{ accentColor: "#C6A56B" }}
                     className="mr-2"
                   />
-                  <span style={{ color: "#2B2B2B" }}>{option}</span>
+                  <span className="text-[#2B2B2B] dark:text-[#F0EDE8]">{option}</span>
                 </label>
               ))}
             </div>
             {formState.allergicIngredients.includes("Others") ? (
               <div className="mt-3">
-                <label className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
+                <label className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
                   Other Allergic Ingredients
                 </label>
                 <input
@@ -548,15 +545,14 @@ function AppointmentSurveyPageContent() {
                     updateField("allergicIngredientsOther", event.target.value)
                   }
                   placeholder="Type custom allergic ingredients"
-                  className="mt-2 h-11 rounded-md border px-3 focus:border-[#C6A56B] focus:outline-none focus:ring-1 focus:ring-[#C6A56B]"
-                  style={{ borderColor: "#D8C7B5", color: "#2B2B2B" }}
+                  className="mt-2 h-11 rounded-md border border-[#D8C7B5] px-3 text-[#2B2B2B] focus:border-[#C6A56B] focus:outline-none focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:text-[#F0EDE8]"
                 />
               </div>
             ) : null}
           </div>
 
           <div>
-            <p className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
+            <p className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
               Double Cleanse Preference
             </p>
             <div className="mt-2 grid gap-2 sm:grid-cols-2">
@@ -572,7 +568,7 @@ function AppointmentSurveyPageContent() {
                       style={{ accentColor: "#C6A56B" }}
                       className="mr-2"
                     />
-                    <span style={{ color: "#2B2B2B" }}>{option}</span>
+                    <span className="text-[#2B2B2B] dark:text-[#F0EDE8]">{option}</span>
                   </label>
                 ),
               )}
@@ -580,7 +576,7 @@ function AppointmentSurveyPageContent() {
           </div>
 
           <div>
-            <p className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
+            <p className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
               Sleep Hours
             </p>
             <div className="mt-2 flex flex-col gap-2">
@@ -594,7 +590,7 @@ function AppointmentSurveyPageContent() {
                       style={{ accentColor: "#C6A56B" }}
                       className="mr-2"
                     />
-                    <span style={{ color: "#2B2B2B" }}>{option}</span>
+                    <span className="text-[#2B2B2B] dark:text-[#F0EDE8]">{option}</span>
                   </label>
                 ),
               )}
@@ -602,7 +598,7 @@ function AppointmentSurveyPageContent() {
           </div>
 
           <div>
-            <p className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
+            <p className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
               Water Intake
             </p>
             <div className="mt-2 grid gap-2 sm:grid-cols-2">
@@ -616,7 +612,7 @@ function AppointmentSurveyPageContent() {
                       style={{ accentColor: "#C6A56B" }}
                       className="mr-2"
                     />
-                    <span style={{ color: "#2B2B2B" }}>{option}</span>
+                    <span className="text-[#2B2B2B] dark:text-[#F0EDE8]">{option}</span>
                   </label>
                 ),
               )}
@@ -639,7 +635,7 @@ function AppointmentSurveyPageContent() {
               },
             ].map((item) => (
               <div key={item.field}>
-                <p className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
+                <p className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
                   {item.label}
                 </p>
                 <div className="mt-2 grid gap-2 sm:grid-cols-2">
@@ -652,7 +648,7 @@ function AppointmentSurveyPageContent() {
                         style={{ accentColor: "#C6A56B" }}
                         className="mr-2"
                       />
-                      <span style={{ color: "#2B2B2B" }}>
+                      <span className="text-[#2B2B2B] dark:text-[#F0EDE8]">
                         {option === "yes" ? "Yes" : "No"}
                       </span>
                     </label>
@@ -663,7 +659,7 @@ function AppointmentSurveyPageContent() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
+            <label className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
               Additional Notes
             </label>
             <textarea
@@ -671,19 +667,17 @@ function AppointmentSurveyPageContent() {
               onChange={(event) => updateField("note", event.target.value)}
               placeholder="Any additional information..."
               rows={4}
-              className="mt-2 rounded-md border px-3 py-2 focus:border-[#C6A56B] focus:outline-none focus:ring-1 focus:ring-[#C6A56B]"
-              style={{ borderColor: "#D8C7B5", color: "#2B2B2B" }}
+              className="mt-2 rounded-md border border-[#D8C7B5] px-3 py-2 text-[#2B2B2B] focus:border-[#C6A56B] focus:outline-none focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:text-[#F0EDE8]"
             />
           </div>
 
           <div
-            style={{ borderColor: "#D8C7B5", backgroundColor: "#F8F5F0" }}
-            className="rounded-lg border p-4"
+            className="rounded-lg border border-[#D8C7B5] bg-[#F8F5F0] p-4 dark:border-[#3D3530] dark:bg-[#1A1814]"
           >
-            <label className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
+            <label className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
               Skin Photos
             </label>
-            <p style={{ color: "#B8A89A" }} className="mt-2 text-sm leading-6">
+            <p className="mt-2 text-sm leading-6 text-[#B8A89A] dark:text-[#8A7D75]">
               Uploading photos is optional. You can submit the survey without photos if you prefer.
             </p>
 
@@ -702,7 +696,7 @@ function AppointmentSurveyPageContent() {
             </div>
 
             <div className="mt-3 flex items-center justify-between gap-3 text-sm">
-              <span style={{ color: "#B8A89A" }}>
+              <span className="text-[#B8A89A] dark:text-[#8A7D75]">
                 {formState.skinImages.length}/4 images uploaded
               </span>
               {isUploadingSkinImage ? (
@@ -715,11 +709,7 @@ function AppointmentSurveyPageContent() {
                 {formState.skinImages.map((imageUrl) => (
                   <div
                     key={imageUrl}
-                    style={{
-                      borderColor: "#D8C7B5",
-                      backgroundColor: "#FFFFFF",
-                    }}
-                    className="overflow-hidden rounded-lg border"
+                    className="overflow-hidden rounded-lg border border-[#D8C7B5] bg-white dark:border-[#3D3530] dark:bg-[#242220]"
                   >
                     <div className="relative h-40 w-full">
                       <Image
@@ -733,8 +723,7 @@ function AppointmentSurveyPageContent() {
                     <button
                       type="button"
                       onClick={() => removeSkinImage(imageUrl)}
-                      style={{ color: "#2B2B2B" }}
-                      className="w-full px-3 py-2 text-sm font-medium hover:bg-[#F8F5F0]"
+                      className="w-full px-3 py-2 text-sm font-medium text-[#2B2B2B] hover:bg-[#F8F5F0] dark:text-[#F0EDE8] dark:hover:bg-[#1A1814]"
                     >
                       Remove
                     </button>
@@ -762,12 +751,9 @@ function AppointmentSurveyPageContent() {
 
 function AppointmentSurveyLoadingFallback() {
   return (
-    <section
-      className="flex min-h-screen flex-col px-6 py-16"
-      style={{ backgroundColor: "#F8F5F0" }}
-    >
+    <section className="flex min-h-screen flex-col bg-[#F8F5F0] px-6 py-16 dark:bg-[#1A1814]">
       <div className="mx-auto w-full" style={{ maxWidth: "48rem" }}>
-        <p className="text-sm" style={{ color: "#B8A89A" }}>
+        <p className="text-sm text-[#B8A89A] dark:text-[#8A7D75]">
           Loading...
         </p>
       </div>

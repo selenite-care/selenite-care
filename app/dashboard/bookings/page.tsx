@@ -63,33 +63,36 @@ export default function DashboardBookingsPage() {
   }
 
   return (
-    <section>
+    <section className="min-h-screen bg-[#F8F5F0] px-6 py-10 dark:bg-[#1A1814]">
       <div>
-        <h1 className="text-3xl font-semibold tracking-tight text-foreground">
+        <h1 className="text-3xl font-semibold tracking-tight text-[#2B2B2B] dark:text-[#F0EDE8]"
+          style={{
+            fontFamily: "Playfair Display, serif",
+          }}>
           My Bookings
         </h1>
-        <p className="mt-3 text-sm leading-6 text-foreground/70">
+        <p className="mt-3 text-sm leading-6 text-[#B8A89A] dark:text-[#8A7D75]">
           Track your appointment requests and preferred dates.
         </p>
       </div>
 
       {isLoading ? (
-        <p className="mt-8 text-sm text-foreground/70">Loading bookings...</p>
+        <p className="mt-8 text-sm text-[#B8A89A] dark:text-[#8A7D75]">Loading bookings...</p>
       ) : null}
 
       {error ? <p className="mt-8 text-sm text-red-600">{error}</p> : null}
 
       {!isLoading && !error && bookings.length === 0 ? (
-        <p className="mt-8 text-sm text-foreground/70">
+        <p className="mt-8 text-sm text-[#B8A89A] dark:text-[#8A7D75]">
           You do not have any bookings yet.
         </p>
       ) : null}
 
       {!isLoading && !error && bookings.length > 0 ? (
-        <div className="mt-8 overflow-hidden rounded-lg border border-black/10 bg-background dark:border-white/10">
+        <div className="bg-card border-themed mt-8 overflow-hidden rounded-lg border">
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[860px] text-left text-sm">
-              <thead className="border-b border-black/10 bg-zinc-50 text-foreground/70 dark:border-white/10 dark:bg-white/5">
+            <table className="table-themed w-full min-w-[860px] text-left text-sm">
+              <thead>
                 <tr>
                   <th className="px-4 py-3 font-medium">Booking Token</th>
                   <th className="px-4 py-3 font-medium">Doctor Name</th>
@@ -100,10 +103,7 @@ export default function DashboardBookingsPage() {
               </thead>
               <tbody>
                 {bookings.map((booking) => (
-                  <tr
-                    key={booking.id}
-                    className="border-b border-black/10 last:border-0 dark:border-white/10"
-                  >
+                  <tr key={booking.id}>
                     <td className="px-4 py-4 font-mono text-xs text-foreground/70">
                       {booking.token}
                     </td>
@@ -125,7 +125,7 @@ export default function DashboardBookingsPage() {
                     <td className="px-4 py-4">
                       <Link
                         href={`/dashboard/bookings/${booking.id}`}
-                        className="inline-flex h-9 items-center justify-center rounded-md border border-black/10 px-3 text-sm font-medium text-foreground transition-colors hover:bg-zinc-50 dark:border-white/10 dark:hover:bg-white/5"
+                        className="border-themed text-page inline-flex h-9 items-center justify-center rounded-md border px-3 text-sm font-medium transition-colors hover:bg-black/5 dark:hover:bg-white/5"
                       >
                         View Details
                       </Link>

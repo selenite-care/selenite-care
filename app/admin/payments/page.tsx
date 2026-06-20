@@ -1,8 +1,7 @@
 "use client";
 
 import Papa from "papaparse";
-import { useEffect, useState } from "react";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 type MembershipTier = "SIGNATURE" | "CRYSTAL" | "PLATINUM";
 
@@ -117,7 +116,9 @@ export default function AdminPaymentsPage() {
         membership.user.email.toLowerCase().includes(normalizedQuery) ||
         (membership.user.phone ?? "").toLowerCase().includes(normalizedQuery) ||
         membership.tier.toLowerCase().includes(normalizedQuery) ||
-        (membership.payment?.status ?? "UNPAID").toLowerCase().includes(normalizedQuery)
+        (membership.payment?.status ?? "UNPAID")
+          .toLowerCase()
+          .includes(normalizedQuery)
       );
     });
   }, [memberships, searchQuery]);
@@ -148,12 +149,15 @@ export default function AdminPaymentsPage() {
   }
 
   return (
-    <section>
+    <section className="min-h-screen bg-[#F8F5F0] px-6 py-10 dark:bg-[#1A1814]">
       <div>
-        <h1 className="text-3xl font-semibold tracking-tight text-foreground">
+        <h1 className="text-3xl font-semibold tracking-tight text-[#2B2B2B] dark:text-[#F0EDE8]"
+          style={{
+            fontFamily: "Playfair Display, serif",
+          }}>
           Membership Payments
         </h1>
-        <p className="mt-3 text-sm leading-6 text-foreground/70">
+        <p className="mt-3 text-sm leading-6 text-[#B8A89A] dark:text-[#8A7D75]">
           Review membership purchases and their payment status.
         </p>
       </div>
@@ -212,75 +216,74 @@ export default function AdminPaymentsPage() {
             </p>
           </div>
 
-          {filteredMemberships.length === 0 ? (
-            <p className="mt-8 text-sm text-foreground/70">
-              No membership payments match your search.
-            </p>
-          ) : (
-            <div className="mt-6 overflow-hidden rounded-lg border border-black/10 bg-background dark:border-white/10">
-              <div className="overflow-x-auto">
-                <table className="w-full min-w-[980px] text-left text-sm">
-                  <thead className="border-b border-black/10 bg-zinc-50 text-foreground/70 dark:border-white/10 dark:bg-white/5">
+          <div className="mt-6 overflow-hidden rounded-lg border border-themed bg-card">
+            <div className="overflow-x-auto">
+              <table className="table-themed w-full min-w-[980px] text-left text-sm">
+                <thead>
+                  <tr>
+                    <th className="px-4 py-3 font-medium">Membership ID</th>
+                    <th className="px-4 py-3 font-medium">Client Name</th>
+                    <th className="px-4 py-3 font-medium">Client Phone</th>
+                    <th className="px-4 py-3 font-medium">Client Email</th>
+                    <th className="px-4 py-3 font-medium">Tier</th>
+                    <th className="px-4 py-3 font-medium">Amount</th>
+                    <th className="px-4 py-3 font-medium">Payment Status</th>
+                    <th className="px-4 py-3 font-medium">Purchase Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredMemberships.length === 0 ? (
                     <tr>
-                      <th className="px-4 py-3 font-medium">Membership ID</th>
-                      <th className="px-4 py-3 font-medium">Client Name</th>
-                      <th className="px-4 py-3 font-medium">Client Phone</th>
-                      <th className="px-4 py-3 font-medium">Client Email</th>
-                      <th className="px-4 py-3 font-medium">Tier</th>
-                      <th className="px-4 py-3 font-medium">Amount</th>
-                      <th className="px-4 py-3 font-medium">Payment Status</th>
-                      <th className="px-4 py-3 font-medium">Purchase Date</th>
+                      <td colSpan={8} className="cell-muted px-4 py-8 text-center text-sm">
+                        No membership payments match your search.
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {filteredMemberships.map((membership) => {
-                  const tierBadgeStyles = getTierBadgeClasses(membership.tier);
+                  ) : (
+                    filteredMemberships.map((membership) => {
+                      const tierBadgeStyles = getTierBadgeClasses(membership.tier);
 
-                  return (
-                    <tr
-                      key={membership.id}
-                      className="border-b border-black/10 last:border-0 dark:border-white/10"
-                    >
-                      <td className="px-4 py-4 font-mono text-xs text-foreground/70">
-                        {membership.membershipId}
-                      </td>
-                      <td className="px-4 py-4 text-foreground">
-                        {membership.user.name ?? membership.user.email}
-                      </td>
-                      <td className="px-4 py-4 text-foreground/70">
-                        {membership.user.phone ?? "Not provided"}
-                      </td>
-                      <td className="px-4 py-4 text-foreground/70">
-                        {membership.user.email}
-                      </td>
-                      <td className="px-4 py-4">
-                        <span
-                          className="inline-flex rounded-full px-3 py-1 text-xs font-medium"
-                          style={tierBadgeStyles}
-                        >
-                          {formatTierLabel(membership.tier)}
-                        </span>
-                      </td>
-                      <td className="px-4 py-4 text-foreground/70">
-                        {getMembershipAmount(membership.tier)}
-                      </td>
-                      <td className="px-4 py-4 text-foreground/70">
-                        {membership.payment?.status ?? "UNPAID"}
-                      </td>
-                      <td className="px-4 py-4 text-foreground/70">
-                        {new Date(membership.createdAt).toLocaleString()}
-                      </td>
-                    </tr>
-                  );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-              <p className="px-4 pb-4 text-xs text-foreground/60 md:hidden">
-                Scroll to see more
-              </p>
+                      return (
+                        <tr key={membership.id}>
+                          <td className="cell-muted px-4 py-4 font-mono text-xs">
+                            {membership.membershipId}
+                          </td>
+                          <td className="px-4 py-4">
+                            {membership.user.name ?? membership.user.email}
+                          </td>
+                          <td className="cell-muted px-4 py-4">
+                            {membership.user.phone ?? "Not provided"}
+                          </td>
+                          <td className="cell-muted px-4 py-4">
+                            {membership.user.email}
+                          </td>
+                          <td className="px-4 py-4">
+                            <span
+                              className="inline-flex rounded-full px-3 py-1 text-xs font-medium"
+                              style={tierBadgeStyles}
+                            >
+                              {formatTierLabel(membership.tier)}
+                            </span>
+                          </td>
+                          <td className="cell-muted px-4 py-4">
+                            {getMembershipAmount(membership.tier)}
+                          </td>
+                          <td className="cell-muted px-4 py-4">
+                            {membership.payment?.status ?? "UNPAID"}
+                          </td>
+                          <td className="cell-muted px-4 py-4">
+                            {new Date(membership.createdAt).toLocaleString()}
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
             </div>
-          )}
+            <p className="px-4 pb-4 text-xs text-muted md:hidden">
+              Scroll to see more
+            </p>
+          </div>
         </>
       ) : null}
     </section>

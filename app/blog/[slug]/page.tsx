@@ -31,13 +31,10 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   );
 
   return (
-    <main
-      className="min-h-screen px-6 py-12 sm:py-16"
-      style={{ backgroundColor: "#F8F5F0" }}
-    >
+    <main className="bg-page text-page min-h-screen px-6 py-12 sm:py-16">
       <style>{`
         .blog-prose h2 {
-          color: #2B2B2B;
+          color: var(--foreground);
           font-family: "Playfair Display", serif;
           font-size: 1.75rem;
           font-weight: 700;
@@ -46,7 +43,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         }
 
         .blog-prose p {
-          color: #2B2B2B;
+          color: var(--foreground);
           font-size: 1rem;
           line-height: 1.9;
           margin: 0 0 1rem;
@@ -58,7 +55,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         }
 
         .blog-prose li {
-          color: #2B2B2B;
+          color: var(--foreground);
           line-height: 1.8;
           margin-bottom: 0.6rem;
         }
@@ -78,21 +75,14 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
           <div className="mt-8">
             <span
-              className="inline-flex rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.18em]"
-              style={{
-                backgroundColor: "rgba(198, 165, 107, 0.14)",
-                color: "#8A6A2F",
-              }}
+              className="inline-flex rounded-full bg-[rgba(198,165,107,0.14)] px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-[#8A6A2F] dark:bg-amber-950/30 dark:text-amber-300"
             >
               {post.category}
             </span>
 
             <h1
-              className="mt-5 text-4xl font-bold tracking-tight sm:text-5xl"
-              style={{
-                color: "#2B2B2B",
-                fontFamily: "Playfair Display, serif",
-              }}
+              className="text-page mt-5 text-4xl font-bold tracking-tight sm:text-5xl"
+              style={{ fontFamily: "Playfair Display, serif" }}
             >
               {post.title}
             </h1>
@@ -118,29 +108,17 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           </div>
 
           <div
-            className="blog-prose mt-8 rounded-[24px] border bg-white px-6 py-8 sm:px-8 sm:py-10"
-            style={{
-              borderColor: "#D8C7B5",
-              boxShadow: "0 18px 48px rgba(43, 43, 43, 0.05)",
-            }}
+            className="blog-prose bg-card border-themed mt-8 rounded-[24px] border px-6 py-8 sm:px-8 sm:py-10"
+            style={{ boxShadow: "0 18px 48px rgba(43, 43, 43, 0.05)" }}
             dangerouslySetInnerHTML={{ __html: post.content }}
           />
         </article>
 
         <aside className="min-w-0 lg:sticky lg:top-8">
-          <div
-            className="rounded-[24px] border bg-white p-6"
-            style={{
-              borderColor: "#D8C7B5",
-              boxShadow: "0 18px 48px rgba(43, 43, 43, 0.05)",
-            }}
-          >
+          <div className="bg-card border-themed rounded-[24px] border p-6" style={{ boxShadow: "0 18px 48px rgba(43, 43, 43, 0.05)" }}>
             <h2
-              className="text-2xl font-semibold"
-              style={{
-                color: "#2B2B2B",
-                fontFamily: "Playfair Display, serif",
-              }}
+              className="text-page text-2xl font-semibold"
+              style={{ fontFamily: "Playfair Display, serif" }}
             >
               Suggested Articles
             </h2>
@@ -149,10 +127,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               {suggestedPosts.map((suggestedPost) => (
                 <article
                   key={suggestedPost.slug}
-                  className="rounded-[20px] border bg-white p-4 shadow-[0_0_0_rgba(198,165,107,0)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_14px_30px_rgba(198,165,107,0.18)]"
-                  style={{
-                    borderColor: "#D8C7B5",
-                  }}
+                  className="bg-card border-themed rounded-[20px] border p-4 shadow-[0_0_0_rgba(198,165,107,0)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_14px_30px_rgba(198,165,107,0.18)] dark:bg-[#242220] dark:border-[#3D3530] dark:hover:shadow-[0_14px_30px_rgba(0,0,0,0.35)]"
                 >
                   <img
                     src={suggestedPost.image}
@@ -172,7 +147,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                     </span>
 
                     <h3
-                      className="mt-3 text-lg font-semibold leading-7"
+                      className="mt-3 text-lg font-semibold leading-7 dark:text-[#F0EDE8]"
                       style={{
                         color: "#2B2B2B",
                         fontFamily: "Playfair Display, serif",
@@ -181,16 +156,13 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                       {suggestedPost.title}
                     </h3>
 
-                    <p
-                      className="mt-2 text-sm"
-                      style={{ color: "#8C7967" }}
-                    >
+                    <p className="mt-2 text-sm text-[#8C7967] dark:text-[#8A7D75]">
                       {formatDate(suggestedPost.date)}
                     </p>
 
                     <Link
                       href={`/blog/${suggestedPost.slug}`}
-                      className="mt-4 inline-flex items-center text-sm font-semibold transition-colors hover:opacity-80"
+                      className="mt-4 inline-flex items-center text-sm font-semibold transition-colors hover:opacity-80 dark:text-[#F0EDE8]"
                       style={{ color: "#2B2B2B" }}
                     >
                       Continue Reading

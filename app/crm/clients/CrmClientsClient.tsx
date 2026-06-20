@@ -60,24 +60,24 @@ function getMembershipStatusStyles(
   switch (status) {
     case "ACTIVE":
       return {
-        badge: "bg-emerald-100",
-        text: "text-emerald-800",
+        badge: "bg-emerald-100 dark:bg-emerald-900/20",
+        text: "text-emerald-800 dark:text-emerald-300",
       };
     case "PENDING":
       return {
-        badge: "bg-amber-100",
-        text: "text-amber-800",
+        badge: "bg-amber-100 dark:bg-amber-900/20",
+        text: "text-amber-800 dark:text-amber-300",
       };
     case "CANCELLED":
       return {
-        badge: "bg-red-100",
-        text: "text-red-800",
+        badge: "bg-red-100 dark:bg-red-900/20",
+        text: "text-red-800 dark:text-red-300",
       };
     case "EXPIRED":
     default:
       return {
-        badge: "bg-zinc-200",
-        text: "text-zinc-700",
+        badge: "bg-zinc-200 dark:bg-zinc-800",
+        text: "text-zinc-700 dark:text-zinc-300",
       };
   }
 }
@@ -268,10 +268,10 @@ export default function CrmClientsClient({ clients }: CrmClientsClientProps) {
 
       {error ? <p className="mb-4 text-sm text-red-600">{error}</p> : null}
 
-      <div className="overflow-hidden rounded-3xl border border-black/10 bg-background shadow-sm dark:border-white/10 dark:bg-zinc-950">
+      <div className="overflow-hidden rounded-3xl border border-themed bg-card shadow-sm">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-black/10 text-left dark:divide-white/10">
-            <thead className="bg-zinc-100 text-sm uppercase tracking-wide text-foreground/60 dark:bg-white/5">
+          <table className="table-themed min-w-full text-left text-sm">
+            <thead>
               <tr>
                 <th className="px-4 py-4">Name</th>
                 <th className="px-4 py-4">Email</th>
@@ -281,14 +281,10 @@ export default function CrmClientsClient({ clients }: CrmClientsClientProps) {
                 <th className="px-4 py-4">Bookings</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-black/10 bg-white text-sm dark:divide-white/10 dark:bg-zinc-900">
+            <tbody>
               {filteredClients.length === 0 ? (
                 <tr>
-                  <td
-                    colSpan={6}
-                    className="px-4 py-8 text-center text-sm"
-                    style={{ color: "#B8A89A" }}
-                  >
+                  <td colSpan={6} className="cell-muted px-4 py-8 text-center text-sm">
                     No users match the selected filters.
                   </td>
                 </tr>
@@ -298,21 +294,15 @@ export default function CrmClientsClient({ clients }: CrmClientsClientProps) {
                   const membershipStyles = latestMembership
                     ? getMembershipStatusStyles(latestMembership.status)
                     : {
-                        badge: "bg-zinc-200",
-                        text: "text-zinc-700",
+                        badge: "bg-zinc-200 dark:bg-zinc-800",
+                        text: "text-zinc-700 dark:text-zinc-300",
                       };
 
                   return (
                     <tr key={client.id}>
-                      <td className="px-4 py-4 font-medium text-foreground">
-                        {client.name ?? "-"}
-                      </td>
-                      <td className="px-4 py-4 text-foreground/70">
-                        {client.email}
-                      </td>
-                      <td className="px-4 py-4 text-foreground/70">
-                        {client.phone ?? "-"}
-                      </td>
+                      <td className="px-4 py-4 font-medium">{client.name ?? "-"}</td>
+                      <td className="cell-muted px-4 py-4">{client.email}</td>
+                      <td className="cell-muted px-4 py-4">{client.phone ?? "-"}</td>
                       <td className="px-4 py-4">
                         <span
                           className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ${membershipStyles.badge} ${membershipStyles.text}`}
@@ -322,12 +312,8 @@ export default function CrmClientsClient({ clients }: CrmClientsClientProps) {
                             : "No Membership"}
                         </span>
                       </td>
-                      <td className="px-4 py-4 text-foreground/70">
-                        {formatDate(client.createdAt)}
-                      </td>
-                      <td className="px-4 py-4 text-foreground/70">
-                        {client._count.bookings}
-                      </td>
+                      <td className="cell-muted px-4 py-4">{formatDate(client.createdAt)}</td>
+                      <td className="cell-muted px-4 py-4">{client._count.bookings}</td>
                     </tr>
                   );
                 })
@@ -335,9 +321,7 @@ export default function CrmClientsClient({ clients }: CrmClientsClientProps) {
             </tbody>
           </table>
         </div>
-        <p className="px-4 pb-4 text-xs text-foreground/60 md:hidden">
-          Scroll to see more
-        </p>
+        <p className="px-4 pb-4 text-xs text-muted md:hidden">Scroll to see more</p>
       </div>
     </>
   );

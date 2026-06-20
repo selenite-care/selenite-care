@@ -84,10 +84,9 @@ const timeOptions = [
 ];
 
 const inputClassName =
-  "mt-2 h-11 w-full rounded-md border bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]";
+  "mt-2 h-11 w-full rounded-md border bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]";
 const textareaClassName =
-  "mt-2 w-full resize-none rounded-md border bg-white px-3 py-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]";
-const inputStyle = { borderColor: "#D8C7B5" } as const;
+  "mt-2 w-full resize-none rounded-md border bg-white px-3 py-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]";
 
 function isDayOption(value: string): value is (typeof dayOptions)[number]["value"] {
   return dayOptions.some((day) => day.value === value);
@@ -508,20 +507,18 @@ export default function AdminDoctorsPage() {
   }
 
   return (
-    <section className="min-h-screen space-y-8 bg-[#F8F5F0] px-6 py-10">
+    <section className="min-h-screen space-y-8 bg-[#F8F5F0] px-6 py-10 dark:bg-[#1A1814]">
       {editingDoctor ? (
         <div
           role="dialog"
           aria-modal="true"
           aria-labelledby="edit-doctor-title"
-          className="fixed inset-0 z-50 flex items-center justify-center px-4 py-6"
+          className="modal-overlay fixed inset-0 z-50 flex items-center justify-center px-4 py-6"
           style={{ backgroundColor: "rgba(43, 43, 43, 0.72)" }}
         >
           <div
-            className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-lg border p-6 shadow-2xl"
+            className="modal-card max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-lg border border-[#D8C7B5] bg-white p-6 shadow-2xl dark:border-[#3D3530] dark:bg-[#242220]"
             style={{
-              backgroundColor: "#FFFFFF",
-              borderColor: "#D8C7B5",
               boxShadow: "0 24px 80px rgba(43, 43, 43, 0.28)",
             }}
           >
@@ -529,15 +526,14 @@ export default function AdminDoctorsPage() {
               <div>
                 <h2
                   id="edit-doctor-title"
-                  className="text-xl font-semibold"
+                  className="text-xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]"
                   style={{
-                    color: "#2B2B2B",
                     fontFamily: "Playfair Display, serif",
                   }}
                 >
                   Edit Doctor
                 </h2>
-                <p className="mt-2 text-sm leading-6" style={{ color: "#B8A89A" }}>
+                <p className="mt-2 text-sm leading-6 text-[#B8A89A] dark:text-[#8A7D75]">
                   Update the doctor&apos;s profile, availability, specialization,
                   and image.
                 </p>
@@ -545,12 +541,7 @@ export default function AdminDoctorsPage() {
               <button
                 type="button"
                 onClick={closeEditModal}
-                className="inline-flex h-10 items-center justify-center rounded-md border px-4 text-sm font-medium transition-colors hover:bg-[#C6A56B]/10"
-                style={{
-                  borderColor: "#D8C7B5",
-                  color: "#2B2B2B",
-                  backgroundColor: "#FFFFFF",
-                }}
+                className="inline-flex h-10 items-center justify-center rounded-md border border-[#D8C7B5] bg-white px-4 text-sm font-medium text-[#2B2B2B] transition-colors hover:bg-[#C6A56B]/10 dark:border-[#3D3530] dark:bg-[#242220] dark:text-[#F0EDE8]"
               >
                 Close
               </button>
@@ -559,7 +550,7 @@ export default function AdminDoctorsPage() {
             <form onSubmit={handleEditSubmit} className="mt-6 space-y-5">
               <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
                 <div>
-                  <label htmlFor="edit-name" className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
+                  <label htmlFor="edit-name" className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
                     Name
                   </label>
                   <input
@@ -573,12 +564,11 @@ export default function AdminDoctorsPage() {
                     }
                     required
                     className={inputClassName}
-                    style={inputStyle}
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="edit-designation" className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
+                  <label htmlFor="edit-designation" className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
                     Designation
                   </label>
                   <input
@@ -592,12 +582,11 @@ export default function AdminDoctorsPage() {
                     }
                     required
                     className={inputClassName}
-                    style={inputStyle}
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="edit-specialization" className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
+                  <label htmlFor="edit-specialization" className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
                     Specialization
                   </label>
                   <select
@@ -612,7 +601,6 @@ export default function AdminDoctorsPage() {
                     }
                     required
                     className={inputClassName}
-                    style={inputStyle}
                   >
                     {specializationOptions.map((option) => (
                       <option key={option.value} value={option.value}>
@@ -624,14 +612,13 @@ export default function AdminDoctorsPage() {
               </div>
 
               <div>
-                <p className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
+                <p className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
                   Availability
                 </p>
                 <div
-                  className="mt-2 rounded-lg border p-4"
-                  style={{ borderColor: "#D8C7B5", backgroundColor: "#F8F5F0" }}
+                  className="mt-2 rounded-lg border border-[#D8C7B5] bg-[#F8F5F0] p-4 dark:border-[#3D3530] dark:bg-[#2A2724]"
                 >
-                  <p className="text-sm font-medium" style={{ color: "#6E6257" }}>
+                  <p className="text-sm font-medium text-[#B8A89A] dark:text-[#8A7D75]">
                     Available Days
                   </p>
                   <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -671,7 +658,7 @@ export default function AdminDoctorsPage() {
 
                 <div className="mt-5 grid gap-5 sm:grid-cols-2">
                   <div>
-                    <label htmlFor="edit-startTime" className="block text-sm font-medium" style={{ color: "#6E6257" }}>
+                    <label htmlFor="edit-startTime" className="block text-sm font-medium text-[#B8A89A] dark:text-[#8A7D75]">
                       Start Time
                     </label>
                     <select
@@ -685,7 +672,6 @@ export default function AdminDoctorsPage() {
                       }
                       required
                       className={inputClassName}
-                      style={inputStyle}
                     >
                       {timeOptions.map((time) => (
                         <option key={time} value={time}>
@@ -696,7 +682,7 @@ export default function AdminDoctorsPage() {
                   </div>
 
                   <div>
-                    <label htmlFor="edit-endTime" className="block text-sm font-medium" style={{ color: "#6E6257" }}>
+                    <label htmlFor="edit-endTime" className="block text-sm font-medium text-[#B8A89A] dark:text-[#8A7D75]">
                       End Time
                     </label>
                     <select
@@ -710,7 +696,6 @@ export default function AdminDoctorsPage() {
                       }
                       required
                       className={inputClassName}
-                      style={inputStyle}
                     >
                       {timeOptions.map((time) => (
                         <option key={time} value={time}>
@@ -725,13 +710,13 @@ export default function AdminDoctorsPage() {
                     Please select at least one available day.
                   </p>
                 ) : null}
-                <p className="mt-2 text-sm" style={{ color: "#8C7967" }}>
+                <p className="mt-2 text-sm text-[#B8A89A] dark:text-[#8A7D75]">
                   Preview: {formatStructuredAvailability(editForm)}
                 </p>
               </div>
 
               <div>
-                <label htmlFor="edit-bio" className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
+                <label htmlFor="edit-bio" className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
                   Bio
                 </label>
                 <textarea
@@ -745,12 +730,11 @@ export default function AdminDoctorsPage() {
                   }
                   rows={4}
                   className={textareaClassName}
-                  style={inputStyle}
                 />
               </div>
 
               <div>
-                <label htmlFor="edit-doctor-image" className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
+                <label htmlFor="edit-doctor-image" className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
                   Profile Image
                 </label>
                 <div className="mt-2">
@@ -773,20 +757,14 @@ export default function AdminDoctorsPage() {
                 <button
                   type="button"
                   onClick={closeEditModal}
-                  className="inline-flex h-11 items-center justify-center rounded-md border px-5 text-sm font-medium transition-colors hover:bg-[#F8F5F0]"
-                  style={{
-                    borderColor: "#D8C7B5",
-                    color: "#2B2B2B",
-                    backgroundColor: "#FFFFFF",
-                  }}
+                  className="inline-flex h-11 items-center justify-center rounded-md border border-[#D8C7B5] bg-white px-5 text-sm font-medium text-[#2B2B2B] transition-colors hover:bg-[#F8F5F0] dark:border-[#3D3530] dark:bg-[#242220] dark:text-[#F0EDE8]"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isEditSubmitting || editForm.selectedDays.length === 0}
-                  className="inline-flex h-11 items-center justify-center rounded-md px-5 text-sm font-medium transition-colors hover:bg-[#B8A89A] disabled:cursor-not-allowed disabled:opacity-70"
-                  style={{ backgroundColor: "#2B2B2B", color: "#F8F5F0" }}
+                  className="inline-flex h-11 items-center justify-center rounded-md bg-[#2B2B2B] px-5 text-sm font-medium text-[#F8F5F0] transition-colors hover:bg-[#B8A89A] disabled:cursor-not-allowed disabled:opacity-70 dark:bg-[#C6A56B] dark:text-[#141210]"
                 >
                   {isEditSubmitting ? "Saving..." : "Save Changes"}
                 </button>
@@ -801,49 +779,40 @@ export default function AdminDoctorsPage() {
           role="dialog"
           aria-modal="true"
           aria-labelledby="doctor-created-title"
-          className="fixed inset-0 z-50 flex items-center justify-center px-4 py-6"
+          className="modal-overlay fixed inset-0 z-50 flex items-center justify-center px-4 py-6"
           style={{ backgroundColor: "rgba(43, 43, 43, 0.72)" }}
         >
           <div
-            className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg border p-6 shadow-2xl"
+            className="modal-card max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg border border-[#D8C7B5] bg-white p-6 shadow-2xl dark:border-[#3D3530] dark:bg-[#242220]"
             style={{
-              backgroundColor: "#FFFFFF",
-              borderColor: "#D8C7B5",
               boxShadow: "0 24px 80px rgba(43, 43, 43, 0.28)",
             }}
           >
             <h2
               id="doctor-created-title"
-              className="text-xl font-semibold"
+              className="text-xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]"
               style={{
-                color: "#2B2B2B",
                 fontFamily: "Playfair Display, serif",
               }}
             >
               Doctor Added Successfully
             </h2>
-            <p className="mt-3 text-sm leading-6" style={{ color: "#B8A89A" }}>
+            <p className="mt-3 text-sm leading-6 text-[#B8A89A] dark:text-[#8A7D75]">
               Share these credentials with the doctor securely. This password will
               not be shown again after closing this dialog.
             </p>
 
             <div
-              className="mt-5 space-y-4 rounded-lg border p-4"
-              style={{
-                backgroundColor: "#F8F5F0",
-                borderColor: "#D8C7B5",
-              }}
+              className="mt-5 space-y-4 rounded-lg border border-[#D8C7B5] bg-[#F8F5F0] p-4 dark:border-[#3D3530] dark:bg-[#2A2724]"
             >
               <div>
                 <p
-                  className="text-xs font-medium uppercase tracking-wide"
-                  style={{ color: "#B8A89A" }}
+                  className="text-xs font-medium uppercase tracking-wide text-[#B8A89A] dark:text-[#8A7D75]"
                 >
                   Doctor Name
                 </p>
                 <p
-                  className="mt-1 break-all font-mono text-sm"
-                  style={{ color: "#2B2B2B" }}
+                  className="mt-1 break-all font-mono text-sm text-[#2B2B2B] dark:text-[#F0EDE8]"
                 >
                   {doctorCredentials.name}
                 </p>
@@ -851,14 +820,12 @@ export default function AdminDoctorsPage() {
 
               <div>
                 <p
-                  className="text-xs font-medium uppercase tracking-wide"
-                  style={{ color: "#B8A89A" }}
+                  className="text-xs font-medium uppercase tracking-wide text-[#B8A89A] dark:text-[#8A7D75]"
                 >
                   Email
                 </p>
                 <p
-                  className="mt-1 break-all font-mono text-sm"
-                  style={{ color: "#2B2B2B" }}
+                  className="mt-1 break-all font-mono text-sm text-[#2B2B2B] dark:text-[#F0EDE8]"
                 >
                   {doctorCredentials.email}
                 </p>
@@ -866,29 +833,20 @@ export default function AdminDoctorsPage() {
 
               <div>
                 <p
-                  className="text-xs font-medium uppercase tracking-wide"
-                  style={{ color: "#B8A89A" }}
+                  className="text-xs font-medium uppercase tracking-wide text-[#B8A89A] dark:text-[#8A7D75]"
                 >
                   Temporary Password
                 </p>
                 <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-center">
                   <code
-                    className="flex-1 rounded-md border bg-white px-3 py-2 text-sm font-semibold"
-                    style={{
-                      borderColor: "#D8C7B5",
-                      color: "#2B2B2B",
-                    }}
+                    className="flex-1 rounded-md border border-[#D8C7B5] bg-white px-3 py-2 text-sm font-semibold text-[#2B2B2B] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
                   >
                     {doctorCredentials.temporaryPassword}
                   </code>
                   <button
                     type="button"
                     onClick={copyTemporaryPassword}
-                    className="inline-flex h-10 items-center justify-center rounded-md px-4 text-sm font-medium transition-colors hover:opacity-90"
-                    style={{
-                      backgroundColor: "#2B2B2B",
-                      color: "#F8F5F0",
-                    }}
+                    className="inline-flex h-10 items-center justify-center rounded-md bg-[#2B2B2B] px-4 text-sm font-medium text-[#F8F5F0] transition-colors hover:opacity-90 dark:bg-[#C6A56B] dark:text-[#141210]"
                   >
                     {isPasswordCopied ? "Copied" : "Copy Password"}
                   </button>
@@ -900,12 +858,7 @@ export default function AdminDoctorsPage() {
               <button
                 type="button"
                 onClick={() => setDoctorCredentials(null)}
-                className="inline-flex h-10 items-center justify-center rounded-md border px-4 text-sm font-medium transition-colors hover:bg-[#C6A56B]/10"
-                style={{
-                  borderColor: "#C6A56B",
-                  color: "#2B2B2B",
-                  backgroundColor: "#FFFFFF",
-                }}
+                className="inline-flex h-10 items-center justify-center rounded-md border border-[#C6A56B] bg-white px-4 text-sm font-medium text-[#2B2B2B] transition-colors hover:bg-[#C6A56B]/10 dark:bg-[#242220] dark:text-[#F0EDE8]"
               >
                 Close
               </button>
@@ -916,15 +869,14 @@ export default function AdminDoctorsPage() {
 
       <div>
         <h1
-          className="text-3xl font-semibold tracking-tight"
+          className="text-3xl font-semibold tracking-tight text-[#2B2B2B] dark:text-[#F0EDE8]"
           style={{
-            color: "#2B2B2B",
             fontFamily: "Playfair Display, serif",
           }}
         >
           Doctors
         </h1>
-        <p className="mt-3 text-sm leading-6" style={{ color: "#6E6257" }}>
+        <p className="mt-3 text-sm leading-6 text-[#B8A89A] dark:text-[#8A7D75]">
           Manage doctor profiles and keep their availability up to date.
         </p>
         {successMessage ? (
@@ -933,38 +885,29 @@ export default function AdminDoctorsPage() {
       </div>
 
       {isLoading ? (
-        <p className="text-sm" style={{ color: "#6E6257" }}>
+        <p className="text-sm text-[#B8A89A] dark:text-[#8A7D75]">
           Loading doctors...
         </p>
       ) : (
         <>
-          <div
-            className="rounded-2xl border bg-white shadow-sm"
-            style={{ borderColor: "#D8C7B5" }}
-          >
-            <div
-              className="border-b px-6 py-4"
-              style={{ borderColor: "#D8C7B5", backgroundColor: "#F4ECE3" }}
-            >
+          <div className="rounded-2xl border border-themed bg-card shadow-sm">
+            <div className="border-b border-[#D8C7B5] bg-[#F4ECE3] px-6 py-4 dark:border-[#3D3530] dark:bg-[#2A2724]">
               <h2
-                className="text-lg font-semibold"
-                style={{ color: "#2B2B2B", fontFamily: "Playfair Display, serif" }}
+                className="text-lg font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]"
+                style={{ fontFamily: "Playfair Display, serif" }}
               >
                 All Doctors
               </h2>
             </div>
 
             {doctors.length === 0 ? (
-              <p className="px-6 py-6 text-sm" style={{ color: "#6E6257" }}>
+              <p className="px-6 py-6 text-sm text-[#B8A89A] dark:text-[#8A7D75]">
                 No doctors added yet.
               </p>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full min-w-[820px] text-left text-sm">
-                  <thead
-                    className="border-b"
-                    style={{ borderColor: "#D8C7B5", color: "#6E6257" }}
-                  >
+                <table className="table-themed w-full min-w-[820px] text-left text-sm">
+                  <thead>
                     <tr>
                       <th className="px-6 py-3 font-medium">Name</th>
                       <th className="px-6 py-3 font-medium">Designation</th>
@@ -976,12 +919,8 @@ export default function AdminDoctorsPage() {
                   </thead>
                   <tbody>
                     {doctors.map((doctor) => (
-                      <tr
-                        key={doctor.id}
-                        className="border-b last:border-0"
-                        style={{ borderColor: "#EFE4D8" }}
-                      >
-                        <td className="px-6 py-4 font-medium" style={{ color: "#2B2B2B" }}>
+                      <tr key={doctor.id}>
+                        <td className="px-6 py-4 font-medium">
                           <div className="flex items-center gap-3">
                             <span>{doctor.name}</span>
                             {!doctor.isActive ? (
@@ -997,18 +936,18 @@ export default function AdminDoctorsPage() {
                             ) : null}
                           </div>
                         </td>
-                        <td className="px-6 py-4" style={{ color: "#6E6257" }}>
+                        <td className="cell-muted px-6 py-4">
                           {doctor.designation}
                         </td>
-                        <td className="px-6 py-4" style={{ color: "#6E6257" }}>
+                        <td className="cell-muted px-6 py-4">
                           {specializationOptions.find(
                             (option) => option.value === doctor.specialization,
                           )?.label ?? doctor.specialization}
                         </td>
-                        <td className="px-6 py-4" style={{ color: "#6E6257" }}>
+                        <td className="cell-muted px-6 py-4">
                           {doctor.availability}
                         </td>
-                        <td className="max-w-sm px-6 py-4" style={{ color: "#6E6257" }}>
+                        <td className="cell-muted max-w-sm px-6 py-4">
                           {doctor.bio ?? "Not provided"}
                         </td>
                         <td className="px-6 py-4">
@@ -1016,12 +955,7 @@ export default function AdminDoctorsPage() {
                             <button
                               type="button"
                               onClick={() => openEditModal(doctor)}
-                              className="inline-flex h-9 items-center justify-center rounded-md border px-3 text-sm font-medium transition-colors hover:bg-[#F8F5F0]"
-                              style={{
-                                borderColor: "#D8C7B5",
-                                color: "#2B2B2B",
-                                backgroundColor: "#FFFFFF",
-                              }}
+                              className="inline-flex h-9 items-center justify-center rounded-md border border-[#D8C7B5] bg-white px-3 text-sm font-medium text-[#2B2B2B] transition-colors hover:bg-[#F8F5F0] dark:border-[#3D3530] dark:bg-[#242220] dark:text-[#F0EDE8]"
                             >
                               Edit
                             </button>
@@ -1055,19 +989,18 @@ export default function AdminDoctorsPage() {
           </div>
 
           <div
-            className="rounded-2xl border bg-white p-6 shadow-sm"
-            style={{ borderColor: "#D8C7B5" }}
+            className="rounded-2xl border border-[#D8C7B5] bg-white p-6 shadow-sm dark:border-[#3D3530] dark:bg-[#242220]"
           >
             <h2
-              className="text-lg font-semibold"
-              style={{ color: "#2B2B2B", fontFamily: "Playfair Display, serif" }}
+              className="text-lg font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]"
+              style={{ fontFamily: "Playfair Display, serif" }}
             >
               Add Doctor
             </h2>
             <form onSubmit={handleSubmit} className="mt-5 space-y-5">
               <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
                 <div>
-                  <label htmlFor="name" className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
+                  <label htmlFor="name" className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
                     Name
                   </label>
                   <input
@@ -1081,12 +1014,11 @@ export default function AdminDoctorsPage() {
                     }
                     required
                     className={inputClassName}
-                    style={inputStyle}
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
+                  <label htmlFor="email" className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
                     Email
                   </label>
                   <input
@@ -1101,12 +1033,11 @@ export default function AdminDoctorsPage() {
                     }
                     required
                     className={inputClassName}
-                    style={inputStyle}
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="designation" className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
+                  <label htmlFor="designation" className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
                     Designation
                   </label>
                   <input
@@ -1120,12 +1051,11 @@ export default function AdminDoctorsPage() {
                     }
                     required
                     className={inputClassName}
-                    style={inputStyle}
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="specialization" className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
+                  <label htmlFor="specialization" className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
                     Specialization
                   </label>
                   <select
@@ -1139,7 +1069,6 @@ export default function AdminDoctorsPage() {
                     }
                     required
                     className={inputClassName}
-                    style={inputStyle}
                   >
                     {specializationOptions.map((option) => (
                       <option key={option.value} value={option.value}>
@@ -1151,14 +1080,13 @@ export default function AdminDoctorsPage() {
               </div>
 
               <div>
-                <p className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
+                <p className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
                   Availability
                 </p>
                 <div
-                  className="mt-2 rounded-lg border p-4"
-                  style={{ borderColor: "#D8C7B5", backgroundColor: "#F8F5F0" }}
+                  className="mt-2 rounded-lg border border-[#D8C7B5] bg-[#F8F5F0] p-4 dark:border-[#3D3530] dark:bg-[#2A2724]"
                 >
-                  <p className="text-sm font-medium" style={{ color: "#6E6257" }}>
+                  <p className="text-sm font-medium text-[#B8A89A] dark:text-[#8A7D75]">
                     Available Days
                   </p>
                   <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -1198,7 +1126,7 @@ export default function AdminDoctorsPage() {
 
                 <div className="mt-5 grid gap-5 sm:grid-cols-2">
                   <div>
-                    <label htmlFor="startTime" className="block text-sm font-medium" style={{ color: "#6E6257" }}>
+                    <label htmlFor="startTime" className="block text-sm font-medium text-[#B8A89A] dark:text-[#8A7D75]">
                       Start Time
                     </label>
                     <select
@@ -1212,7 +1140,6 @@ export default function AdminDoctorsPage() {
                       }
                       required
                       className={inputClassName}
-                      style={inputStyle}
                     >
                       {timeOptions.map((time) => (
                         <option key={time} value={time}>
@@ -1223,7 +1150,7 @@ export default function AdminDoctorsPage() {
                   </div>
 
                   <div>
-                    <label htmlFor="endTime" className="block text-sm font-medium" style={{ color: "#6E6257" }}>
+                    <label htmlFor="endTime" className="block text-sm font-medium text-[#B8A89A] dark:text-[#8A7D75]">
                       End Time
                     </label>
                     <select
@@ -1237,7 +1164,6 @@ export default function AdminDoctorsPage() {
                       }
                       required
                       className={inputClassName}
-                      style={inputStyle}
                     >
                       {timeOptions.map((time) => (
                         <option key={time} value={time}>
@@ -1252,13 +1178,13 @@ export default function AdminDoctorsPage() {
                     Please select at least one available day.
                   </p>
                 ) : null}
-                <p className="mt-2 text-sm" style={{ color: "#8C7967" }}>
+                <p className="mt-2 text-sm text-[#B8A89A] dark:text-[#8A7D75]">
                   Preview: {formatStructuredAvailability(form)}
                 </p>
               </div>
 
               <div>
-                <label htmlFor="bio" className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
+                <label htmlFor="bio" className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
                   Bio
                 </label>
                 <textarea
@@ -1272,12 +1198,11 @@ export default function AdminDoctorsPage() {
                   }
                   rows={4}
                   className={textareaClassName}
-                  style={inputStyle}
                 />
               </div>
 
               <div>
-                <label htmlFor="doctor-image" className="block text-sm font-medium" style={{ color: "#2B2B2B" }}>
+                <label htmlFor="doctor-image" className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
                   Image
                 </label>
                 <div className="mt-2">
@@ -1303,8 +1228,7 @@ export default function AdminDoctorsPage() {
                 <button
                   type="submit"
                   disabled={isSubmitting || form.selectedDays.length === 0}
-                  className="inline-flex h-11 items-center justify-center rounded-md px-5 text-sm font-medium transition-colors hover:bg-[#B8A89A] disabled:cursor-not-allowed disabled:opacity-70"
-                  style={{ backgroundColor: "#2B2B2B", color: "#F8F5F0" }}
+                  className="inline-flex h-11 items-center justify-center rounded-md bg-[#2B2B2B] px-5 text-sm font-medium text-[#F8F5F0] transition-colors hover:bg-[#B8A89A] disabled:cursor-not-allowed disabled:opacity-70 dark:bg-[#C6A56B] dark:text-[#141210]"
                 >
                   {isSubmitting ? "Saving..." : "Add Doctor"}
                 </button>

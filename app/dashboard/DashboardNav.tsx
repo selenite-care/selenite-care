@@ -34,11 +34,13 @@ export function DashboardSidebarNav() {
             href={link.href}
             className="block rounded-md px-3 py-2 text-sm font-medium transition-colors"
             style={{
-              backgroundColor: isActive ? "rgba(198, 165, 107, 0.12)" : "transparent",
-              color: isActive ? "#C6A56B" : "#D8C7B5",
+              backgroundColor: isActive
+                ? "color-mix(in srgb, var(--gold) 12%, transparent)"
+                : "transparent",
+              color: isActive ? "var(--gold)" : "var(--sidebar-text)",
             }}
           >
-            <span className="transition-colors hover:text-[#B8A89A]">
+            <span className="transition-colors">
               {link.label}
             </span>
           </Link>
@@ -55,8 +57,8 @@ export function DashboardMobileNav() {
     <nav
       className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t px-2 py-2 md:hidden"
       style={{
-        backgroundColor: "#2B2B2B",
-        borderColor: "#C6A56B",
+        backgroundColor: "var(--sidebar)",
+        borderColor: "var(--gold)",
       }}
     >
       {dashboardLinks.map((link) => {
@@ -67,10 +69,12 @@ export function DashboardMobileNav() {
           <Link
             key={link.href}
             href={link.href}
-            className="flex min-h-14 flex-col items-center justify-center gap-1 rounded-md px-2 py-1 text-xs font-medium transition-colors hover:text-[#B8A89A]"
+            className="flex min-h-14 flex-col items-center justify-center gap-1 rounded-md px-2 py-1 text-xs font-medium transition-colors"
             style={{
-              backgroundColor: isActive ? "rgba(198, 165, 107, 0.12)" : "transparent",
-              color: isActive ? "#C6A56B" : "#D8C7B5",
+              backgroundColor: isActive
+                ? "color-mix(in srgb, var(--gold) 12%, transparent)"
+                : "transparent",
+              color: isActive ? "var(--gold)" : "var(--sidebar-text)",
             }}
           >
             <Icon aria-hidden="true" className="h-5 w-5" />

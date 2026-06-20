@@ -68,24 +68,17 @@ function VerifyEmailContent() {
   const isSuccess = state === "success";
 
   return (
-    <section
-      className="flex min-h-screen items-center justify-center px-6 py-12"
-      style={{ backgroundColor: "#F8F5F0" }}
-    >
+    <section className="flex min-h-screen items-center justify-center bg-[#F8F5F0] px-6 py-12 dark:bg-[#1A1814]">
       <div
-        className="w-full max-w-xl rounded-2xl border px-6 py-10 text-center shadow-sm sm:px-10"
-        style={{ backgroundColor: "#FFFFFF", borderColor: "#D8C7B5" }}
+        className="w-full max-w-xl rounded-2xl border border-[#D8C7B5] bg-white px-6 py-10 text-center shadow-sm dark:border-[#3D3530] dark:bg-[#242220] sm:px-10"
       >
-        <p
-          className="text-sm font-semibold uppercase tracking-[0.22em]"
-          style={{ color: "#C6A56B" }}
-        >
+        <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#C6A56B]">
           Selenite Care
         </p>
 
         <h1
-          className="mt-4 text-3xl font-semibold sm:text-4xl"
-          style={{ color: "#2B2B2B", fontFamily: "Playfair Display, serif" }}
+          className="mt-4 text-3xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8] sm:text-4xl"
+          style={{ fontFamily: "Playfair Display, serif" }}
         >
           {isSuccess ? "Email Verified" : state === "loading" ? "Please Wait" : "Verification Failed"}
         </h1>
@@ -106,16 +99,14 @@ function VerifyEmailContent() {
           ) : isSuccess ? (
             <Link
               href="/login"
-              className="inline-flex h-11 items-center justify-center rounded-md px-6 text-sm font-medium transition-colors hover:opacity-90"
-              style={{ backgroundColor: "#2B2B2B", color: "#F8F5F0" }}
+              className="inline-flex h-11 items-center justify-center rounded-md bg-[#2B2B2B] px-6 text-sm font-medium text-[#F8F5F0] transition-colors hover:opacity-90"
             >
               Go to Login
             </Link>
           ) : (
             <Link
               href="/register"
-              className="inline-flex h-11 items-center justify-center rounded-md border px-6 text-sm font-medium transition-colors hover:bg-[#F8F5F0]"
-              style={{ borderColor: "#C6A56B", color: "#2B2B2B" }}
+              className="inline-flex h-11 items-center justify-center rounded-md border border-[#C6A56B] px-6 text-sm font-medium text-[#2B2B2B] transition-colors hover:bg-[#F8F5F0] dark:text-[#F0EDE8] dark:hover:bg-[#1A1814]"
             >
               Back to Register
             </Link>
@@ -128,11 +119,8 @@ function VerifyEmailContent() {
 
 function VerifyEmailFallback() {
   return (
-    <section
-      className="flex min-h-screen items-center justify-center px-6 py-12"
-      style={{ backgroundColor: "#F8F5F0" }}
-    >
-      <p style={{ color: "#B8A89A" }}>Loading...</p>
+    <section className="flex min-h-screen items-center justify-center bg-[#F8F5F0] px-6 py-12 dark:bg-[#1A1814]">
+      <p className="text-[#B8A89A] dark:text-[#8A7D75]">Loading...</p>
     </section>
   );
 }

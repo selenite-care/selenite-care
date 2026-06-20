@@ -161,85 +161,59 @@ export default function AdminManualMembershipPage() {
   }
 
   return (
-    <section className="space-y-8">
+    <section className="space-y-8 bg-[#F8F5F0] dark:bg-[#1A1814]">
       {credentialsModal ? (
         <div
           role="dialog"
           aria-modal="true"
           aria-labelledby="manual-membership-created-title"
-          className="fixed inset-0 z-50 flex items-center justify-center px-4 py-6"
+          className="modal-overlay fixed inset-0 z-50 flex items-center justify-center px-4 py-6"
           style={{ backgroundColor: "rgba(43, 43, 43, 0.72)" }}
         >
           <div
-            className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg border p-6 shadow-2xl"
+            className="modal-card max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg border border-[#D8C7B5] bg-white p-6 shadow-2xl dark:border-[#3D3530] dark:bg-[#242220]"
             style={{
-              backgroundColor: "#FFFFFF",
-              borderColor: "#D8C7B5",
               boxShadow: "0 24px 80px rgba(43, 43, 43, 0.28)",
             }}
           >
             <h2
               id="manual-membership-created-title"
-              className="text-xl font-semibold"
+              className="text-xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]"
               style={{
-                color: "#2B2B2B",
                 fontFamily: "Playfair Display, serif",
               }}
             >
               Membership Created Successfully
             </h2>
-            <p className="mt-3 text-sm leading-6" style={{ color: "#B8A89A" }}>
+            <p className="mt-3 text-sm leading-6 text-[#B8A89A] dark:text-[#8A7D75]">
               Share these credentials with the customer over phone. This
               password will not be shown again.
             </p>
 
             <div
-              className="mt-5 space-y-4 rounded-lg border p-4"
-              style={{
-                backgroundColor: "#F8F5F0",
-                borderColor: "#D8C7B5",
-              }}
+              className="mt-5 space-y-4 rounded-lg border border-[#D8C7B5] bg-[#F8F5F0] p-4 dark:border-[#3D3530] dark:bg-[#2A2724]"
             >
               <div>
-                <p
-                  className="text-xs font-medium uppercase tracking-wide"
-                  style={{ color: "#B8A89A" }}
-                >
+                <p className="text-xs font-medium uppercase tracking-wide text-[#B8A89A] dark:text-[#8A7D75]">
                   Email
                 </p>
-                <p
-                  className="mt-1 break-all font-mono text-sm"
-                  style={{ color: "#2B2B2B" }}
-                >
+                <p className="mt-1 break-all font-mono text-sm text-[#2B2B2B] dark:text-[#F0EDE8]">
                   {credentialsModal.email}
                 </p>
               </div>
 
               <div>
-                <p
-                  className="text-xs font-medium uppercase tracking-wide"
-                  style={{ color: "#B8A89A" }}
-                >
+                <p className="text-xs font-medium uppercase tracking-wide text-[#B8A89A] dark:text-[#8A7D75]">
                   Temporary Password
                 </p>
                 <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-center">
-                  <code
-                    className="flex-1 rounded-md border bg-white px-3 py-2 text-sm font-semibold"
-                    style={{
-                      borderColor: "#D8C7B5",
-                      color: "#2B2B2B",
-                    }}
-                  >
+                  <code className="flex-1 rounded-md border border-[#D8C7B5] bg-white px-3 py-2 text-sm font-semibold text-[#2B2B2B] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]">
                     {credentialsModal.temporaryPassword}
                   </code>
                   <button
                     type="button"
                     onClick={handleCopyPassword}
-                    className="inline-flex h-10 items-center justify-center rounded-md px-4 text-sm font-medium transition-colors hover:opacity-90"
-                    style={{
-                      backgroundColor: "#2B2B2B",
-                      color: "#F8F5F0",
-                    }}
+                    className="inline-flex h-10 items-center justify-center rounded-md bg-[#2B2B2B] px-4 text-sm font-medium text-[#F8F5F0] transition-colors hover:opacity-90 dark:bg-[#C6A56B] dark:text-[#141210]"
                   >
                     {isPasswordCopied ? "Copied" : "Copy Password"}
                   </button>
@@ -251,12 +225,7 @@ export default function AdminManualMembershipPage() {
               <button
                 type="button"
                 onClick={() => setCredentialsModal(null)}
-                className="inline-flex h-10 items-center justify-center rounded-md border px-4 text-sm font-medium transition-colors hover:bg-[#C6A56B]/10"
-                style={{
-                  borderColor: "#C6A56B",
-                  color: "#2B2B2B",
-                  backgroundColor: "#FFFFFF",
-                }}
+                className="inline-flex h-10 items-center justify-center rounded-md border border-[#C6A56B] bg-white px-4 text-sm font-medium text-[#2B2B2B] transition-colors hover:bg-[#C6A56B]/10 dark:bg-[#242220] dark:text-[#F0EDE8]"
               >
                 Close
               </button>
@@ -267,24 +236,20 @@ export default function AdminManualMembershipPage() {
 
       <div>
         <h1
-          className="text-3xl font-semibold tracking-tight"
+          className="text-3xl font-semibold tracking-tight text-[#2B2B2B] dark:text-[#F0EDE8]"
           style={{
-            color: "#2B2B2B",
             fontFamily: "Playfair Display, serif",
           }}
         >
           Add Membership
         </h1>
-        <p className="mt-3 text-sm leading-6" style={{ color: "#6E6257" }}>
+        <p className="mt-3 text-sm leading-6 text-[#B8A89A] dark:text-[#8A7D75]">
           Add a membership manually for walk-in customers or verified offline
           payments.
         </p>
       </div>
 
-      <div
-        className="rounded-lg border bg-white p-6"
-        style={{ borderColor: "#D8C7B5" }}
-      >
+      <div className="rounded-lg border border-[#D8C7B5] bg-white p-6 dark:border-[#3D3530] dark:bg-[#242220]">
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
             <div>
@@ -515,7 +480,7 @@ export default function AdminManualMembershipPage() {
                 required
                 className="mt-2 h-11 w-full rounded-md border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
               />
-              <p className="mt-2 text-xs" style={{ color: "#B8A89A" }}>
+              <p className="mt-2 text-xs text-[#B8A89A] dark:text-[#8A7D75]">
                 Suggested amount: {suggestedAmount} BDT
               </p>
             </div>
@@ -548,12 +513,7 @@ export default function AdminManualMembershipPage() {
           {error ? <p className="text-sm text-red-600">{error}</p> : null}
           {successMessage ? (
             <div
-              className="rounded-md border px-4 py-3 text-sm"
-              style={{
-                borderColor: "#C6A56B",
-                backgroundColor: "rgba(198, 165, 107, 0.08)",
-                color: "#2B2B2B",
-              }}
+              className="rounded-md border border-[#C6A56B] bg-[rgba(198,165,107,0.08)] px-4 py-3 text-sm text-[#2B2B2B] dark:text-[#F0EDE8]"
             >
               {successMessage}
             </div>
@@ -563,11 +523,7 @@ export default function AdminManualMembershipPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="inline-flex h-11 items-center justify-center rounded-md px-5 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-70"
-              style={{
-                backgroundColor: "#2B2B2B",
-                color: "#F8F5F0",
-              }}
+              className="inline-flex h-11 items-center justify-center rounded-md bg-[#2B2B2B] px-5 text-sm font-medium text-[#F8F5F0] transition-colors disabled:cursor-not-allowed disabled:opacity-70 dark:bg-[#C6A56B] dark:text-[#141210]"
             >
               {isSubmitting ? "Saving..." : "Add Membership"}
             </button>
@@ -624,6 +580,23 @@ export default function AdminManualMembershipPage() {
 
         .brand-phone-input-wrapper .PhoneInputInput::placeholder {
           color: #b8a89a;
+        }
+
+        .dark .brand-phone-input-wrapper .PhoneInput {
+          border-color: #3d3530;
+          background-color: #1e1c1a;
+        }
+
+        .dark .brand-phone-input-wrapper .PhoneInputCountrySelectArrow {
+          color: #8a7d75;
+        }
+
+        .dark .brand-phone-input-wrapper .PhoneInputInput {
+          color: #f0ede8;
+        }
+
+        .dark .brand-phone-input-wrapper .PhoneInputInput::placeholder {
+          color: #8a7d75;
         }
       `}</style>
     </section>

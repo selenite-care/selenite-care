@@ -242,7 +242,7 @@ function MembershipModal({
         type="button"
         aria-label="Close membership details"
         onClick={onClose}
-        className="absolute inset-0"
+        className="modal-overlay absolute inset-0"
         style={{ backgroundColor: "rgba(43, 43, 43, 0.76)" }}
       />
 
@@ -250,10 +250,8 @@ function MembershipModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby={`membership-modal-${membership.key}`}
-        className="relative z-10 flex h-[80vh] w-full max-w-2xl flex-col overflow-hidden rounded-[20px] border"
+        className="modal-card relative z-10 flex h-[80vh] w-full max-w-2xl flex-col overflow-hidden rounded-[20px] border border-[#D8C7B5] bg-[#F8F5F0] dark:border-[#3D3530] dark:bg-[#242220]"
         style={{
-          backgroundColor: "#F8F5F0",
-          borderColor: "#D8C7B5",
           boxShadow: "0 32px 90px rgba(43, 43, 43, 0.28)",
         }}
       >
@@ -272,7 +270,7 @@ function MembershipModal({
           <button
             type="button"
             onClick={onClose}
-            className="absolute right-5 top-5 inline-flex h-10 w-10 items-center justify-center rounded-full border text-lg transition-colors hover:bg-white/60"
+            className="absolute right-5 top-5 inline-flex h-10 w-10 items-center justify-center rounded-full border text-lg transition-colors hover:bg-white/60 dark:border-[#3D3530] dark:hover:bg-[#2A2724]"
             style={{
               borderColor: "#D8C7B5",
               color: membership.key === "platinum" ? "#F8F5F0" : "#2B2B2B",
@@ -300,7 +298,7 @@ function MembershipModal({
 
           <h2
             id={`membership-modal-${membership.key}`}
-            className="mt-4 text-2xl font-bold sm:text-3xl"
+            className="mt-4 text-2xl font-bold dark:text-[#F0EDE8] sm:text-3xl"
             style={{
               color: membership.key === "platinum" ? "#F8F5F0" : "#2B2B2B",
               fontFamily: "Playfair Display, serif",
@@ -310,7 +308,7 @@ function MembershipModal({
           </h2>
 
           <p
-            className="mt-3 max-w-xl text-sm leading-6 sm:text-base"
+            className="mt-3 max-w-xl text-sm leading-6 dark:text-[#8A7D75] sm:text-base"
             style={{
               color: membership.key === "platinum" ? "#D8C7B5" : "#6E6257",
             }}
@@ -375,7 +373,7 @@ function MembershipModal({
           </div>
           {membership.key === "signature" && membership.priceNote ? (
             <p
-              className="mt-3 text-xs leading-6"
+              className="mt-3 text-xs leading-6 dark:text-[#8A7D75]"
               style={{ color: "#8C7967" }}
             >
               {membership.priceNote}
@@ -399,8 +397,7 @@ function MembershipModal({
                   </div>
                   <div>
                     <p
-                      className="text-sm font-semibold leading-6 sm:text-base"
-                      style={{ color: "#2B2B2B" }}
+                      className="text-sm font-semibold leading-6 text-[#2B2B2B] dark:text-[#F0EDE8] sm:text-base"
                     >
                       {benefit.heading}
                     </p>
@@ -409,10 +406,9 @@ function MembershipModal({
                         {benefit.points.map((point) => (
                           <li
                             key={point}
-                            className="flex gap-2 text-sm leading-6"
-                            style={{ color: "#6E6257" }}
+                            className="flex gap-2 text-sm leading-6 text-[#6E6257] dark:text-[#8A7D75]"
                           >
-                            <span style={{ color: "#C6A56B" }}>•</span>
+                            <span className="text-[#C6A56B] dark:text-[#D4B47A]">•</span>
                             <span>{point}</span>
                           </li>
                         ))}
@@ -426,20 +422,18 @@ function MembershipModal({
         </div>
 
         <div
-          className="shrink-0 border-t px-6 py-5 sm:px-8"
+          className="shrink-0 border-t border-[#D8C7B5] bg-[#F8F5F0] px-6 py-5 dark:border-[#3D3530] dark:bg-[#242220] sm:px-8"
           style={{
-            borderColor: "#D8C7B5",
-            backgroundColor: "#F8F5F0",
           }}
         >
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div className="max-w-lg">
-              <label className="flex items-start gap-3 text-sm leading-6" style={{ color: "#6E6257" }}>
+              <label className="flex items-start gap-3 text-sm leading-6 text-[#6E6257] dark:text-[#8A7D75]">
                 <input
                   type="checkbox"
                   checked={hasAcceptedTerms}
                   onChange={(event) => setHasAcceptedTerms(event.target.checked)}
-                  className="mt-1 h-4 w-4 shrink-0 rounded border"
+                  className="mt-1 h-4 w-4 shrink-0 rounded border border-[#D8C7B5] dark:border-[#3D3530]"
                   style={{ accentColor: "#C6A56B" }}
                 />
                 <span>
@@ -448,8 +442,7 @@ function MembershipModal({
                   <button
                     type="button"
                     onClick={() => setIsTermsOpen(true)}
-                    className="font-semibold underline underline-offset-2"
-                    style={{ color: "#2B2B2B" }}
+                    className="font-semibold text-[#2B2B2B] underline underline-offset-2 dark:text-[#F0EDE8]"
                   >
                     Terms & Conditions
                   </button>
@@ -461,10 +454,8 @@ function MembershipModal({
               <button
                 type="button"
                 disabled
-                className="inline-flex h-12 w-full cursor-not-allowed items-center justify-center rounded-md px-5 text-sm font-medium opacity-60 sm:w-auto"
+                className="inline-flex h-12 w-full cursor-not-allowed items-center justify-center rounded-md bg-[#CFC5BA] px-5 text-sm font-medium text-[#6E6257] opacity-60 dark:bg-[#3D3530] dark:text-[#8A7D75] sm:w-auto"
                 style={{
-                  backgroundColor: "#CFC5BA",
-                  color: "#6E6257",
                 }}
               >
                 {actionState.label}
@@ -472,10 +463,8 @@ function MembershipModal({
             ) : (
               <Link
                 href={actionState.href}
-                className="inline-flex h-12 w-full items-center justify-center rounded-md px-5 text-sm font-medium transition-colors hover:bg-[#B8A89A] sm:w-auto"
+                className="inline-flex h-12 w-full items-center justify-center rounded-md bg-[#2B2B2B] px-5 text-sm font-medium text-[#F8F5F0] transition-colors hover:bg-[#B8A89A] dark:bg-[#C6A56B] dark:text-[#141210] dark:hover:bg-[#D4B47A] sm:w-auto"
                 style={{
-                  backgroundColor: "#2B2B2B",
-                  color: "#F8F5F0",
                 }}
               >
                 {actionState.label}
@@ -619,7 +608,7 @@ export default function ServicesClient() {
   }
 
   return (
-    <main style={{ backgroundColor: "#F8F5F0" }}>
+    <main className="bg-page text-page">
       <section
         className="relative overflow-hidden px-6 py-24 sm:py-10"
         style={{
@@ -636,12 +625,9 @@ export default function ServicesClient() {
         />
         <div className="relative mx-auto max-w-7xl">
           <center>
-          <h1
-            className="text-4xl font-bold sm:text-5xl lg:text-6xl"
-            style={{
-              color: "#2B2B2B",
-              fontFamily: "Playfair Display, serif",
-            }}
+            <h1
+            className="text-page text-4xl font-bold sm:text-5xl lg:text-6xl"
+            style={{ fontFamily: "Playfair Display, serif" }}
           >
             Memberships
           </h1>

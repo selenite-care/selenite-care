@@ -357,24 +357,23 @@ export default function AdminMembershipsPage() {
   }
 
   return (
-    <section className="min-h-screen bg-[#F8F5F0] px-6 py-10">
+    <section className="min-h-screen bg-[#F8F5F0] px-6 py-10 dark:bg-[#1A1814]">
       <div>
         <h1
-          className="text-3xl font-semibold tracking-tight"
+          className="text-3xl font-semibold tracking-tight text-[#2B2B2B] dark:text-[#F0EDE8]"
           style={{
-            color: "#2B2B2B",
             fontFamily: "Playfair Display, serif",
           }}
         >
           Memberships
         </h1>
-        <p className="mt-3 text-sm leading-6" style={{ color: "#6E6257" }}>
+        <p className="mt-3 text-sm leading-6 text-[#B8A89A] dark:text-[#8A7D75]">
           Review membership purchases and keep an eye on expiry windows.
         </p>
       </div>
 
       {isLoading ? (
-        <p className="mt-8 text-sm" style={{ color: "#6E6257" }}>
+        <p className="mt-8 text-sm text-[#B8A89A] dark:text-[#8A7D75]">
           Loading memberships...
         </p>
       ) : null}
@@ -382,14 +381,14 @@ export default function AdminMembershipsPage() {
       {error ? <p className="mt-8 text-sm text-red-600">{error}</p> : null}
 
       {!isLoading && !error && !hasMemberships ? (
-        <p className="mt-8 text-sm" style={{ color: "#6E6257" }}>
+        <p className="mt-8 text-sm text-[#B8A89A] dark:text-[#8A7D75]">
           No memberships found.
         </p>
       ) : null}
 
       {!isLoading && hasMemberships ? (
         <>
-          <div className="mt-8 rounded-lg border border-[#D8C7B5] bg-white p-4">
+          <div className="mt-8 rounded-lg border border-[#D8C7B5] bg-white p-4 dark:border-[#3D3530] dark:bg-[#242220]">
             <div className="grid gap-4 md:grid-cols-[1fr_220px_auto] md:items-end">
               <div>
                 <label
@@ -437,11 +436,7 @@ export default function AdminMembershipsPage() {
                 type="button"
                 onClick={handleExportCsv}
                 disabled={filteredMemberships.length === 0}
-                className="inline-flex h-11 items-center justify-center rounded-md px-5 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60"
-                style={{
-                  backgroundColor: "#2B2B2B",
-                  color: "#F8F5F0",
-                }}
+                className="inline-flex h-11 items-center justify-center rounded-md bg-[#2B2B2B] px-5 text-sm font-medium text-[#F8F5F0] transition-colors disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#C6A56B] dark:text-[#141210] dark:hover:bg-[#D4B47A]"
               >
                 Export CSV
               </button>
@@ -453,24 +448,14 @@ export default function AdminMembershipsPage() {
           </div>
 
           {filteredMemberships.length === 0 ? (
-            <p className="mt-8 text-sm" style={{ color: "#6E6257" }}>
+            <p className="mt-8 text-sm text-[#B8A89A] dark:text-[#8A7D75]">
               No memberships match your filters.
             </p>
           ) : (
-            <div
-              className="mt-6 overflow-hidden rounded-2xl border bg-white shadow-sm"
-              style={{ borderColor: "#D8C7B5" }}
-            >
+            <div className="mt-6 overflow-hidden rounded-2xl border border-themed bg-card shadow-sm">
               <div className="overflow-x-auto">
-                <table className="w-full min-w-[1120px] text-left text-sm">
-                  <thead
-                    className="border-b"
-                    style={{
-                      borderColor: "#D8C7B5",
-                      backgroundColor: "#F4ECE3",
-                      color: "#6E6257",
-                    }}
-                  >
+                <table className="table-themed w-full min-w-[1120px] text-left text-sm">
+                  <thead>
                     <tr>
                       <th className="px-4 py-3 font-medium">Membership ID</th>
                       <th className="px-4 py-3 font-medium">Client Name</th>
@@ -494,14 +479,14 @@ export default function AdminMembershipsPage() {
 
                       return (
                         <Fragment key={membership.id}>
-                          <tr className="border-b last:border-0" style={{ borderColor: "#EFE4D8" }}>
-                            <td className="px-4 py-4 font-mono text-xs" style={{ color: "#8C7967" }}>
+                          <tr>
+                            <td className="cell-muted px-4 py-4 font-mono text-xs">
                               {membership.membershipId}
                             </td>
-                            <td className="px-4 py-4" style={{ color: "#2B2B2B" }}>
+                            <td className="px-4 py-4">
                               {membership.user.name ?? membership.user.email}
                             </td>
-                            <td className="px-4 py-4" style={{ color: "#6E6257" }}>
+                            <td className="cell-muted px-4 py-4">
                               {membership.user.phone ?? "-"}
                             </td>
                             <td className="px-4 py-4">
@@ -522,7 +507,7 @@ export default function AdminMembershipsPage() {
                             </td>
                             <td className="px-4 py-4">
                               {membership.status === "PENDING" ? (
-                                <span className="text-sm font-medium" style={{ color: "#6E6257" }}>
+                                <span className="cell-muted text-sm font-medium">
                                   Pending
                                 </span>
                               ) : membership.status === "ACTIVE" && daysRemaining !== null ? (
@@ -540,7 +525,7 @@ export default function AdminMembershipsPage() {
                                   Expired
                                 </span>
                               ) : (
-                                <span className="text-sm font-medium" style={{ color: "#6E6257" }}>
+                                <span className="cell-muted text-sm font-medium">
                                   -
                                 </span>
                               )}
@@ -553,7 +538,7 @@ export default function AdminMembershipsPage() {
                                 {paymentStatus}
                               </span>
                             </td>
-                            <td className="px-4 py-4" style={{ color: "#6E6257" }}>
+                            <td className="cell-muted px-4 py-4">
                               {new Date(membership.createdAt).toLocaleString()}
                             </td>
                             <td className="px-4 py-4">
@@ -597,28 +582,16 @@ export default function AdminMembershipsPage() {
                             </td>
                           </tr>
                           {isQuotaExpanded ? (
-                            <tr
-                              className="border-b"
-                              style={{
-                                borderColor: "#EFE4D8",
-                                backgroundColor: "#FCFAF7",
-                              }}
-                            >
+                            <tr className="bg-black/[0.02] dark:bg-white/[0.03]">
                               <td colSpan={9} className="px-4 py-5">
                                 {quotaData ? (
-                                  <div className="rounded-lg border border-[#D8C7B5] bg-white p-4">
+                                  <div className="rounded-lg border border-themed bg-card p-4">
                                     <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                                       <div>
-                                        <p
-                                          className="text-sm font-medium"
-                                          style={{ color: "#B8A89A" }}
-                                        >
+                                        <p className="text-sm font-medium text-[#B8A89A] dark:text-[#8A7D75]">
                                           Consultation Usage Breakdown
                                         </p>
-                                        <p
-                                          className="mt-2 text-base font-semibold"
-                                          style={{ color: "#2B2B2B" }}
-                                        >
+                                        <p className="mt-2 text-base font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]">
                                           Current usage within this membership period
                                         </p>
                                       </div>
@@ -631,23 +604,11 @@ export default function AdminMembershipsPage() {
                                     </div>
 
                                     {quotaData.quota.type === "total" ? (
-                                      <div
-                                        className="mt-4 rounded-xl border px-4 py-3"
-                                        style={{
-                                          borderColor: "#D8C7B5",
-                                          backgroundColor: "#F8F5F0",
-                                        }}
-                                      >
-                                        <p
-                                          className="text-sm font-medium"
-                                          style={{ color: "#2B2B2B" }}
-                                        >
+                                        <div className="mt-4 rounded-xl border border-[#D8C7B5] bg-[#F8F5F0] px-4 py-3 dark:border-[#3D3530] dark:bg-[#2A2724]">
+                                          <p className="text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
                                           {quotaData.quota.used} of {quotaData.quota.limit} consultations used
                                         </p>
-                                        <p
-                                          className="mt-2 text-sm"
-                                          style={{ color: "#6E6257" }}
-                                        >
+                                          <p className="mt-2 text-sm text-[#B8A89A] dark:text-[#8A7D75]">
                                           {quotaData.quota.remaining} consultation
                                           {quotaData.quota.remaining === 1 ? "" : "s"} remaining
                                         </p>
@@ -659,30 +620,17 @@ export default function AdminMembershipsPage() {
                                           const label = specializationLabels[key];
 
                                           return (
-                                            <div
-                                              key={key}
-                                              className="rounded-xl border px-4 py-3"
-                                              style={{
-                                                borderColor: "#D8C7B5",
-                                                backgroundColor: "#F8F5F0",
-                                              }}
-                                            >
-                                              <p
-                                                className="text-sm font-semibold"
-                                                style={{ color: "#2B2B2B" }}
+                                              <div
+                                                key={key}
+                                                className="rounded-xl border border-[#D8C7B5] bg-[#F8F5F0] px-4 py-3 dark:border-[#3D3530] dark:bg-[#2A2724]"
                                               >
+                                                <p className="text-sm font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]">
                                                 {label}
                                               </p>
-                                              <p
-                                                className="mt-2 text-sm font-medium"
-                                                style={{ color: "#6E6257" }}
-                                              >
+                                                <p className="mt-2 text-sm font-medium text-[#B8A89A] dark:text-[#8A7D75]">
                                                 {quota.used}/{formatQuotaValue(quota.limit)} used
                                               </p>
-                                              <p
-                                                className="mt-1 text-xs"
-                                                style={{ color: "#8C7967" }}
-                                              >
+                                                <p className="mt-1 text-xs text-[#B8A89A] dark:text-[#8A7D75]">
                                                 {quota.isUnlimited
                                                   ? "Unlimited remaining"
                                                   : `${quota.remaining ?? 0} remaining`}
@@ -694,9 +642,9 @@ export default function AdminMembershipsPage() {
                                     ) : null}
                                   </div>
                                 ) : (
-                                  <p className="text-sm" style={{ color: "#6E6257" }}>
-                                    Quota details are not available yet.
-                                  </p>
+                                    <p className="cell-muted text-sm">
+                                      Quota details are not available yet.
+                                    </p>
                                 )}
                               </td>
                             </tr>
@@ -707,7 +655,7 @@ export default function AdminMembershipsPage() {
                   </tbody>
                 </table>
               </div>
-              <p className="px-4 pb-4 text-xs md:hidden" style={{ color: "#8C7967" }}>
+              <p className="px-4 pb-4 text-xs text-muted md:hidden">
                 Scroll to see more
               </p>
             </div>

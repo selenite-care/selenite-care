@@ -15,24 +15,15 @@ const MEMBERSHIP_AMOUNTS = {
   PLATINUM: 9990,
 } as const;
 
-function getTierStyles(tier: "SIGNATURE" | "CRYSTAL" | "PLATINUM" | string) {
+function getTierClasses(tier: "SIGNATURE" | "CRYSTAL" | "PLATINUM" | string) {
   switch (tier) {
     case "PLATINUM":
-      return {
-        backgroundColor: "#2B2B2B",
-        color: "#F8F5F0",
-      };
+      return "bg-[#2B2B2B] text-[#F8F5F0] dark:bg-[#C6A56B] dark:text-[#141210]";
     case "CRYSTAL":
-      return {
-        backgroundColor: "rgba(59, 130, 246, 0.14)",
-        color: "#1D4ED8",
-      };
+      return "bg-[rgba(59,130,246,0.14)] text-[#1D4ED8] dark:bg-[rgba(59,130,246,0.22)] dark:text-[#93C5FD]";
     case "SIGNATURE":
     default:
-      return {
-        backgroundColor: "rgba(198, 165, 107, 0.16)",
-        color: "#8A6A2F",
-      };
+      return "bg-[rgba(198,165,107,0.16)] text-[#8A6A2F] dark:bg-[rgba(198,165,107,0.24)] dark:text-[#F3D58A]";
   }
 }
 
@@ -123,30 +114,20 @@ export default async function DashboardPage() {
     <section>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p
-            className="text-sm font-medium uppercase"
-            style={{ color: "#B8A89A" }}
-          >
+          <p className="text-muted text-sm font-medium uppercase">
             Client Dashboard
           </p>
-          <h1
-            className="mt-2 text-3xl font-semibold tracking-tight"
-            style={{
-              color: "#2B2B2B",
-              fontFamily: "Playfair Display, serif",
-            }}
-          >
+          <h1 className="text-page mt-2 text-3xl font-semibold tracking-tight" style={{ fontFamily: "Playfair Display, serif" }}>
             Welcome, {session.user.name ?? "Client"}
           </h1>
-          <p className="mt-3 text-sm leading-6" style={{ color: "#B8A89A" }}>
+          <p className="text-muted mt-3 text-sm leading-6">
             Here is a quick look at your recent booking activity.
           </p>
         </div>
 
         <Link
           href="/services"
-          className="inline-flex h-11 items-center justify-center rounded-md px-5 text-sm font-medium transition-colors hover:opacity-90"
-          style={{ backgroundColor: "#2B2B2B", color: "#F8F5F0" }}
+          className="inline-flex h-11 items-center justify-center rounded-md bg-[var(--sidebar)] px-5 text-sm font-medium text-[var(--sidebar-text)] transition-colors hover:opacity-90 dark:bg-[#D8C7B5] dark:text-[#2B2B2B]"
         >
           Book New Appointment
         </Link>
@@ -166,32 +147,17 @@ export default async function DashboardPage() {
 
               {membership.tier !== "PLATINUM" && upgradeOptions.length > 0 ? (
                 <article
-                  className="rounded-lg border p-6"
-                  style={{
-                    backgroundColor: "#FFFFFF",
-                    borderColor: "#D8C7B5",
-                    borderLeftColor: "#C6A56B",
-                    borderLeftWidth: "4px",
-                  }}
+                  className="bg-card border-themed rounded-lg border border-l-4 border-l-[var(--gold)] p-6"
                 >
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                     <div>
-                      <p
-                        className="text-sm font-medium"
-                        style={{ color: "#B8A89A" }}
-                      >
+                      <p className="text-muted text-sm font-medium">
                         Upgrade Membership
                       </p>
-                      <p
-                        className="mt-3 text-lg font-semibold"
-                        style={{ color: "#2B2B2B" }}
-                      >
+                      <p className="text-page mt-3 text-lg font-semibold">
                         Unlock more support with a higher tier
                       </p>
-                      <p
-                        className="mt-2 text-sm leading-6"
-                        style={{ color: "#6E6257" }}
-                      >
+                      <p className="text-muted mt-2 text-sm leading-6">
                         Your current tier is {membership.tier}. You can upgrade at
                         any time for an expanded care experience.
                       </p>
@@ -202,11 +168,7 @@ export default async function DashboardPage() {
                         <Link
                           key={option.tier}
                           href={`/membership/payment?tier=${option.tier}`}
-                          className="inline-flex min-h-[44px] items-center justify-center rounded-md px-5 py-3 text-sm font-medium transition-colors hover:opacity-90"
-                          style={{
-                            backgroundColor: "#2B2B2B",
-                            color: "#F8F5F0",
-                          }}
+                          className="inline-flex min-h-[44px] items-center justify-center rounded-md bg-[var(--sidebar)] px-5 py-3 text-sm font-medium text-[var(--sidebar-text)] transition-colors hover:opacity-90"
                         >
                           {option.label}
                         </Link>
@@ -218,17 +180,11 @@ export default async function DashboardPage() {
             </div>
           ) : isExpiredMembership ? (
             <article
-              className="rounded-lg border p-6"
-              style={{
-                backgroundColor: "#FFFFFF",
-                borderColor: "#D8C7B5",
-                borderLeftColor: "#C6A56B",
-                borderLeftWidth: "4px",
-              }}
+              className="bg-card border-themed rounded-lg border border-l-4 border-l-[var(--gold)] p-6"
             >
               <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div>
-                  <p className="text-sm font-medium" style={{ color: "#B8A89A" }}>
+                  <p className="text-muted text-sm font-medium">
                     Membership Status
                   </p>
                   <p
@@ -238,21 +194,19 @@ export default async function DashboardPage() {
                   </p>
                   <div className="mt-4 flex flex-wrap gap-2">
                     <span
-                      className="inline-flex rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em]"
-                      style={getTierStyles(membership.tier)}
+                      className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] ${getTierClasses(
+                        membership.tier,
+                      )}`}
                     >
                       {membership.tier}
                     </span>
                     <span
-                      className="inline-flex rounded-full bg-red-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-red-600"
+                      className="inline-flex rounded-full bg-red-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-red-600 dark:bg-red-950/40 dark:text-red-300"
                     >
                       {membership.status}
                     </span>
                   </div>
-                  <p
-                    className="mt-4 text-sm leading-6"
-                    style={{ color: "#6E6257" }}
-                  >
+                  <p className="text-muted mt-4 text-sm leading-6">
                     Your membership is no longer active. Renew to continue your
                     consultation journey and unlock appointment access again.
                   </p>
@@ -260,8 +214,7 @@ export default async function DashboardPage() {
 
                 <Link
                   href="/services"
-                  className="inline-flex h-11 items-center justify-center rounded-md px-5 text-sm font-medium transition-colors hover:opacity-90"
-                  style={{ backgroundColor: "#2B2B2B", color: "#F8F5F0" }}
+                  className="inline-flex h-11 items-center justify-center rounded-md bg-[var(--sidebar)] px-5 text-sm font-medium text-[var(--sidebar-text)] transition-colors hover:opacity-90"
                 >
                   Get Membership
                 </Link>
@@ -269,29 +222,17 @@ export default async function DashboardPage() {
             </article>
           ) : (
             <article
-              className="rounded-lg border p-6"
-              style={{
-                backgroundColor: "#FFFFFF",
-                borderColor: "#D8C7B5",
-                borderLeftColor: "#C6A56B",
-                borderLeftWidth: "4px",
-              }}
+              className="bg-card border-themed rounded-lg border border-l-4 border-l-[var(--gold)] p-6"
             >
               <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div>
-                  <p className="text-sm font-medium" style={{ color: "#B8A89A" }}>
+                  <p className="text-muted text-sm font-medium">
                     Membership Status
                   </p>
-                  <p
-                    className="mt-3 text-2xl font-semibold tracking-tight"
-                    style={{ color: "#2B2B2B" }}
-                  >
+                  <p className="text-page mt-3 text-2xl font-semibold tracking-tight">
                     No Membership Yet
                   </p>
-                  <p
-                    className="mt-4 text-sm leading-6"
-                    style={{ color: "#6E6257" }}
-                  >
+                  <p className="text-muted mt-4 text-sm leading-6">
                     Get started with a membership to access guided skin care,
                     ongoing support, and appointment booking.
                   </p>
@@ -299,8 +240,7 @@ export default async function DashboardPage() {
 
                 <Link
                   href="/services"
-                  className="inline-flex h-11 items-center justify-center rounded-md px-5 text-sm font-medium transition-colors hover:opacity-90"
-                  style={{ backgroundColor: "#2B2B2B", color: "#F8F5F0" }}
+                  className="inline-flex h-11 items-center justify-center rounded-md bg-[var(--sidebar)] px-5 text-sm font-medium text-[var(--sidebar-text)] transition-colors hover:opacity-90"
                 >
                   Get Membership
                 </Link>
@@ -310,61 +250,34 @@ export default async function DashboardPage() {
         </div>
 
         <article
-          className="rounded-lg border p-6"
-          style={{
-            backgroundColor: "#FFFFFF",
-            borderColor: "#D8C7B5",
-            borderLeftColor: "#C6A56B",
-            borderLeftWidth: "4px",
-          }}
+          className="bg-card border-themed rounded-lg border border-l-4 border-l-[var(--gold)] p-6"
         >
-          <p className="text-sm font-medium" style={{ color: "#B8A89A" }}>
+          <p className="text-muted text-sm font-medium">
             Logged-in Client
           </p>
-          <p
-            className="mt-4 text-2xl font-semibold tracking-tight"
-            style={{ color: "#2B2B2B" }}
-          >
+          <p className="text-page mt-4 text-2xl font-semibold tracking-tight">
             {session.user.name ?? "Client"}
           </p>
         </article>
 
         <article
-          className="rounded-lg border p-6"
-          style={{
-            backgroundColor: "#FFFFFF",
-            borderColor: "#D8C7B5",
-            borderLeftColor: "#C6A56B",
-            borderLeftWidth: "4px",
-          }}
+          className="bg-card border-themed rounded-lg border border-l-4 border-l-[var(--gold)] p-6"
         >
-          <p className="text-sm font-medium" style={{ color: "#B8A89A" }}>
+          <p className="text-muted text-sm font-medium">
             Total Bookings
           </p>
-          <p
-            className="mt-4 text-2xl font-semibold tracking-tight"
-            style={{ color: "#2B2B2B" }}
-          >
+          <p className="text-page mt-4 text-2xl font-semibold tracking-tight">
             {totalBookings}
           </p>
         </article>
 
         <article
-          className="rounded-lg border p-6"
-          style={{
-            backgroundColor: "#FFFFFF",
-            borderColor: "#D8C7B5",
-            borderLeftColor: "#C6A56B",
-            borderLeftWidth: "4px",
-          }}
+          className="bg-card border-themed rounded-lg border border-l-4 border-l-[var(--gold)] p-6"
         >
-          <p className="text-sm font-medium" style={{ color: "#B8A89A" }}>
+          <p className="text-muted text-sm font-medium">
             Last Booking Status
           </p>
-          <p
-            className="mt-4 text-2xl font-semibold tracking-tight"
-            style={{ color: "#2B2B2B" }}
-          >
+          <p className="text-page mt-4 text-2xl font-semibold tracking-tight">
             {lastBooking?.status ?? "No bookings yet"}
           </p>
         </article>

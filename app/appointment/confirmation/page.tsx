@@ -9,17 +9,11 @@ function AppointmentConfirmationPageContent() {
   const bookingToken = searchParams.get("bookingToken") ?? "";
 
   return (
-    <main
-      className="flex min-h-screen items-center px-6 py-16"
-      style={{ backgroundColor: "#F8F5F0" }}
-    >
+    <main className="flex min-h-screen items-center bg-[#F8F5F0] px-6 py-16 dark:bg-[#1A1814]">
       <div className="mx-auto w-full max-w-3xl">
         <section
-          className="rounded-[28px] border px-6 py-12 text-center shadow-sm sm:px-10"
+          className="rounded-[28px] border bg-white px-6 py-12 text-center shadow-sm dark:bg-[#242220] dark:border-[#3D3530] sm:px-10"
           style={{
-            background:
-              "linear-gradient(180deg, rgba(255,255,255,0.92) 0%, rgba(248,245,240,1) 100%)",
-            borderColor: "#D8C7B5",
             boxShadow: "0 24px 60px rgba(43, 43, 43, 0.08)",
           }}
         >
@@ -32,9 +26,8 @@ function AppointmentConfirmationPageContent() {
           />
 
           <h1
-            className="text-4xl font-bold sm:text-5xl"
+            className="text-4xl font-bold text-[#2B2B2B] dark:text-[#F0EDE8] sm:text-5xl"
             style={{
-              color: "#2B2B2B",
               fontFamily: "Playfair Display, serif",
             }}
           >
@@ -42,7 +35,7 @@ function AppointmentConfirmationPageContent() {
           </h1>
 
           <div
-            className="mx-auto mt-8 max-w-md rounded-2xl border px-5 py-4"
+            className="mx-auto mt-8 max-w-md rounded-2xl border px-5 py-4 dark:border-[#3D3530]"
             style={{
               borderColor: "#C6A56B",
               backgroundColor: "rgba(198, 165, 107, 0.08)",
@@ -55,9 +48,8 @@ function AppointmentConfirmationPageContent() {
               Booking Token
             </p>
             <p
-              className="mt-2 text-xl font-semibold sm:text-2xl"
+              className="mt-2 text-xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8] sm:text-2xl"
               style={{
-                color: "#2B2B2B",
                 fontFamily: "Playfair Display, serif",
               }}
             >
@@ -66,8 +58,7 @@ function AppointmentConfirmationPageContent() {
           </div>
 
           <p
-            className="mx-auto mt-8 max-w-2xl text-base leading-8 sm:text-lg"
-            style={{ color: "#6E6257" }}
+            className="mx-auto mt-8 max-w-2xl text-base leading-8 text-[#6E6257] dark:text-[#8A7D75] sm:text-lg"
           >
             Our team will contact you shortly to confirm your appointment time.
             Please keep your phone available.
@@ -92,12 +83,9 @@ function AppointmentConfirmationPageContent() {
 
 function AppointmentConfirmationLoadingFallback() {
   return (
-    <main
-      className="flex min-h-screen items-center px-6 py-16"
-      style={{ backgroundColor: "#F8F5F0" }}
-    >
+    <main className="flex min-h-screen items-center bg-[#F8F5F0] px-6 py-16 dark:bg-[#1A1814]">
       <div className="mx-auto w-full max-w-3xl">
-        <p className="text-sm" style={{ color: "#B8A89A" }}>
+        <p className="text-sm text-[#B8A89A] dark:text-[#8A7D75]">
           Loading...
         </p>
       </div>

@@ -5,6 +5,8 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import { useState } from "react";
+import { Moon, Sun } from "lucide-react";
+import { useTheme } from "@/components/providers/ThemeProvider";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -20,6 +22,7 @@ function NavbarContent() {
   const pathname = usePathname();
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { theme, toggleTheme } = useTheme();
   const role = session?.user?.role;
 
   let dashboardHref = "/dashboard";
@@ -53,6 +56,36 @@ function NavbarContent() {
     router.refresh();
     await signOut({ redirect: false });
     window.location.replace("/login");
+  }
+
+  const ThemeIcon = theme === "dark" ? Sun : Moon;
+
+  function renderThemeToggle(className?: string) {
+    return (
+      <button
+        type="button"
+        onClick={toggleTheme}
+        aria-label={
+          theme === "dark" ? "Switch to light mode" : "Switch to dark mode"
+        }
+        title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+        className={className}
+        style={{
+          background: "none",
+          border: "none",
+          color: "#C6A56B",
+          transition: "opacity 0.2s ease",
+        }}
+        onMouseEnter={(event) => {
+          event.currentTarget.style.opacity = "0.8";
+        }}
+        onMouseLeave={(event) => {
+          event.currentTarget.style.opacity = "1";
+        }}
+      >
+        <ThemeIcon className="h-5 w-5" aria-hidden="true" />
+      </button>
+    );
   }
 
   return (
@@ -155,6 +188,8 @@ function NavbarContent() {
             className="h-4 w-px"
           />
 
+          {renderThemeToggle("inline-flex items-center justify-center")}
+
           {status === "loading" ? (
             <div className="flex items-center gap-3">
               <span className="h-8 w-20 rounded bg-neutral-200 animate-pulse" />
@@ -233,6 +268,12 @@ function NavbarContent() {
             style={{ borderTop: "1px solid #C6A56B" }}
             className="pt-4"
           >
+            <div className="mb-3 flex justify-start">
+              {renderThemeToggle(
+                "inline-flex items-center gap-2 rounded-md px-3 py-3 text-sm font-medium",
+              )}
+            </div>
+
             {status === "loading" ? (
               <div className="flex flex-col gap-3">
                 <span className="h-9 w-24 rounded bg-[#D8C7B5]/30 animate-pulse" />
