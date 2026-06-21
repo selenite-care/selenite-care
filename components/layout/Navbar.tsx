@@ -97,11 +97,11 @@ function NavbarContent() {
         {/* Logo */}
         <Link
         href="/"
-        className="flex items-center gap-3 transition-opacity hover:opacity-80"
+        className="flex items-center gap-1 transition-opacity hover:opacity-80"
         >
         <Image
     className="object-contain"
-    src="/log.png"
+    src="/new_logo_512x512.png"
     alt="Selenite Care Logo"
     width={40}
     height={40}
