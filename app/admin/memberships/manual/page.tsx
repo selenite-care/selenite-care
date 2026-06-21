@@ -64,6 +64,7 @@ export default function AdminManualMembershipPage() {
   const [form, setForm] = useState<ManualMembershipFormState>(initialFormState);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [errorVariant, setErrorVariant] = useState<"error" | "warning">("error");
   const [successMessage, setSuccessMessage] = useState("");
   const [credentialsModal, setCredentialsModal] =
     useState<CredentialsModalState | null>(null);
@@ -84,6 +85,7 @@ export default function AdminManualMembershipPage() {
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
+    setErrorVariant("error");
     setSuccessMessage("");
 
     if (!form.phone || !isValidPhoneNumber(form.phone)) {
@@ -119,7 +121,13 @@ export default function AdminManualMembershipPage() {
         | null;
 
       if (!response.ok) {
-        throw new Error(data?.error ?? "Unable to create manual membership.");
+        const message = data?.error ?? "Unable to create manual membership.";
+
+        if (response.status === 409) {
+          setErrorVariant("warning");
+        }
+
+        throw new Error(message);
       }
 
       if (data?.temporaryPassword && data.userEmail) {
@@ -510,7 +518,17 @@ export default function AdminManualMembershipPage() {
             </div>
           </div>
 
-          {error ? <p className="text-sm text-red-600">{error}</p> : null}
+          {error ? (
+            <div
+              className={`rounded-md border px-4 py-3 text-sm leading-6 ${
+                errorVariant === "warning"
+                  ? "border-[#C6A56B] bg-[rgba(198,165,107,0.10)] text-[#2B2B2B] dark:text-[#F0EDE8]"
+                  : "border-red-200 bg-red-50 text-red-600 dark:border-red-900/40 dark:bg-red-950/30 dark:text-red-300"
+              }`}
+            >
+              {error}
+            </div>
+          ) : null}
           {successMessage ? (
             <div
               className="rounded-md border border-[#C6A56B] bg-[rgba(198,165,107,0.08)] px-4 py-3 text-sm text-[#2B2B2B] dark:text-[#F0EDE8]"
