@@ -198,6 +198,32 @@ export async function POST(request: Request) {
       },
     });
 
+    if (existingUser) {
+      const existingMembership = await db.membership.findFirst({
+        where: {
+          userId: existingUser.id,
+          status: {
+            in: ["ACTIVE", "PENDING"],
+          },
+        },
+        select: {
+          id: true,
+          status: true,
+          membershipId: true,
+        },
+      });
+
+      if (existingMembership) {
+        return Response.json(
+          {
+            error:
+              "This client already has an active or pending membership. Please check their membership status before adding a new one. If you want to add a new membership, cancel or expire the existing one first.",
+          },
+          { status: 409 },
+        );
+      }
+    }
+
     const membershipId = await generateMembershipId(purchaseDate);
     const temporaryPassword = existingUser ? null : generateTemporaryPassword();
     const hashedPassword = temporaryPassword
