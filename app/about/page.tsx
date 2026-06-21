@@ -121,7 +121,7 @@ export default function AboutPage() {
                   }}
                 >
                   <Image
-                    src="/logo-512x512.png"
+                    src="/new_logo_512x512.png"
                     alt="Selenite Care logo"
                     width={112}
                     height={112}
@@ -153,7 +153,7 @@ export default function AboutPage() {
         fontFamily: "Playfair Display, serif",
       }}
     >
-      500+
+      1000+
     </p>
     <p className="text-xs uppercase tracking-wider text-[#B8A89A] dark:text-[#8A7D75]">
       Consultations
@@ -167,7 +167,7 @@ export default function AboutPage() {
         fontFamily: "Playfair Display, serif",
       }}
     >
-      95%
+      99%
     </p>
     <p className="text-xs uppercase tracking-wider text-[#B8A89A] dark:text-[#8A7D75]">
       Satisfaction
