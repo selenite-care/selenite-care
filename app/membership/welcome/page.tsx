@@ -37,6 +37,18 @@ function getTierBadgeStyles(tier: "SIGNATURE" | "CRYSTAL" | "PLATINUM") {
   }
 }
 
+function getTierSummary(tier: "SIGNATURE" | "CRYSTAL" | "PLATINUM") {
+  switch (tier) {
+    case "CRYSTAL":
+      return "1 Year Specialist Support with advanced skin assessment and customized care plan.";
+    case "PLATINUM":
+      return "3 Years of Premium Specialist Support including skin transformation program and progress monitoring.";
+    case "SIGNATURE":
+    default:
+      return "60 Days of Unlimited Skincare Support with personalized consultation and routine development.";
+  }
+}
+
 function MembershipWelcomePageContent() {
   const searchParams = useSearchParams();
   const membershipId = searchParams.get("id") ?? "";
@@ -152,6 +164,12 @@ function MembershipWelcomePageContent() {
             </p>
           ) : membership ? (
             <>
+              <p
+                className="mx-auto mt-6 max-w-2xl text-sm leading-7 text-[#6E6257] dark:text-[#8A7D75] sm:text-base"
+              >
+                {getTierSummary(membership.tier)}
+              </p>
+
               <div className="mt-6 flex justify-center">
                 <span
                   className="inline-flex rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em]"

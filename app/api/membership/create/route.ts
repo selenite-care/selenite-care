@@ -25,19 +25,33 @@ const MEMBERSHIP_TIER_ORDER: Record<MembershipTier, number> = {
 
 const MEMBERSHIP_BENEFITS: Record<MembershipTier, string[]> = {
   SIGNATURE: [
-    "100% off on the 2nd consultation",
-    "120 days of online support",
-    "Digital skin analysis and personalized skincare routine",
+    "60 Days of Unlimited Skincare Support",
+    "Skin, Body & Hair Problem Analysis: Self-submitted photo review, Online skin assessment form",
+    "Online and Offline Consultation with Skin Doctor / Aestheticians",
+    "Personalized Product Recommendation List",
+    "Skin Report Card",
+    "Personalized Morning & Night Skincare Routine",
+    "Before & After Consultation Support",
   ],
   CRYSTAL: [
-    "5 complimentary follow-up consultations",
-    "Specialist access including aesthetician, nutritionist, and psychiatrist",
-    "Advanced skin assessment with customized care plan",
+    "1 Year Specialist Support (Online & Offline)",
+    "Specialist Access: Aesthetician Consultation, Nutritionist Consultation, Psychiatrist Consultation",
+    "Personalized Support: 12 Months of Online Support",
+    "Advanced Skin, Body & Hair Problem Assessment: Detailed Skin Analysis, Problem Identification & Concern Mapping covering Acne, Pigmentation, Dehydration, Sensitivity, Dullness, Other Skin Concerns",
+    "Lifestyle Evaluation: Lifestyle & Skincare Habit Review",
+    "Customized Care Plan: Personalized Product Recommendation List, Skin Report Card, Personalized Morning & Night Skincare Routine",
   ],
   PLATINUM: [
-    "30 complimentary follow-up consultations",
-    "Extended specialist access and long-term support",
-    "Skin transformation roadmap with progress monitoring",
+    "3 Years Specialist Support on both Online & Offline",
+    "5% off on Product Purchase for Validate Time of Membership",
+    "Specialist Access: Aesthetician Consultation, Nutritionist Consultation, Psychiatrist Consultation",
+    "Premium Support: 36 Months of Online Support",
+    "Advanced Skin, Body & Hair Problem Mapping & Analysis: Deep Skin Concern Analysis, Trigger Identification, Skin Barrier Assessment",
+    "Psychological Wellness Review: Stress Level Assessment, Lifestyle Impact Analysis",
+    "Nutritional Assessment: Nutritional Value Analysis, Diet & Skin Health Evaluation",
+    "Customized Care Plan: Personalized Product Recommendation List, Skin Report Card, Personalized Morning & Night Skincare Routine",
+    "Skin Transformation Program: Skin Transformation Roadmap every 60 Days, Product Layering Strategy, Seasonal Skincare Adjustments",
+    "Progress Monitoring: Professional Before-and-After Documentation, Monthly Skin Scoring, Routine Modifications Based on Skin Progress, Continuous Improvement Tracking",
   ],
 };
 

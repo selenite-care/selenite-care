@@ -36,7 +36,7 @@ const steps = [
     validity: "Valid for 36 Months",
     cost: "9,990 BDT",
     description:
-      "A complete skin transformation program combining skincare, nutrition, wellness, and continuous progress monitoring.",
+      "Excellence Skin transformation program combining skincare, nutrition, wellness, and continuous progress monitoring.",
     tier: "platinum",
   },
 ];
@@ -97,19 +97,22 @@ const memberships: MembershipTier[] = [
       "A perfect starting point for individuals seeking professional skincare guidance and routine development.",
     accentColor: "#C6A56B",
     benefits: [
-      { heading: "100% Off on the 2nd Consultation", points: [] },
-      { heading: "120 Days of Online Support", points: [] },
+      { heading: "60 Days of Unlimited Skincare Support", points: [] },
       {
-        heading: "Digital Skin Analysis",
+        heading: "Skin, Body & Hair Problem Analysis",
         points: ["Self-submitted photo review", "Online skin assessment form"],
       },
-      { heading: "1-on-1 Consultation via WhatsApp Video Call", points: [] },
+      {
+        heading: "Online and Offline Consultation with Skin Doctor / Aestheticians",
+        points: [],
+      },
       { heading: "Personalized Product Recommendation List", points: [] },
       { heading: "Skin Report Card", points: [] },
       {
-        heading: "Personalized Morning and Night Skincare Routine",
-        points: ["Available after product purchase"],
+        heading: "Personalized Morning & Night Skincare Routine",
+        points: [],
       },
+      { heading: "Before & After Consultation Support", points: [] },
     ],
   },
   {
@@ -122,40 +125,34 @@ const memberships: MembershipTier[] = [
       "Designed for individuals committed to achieving long-term skin improvement through regular monitoring and expert guidance.",
     accentColor: "#4B9DD3",
     benefits: [
-      {
-        heading: "Complimentary Consultations",
-        points: [
-          "100% Off on 5 Follow-Up Consultations",
-          "One consultation every 2 months",
-        ],
-      },
+      { heading: "1 Year Specialist Support (Online & Offline)", points: [] },
       {
         heading: "Specialist Access",
         points: [
-          "Aesthetician Consultation - 3 times",
-          "Nutritionist Consultation - 2 times",
-          "Psychiatrist Consultation - 1 time",
+          "Aesthetician Consultation",
+          "Nutritionist Consultation",
+          "Psychiatrist Consultation",
         ],
       },
-      { heading: "12 Months of Online Support", points: [] },
+      { heading: "Personalized Support", points: ["12 Months of Online Support"] },
       {
-        heading: "Advanced Skin Assessment",
+        heading: "Advanced Skin, Body & Hair Problem Assessment",
         points: [
           "Detailed Skin Analysis",
           "Problem Identification and Concern Mapping",
-          "Covers acne, pigmentation, dehydration, sensitivity, dullness, and more",
+          "Covering Acne, Pigmentation, Dehydration, Sensitivity, Dullness, Other Skin Concerns",
         ],
       },
       {
         heading: "Lifestyle Evaluation",
-        points: ["Lifestyle and skincare habit review"],
+        points: ["Lifestyle & Skincare Habit Review"],
       },
       {
         heading: "Customized Care Plan",
         points: [
           "Personalized Product Recommendation List",
           "Skin Report Card",
-          "Personalized Morning and Night Skincare Routine after product purchase",
+          "Personalized Morning & Night Skincare Routine",
         ],
       },
     ],
@@ -167,46 +164,40 @@ const memberships: MembershipTier[] = [
     validity: "Valid for 36 Months",
     cost: "9,990 BDT",
     description:
-      "A complete skin transformation program combining skincare, nutrition, wellness, and continuous progress monitoring.",
+      "Excellence Skin transformation program combining skincare, nutrition, wellness, and continuous progress monitoring.",
     accentColor: "#C6A56B",
     benefits: [
+      { heading: "3 Years Specialist Support on both Online & Offline", points: [] },
       {
-        heading: "Complimentary Consultations",
-        points: [
-          "100% Off on 30 Follow-Up Consultations",
-          "One aesthetician consultation every 2 months",
-        ],
-      },
-      {
-        heading: "2.	5% off on Product Purchase for Validate Time of Membership",
+        heading: "5% off on Product Purchase for Validate Time of Membership",
         points: [],
       },
       {
         heading: "Specialist Access",
         points: [
-          "Aesthetician Consultation - 15 times",
-          "Nutritionist Consultation - 8 times",
-          "Psychiatrist Consultation - 7 times",
+          "Aesthetician Consultation",
+          "Nutritionist Consultation",
+          "Psychiatrist Consultation",
         ],
       },
-      { heading: "36 Months of Online Support", points: [] },
+      { heading: "Premium Support", points: ["36 Months of Online Support"] },
       {
-        heading: "Advanced Skin Mapping",
+        heading: "Advanced Skin, Body & Hair Problem Mapping & Analysis",
         points: [
-          "Deep skin concern analysis",
-          "Trigger identification",
-          "Skin barrier assessment",
+          "Deep Skin Concern Analysis",
+          "Trigger Identification",
+          "Skin Barrier Assessment",
         ],
       },
       {
         heading: "Psychological Wellness Review",
-        points: ["Stress level assessment", "Lifestyle impact analysis"],
+        points: ["Stress Level Assessment", "Lifestyle Impact Analysis"],
       },
       {
         heading: "Nutritional Assessment",
         points: [
-          "Nutritional value analysis",
-          "Diet and skin health evaluation",
+          "Nutritional Value Analysis",
+          "Diet & Skin Health Evaluation",
         ],
       },
       {
@@ -214,24 +205,24 @@ const memberships: MembershipTier[] = [
         points: [
           "Personalized Product Recommendation List",
           "Skin Report Card",
-          "Personalized Morning and Night Skincare Routine after product purchase",
+          "Personalized Morning & Night Skincare Routine",
         ],
       },
       {
         heading: "Skin Transformation Program",
         points: [
-          "Skin transformation roadmap every 60 days",
-          "Product layering strategy",
-          "Seasonal skincare adjustments",
+          "Skin Transformation Roadmap every 60 Days",
+          "Product Layering Strategy",
+          "Seasonal Skincare Adjustments",
         ],
       },
       {
         heading: "Progress Monitoring",
         points: [
-          "Professional before-and-after documentation",
-          "Monthly skin scoring",
-          "Routine modifications based on skin progress",
-          "Continuous improvement tracking",
+          "Professional Before-and-After Documentation",
+          "Monthly Skin Scoring",
+          "Routine Modifications Based on Skin Progress",
+          "Continuous Improvement Tracking",
         ],
       },
     ],
