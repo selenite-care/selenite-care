@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Playfair_Display } from "next/font/google";
 import { Footer } from "@/components/layout/Footer";
 import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
 import { Navbar } from "@/components/layout/Navbar";
+import { CartProvider } from "@/components/cart/CartProvider";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { SessionProvider } from "next-auth/react"
 import "./globals.css";
@@ -39,12 +40,14 @@ export default function RootLayout({
     >
       <body className="flex min-h-full flex-col bg-brand-ivory text-brand-charcoal">
         <SessionProvider>
-          <ThemeProvider>
-            <AnnouncementBar />
-            <Navbar />
-            <main className="flex flex-1 flex-col">{children}</main>
-            <Footer />
-          </ThemeProvider>
+          <CartProvider>
+            <ThemeProvider>
+              <AnnouncementBar />
+              <Navbar />
+              <main className="flex flex-1 flex-col">{children}</main>
+              <Footer />
+            </ThemeProvider>
+          </CartProvider>
         </SessionProvider>
       </body>
     </html>

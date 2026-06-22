@@ -13,6 +13,7 @@ const adminLinks = [
   { href: "/admin/memberships/pending", label: "Pending Verifications" },
   { href: "/admin/users", label: "All Users" },
   { href: "/admin/products", label: "Products" },
+  { href: "/admin/orders", label: "Orders" },
   // { href: "/admin/services", label: "Services Management" },
   { href: "/admin/doctors", label: "Manage Doctors" },
   { href: "/admin/payments", label: "Membership Payments" },

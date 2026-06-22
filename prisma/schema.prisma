@@ -30,6 +30,7 @@ model User {
   surveyProfile       SurveyProfile?
   dateOfBirth DateTime?
   isActive Boolean @default(true)
+  orders              Order[]
 
 }
 
@@ -180,10 +181,44 @@ model Product {
   type            String
   price           Float
   skinType        String?
+  stockStatus     StockStatus             @default(AVAILABLE)
+  stockNote       String?
+  description     String?
+  image           String?
+  isVisible       Boolean                 @default(true)
   recommendations ProductRecommendation[]
+  orderItems      OrderItem[]
   createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+
   @@index([name])
   @@index([type])
+  @@index([stockStatus])
+}
+
+model Order {
+  id            String        @id @default(cuid())
+  userId        String
+  user          User          @relation(fields: [userId], references: [id])
+  status        OrderStatus   @default(PENDING)
+  paymentMethod PaymentMethod @default(BKASH)
+  totalAmount   Float
+  transactionRef String?
+  proofImageUrl  String?
+  note          String?
+  items         OrderItem[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id])
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Int     @default(1)
+  price     Float
 }
 
 model Diagnosis {
@@ -268,4 +303,19 @@ enum PaymentMethod {
   BKASH
   BANK_TRANSFER
   CASH
+}
+
+enum StockStatus {
+  AVAILABLE
+  LIMITED
+  OUT_OF_STOCK
+}
+
+enum OrderStatus {
+  PENDING
+  VERIFIED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
 }

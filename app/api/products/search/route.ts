@@ -35,6 +35,8 @@ export async function GET(request: Request) {
       type: true,
       price: true,
       skinType: true,
+      stockStatus: true,
+      stockNote: true,
     },
     orderBy: {
       createdAt: "desc",
