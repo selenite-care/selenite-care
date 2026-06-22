@@ -89,31 +89,41 @@ export default function DashboardBookingsPage() {
       ) : null}
 
       {!isLoading && !error && bookings.length > 0 ? (
-        <div className="bg-card border-themed mt-8 overflow-hidden rounded-lg border">
-          <div className="overflow-x-auto">
-            <table className="table-themed w-full min-w-[860px] text-left text-sm">
-              <thead>
-                <tr>
-                  <th className="px-4 py-3 font-medium">Booking Token</th>
-                  <th className="px-4 py-3 font-medium">Doctor Name</th>
-                  <th className="px-4 py-3 font-medium">Preferred Date</th>
-                  <th className="px-4 py-3 font-medium">Booking Status</th>
-                  <th className="px-4 py-3 font-medium">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {bookings.map((booking) => (
-                  <tr key={booking.id}>
-                    <td className="px-4 py-4 font-mono text-xs text-foreground/70">
-                      {booking.token}
-                    </td>
-                    <td className="px-4 py-4 text-foreground/70">
+        <>
+          <div className="mt-8 grid gap-4 md:hidden">
+            {bookings.map((booking) => (
+              <article
+                key={booking.id}
+                className="bg-card border-themed rounded-xl border p-5"
+              >
+                <p className="font-mono text-sm font-semibold text-[#C6A56B]">
+                  {booking.token}
+                </p>
+
+                <div className="mt-4 space-y-3">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#8C7967] dark:text-[#8A7D75]">
+                      Doctor Name
+                    </p>
+                    <p className="mt-1 text-sm text-[#2B2B2B] dark:text-[#F0EDE8]">
                       {booking.doctor?.name ?? "Not assigned"}
-                    </td>
-                    <td className="px-4 py-4 text-foreground/70">
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#8C7967] dark:text-[#8A7D75]">
+                      Preferred Date
+                    </p>
+                    <p className="mt-1 text-sm text-[#2B2B2B] dark:text-[#F0EDE8]">
                       {formatAppointmentTime(booking.appointmentTime)}
-                    </td>
-                    <td className="px-4 py-4">
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#8C7967] dark:text-[#8A7D75]">
+                      Booking Status
+                    </p>
+                    <div className="mt-2">
                       <span
                         className={`inline-flex rounded-full border px-3 py-1 text-xs font-medium ${getStatusBadgeClasses(
                           booking.status,
@@ -121,21 +131,68 @@ export default function DashboardBookingsPage() {
                       >
                         {booking.status}
                       </span>
-                    </td>
-                    <td className="px-4 py-4">
-                      <Link
-                        href={`/dashboard/bookings/${booking.id}`}
-                        className="border-themed text-page inline-flex h-9 items-center justify-center rounded-md border px-3 text-sm font-medium transition-colors hover:bg-black/5 dark:hover:bg-white/5"
-                      >
-                        View Details
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    </div>
+                  </div>
+                </div>
+
+                <Link
+                  href={`/dashboard/bookings/${booking.id}`}
+                  className="mt-5 inline-flex h-12 w-full items-center justify-center rounded-md bg-[#2B2B2B] px-4 text-sm font-medium text-[#F8F5F0] transition-colors hover:bg-[#B8A89A] dark:bg-[#C6A56B] dark:text-[#141210] dark:hover:bg-[#D4B47A]"
+                >
+                  View Details
+                </Link>
+              </article>
+            ))}
           </div>
-        </div>
+
+          <div className="bg-card border-themed mt-8 hidden overflow-hidden rounded-lg border md:block">
+            <div className="overflow-x-auto">
+              <table className="table-themed w-full min-w-[860px] text-left text-sm">
+                <thead>
+                  <tr>
+                    <th className="px-4 py-3 font-medium">Booking Token</th>
+                    <th className="px-4 py-3 font-medium">Doctor Name</th>
+                    <th className="px-4 py-3 font-medium">Preferred Date</th>
+                    <th className="px-4 py-3 font-medium">Booking Status</th>
+                    <th className="px-4 py-3 font-medium">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {bookings.map((booking) => (
+                    <tr key={booking.id}>
+                      <td className="px-4 py-4 font-mono text-xs text-foreground/70">
+                        {booking.token}
+                      </td>
+                      <td className="px-4 py-4 text-foreground/70">
+                        {booking.doctor?.name ?? "Not assigned"}
+                      </td>
+                      <td className="px-4 py-4 text-foreground/70">
+                        {formatAppointmentTime(booking.appointmentTime)}
+                      </td>
+                      <td className="px-4 py-4">
+                        <span
+                          className={`inline-flex rounded-full border px-3 py-1 text-xs font-medium ${getStatusBadgeClasses(
+                            booking.status,
+                          )}`}
+                        >
+                          {booking.status}
+                        </span>
+                      </td>
+                      <td className="px-4 py-4">
+                        <Link
+                          href={`/dashboard/bookings/${booking.id}`}
+                          className="border-themed text-page inline-flex h-9 items-center justify-center rounded-md border px-3 text-sm font-medium transition-colors hover:bg-black/5 dark:hover:bg-white/5"
+                        >
+                          View Details
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </>
       ) : null}
     </section>
   );

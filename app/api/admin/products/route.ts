@@ -75,6 +75,7 @@ export async function GET(request: Request) {
         stockNote: true,
         image: true,
         description: true,
+        isVisible: true,
         createdAt: true,
       },
       orderBy: {
@@ -146,6 +147,7 @@ export async function POST(request: Request) {
       stockNote: true,
       image: true,
       description: true,
+      isVisible: true,
       createdAt: true,
     },
   });

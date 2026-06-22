@@ -15,6 +15,7 @@ type ProductPatchPayload = {
   description?: unknown;
   name?: unknown;
   type?: unknown;
+  skinType?: unknown;
   price?: unknown;
   isVisible?: unknown;
 };
@@ -46,6 +47,8 @@ export async function PATCH(request: Request, context: RouteContext) {
     typeof body.description === "string" ? body.description.trim() : undefined;
   const name = typeof body.name === "string" ? body.name.trim() : undefined;
   const type = typeof body.type === "string" ? body.type.trim() : undefined;
+  const skinType =
+    typeof body.skinType === "string" ? body.skinType.trim() : undefined;
   const rawPrice =
     typeof body.price === "number"
       ? body.price
@@ -74,6 +77,10 @@ export async function PATCH(request: Request, context: RouteContext) {
     return Response.json({ error: "Type cannot be empty." }, { status: 400 });
   }
 
+  if (skinType !== undefined && !skinType) {
+    return Response.json({ error: "Skin type cannot be empty." }, { status: 400 });
+  }
+
   if (price !== undefined && price < 0) {
     return Response.json({ error: "Price must be a valid non-negative number." }, { status: 400 });
   }
@@ -87,6 +94,7 @@ export async function PATCH(request: Request, context: RouteContext) {
       ...(description !== undefined ? { description: description || null } : {}),
       ...(name !== undefined ? { name } : {}),
       ...(type !== undefined ? { type } : {}),
+      ...(skinType !== undefined ? { skinType: skinType || null } : {}),
       ...(price !== undefined ? { price } : {}),
       ...(isVisible !== undefined ? { isVisible } : {}),
     },
