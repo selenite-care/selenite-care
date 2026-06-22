@@ -13,6 +13,8 @@ type ProductSearchResult = {
   type: string;
   price: number;
   skinType: string | null;
+  stockStatus: "AVAILABLE" | "LIMITED" | "OUT_OF_STOCK";
+  stockNote: string | null;
 };
 
 type RecommendedProduct = ProductSearchResult & {
@@ -37,16 +39,20 @@ function isDiagnosisResponse(value: unknown): value is DiagnosisResponse {
 
 function mapDiagnosisProducts(diagnosis: DiagnosisResponse["diagnosis"]) {
   return (
-    diagnosis?.recommendations.map((item: DiagnosisResponse["diagnosis"] extends infer T
-      ? T extends { recommendations: infer R }
-        ? R extends Array<infer U>
-          ? U
-          : never
-        : never
-      : never) => ({
+    diagnosis?.recommendations.map(
+      (
+        item: DiagnosisResponse["diagnosis"] extends infer T
+          ? T extends { recommendations: infer R }
+            ? R extends Array<infer U>
+              ? U
+              : never
+            : never
+          : never,
+      ) => ({
         ...item.product,
         note: item.note ?? "",
-      })) ?? []
+      }),
+    ) ?? []
   );
 }
 
@@ -58,6 +64,32 @@ function formatPrice(price: number) {
 function formatTimestamp(value: string | null) {
   if (!value) return "Not saved yet";
   return new Date(value).toLocaleString();
+}
+
+function getStockBadgeClasses(stockStatus: ProductSearchResult["stockStatus"]) {
+  switch (stockStatus) {
+    case "AVAILABLE":
+      return "border-green-200 bg-green-50 text-green-700 dark:border-green-900/50 dark:bg-green-950/20 dark:text-green-300";
+    case "LIMITED":
+      return "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900/50 dark:bg-amber-950/20 dark:text-amber-300";
+    case "OUT_OF_STOCK":
+      return "border-red-200 bg-red-50 text-red-700 dark:border-red-900/50 dark:bg-red-950/20 dark:text-red-300";
+    default:
+      return "border-black/10 bg-zinc-50 text-foreground/70 dark:border-white/10 dark:bg-white/5";
+  }
+}
+
+function getStockLabel(stockStatus: ProductSearchResult["stockStatus"]) {
+  switch (stockStatus) {
+    case "AVAILABLE":
+      return "In Stock";
+    case "LIMITED":
+      return "Limited Stock";
+    case "OUT_OF_STOCK":
+      return "Out of Stock";
+    default:
+      return stockStatus;
+  }
 }
 
 export default function DiagnosisEditor({
@@ -128,7 +160,7 @@ export default function DiagnosisEditor({
       }
     }
 
-    loadDiagnosis();
+    void loadDiagnosis();
 
     return () => {
       isMounted = false;
@@ -245,7 +277,9 @@ export default function DiagnosisEditor({
   }
 
   function addRecommendedProduct(product: ProductSearchResult) {
-    if (recommendedProductIds.has(product.id)) return;
+    if (recommendedProductIds.has(product.id) || product.stockStatus === "OUT_OF_STOCK") {
+      return;
+    }
 
     const nextProducts = [...recommendedProducts, { ...product, note: "" }];
     setRecommendedProducts(nextProducts);
@@ -342,9 +376,7 @@ export default function DiagnosisEditor({
             </div>
           </div>
         ) : (
-          <div
-            className="mt-5 rounded-2xl border border-[#D8C7B5] bg-white px-4 py-4 text-sm leading-7 text-[#6E6257] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#8A7D75]"
-          >
+          <div className="mt-5 rounded-2xl border border-[#D8C7B5] bg-white px-4 py-4 text-sm leading-7 text-[#6E6257] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#8A7D75]">
             {problemIdentification || "No problem identification added yet."}
           </div>
         )}
@@ -395,28 +427,57 @@ export default function DiagnosisEditor({
                       Searching products...
                     </p>
                   ) : (
-                    searchResults.map((product) => (
-                      <button
-                        key={product.id}
-                        type="button"
-                        onClick={() => addRecommendedProduct(product)}
-                        disabled={recommendedProductIds.has(product.id)}
-                        className="flex w-full items-start justify-between rounded-xl px-3 py-3 text-left transition-colors hover:bg-[#F8F5F0] dark:hover:bg-[#1A1814] disabled:cursor-not-allowed disabled:opacity-60"
-                      >
-                        <div>
-                          <p className="text-sm font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]">
-                            {product.name}
-                          </p>
-                          <p className="mt-1 text-xs text-[#6E6257] dark:text-[#8A7D75]">
-                            {product.type}
-                            {product.skinType ? ` • ${product.skinType}` : ""}
-                          </p>
-                        </div>
-                        <span className="text-sm font-medium text-[#C6A56B]">
-                          {formatPrice(product.price)}
-                        </span>
-                      </button>
-                    ))
+                    searchResults.map((product) => {
+                      const isOutOfStock = product.stockStatus === "OUT_OF_STOCK";
+
+                      return (
+                        <button
+                          key={product.id}
+                          type="button"
+                          onClick={() => addRecommendedProduct(product)}
+                          disabled={
+                            recommendedProductIds.has(product.id) || isOutOfStock
+                          }
+                          className={`flex w-full items-start justify-between rounded-xl px-3 py-3 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
+                            isOutOfStock
+                              ? "bg-black/5 dark:bg-white/5"
+                              : "hover:bg-[#F8F5F0] dark:hover:bg-[#1A1814]"
+                          }`}
+                        >
+                          <div className="pr-4">
+                            <p className="text-sm font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]">
+                              {product.name}
+                            </p>
+                            <p className="mt-1 text-xs text-[#6E6257] dark:text-[#8A7D75]">
+                              {product.type}
+                              {product.skinType ? ` - ${product.skinType}` : ""}
+                            </p>
+                            <div className="mt-2 flex flex-wrap items-center gap-2">
+                              <span
+                                className={`inline-flex rounded-full border px-2.5 py-1 text-[11px] font-medium ${getStockBadgeClasses(
+                                  product.stockStatus,
+                                )}`}
+                              >
+                                {getStockLabel(product.stockStatus)}
+                              </span>
+                              {isOutOfStock ? (
+                                <span className="text-xs font-medium text-red-600 dark:text-red-300">
+                                  Currently unavailable
+                                </span>
+                              ) : null}
+                              {product.stockStatus === "LIMITED" && product.stockNote ? (
+                                <span className="text-xs text-amber-700 dark:text-amber-300">
+                                  {product.stockNote}
+                                </span>
+                              ) : null}
+                            </div>
+                          </div>
+                          <span className="text-sm font-medium text-[#C6A56B]">
+                            {formatPrice(product.price)}
+                          </span>
+                        </button>
+                      );
+                    })
                   )}
                 </div>
               ) : null}
@@ -424,17 +485,14 @@ export default function DiagnosisEditor({
 
             <div className="grid gap-4">
               {recommendedProducts.length === 0 ? (
-                <div
-                  className="rounded-2xl border border-dashed bg-white px-4 py-5 text-sm text-[#6E6257] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#8A7D75]"
-                >
+                <div className="rounded-2xl border border-dashed bg-white px-4 py-5 text-sm text-[#6E6257] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#8A7D75]">
                   No products recommended yet.
                 </div>
               ) : (
                 recommendedProducts.map((product) => (
                   <article
                     key={product.id}
-                    className="rounded-2xl border bg-white p-4 dark:bg-[#242220] dark:border-[#3D3530]"
-                    
+                    className="rounded-2xl border bg-white p-4 dark:border-[#3D3530] dark:bg-[#242220]"
                   >
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                       <div>
@@ -449,8 +507,24 @@ export default function DiagnosisEditor({
                         </h3>
                         <p className="mt-1 text-sm text-[#6E6257] dark:text-[#8A7D75]">
                           {product.type}
-                          {product.skinType ? ` • ${product.skinType}` : ""}
+                          {product.skinType ? ` - ${product.skinType}` : ""}
                         </p>
+                        <div className="mt-2 flex flex-wrap items-center gap-2">
+                          {product.stockStatus !== "AVAILABLE" ? (
+                            <span
+                              className={`inline-flex rounded-full border px-2.5 py-1 text-[11px] font-medium ${getStockBadgeClasses(
+                                product.stockStatus,
+                              )}`}
+                            >
+                              {getStockLabel(product.stockStatus)}
+                            </span>
+                          ) : null}
+                          {product.stockStatus === "LIMITED" && product.stockNote ? (
+                            <span className="text-xs text-amber-700 dark:text-amber-300">
+                              {product.stockNote}
+                            </span>
+                          ) : null}
+                        </div>
                         <p className="mt-2 text-sm font-medium text-[#C6A56B]">
                           {formatPrice(product.price)}
                         </p>
@@ -498,17 +572,14 @@ export default function DiagnosisEditor({
         ) : (
           <div className="mt-6 space-y-4">
             {recommendedProducts.length === 0 ? (
-                <div
-                  className="rounded-2xl border border-dashed bg-white px-4 py-5 text-sm text-[#6E6257] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#8A7D75]"
-                >
+              <div className="rounded-2xl border border-dashed bg-white px-4 py-5 text-sm text-[#6E6257] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#8A7D75]">
                 No product recommendations added yet.
               </div>
             ) : (
               recommendedProducts.map((product) => (
                 <article
                   key={product.id}
-                  className="rounded-2xl border bg-white p-4 dark:bg-[#242220] dark:border-[#3D3530]"
-                  
+                  className="rounded-2xl border bg-white p-4 dark:border-[#3D3530] dark:bg-[#242220]"
                 >
                   <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                     <div>
@@ -523,17 +594,31 @@ export default function DiagnosisEditor({
                       </h3>
                       <p className="mt-1 text-sm text-[#6E6257] dark:text-[#8A7D75]">
                         {product.type}
-                        {product.skinType ? ` • ${product.skinType}` : ""}
+                        {product.skinType ? ` - ${product.skinType}` : ""}
                       </p>
+                      <div className="mt-2 flex flex-wrap items-center gap-2">
+                        {product.stockStatus !== "AVAILABLE" ? (
+                          <span
+                            className={`inline-flex rounded-full border px-2.5 py-1 text-[11px] font-medium ${getStockBadgeClasses(
+                              product.stockStatus,
+                            )}`}
+                          >
+                            {getStockLabel(product.stockStatus)}
+                          </span>
+                        ) : null}
+                        {product.stockStatus === "LIMITED" && product.stockNote ? (
+                          <span className="text-xs text-amber-700 dark:text-amber-300">
+                            {product.stockNote}
+                          </span>
+                        ) : null}
+                      </div>
                     </div>
                     <p className="text-sm font-medium text-[#C6A56B]">
                       {formatPrice(product.price)}
                     </p>
                   </div>
                   {product.note ? (
-                    <div
-                      className="mt-4 rounded-xl border bg-[#F8F5F0] px-4 py-3 text-sm leading-7 text-[#6E6257] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#8A7D75]"
-                    >
+                    <div className="mt-4 rounded-xl border bg-[#F8F5F0] px-4 py-3 text-sm leading-7 text-[#6E6257] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#8A7D75]">
                       {product.note}
                     </div>
                   ) : null}

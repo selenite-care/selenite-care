@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
+import type { StockStatus } from "@prisma/client";
 
 const PAGE_SIZE = 20;
 
@@ -7,6 +8,8 @@ type ProductPayload = {
   name?: unknown;
   type?: unknown;
   price?: unknown;
+  description?: unknown;
+  image?: unknown;
 };
 
 export async function GET(request: Request) {
@@ -23,31 +26,41 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const page = Math.max(Number(searchParams.get("page") ?? "1") || 1, 1);
   const query = searchParams.get("q")?.trim() ?? "";
+  const rawStockStatus = searchParams.get("stockStatus")?.trim().toUpperCase() ?? "";
+  const stockStatus: StockStatus | undefined =
+    rawStockStatus === "AVAILABLE" ||
+    rawStockStatus === "LIMITED" ||
+    rawStockStatus === "OUT_OF_STOCK"
+      ? rawStockStatus
+      : undefined;
 
-  const where = query
-    ? {
-        OR: [
-          {
-            name: {
-              contains: query,
-              mode: "insensitive" as const,
+  const where = {
+    ...(query
+      ? {
+          OR: [
+            {
+              name: {
+                contains: query,
+                mode: "insensitive" as const,
+              },
             },
-          },
-          {
-            type: {
-              contains: query,
-              mode: "insensitive" as const,
+            {
+              type: {
+                contains: query,
+                mode: "insensitive" as const,
+              },
             },
-          },
-          {
-            skinType: {
-              contains: query,
-              mode: "insensitive" as const,
+            {
+              skinType: {
+                contains: query,
+                mode: "insensitive" as const,
+              },
             },
-          },
-        ],
-      }
-    : undefined;
+          ],
+        }
+      : {}),
+    ...(stockStatus ? { stockStatus } : {}),
+  };
 
   const [products, totalCount] = await Promise.all([
     db.product.findMany({
@@ -58,6 +71,10 @@ export async function GET(request: Request) {
         type: true,
         price: true,
         skinType: true,
+        stockStatus: true,
+        stockNote: true,
+        image: true,
+        description: true,
         createdAt: true,
       },
       orderBy: {
@@ -94,6 +111,9 @@ export async function POST(request: Request) {
   const body = (await request.json().catch(() => ({}))) as ProductPayload;
   const name = typeof body.name === "string" ? body.name.trim() : "";
   const type = typeof body.type === "string" ? body.type.trim() : "";
+  const description =
+    typeof body.description === "string" ? body.description.trim() : "";
+  const image = typeof body.image === "string" ? body.image.trim() : "";
   const price =
     typeof body.price === "number"
       ? body.price
@@ -113,6 +133,8 @@ export async function POST(request: Request) {
       name,
       type,
       price,
+      description: description || null,
+      image: image || null,
     },
     select: {
       id: true,
@@ -120,6 +142,10 @@ export async function POST(request: Request) {
       type: true,
       price: true,
       skinType: true,
+      stockStatus: true,
+      stockNote: true,
+      image: true,
+      description: true,
       createdAt: true,
     },
   });
