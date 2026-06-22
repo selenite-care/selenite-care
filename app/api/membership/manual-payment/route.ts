@@ -164,6 +164,26 @@ export async function POST(request: Request) {
     return Response.json({ error: "User not found." }, { status: 404 });
   }
 
+  const existingPendingMembership = await db.membership.findFirst({
+    where: {
+      userId: user.id,
+      status: "PENDING",
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (existingPendingMembership) {
+    return Response.json(
+      {
+        error:
+          "You already have a pending membership verification. Please wait for admin to review your existing submission. If you need help, contact us directly.",
+      },
+      { status: 409 },
+    );
+  }
+
   try {
     const amount = resolveMembershipAmount(tier);
     const membershipId = await generateMembershipId();

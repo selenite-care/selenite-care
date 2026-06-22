@@ -9,6 +9,7 @@ type PendingMembership = {
   status: "PENDING" | "ACTIVE" | "EXPIRED" | "CANCELLED";
   createdAt: string;
   user: {
+    id: string;
     name: string | null;
     email: string;
     phone: string | null;
@@ -160,6 +161,22 @@ export default function AdminPendingMembershipsPage() {
     [memberships],
   );
 
+  const pendingMembershipGroups = useMemo(() => {
+    const groups = new Map<string, PendingMembership[]>();
+
+    for (const membership of pendingMemberships) {
+      const existingGroup = groups.get(membership.user.id);
+
+      if (existingGroup) {
+        existingGroup.push(membership);
+      } else {
+        groups.set(membership.user.id, [membership]);
+      }
+    }
+
+    return Array.from(groups.values());
+  }, [pendingMemberships]);
+
   async function handleVerify(membershipId: string) {
     setUpdatingId(membershipId);
     setError("");
@@ -268,166 +285,179 @@ export default function AdminPendingMembershipsPage() {
 
       {!isLoading && pendingMemberships.length > 0 ? (
         <div className="mt-8 grid gap-6">
-          {pendingMemberships.map((membership) => {
-            const transactionDetails = parseTransactionDetails(
-              membership.payment?.bankTransactionRef ?? membership.payment?.bkashTrxId ?? null,
-            );
-            const paymentMethod = membership.payment?.paymentMethod ?? "BANK_TRANSFER";
-            const isVerifying = updatingId === membership.id;
-            const isRejecting = rejectingId === membership.id;
+          {pendingMembershipGroups.map((group) => (
+            <div key={group[0].user.id} className="grid gap-4">
+              {group.length > 1 ? (
+                <div className="rounded-2xl border border-yellow-300 bg-yellow-50 px-5 py-4 text-sm text-yellow-900 dark:border-yellow-700/60 dark:bg-yellow-950/25 dark:text-yellow-200">
+                  This client has {group.length} pending submissions. Only verify one and reject the others.
+                </div>
+              ) : null}
 
-            return (
-              <article
-                key={membership.id}
-                className="rounded-2xl border border-[#D8C7B5] bg-white p-6 shadow-sm dark:border-[#3D3530] dark:bg-[#242220]"
-              >
-                <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                  <div>
-                    <p className="font-mono text-xs text-[#8C7967]">
-                      {membership.membershipId}
-                    </p>
-                    <h2
-                      className="mt-2 text-2xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]"
-                      style={{
-                        fontFamily: "Playfair Display, serif",
-                      }}
-                    >
-                      {membership.user.name ?? membership.user.email}
-                    </h2>
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      <span
-                        className="inline-flex rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em]"
-                        style={getTierBadgeStyles(membership.tier)}
-                      >
-                        {formatTierLabel(membership.tier)}
-                      </span>
-                      {membership.payment ? (
-                        <span
-                          className="inline-flex rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em]"
-                          style={getPaymentMethodBadgeStyles(paymentMethod)}
+              {group.map((membership) => {
+                const transactionDetails = parseTransactionDetails(
+                  membership.payment?.bankTransactionRef ?? membership.payment?.bkashTrxId ?? null,
+                );
+                const paymentMethod =
+                  membership.payment?.paymentMethod ?? "BANK_TRANSFER";
+                const isVerifying = updatingId === membership.id;
+                const isRejecting = rejectingId === membership.id;
+
+                return (
+                  <article
+                    key={membership.id}
+                    className="rounded-2xl border border-[#D8C7B5] bg-white p-6 shadow-sm dark:border-[#3D3530] dark:bg-[#242220]"
+                  >
+                    <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                      <div>
+                        <p className="font-mono text-xs text-[#8C7967]">
+                          {membership.membershipId}
+                        </p>
+                        <h2
+                          className="mt-2 text-2xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]"
+                          style={{
+                            fontFamily: "Playfair Display, serif",
+                          }}
                         >
-                          {formatPaymentMethod(paymentMethod)}
-                        </span>
-                      ) : null}
-                    </div>
-                  </div>
+                          {membership.user.name ?? membership.user.email}
+                        </h2>
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          <span
+                            className="inline-flex rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em]"
+                            style={getTierBadgeStyles(membership.tier)}
+                          >
+                            {formatTierLabel(membership.tier)}
+                          </span>
+                          {membership.payment ? (
+                            <span
+                              className="inline-flex rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em]"
+                              style={getPaymentMethodBadgeStyles(paymentMethod)}
+                            >
+                              {formatPaymentMethod(paymentMethod)}
+                            </span>
+                          ) : null}
+                        </div>
+                      </div>
 
-                  {membership.payment?.bankTransferProof ? (
-                    <a
-                      href={membership.payment.bankTransferProof}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="block w-full max-w-[180px] overflow-hidden rounded-2xl border border-[#D8C7B5] bg-[#F8F5F0] p-2 dark:border-[#3D3530] dark:bg-[#2A2724]"
-                    >
-                      <img
-                        src={membership.payment.bankTransferProof}
-                        alt="Payment proof thumbnail"
-                        className="h-32 w-full rounded-xl object-cover"
+                      {membership.payment?.bankTransferProof ? (
+                        <a
+                          href={membership.payment.bankTransferProof}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="block w-full max-w-[180px] overflow-hidden rounded-2xl border border-[#D8C7B5] bg-[#F8F5F0] p-2 dark:border-[#3D3530] dark:bg-[#2A2724]"
+                        >
+                          <img
+                            src={membership.payment.bankTransferProof}
+                            alt="Payment proof thumbnail"
+                            className="h-32 w-full rounded-xl object-cover"
+                          />
+                        </a>
+                      ) : (
+                        <div
+                          className="flex h-36 w-full max-w-[180px] items-center justify-center rounded-2xl border border-[#D8C7B5] bg-[#FCFAF7] px-4 text-center text-sm text-[#B8A89A] dark:border-[#3D3530] dark:bg-[#2A2724] dark:text-[#8A7D75]"
+                        >
+                          No proof image provided
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#8C7967]">
+                          Phone
+                        </p>
+                        <p className="mt-2 text-sm text-[#2B2B2B] dark:text-[#F0EDE8]">
+                          {membership.user.phone ?? "-"}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#8C7967]">
+                          Email
+                        </p>
+                        <p className="mt-2 break-all text-sm text-[#2B2B2B] dark:text-[#F0EDE8]">
+                          {membership.user.email}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#8C7967]">
+                          Amount
+                        </p>
+                        <p className="mt-2 text-sm text-[#2B2B2B] dark:text-[#F0EDE8]">
+                          {membership.payment
+                            ? `${Math.round(membership.payment.amount)} BDT`
+                            : "-"}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#8C7967]">
+                          Submitted
+                        </p>
+                        <p className="mt-2 text-sm text-[#2B2B2B] dark:text-[#F0EDE8]">
+                          {new Date(membership.createdAt).toLocaleString()}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#8C7967]">
+                          Transaction Reference
+                        </p>
+                        <p className="mt-2 text-sm text-[#2B2B2B] dark:text-[#F0EDE8]">
+                          {transactionDetails.transactionRef}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#8C7967]">
+                          Sender Number
+                        </p>
+                        <p className="mt-2 text-sm text-[#2B2B2B] dark:text-[#F0EDE8]">
+                          {transactionDetails.senderNumber || "-"}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="mt-6 rounded-2xl border border-[#D8C7B5] bg-[#FCFAF7] p-4 dark:border-[#3D3530] dark:bg-[#2A2724]">
+                      <label
+                        htmlFor={`reject-reason-${membership.id}`}
+                        className="text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]"
+                      >
+                        Rejection reason
+                      </label>
+                      <textarea
+                        id={`reject-reason-${membership.id}`}
+                        value={rejectionReasons[membership.id] ?? ""}
+                        onChange={(event) =>
+                          setRejectionReasons((current) => ({
+                            ...current,
+                            [membership.id]: event.target.value,
+                          }))
+                        }
+                        rows={3}
+                        placeholder="Explain why this payment is being rejected."
+                        className="mt-3 w-full rounded-xl border border-[#D8C7B5] bg-white px-4 py-3 text-sm text-[#2B2B2B] outline-none transition-colors placeholder:text-[#B8A89A] focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8] dark:placeholder:text-[#8A7D75]"
                       />
-                    </a>
-                  ) : (
-                    <div
-                      className="flex h-36 w-full max-w-[180px] items-center justify-center rounded-2xl border border-[#D8C7B5] bg-[#FCFAF7] px-4 text-center text-sm text-[#B8A89A] dark:border-[#3D3530] dark:bg-[#2A2724] dark:text-[#8A7D75]"
-                    >
-                      No proof image provided
                     </div>
-                  )}
-                </div>
 
-                <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#8C7967]">
-                      Phone
-                    </p>
-                    <p className="mt-2 text-sm text-[#2B2B2B]">
-                      {membership.user.phone ?? "-"}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#8C7967]">
-                      Email
-                    </p>
-                    <p className="mt-2 break-all text-sm text-[#2B2B2B]">
-                      {membership.user.email}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#8C7967]">
-                      Amount
-                    </p>
-                    <p className="mt-2 text-sm text-[#2B2B2B]">
-                      {membership.payment ? `${Math.round(membership.payment.amount)} BDT` : "-"}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#8C7967]">
-                      Submitted
-                    </p>
-                    <p className="mt-2 text-sm text-[#2B2B2B]">
-                      {new Date(membership.createdAt).toLocaleString()}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#8C7967]">
-                      Transaction Reference
-                    </p>
-                    <p className="mt-2 text-sm text-[#2B2B2B]">
-                      {transactionDetails.transactionRef}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#8C7967]">
-                      Sender Number
-                    </p>
-                    <p className="mt-2 text-sm text-[#2B2B2B]">
-                      {transactionDetails.senderNumber || "-"}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="mt-6 rounded-2xl border border-[#D8C7B5] bg-[#FCFAF7] p-4 dark:border-[#3D3530] dark:bg-[#2A2724]">
-                  <label
-                    htmlFor={`reject-reason-${membership.id}`}
-                    className="text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]"
-                  >
-                    Rejection reason
-                  </label>
-                  <textarea
-                    id={`reject-reason-${membership.id}`}
-                    value={rejectionReasons[membership.id] ?? ""}
-                    onChange={(event) =>
-                      setRejectionReasons((current) => ({
-                        ...current,
-                        [membership.id]: event.target.value,
-                      }))
-                    }
-                    rows={3}
-                    placeholder="Explain why this payment is being rejected."
-                    className="mt-3 w-full rounded-xl border border-[#D8C7B5] bg-white px-4 py-3 text-sm text-[#2B2B2B] outline-none transition-colors placeholder:text-[#B8A89A] focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8] dark:placeholder:text-[#8A7D75]"
-                  />
-                </div>
-
-                <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-                  <button
-                    type="button"
-                    onClick={() => void handleVerify(membership.id)}
-                    disabled={isVerifying || isRejecting}
-                    className="inline-flex h-11 items-center justify-center rounded-md bg-[#2B2B2B] px-5 text-sm font-medium text-[#F8F5F0] transition-colors disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#C6A56B] dark:text-[#141210]"
-                  >
-                    {isVerifying ? "Verifying..." : "Verify & Activate"}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => void handleReject(membership.id)}
-                    disabled={isVerifying || isRejecting}
-                    className="inline-flex h-11 items-center justify-center rounded-md border border-[#C84B4B] bg-white px-5 text-sm font-medium text-[#B91C1C] transition-colors disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#242220]"
-                  >
-                    {isRejecting ? "Rejecting..." : "Reject"}
-                  </button>
-                </div>
-              </article>
-            );
-          })}
+                    <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+                      <button
+                        type="button"
+                        onClick={() => void handleVerify(membership.id)}
+                        disabled={isVerifying || isRejecting}
+                        className="inline-flex h-11 items-center justify-center rounded-md bg-[#2B2B2B] px-5 text-sm font-medium text-[#F8F5F0] transition-colors disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#C6A56B] dark:text-[#141210]"
+                      >
+                        {isVerifying ? "Verifying..." : "Verify & Activate"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => void handleReject(membership.id)}
+                        disabled={isVerifying || isRejecting}
+                        className="inline-flex h-11 items-center justify-center rounded-md border border-[#C84B4B] bg-white px-5 text-sm font-medium text-[#B91C1C] transition-colors disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#242220]"
+                      >
+                        {isRejecting ? "Rejecting..." : "Reject"}
+                      </button>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          ))}
         </div>
       ) : null}
     </section>
