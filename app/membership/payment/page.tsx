@@ -47,6 +47,15 @@ type ManualPaymentResponse = {
   error?: string;
 };
 
+type ClientMembershipResponse = {
+  membership?: {
+    tier: MembershipTier;
+    status: "PENDING" | "ACTIVE" | "EXPIRED" | "CANCELLED";
+    expiresAt: string | null;
+  } | null;
+  error?: string;
+};
+
 const MEMBERSHIPS: Record<MembershipTier, MembershipTierDetails> = {
   SIGNATURE: {
     name: "Signature Membership",
@@ -96,6 +105,10 @@ function formatBdt(amount: number) {
   return `${Math.round(amount)} BDT`;
 }
 
+function getPendingMembershipRedirectHref(tier: MembershipTier, amount: number) {
+  return `/membership/pending?tier=${encodeURIComponent(tier)}&amount=${encodeURIComponent(String(amount))}`;
+}
+
 function parseTier(value: string | null): MembershipTier | null {
   if (!value) {
     return null;
@@ -129,6 +142,11 @@ function MembershipPaymentForm({
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    if (isSubmitting) {
+      return;
+    }
+
     setError("");
     setIsSubmitting(true);
 
@@ -255,7 +273,7 @@ function MembershipPaymentForm({
           cursor: !stripe || isSubmitting ? "not-allowed" : "pointer",
         }}
       >
-        {isSubmitting ? "Processing..." : `Pay ${formatBdt(membership.price)}`}
+        {isSubmitting ? "Submitting..." : `Pay ${formatBdt(membership.price)}`}
       </button>
     </form>
   );
@@ -331,6 +349,11 @@ function BkashManualPaymentForm({
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    if (isSubmitting) {
+      return;
+    }
+
     setError("");
 
     if (!transactionId.trim() && !proofImageUrl.trim()) {
@@ -371,9 +394,7 @@ function BkashManualPaymentForm({
       }
 
       router.push(
-        `/membership/pending-verification?id=${encodeURIComponent(
-          data.membershipId,
-        )}`,
+        getPendingMembershipRedirectHref(tier, membership.price),
       );
     } catch (submitError) {
       setError(
@@ -381,7 +402,6 @@ function BkashManualPaymentForm({
           ? submitError.message
           : "Unable to submit your payment.",
       );
-    } finally {
       setIsSubmitting(false);
     }
   }
@@ -694,6 +714,11 @@ function BankTransferManualPaymentForm({
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    if (isSubmitting) {
+      return;
+    }
+
     setError("");
 
     if (!transactionRef.trim() && !proofImageUrl.trim()) {
@@ -728,9 +753,7 @@ function BankTransferManualPaymentForm({
       }
 
       router.push(
-        `/membership/pending-verification?id=${encodeURIComponent(
-          data.membershipId,
-        )}`,
+        getPendingMembershipRedirectHref(tier, membership.price),
       );
     } catch (submitError) {
       setError(
@@ -738,7 +761,6 @@ function BankTransferManualPaymentForm({
           ? submitError.message
           : "Unable to submit your payment.",
       );
-    } finally {
       setIsSubmitting(false);
     }
   }
@@ -894,6 +916,7 @@ function BankTransferManualPaymentForm({
 }
 
 function MembershipPaymentPageContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const tier = useMemo(
     () => parseTier(searchParams.get("tier")),
@@ -902,6 +925,55 @@ function MembershipPaymentPageContent() {
   const [paymentMethod, setPaymentMethod] = useState<"card" | "bkash" | "bank">(
     "bkash",
   );
+  const [isCheckingPendingMembership, setIsCheckingPendingMembership] =
+    useState(true);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function checkPendingMembership() {
+      try {
+        const response = await fetch("/api/client/membership", {
+          cache: "no-store",
+        });
+        const data = (await response.json().catch(() => null)) as
+          | ClientMembershipResponse
+          | null;
+
+        if (!response.ok) {
+          return;
+        }
+
+        const membership = data?.membership;
+
+        if (membership?.status === "PENDING") {
+          router.replace(
+            getPendingMembershipRedirectHref(
+              membership.tier,
+              MEMBERSHIPS[membership.tier].price,
+            ),
+          );
+          return;
+        }
+      } catch {
+        // Ignore membership lookup issues here and allow the page to render.
+      } finally {
+        if (isMounted) {
+          setIsCheckingPendingMembership(false);
+        }
+      }
+    }
+
+    void checkPendingMembership();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [router]);
+
+  if (isCheckingPendingMembership) {
+    return <MembershipPaymentLoadingFallback />;
+  }
 
   if (!tier) {
     return (

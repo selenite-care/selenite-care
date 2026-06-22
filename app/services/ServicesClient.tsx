@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import {
   getMembershipAvailabilityLabel,
   isMembershipAvailable,
@@ -45,6 +46,12 @@ type MembershipActionState = {
   disabled: boolean;
   href: string | null;
   label: string;
+};
+
+const MEMBERSHIP_AMOUNTS: Record<ClientMembership["tier"], number> = {
+  SIGNATURE: 490,
+  CRYSTAL: 3990,
+  PLATINUM: 9990,
 };
 
 const TIER_ORDER = {
@@ -473,6 +480,7 @@ function MembershipModal({
 }
 
 export default function ServicesClient() {
+  const router = useRouter();
   const { data: session } = useSession();
   const [selectedMembership, setSelectedMembership] = useState<MembershipTier | null>(
     null,
@@ -504,7 +512,14 @@ export default function ServicesClient() {
         }
 
         if (isMounted) {
-          setClientMembership(data?.membership ?? null);
+          const membership = data?.membership ?? null;
+          setClientMembership(membership);
+
+          if (membership?.status === "PENDING") {
+            router.replace(
+              `/membership/pending?tier=${membership.tier}&amount=${MEMBERSHIP_AMOUNTS[membership.tier]}`,
+            );
+          }
         }
       } catch {
         if (isMounted) {
@@ -522,7 +537,7 @@ export default function ServicesClient() {
     return () => {
       isMounted = false;
     };
-  }, [session?.user]);
+  }, [router, session?.user]);
 
   function getMembershipActionState(
     membership: MembershipTier,
