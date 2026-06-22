@@ -1,7 +1,6 @@
 import Link from "next/link";
 import NextAuth from "next-auth";
 import { redirect } from "next/navigation";
-import ClientQuotaSummaryCard from "@/components/membership/ClientQuotaSummaryCard";
 import MembershipCountdown from "@/components/membership/MembershipCountdown";
 import { authConfig } from "@/lib/auth";
 import { db } from "@/lib/db";
@@ -142,8 +141,6 @@ export default async function DashboardPage() {
                 membershipId={membership.membershipId}
                 tier={membership.tier}
               />
-
-              <ClientQuotaSummaryCard />
 
               {membership.tier !== "PLATINUM" && upgradeOptions.length > 0 ? (
                 <article

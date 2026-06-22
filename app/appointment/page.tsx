@@ -31,37 +31,6 @@ type MembershipResponse = {
   error?: string;
 };
 
-type TotalQuota = {
-  type: "total";
-  limit: number;
-  used: number;
-  remaining: number;
-  isUnlimited: false;
-};
-
-type SpecializationQuotaValue = {
-  limit: number | null;
-  used: number;
-  remaining: number | null;
-  isUnlimited: boolean;
-};
-
-type SpecializationQuota = {
-  type: "specialization";
-  AESTHETICIAN: SpecializationQuotaValue;
-  NUTRITIONIST: SpecializationQuotaValue;
-  PSYCHIATRIST: SpecializationQuotaValue;
-};
-
-type MembershipQuotaResponse = {
-  membership: {
-    tier: "SIGNATURE" | "CRYSTAL" | "PLATINUM";
-    status: "PENDING" | "ACTIVE" | "EXPIRED" | "CANCELLED";
-    expiresAt: string | null;
-  };
-  quota: TotalQuota | SpecializationQuota;
-} | null;
-
 const specializationOrder = [
   "AESTHETICIAN",
   "NUTRITIONIST",
@@ -83,16 +52,11 @@ function getInitials(name: string) {
     .toUpperCase();
 }
 
-function formatQuotaValue(value: number | null) {
-  return value === null ? "Unlimited" : String(value);
-}
-
 export default function AppointmentPage() {
   const [membershipStatus, setMembershipStatus] = useState<
     "loading" | "active" | "inactive" | "expired"
   >("loading");
   const [doctors, setDoctors] = useState<AppointmentDoctor[]>([]);
-  const [quotaData, setQuotaData] = useState<MembershipQuotaResponse>(null);
   const [isLoadingDoctors, setIsLoadingDoctors] = useState(false);
   const [error, setError] = useState("");
   const [showMembershipModal, setShowMembershipModal] = useState(false);
@@ -102,16 +66,11 @@ export default function AppointmentPage() {
 
     async function loadPageData() {
       try {
-        const [membershipResponse, quotaResponse] = await Promise.all([
-          fetch("/api/client/membership"),
-          fetch("/api/client/membership-quota"),
-        ]);
+        const membershipResponse = await fetch("/api/client/membership");
         const membershipData =
           (await membershipResponse.json().catch(() => null)) as
             | MembershipResponse
             | null;
-        const quotaPayload =
-          (await quotaResponse.json().catch(() => null)) as MembershipQuotaResponse;
 
         const membership = membershipData?.membership;
         const hasActiveMembership =
@@ -123,8 +82,6 @@ export default function AppointmentPage() {
         if (!isMounted) {
           return;
         }
-
-        setQuotaData(quotaResponse.ok ? quotaPayload : null);
 
         if (hasActiveMembership) {
           setMembershipStatus("active");
@@ -182,10 +139,6 @@ export default function AppointmentPage() {
   }, []);
 
   const hasActiveMembership = membershipStatus === "active";
-  const totalQuotaExhausted =
-    hasActiveMembership &&
-    quotaData?.quota.type === "total" &&
-    quotaData.quota.remaining === 0;
   const membershipPromptMessage =
     membershipStatus === "expired"
       ? "Your membership has expired. Please renew your membership to book appointments."
@@ -263,89 +216,6 @@ export default function AppointmentPage() {
           </section>
         ) : null}
 
-        {hasActiveMembership && quotaData ? (
-          <section
-            className="mt-10 rounded-[24px] border bg-white px-6 py-6 dark:bg-[#242220] dark:border-[#3D3530]"
-            style={{
-              boxShadow: "0 18px 48px rgba(43, 43, 43, 0.06)",
-            }}
-          >
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <h2
-                  className="text-2xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]"
-                  style={{
-                    fontFamily: "Playfair Display, serif",
-                  }}
-                >
-                  Membership Quota Summary
-                </h2>
-                <p className="mt-2 text-sm leading-6 text-[#6E6257] dark:text-[#8A7D75]">
-                  Track how many consultations remain in your current membership.
-                </p>
-              </div>
-
-              <div
-                className="inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#F0EDE8]"
-                style={{
-                  borderColor: "#D8C7B5",
-                  backgroundColor: "#F8F5F0",
-                  color: "#8C7967",
-                }}
-              >
-                {quotaData.membership.tier}
-              </div>
-            </div>
-
-            {quotaData.quota.type === "total" ? (
-              <div
-                className="mt-5 rounded-2xl border px-5 py-4 dark:border-[#3D3530] dark:bg-[#1A1814]"
-                style={{
-                  borderColor: "#D8C7B5",
-                  backgroundColor: "#F8F5F0",
-                }}
-              >
-                <p className="text-base font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
-                  {quotaData.quota.used} of {quotaData.quota.limit} consultations used
-                </p>
-                <p className="mt-2 text-sm text-[#6E6257] dark:text-[#8A7D75]">
-                  {quotaData.quota.remaining} consultation
-                  {quotaData.quota.remaining === 1 ? "" : "s"} remaining
-                </p>
-              </div>
-            ) : (
-              <div className="mt-5 grid gap-4 md:grid-cols-3">
-                {specializationOrder.map((specialization) => {
-                  const quota = (quotaData.quota as SpecializationQuota)[specialization];
-
-                  return (
-                    <div
-                      key={specialization}
-                      className="rounded-2xl border px-5 py-4 dark:border-[#3D3530] dark:bg-[#1A1814]"
-                      style={{
-                        borderColor: "#D8C7B5",
-                        backgroundColor: "#F8F5F0",
-                      }}
-                    >
-                      <p className="text-sm font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]">
-                        {specializationLabels[specialization]}
-                      </p>
-                      <p className="mt-2 text-base font-medium text-[#6E6257] dark:text-[#8A7D75]">
-                        {quota.used}/{formatQuotaValue(quota.limit)} used
-                      </p>
-                      <p className="mt-1 text-sm text-[#8C7967] dark:text-[#8A7D75]">
-                        {quota.isUnlimited
-                          ? "Unlimited remaining"
-                          : `${quota.remaining ?? 0} remaining`}
-                      </p>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </section>
-        ) : null}
-
         {membershipStatus !== "loading" ? (
           <>
             {isLoadingDoctors ? (
@@ -385,24 +255,10 @@ export default function AppointmentPage() {
 
                     <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-3">
                       {group.doctors.map((doctor) => {
-                        const specializationQuota =
-                          quotaData?.quota.type === "specialization"
-                            ? (quotaData.quota as SpecializationQuota)[
-                                doctor.specialization
-                              ]
-                            : null;
-                        const isQuotaLocked =
-                          hasActiveMembership &&
-                          (totalQuotaExhausted ||
-                            (!!specializationQuota &&
-                              !specializationQuota.isUnlimited &&
-                              (specializationQuota.remaining ?? 0) === 0));
-                        const isLocked = !hasActiveMembership || isQuotaLocked;
+                        const isLocked = !hasActiveMembership;
                         const lockMessage = !hasActiveMembership
                           ? membershipPromptMessage
-                          : totalQuotaExhausted
-                            ? "You have used all consultations included in your membership. Please contact us to discuss options."
-                            : "Consultation limit reached for this specialist type";
+                          : "";
 
                         return (
                           <article
@@ -497,21 +353,10 @@ export default function AppointmentPage() {
                                         backgroundColor: "#2B2B2B",
                                         color: "#F8F5F0",
                                       }}
-                                    >
-                                      Select Doctor
-                                    </button>
-                                  ) : (
-                                    <div
-                                      className="mt-6 inline-flex h-12 w-full items-center justify-center rounded-md border px-5 text-sm font-medium dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#8A7D75]"
-                                      style={{
-                                        borderColor: "#D8C7B5",
-                                        backgroundColor: "#EFE7DC",
-                                        color: "#8C7967",
-                                      }}
-                                    >
-                                      Unavailable
-                                    </div>
-                                  )}
+                                      >
+                                        Select Doctor
+                                      </button>
+                                  ) : null}
                                 </>
                               ) : (
                                 <Link
