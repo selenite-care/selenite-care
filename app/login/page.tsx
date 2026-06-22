@@ -22,6 +22,7 @@ function LoginPageContent() {
   const [isResending, setIsResending] = useState(false);
   const [resendCountdown, setResendCountdown] = useState(0);
   const [resendMessage, setResendMessage] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
 
   useEffect(() => {
     if (status !== "authenticated") {
@@ -70,6 +71,7 @@ function LoginPageContent() {
     const result = await signIn("credentials", {
       email: submittedEmail,
       password,
+      rememberMe: rememberMe ? "true" : "false",
       redirect: false,
     });
 
@@ -213,6 +215,16 @@ function LoginPageContent() {
               </a>
             </div>
           </div>
+
+          <label className="text-page flex items-center gap-3 text-sm">
+            <input
+              type="checkbox"
+              checked={rememberMe}
+              onChange={(event) => setRememberMe(event.target.checked)}
+              className="h-4 w-4 rounded border border-[#D8C7B5] accent-[#C6A56B] dark:border-[#3D3530]"
+            />
+            <span className="text-muted">Remember me</span>
+          </label>
 
           {error ? (
             <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
