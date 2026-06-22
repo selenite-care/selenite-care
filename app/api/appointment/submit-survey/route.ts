@@ -2,10 +2,6 @@ import NextAuth from "next-auth";
 import { authConfig } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
-import {
-  calculateRemainingQuota,
-  type MembershipQuotaTier,
-} from "@/lib/membershipQuotas";
 
 const { auth } = NextAuth(authConfig);
 const adminEmail = process.env.ADMIN_EMAIL ?? "";
@@ -194,59 +190,6 @@ export async function POST(request: Request) {
 
   if (!doctor) {
     return Response.json({ error: "Doctor not found." }, { status: 404 });
-  }
-
-  const bookingsSinceMembershipStarted = await db.booking.findMany({
-    where: {
-      userId: session.user.id,
-      createdAt: {
-        gte: membership.createdAt,
-      },
-      status: {
-        not: "CANCELLED",
-      },
-    },
-    select: {
-      doctor: {
-        select: {
-          specialization: true,
-        },
-      },
-    },
-  });
-
-  const membershipTier = membership.tier as MembershipQuotaTier;
-  const quotaBreakdown =
-    membershipTier === "SIGNATURE"
-      ? calculateRemainingQuota(membershipTier, {
-          total: bookingsSinceMembershipStarted.length,
-        })
-      : calculateRemainingQuota(membershipTier, {
-          AESTHETICIAN: bookingsSinceMembershipStarted.filter(
-            (booking) => booking.doctor?.specialization === "AESTHETICIAN",
-          ).length,
-          NUTRITIONIST: bookingsSinceMembershipStarted.filter(
-            (booking) => booking.doctor?.specialization === "NUTRITIONIST",
-          ).length,
-          PSYCHIATRIST: bookingsSinceMembershipStarted.filter(
-            (booking) => booking.doctor?.specialization === "PSYCHIATRIST",
-          ).length,
-        });
-
-  const hasRemainingQuota =
-    quotaBreakdown.type === "total"
-      ? quotaBreakdown.remaining > 0
-      : quotaBreakdown[doctor.specialization].isUnlimited ||
-        quotaBreakdown[doctor.specialization].remaining > 0;
-
-  if (!hasRemainingQuota) {
-    return Response.json(
-      {
-        error:
-          "You have reached your consultation limit for this membership period.",
-      },
-      { status: 403 },
-    );
   }
 
   const usesKoreanProducts =
