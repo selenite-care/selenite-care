@@ -6,14 +6,14 @@ const { auth } = NextAuth(authConfig);
 
 export const runtime = "nodejs";
 
-async function requireAdmin() {
+async function requireStaffUploadAccess() {
   const session = await auth();
 
   if (!session?.user) {
     return Response.json({ error: "Unauthorized." }, { status: 401 });
   }
 
-  if (session.user.role !== "ADMIN") {
+  if (session.user.role !== "ADMIN" && session.user.role !== "CRM") {
     return Response.json({ error: "Forbidden." }, { status: 403 });
   }
 
@@ -81,7 +81,7 @@ async function uploadToCloudinary(file: File) {
 }
 
 export async function POST(request: Request) {
-  const adminError = await requireAdmin();
+  const adminError = await requireStaffUploadAccess();
 
   if (adminError) {
     return adminError;
