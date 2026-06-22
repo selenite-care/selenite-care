@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { FormEvent, useEffect, useRef, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import FileUploadButton from "@/components/ui/FileUploadButton";
 
 type Product = {
@@ -14,6 +14,7 @@ type Product = {
   stockNote: string | null;
   image: string | null;
   description: string | null;
+  isVisible: boolean;
   createdAt: string;
 };
 
@@ -32,6 +33,7 @@ type ProductFormState = {
   name: string;
   type: string;
   price: string;
+  skinType: string;
   description: string;
   image: string;
 };
@@ -40,8 +42,22 @@ const emptyForm: ProductFormState = {
   name: "",
   type: "",
   price: "",
+  skinType: "",
   description: "",
   image: "",
+};
+
+type ProductEditFormState = {
+  id: string;
+  name: string;
+  type: string;
+  price: string;
+  skinType: string;
+  description: string;
+  stockStatus: Product["stockStatus"];
+  stockNote: string;
+  image: string;
+  isVisible: boolean;
 };
 
 type SaveStateMap = Record<string, "idle" | "saving" | "saved" | "error">;
@@ -70,6 +86,47 @@ function getStockBadgeClasses(status: Product["stockStatus"]) {
   }
 }
 
+function getNextStockStatus(status: Product["stockStatus"]): Product["stockStatus"] {
+  switch (status) {
+    case "AVAILABLE":
+      return "LIMITED";
+    case "LIMITED":
+      return "OUT_OF_STOCK";
+    case "OUT_OF_STOCK":
+      return "AVAILABLE";
+    default:
+      return "AVAILABLE";
+  }
+}
+
+function getQuickToggleLabel(status: Product["stockStatus"]) {
+  switch (status) {
+    case "AVAILABLE":
+      return "Mark Limited";
+    case "LIMITED":
+      return "Mark Out";
+    case "OUT_OF_STOCK":
+      return "Mark Available";
+    default:
+      return "Update Status";
+  }
+}
+
+function createEditFormState(product: Product): ProductEditFormState {
+  return {
+    id: product.id,
+    name: product.name,
+    type: product.type,
+    price: String(product.price),
+    skinType: product.skinType ?? "",
+    description: product.description ?? "",
+    stockStatus: product.stockStatus,
+    stockNote: product.stockNote ?? "",
+    image: product.image ?? "",
+    isVisible: product.isVisible,
+  };
+}
+
 export default function AdminProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -80,10 +137,14 @@ export default function AdminProductsPage() {
   const [form, setForm] = useState<ProductFormState>(emptyForm);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingProductId, setEditingProductId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState<ProductEditFormState | null>(null);
+  const [isEditSubmitting, setIsEditSubmitting] = useState(false);
   const [saveStates, setSaveStates] = useState<SaveStateMap>({});
   const [uploadingProductId, setUploadingProductId] = useState<string | null>(null);
   const [error, setError] = useState("");
-  const saveTimeouts = useRef<Record<string, number>>({});
+  const [successMessage, setSuccessMessage] = useState("");
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
@@ -92,6 +153,18 @@ export default function AdminProductsPage() {
 
     return () => window.clearTimeout(timeoutId);
   }, [page, searchQuery, stockFilter]);
+
+  useEffect(() => {
+    if (!successMessage) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setSuccessMessage("");
+    }, 2500);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [successMessage]);
 
   async function loadProducts(targetPage: number, query: string, statusFilter: string) {
     setIsLoading(true);
@@ -163,6 +236,7 @@ export default function AdminProductsPage() {
         ),
       );
       setSaveStates((current) => ({ ...current, [productId]: "saved" }));
+      setSuccessMessage("Product updated successfully.");
       window.setTimeout(() => {
         setSaveStates((current) =>
           current[productId] === "saved" ? { ...current, [productId]: "idle" } : current,
@@ -178,22 +252,6 @@ export default function AdminProductsPage() {
     }
   }
 
-  function schedulePatch(
-    productId: string,
-    payload: Partial<Pick<Product, "stockStatus" | "stockNote" | "image" | "description">>,
-  ) {
-    const existingTimeout = saveTimeouts.current[productId];
-
-    if (existingTimeout) {
-      window.clearTimeout(existingTimeout);
-    }
-
-    saveTimeouts.current[productId] = window.setTimeout(() => {
-      void patchProduct(productId, payload);
-      delete saveTimeouts.current[productId];
-    }, 500);
-  }
-
   function updateProductDraft<K extends keyof Product>(
     productId: string,
     field: K,
@@ -206,29 +264,51 @@ export default function AdminProductsPage() {
     );
   }
 
-  async function handleImageUpload(productId: string, file: File) {
-    setUploadingProductId(productId);
+  function openEditModal(product: Product) {
+    setEditForm(createEditFormState(product));
+    setEditingProductId(product.id);
+    setIsEditModalOpen(true);
+    setError("");
+  }
+
+  function closeEditModal() {
+    if (isEditSubmitting) {
+      return;
+    }
+
+    setIsEditModalOpen(false);
+    setEditingProductId(null);
+    setEditForm(null);
+  }
+
+  async function handleEditImageUpload(file: File) {
+    if (!editForm) {
+      return;
+    }
+
+    setUploadingProductId(editForm.id);
     setError("");
 
     try {
       const formData = new FormData();
       formData.append("file", file);
 
-      const uploadResponse = await fetch("/api/admin/upload", {
+      const response = await fetch("/api/admin/upload", {
         method: "POST",
         body: formData,
       });
 
-      const uploadData = (await uploadResponse.json().catch(() => null)) as
+      const data = (await response.json().catch(() => null)) as
         | { secure_url?: string; error?: string }
         | null;
 
-      if (!uploadResponse.ok || !uploadData?.secure_url) {
-        throw new Error(uploadData?.error ?? "Unable to upload product image.");
+      if (!response.ok || !data?.secure_url) {
+        throw new Error(data?.error ?? "Unable to upload product image.");
       }
 
-      updateProductDraft(productId, "image", uploadData.secure_url);
-      await patchProduct(productId, { image: uploadData.secure_url });
+      setEditForm((current) =>
+        current ? { ...current, image: data.secure_url ?? "" } : current,
+      );
     } catch (uploadError) {
       setError(
         uploadError instanceof Error
@@ -237,6 +317,64 @@ export default function AdminProductsPage() {
       );
     } finally {
       setUploadingProductId(null);
+    }
+  }
+
+  async function handleEditSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (!editForm || isEditSubmitting) {
+      return;
+    }
+
+    setIsEditSubmitting(true);
+    setError("");
+
+    try {
+      const response = await fetch(`/api/admin/products/${editForm.id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: editForm.name,
+          type: editForm.type,
+          price: Number(editForm.price),
+          skinType: editForm.skinType,
+          description: editForm.description,
+          stockStatus: editForm.stockStatus,
+          stockNote: editForm.stockNote,
+          image: editForm.image || null,
+          isVisible: editForm.isVisible,
+        }),
+      });
+
+      const data = (await response.json().catch(() => null)) as
+        | { error?: string; product?: Product }
+        | null;
+
+      if (!response.ok || !data?.product) {
+        throw new Error(data?.error ?? "Unable to update product.");
+      }
+
+      setProducts((current) =>
+        current.map((product) =>
+          product.id === data.product!.id ? data.product! : product,
+        ),
+      );
+      setSuccessMessage("Product updated successfully.");
+      setIsEditModalOpen(false);
+      setEditingProductId(null);
+      setEditForm(null);
+      await loadProducts(page, searchQuery, stockFilter);
+    } catch (submitError) {
+      setError(
+        submitError instanceof Error
+          ? submitError.message
+          : "Unable to update product.",
+      );
+    } finally {
+      setIsEditSubmitting(false);
     }
   }
 
@@ -361,6 +499,12 @@ export default function AdminProductsPage() {
         </div>
       </div>
 
+      {successMessage ? (
+        <div className="mt-6 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700 dark:border-green-900/50 dark:bg-green-950/20 dark:text-green-300">
+          {successMessage}
+        </div>
+      ) : null}
+
       <div className="mt-8 grid gap-6 xl:grid-cols-[minmax(0,1.4fr)_minmax(320px,0.8fr)]">
         <div className="rounded-lg border border-themed bg-card">
           <div className="border-b border-themed px-5 py-4">
@@ -374,148 +518,212 @@ export default function AdminProductsPage() {
           ) : products.length === 0 ? (
             <p className="px-5 py-6 text-sm text-muted">No products found.</p>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="table-themed w-full min-w-[1280px] text-left text-sm">
-                <thead>
-                  <tr>
-                    <th className="px-4 py-3 font-medium">Image</th>
-                    <th className="px-4 py-3 font-medium">Name</th>
-                    <th className="px-4 py-3 font-medium">Type</th>
-                    <th className="px-4 py-3 font-medium">Price</th>
-                    <th className="px-4 py-3 font-medium">Stock Status</th>
-                    <th className="px-4 py-3 font-medium">Stock Note</th>
-                    <th className="px-4 py-3 font-medium">Description</th>
-                    <th className="px-4 py-3 font-medium">Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {products.map((product) => (
-                    <tr key={product.id}>
-                      <td className="px-4 py-4">
-                        <div className="flex min-w-[140px] flex-col gap-3">
-                          <div className="relative h-16 w-16 overflow-hidden rounded-md border border-themed bg-[#FCFAF7] dark:bg-[#1A1814]">
-                            {product.image ? (
-                              <Image
-                                src={product.image}
-                                alt={product.name}
-                                fill
-                                className="object-cover"
-                                sizes="64px"
-                              />
-                            ) : (
-                              <div className="flex h-full items-center justify-center text-xs text-muted">
-                                No image
-                              </div>
-                            )}
-                          </div>
-                          <FileUploadButton
-                            onFileSelected={(file) => {
-                              void handleImageUpload(product.id, file);
-                            }}
-                            label={
-                              uploadingProductId === product.id
-                                ? "Uploading..."
-                                : "Upload Image"
-                            }
-                            accept="image/*"
-                            currentPreviewUrl={product.image ?? undefined}
-                          />
-                        </div>
-                      </td>
-                      <td className="px-4 py-4 font-medium">{product.name}</td>
-                      <td className="cell-muted px-4 py-4">{product.type}</td>
-                      <td className="cell-muted px-4 py-4">{formatBdt(product.price)}</td>
-                      <td className="px-4 py-4">
-                        <div className="flex min-w-[180px] flex-col gap-3">
-                          <span
-                            className={`inline-flex w-fit rounded-full border px-3 py-1 text-xs font-medium ${getStockBadgeClasses(
-                              product.stockStatus,
-                            )}`}
-                          >
-                            {STOCK_STATUS_OPTIONS.find(
-                              (option) => option.value === product.stockStatus,
-                            )?.label ?? product.stockStatus}
-                          </span>
-                          <select
-                            value={product.stockStatus}
-                            onChange={(event) => {
-                              const nextValue = event.target
-                                .value as Product["stockStatus"];
-                              updateProductDraft(product.id, "stockStatus", nextValue);
-                              void patchProduct(product.id, {
-                                stockStatus: nextValue,
-                                stockNote: product.stockNote,
-                              });
-                            }}
-                            className="h-10 rounded-md border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
-                          >
-                            {STOCK_STATUS_OPTIONS.map((option) => (
-                              <option key={option.value} value={option.value}>
-                                {option.label}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                      </td>
-                      <td className="px-4 py-4">
-                        <div className="min-w-[220px]">
-                          <input
-                            value={product.stockNote ?? ""}
-                            onChange={(event) => {
-                              const nextValue = event.target.value;
-                              updateProductDraft(product.id, "stockNote", nextValue);
-                              schedulePatch(product.id, {
-                                stockStatus: product.stockStatus,
-                                stockNote: nextValue,
-                              });
-                            }}
-                            placeholder="Only 3 left"
-                            className="h-10 w-full rounded-md border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8] dark:placeholder-[#8A7D75]"
-                          />
-                        </div>
-                      </td>
-                      <td className="px-4 py-4">
-                        <div className="min-w-[260px]">
-                          <textarea
-                            value={product.description ?? ""}
-                            onChange={(event) => {
-                              const nextValue = event.target.value;
-                              updateProductDraft(product.id, "description", nextValue);
-                              schedulePatch(product.id, {
-                                description: nextValue,
-                              });
-                            }}
-                            rows={3}
-                            placeholder="Product description"
-                            className="w-full rounded-md border border-[#D8C7B5] bg-white px-3 py-2 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8] dark:placeholder-[#8A7D75]"
-                          />
-                        </div>
-                      </td>
-                      <td className="px-4 py-4">
-                        <div className="flex min-w-[110px] flex-col gap-3">
-                          <span className="text-xs text-muted">
-                            {saveStates[product.id] === "saving"
-                              ? "Saving..."
-                              : saveStates[product.id] === "saved"
-                                ? "Saved"
-                                : saveStates[product.id] === "error"
-                                  ? "Error"
-                                  : ""}
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => handleDelete(product.id)}
-                            className="inline-flex h-9 items-center justify-center rounded-md border border-red-200 px-3 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 dark:border-red-900/60 dark:hover:bg-red-950/30"
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      </td>
+            <>
+              <div className="hidden md:block">
+                <table className="table-themed w-full table-fixed text-left text-sm">
+                  <thead>
+                    <tr>
+                      <th className="w-[30%] px-4 py-3 font-medium">Product Name</th>
+                      <th className="w-[18%] px-4 py-3 font-medium">Type</th>
+                      <th className="w-[16%] px-4 py-3 font-medium">Price</th>
+                      <th className="w-[16%] px-4 py-3 font-medium">Stock Status</th>
+                      <th className="w-[20%] px-4 py-3 font-medium">Actions</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {products.map((product) => {
+                      const nextStockStatus = getNextStockStatus(product.stockStatus);
+                      const quickToggleLabel = getQuickToggleLabel(product.stockStatus);
+
+                      return (
+                        <tr key={product.id}>
+                          <td className="px-4 py-4">
+                            <div className="min-w-0">
+                              <p className="truncate font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
+                                {product.name}
+                              </p>
+                              {!product.isVisible ? (
+                                <p className="mt-1 text-xs text-[#B8A89A] dark:text-[#8A7D75]">
+                                  Hidden from clients
+                                </p>
+                              ) : null}
+                            </div>
+                          </td>
+                          <td className="px-4 py-4">
+                            <span className="line-clamp-2 text-[#6E6257] dark:text-[#8A7D75]">
+                              {product.type}
+                            </span>
+                          </td>
+                          <td className="px-4 py-4 text-[#6E6257] dark:text-[#8A7D75]">
+                            {formatBdt(product.price)}
+                          </td>
+                          <td className="px-4 py-4">
+                            <span
+                              className={`inline-flex w-fit rounded-full border px-3 py-1 text-xs font-medium ${getStockBadgeClasses(
+                                product.stockStatus,
+                              )}`}
+                            >
+                              {STOCK_STATUS_OPTIONS.find(
+                                (option) => option.value === product.stockStatus,
+                              )?.label ?? product.stockStatus}
+                            </span>
+                          </td>
+                          <td className="px-4 py-4">
+                            <div className="flex flex-wrap gap-2">
+                              <button
+                                type="button"
+                                onClick={() => openEditModal(product)}
+                                className="inline-flex h-9 items-center justify-center rounded-md border border-[#C6A56B] px-3 text-sm font-medium text-[#2B2B2B] transition-colors hover:bg-[#C6A56B]/10 dark:text-[#F0EDE8]"
+                              >
+                                Edit
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  updateProductDraft(
+                                    product.id,
+                                    "stockStatus",
+                                    nextStockStatus,
+                                  );
+                                  void patchProduct(product.id, {
+                                    stockStatus: nextStockStatus,
+                                    stockNote: product.stockNote,
+                                  });
+                                }}
+                                className="inline-flex h-9 items-center justify-center rounded-md border border-[#D8C7B5] px-3 text-sm font-medium text-[#2B2B2B] transition-colors hover:bg-black/5 dark:border-[#3D3530] dark:text-[#F0EDE8] dark:hover:bg-white/5"
+                              >
+                                {quickToggleLabel}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleDelete(product.id)}
+                                className="inline-flex h-9 items-center justify-center rounded-md border border-red-200 px-3 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 dark:border-red-900/60 dark:hover:bg-red-950/30"
+                              >
+                                Delete
+                              </button>
+                            </div>
+                            <span className="mt-2 block text-xs text-muted">
+                              {saveStates[product.id] === "saving"
+                                ? "Saving..."
+                                : saveStates[product.id] === "saved"
+                                  ? "Saved"
+                                  : saveStates[product.id] === "error"
+                                    ? "Error"
+                                    : ""}
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="grid gap-4 p-4 md:hidden">
+                {products.map((product) => {
+                  const nextStockStatus = getNextStockStatus(product.stockStatus);
+                  const quickToggleLabel = getQuickToggleLabel(product.stockStatus);
+
+                  return (
+                    <article
+                      key={product.id}
+                      className="rounded-xl border border-[#D8C7B5] bg-white p-4 dark:border-[#3D3530] dark:bg-[#242220]"
+                    >
+                      <div className="flex items-start gap-4">
+                        <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg border border-themed bg-[#FCFAF7] dark:bg-[#1A1814]">
+                          {product.image ? (
+                            <Image
+                              src={product.image}
+                              alt={product.name}
+                              fill
+                              className="object-cover"
+                              sizes="64px"
+                            />
+                          ) : (
+                            <div className="flex h-full items-center justify-center text-xs text-muted">
+                              No image
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
+                            {product.name}
+                          </p>
+                          <p className="mt-1 text-sm text-[#6E6257] dark:text-[#8A7D75]">
+                            {product.type}
+                          </p>
+                          <p className="mt-2 text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
+                            {formatBdt(product.price)}
+                          </p>
+                          {!product.isVisible ? (
+                            <p className="mt-1 text-xs text-[#B8A89A] dark:text-[#8A7D75]">
+                              Hidden from clients
+                            </p>
+                          ) : null}
+                        </div>
+                      </div>
+
+                      <div className="mt-4">
+                        <span
+                          className={`inline-flex w-fit rounded-full border px-3 py-1 text-xs font-medium ${getStockBadgeClasses(
+                            product.stockStatus,
+                          )}`}
+                        >
+                          {STOCK_STATUS_OPTIONS.find(
+                            (option) => option.value === product.stockStatus,
+                          )?.label ?? product.stockStatus}
+                        </span>
+                      </div>
+
+                      <div className="mt-4 grid gap-2 sm:grid-cols-3">
+                        <button
+                          type="button"
+                          onClick={() => openEditModal(product)}
+                          className="inline-flex h-10 items-center justify-center rounded-md border border-[#C6A56B] px-3 text-sm font-medium text-[#2B2B2B] transition-colors hover:bg-[#C6A56B]/10 dark:text-[#F0EDE8]"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            updateProductDraft(
+                              product.id,
+                              "stockStatus",
+                              nextStockStatus,
+                            );
+                            void patchProduct(product.id, {
+                              stockStatus: nextStockStatus,
+                              stockNote: product.stockNote,
+                            });
+                          }}
+                          className="inline-flex h-10 items-center justify-center rounded-md border border-[#D8C7B5] px-3 text-sm font-medium text-[#2B2B2B] transition-colors hover:bg-black/5 dark:border-[#3D3530] dark:text-[#F0EDE8] dark:hover:bg-white/5"
+                        >
+                          {quickToggleLabel}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(product.id)}
+                          className="inline-flex h-10 items-center justify-center rounded-md border border-red-200 px-3 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 dark:border-red-900/60 dark:hover:bg-red-950/30"
+                        >
+                          Delete
+                        </button>
+                      </div>
+
+                      <span className="mt-3 block text-xs text-muted">
+                        {saveStates[product.id] === "saving"
+                          ? "Saving..."
+                          : saveStates[product.id] === "saved"
+                            ? "Saved"
+                            : saveStates[product.id] === "error"
+                              ? "Error"
+                              : ""}
+                      </span>
+                    </article>
+                  );
+                })}
+              </div>
+            </>
           )}
 
           <div className="flex items-center justify-between gap-3 border-t border-themed px-5 py-4 text-sm">
@@ -689,6 +897,219 @@ export default function AdminProductsPage() {
           </form>
         </section>
       </div>
+
+      {isEditModalOpen && editForm ? (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4 py-6"
+          onClick={closeEditModal}
+        >
+          <div
+            className="modal-card w-full max-w-2xl rounded-2xl border border-[#D8C7B5] bg-white p-6 shadow-2xl dark:border-[#3D3530] dark:bg-[#242220]"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2
+                  className="text-2xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]"
+                  style={{ fontFamily: "Playfair Display, serif" }}
+                >
+                  Edit Product
+                </h2>
+                <p className="mt-2 text-sm text-[#B8A89A] dark:text-[#8A7D75]">
+                  Update product details, stock visibility, and image.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={closeEditModal}
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#D8C7B5] text-lg text-[#2B2B2B] transition-colors hover:bg-black/5 dark:border-[#3D3530] dark:text-[#F0EDE8] dark:hover:bg-white/5"
+              >
+                x
+              </button>
+            </div>
+
+            <form onSubmit={handleEditSubmit} className="mt-6 space-y-5">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
+                    Name
+                  </label>
+                  <input
+                    value={editForm.name}
+                    onChange={(event) =>
+                      setEditForm((current) =>
+                        current ? { ...current, name: event.target.value } : current,
+                      )
+                    }
+                    required
+                    className="mt-2 h-11 w-full rounded-md border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
+                    Type
+                  </label>
+                  <input
+                    value={editForm.type}
+                    onChange={(event) =>
+                      setEditForm((current) =>
+                        current ? { ...current, type: event.target.value } : current,
+                      )
+                    }
+                    required
+                    className="mt-2 h-11 w-full rounded-md border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
+                    Price (BDT)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={editForm.price}
+                    onChange={(event) =>
+                      setEditForm((current) =>
+                        current ? { ...current, price: event.target.value } : current,
+                      )
+                    }
+                    required
+                    className="mt-2 h-11 w-full rounded-md border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
+                    Skin Type
+                  </label>
+                  <input
+                    value={editForm.skinType}
+                    onChange={(event) =>
+                      setEditForm((current) =>
+                        current
+                          ? { ...current, skinType: event.target.value }
+                          : current,
+                      )
+                    }
+                    placeholder="Dry, oily, sensitive..."
+                    className="mt-2 h-11 w-full rounded-md border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8] dark:placeholder-[#8A7D75]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
+                    Stock Status
+                  </label>
+                  <select
+                    value={editForm.stockStatus}
+                    onChange={(event) =>
+                      setEditForm((current) =>
+                        current
+                          ? {
+                              ...current,
+                              stockStatus: event.target.value as Product["stockStatus"],
+                            }
+                          : current,
+                      )
+                    }
+                    className="mt-2 h-11 w-full rounded-md border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
+                  >
+                    {STOCK_STATUS_OPTIONS.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
+                    Stock Note
+                  </label>
+                  <input
+                    value={editForm.stockNote}
+                    onChange={(event) =>
+                      setEditForm((current) =>
+                        current ? { ...current, stockNote: event.target.value } : current,
+                      )
+                    }
+                    placeholder="Only 3 left"
+                    className="mt-2 h-11 w-full rounded-md border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8] dark:placeholder-[#8A7D75]"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
+                  Description
+                </label>
+                <textarea
+                  rows={4}
+                  value={editForm.description}
+                  onChange={(event) =>
+                    setEditForm((current) =>
+                      current ? { ...current, description: event.target.value } : current,
+                    )
+                  }
+                  className="mt-2 w-full rounded-md border border-[#D8C7B5] bg-white px-3 py-2 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
+                  Product Image
+                </label>
+                <div className="mt-2">
+                  <FileUploadButton
+                    onFileSelected={(file) => {
+                      void handleEditImageUpload(file);
+                    }}
+                    label={
+                      uploadingProductId === editForm.id
+                        ? "Uploading..."
+                        : "Upload New Image"
+                    }
+                    accept="image/*"
+                    currentPreviewUrl={editForm.image || undefined}
+                  />
+                </div>
+              </div>
+
+              <label className="flex items-center gap-3 text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
+                <input
+                  type="checkbox"
+                  checked={editForm.isVisible}
+                  onChange={(event) =>
+                    setEditForm((current) =>
+                      current
+                        ? { ...current, isVisible: event.target.checked }
+                        : current,
+                    )
+                  }
+                  className="h-4 w-4 rounded border border-[#D8C7B5] dark:border-[#3D3530]"
+                  style={{ accentColor: "#C6A56B" }}
+                />
+                Visible to clients
+              </label>
+
+              <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
+                <button
+                  type="button"
+                  onClick={closeEditModal}
+                  className="inline-flex h-11 items-center justify-center rounded-md border border-[#D8C7B5] px-5 text-sm font-medium text-[#2B2B2B] transition-colors hover:bg-black/5 dark:border-[#3D3530] dark:text-[#F0EDE8] dark:hover:bg-white/5"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isEditSubmitting || uploadingProductId === editForm.id}
+                  className="inline-flex h-11 items-center justify-center rounded-md bg-foreground px-5 text-sm font-medium text-background transition-colors hover:bg-foreground/85 disabled:cursor-not-allowed disabled:opacity-70"
+                >
+                  {isEditSubmitting ? "Saving..." : "Save Changes"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      ) : null}
     </section>
   );
 }

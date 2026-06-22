@@ -23,8 +23,8 @@ function DetailItem({
 }) {
   return (
     <div>
-      <p className="text-sm font-medium text-foreground/60">{label}</p>
-      <div className="mt-1 text-sm text-foreground">{value}</div>
+      <p className="text-muted text-sm font-medium">{label}</p>
+      <div className="text-page mt-1 text-sm">{value}</div>
     </div>
   );
 }
@@ -85,11 +85,14 @@ export default async function BookingDetailsPage({ params }: BookingDetailsPageP
     <section>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="font-mono text-sm text-foreground/60">{booking.token}</p>
-          <h1 className="mt-2 text-3xl font-semibold tracking-tight text-foreground">
+          <p className="text-muted font-mono text-sm">{booking.token}</p>
+          <h1
+            className="text-page mt-2 text-3xl font-semibold tracking-tight"
+            style={{ fontFamily: "Playfair Display, serif" }}
+          >
             Booking Details
           </h1>
-          <p className="mt-3 text-sm leading-6 text-foreground/70">
+          <p className="text-muted mt-3 text-sm leading-6">
             Review your appointment details and your saved skin profile.
           </p>
         </div>
@@ -97,7 +100,7 @@ export default async function BookingDetailsPage({ params }: BookingDetailsPageP
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
           <Link
             href="/dashboard/bookings"
-            className="inline-flex h-11 items-center justify-center rounded-md border border-black/10 bg-background px-5 text-sm font-medium text-foreground transition-colors hover:bg-zinc-50 dark:border-white/10 dark:hover:bg-white/5"
+            className="border-themed bg-card text-page inline-flex h-11 items-center justify-center rounded-md border px-5 text-sm font-medium transition-colors hover:bg-black/5 dark:hover:bg-white/5"
           >
             Back to Bookings
           </Link>
@@ -105,8 +108,13 @@ export default async function BookingDetailsPage({ params }: BookingDetailsPageP
       </div>
 
       <div className="mt-8 grid gap-6 xl:grid-cols-2">
-        <section className="rounded-lg border border-black/10 bg-background p-6 dark:border-white/10">
-          <h2 className="text-lg font-semibold text-foreground">Appointment</h2>
+        <section className="bg-card border-themed rounded-lg border p-6">
+          <h2
+            className="text-page text-lg font-semibold"
+            style={{ fontFamily: "Playfair Display, serif" }}
+          >
+            Appointment
+          </h2>
           <div className="mt-5 grid gap-5 sm:grid-cols-2">
             <DetailItem
               label="Booking Token"
@@ -136,8 +144,11 @@ export default async function BookingDetailsPage({ params }: BookingDetailsPageP
         </section>
       </div>
 
-      <section className="mt-6 rounded-lg border border-black/10 bg-background p-6 dark:border-white/10">
-        <h2 className="text-lg font-semibold text-foreground">
+      <section className="bg-card border-themed mt-6 rounded-lg border p-6">
+        <h2
+          className="text-page text-lg font-semibold"
+          style={{ fontFamily: "Playfair Display, serif" }}
+        >
           Survey Profile Summary
         </h2>
         <SurveyProfileDetails
@@ -146,9 +157,9 @@ export default async function BookingDetailsPage({ params }: BookingDetailsPageP
         />
       </section>
 
-      <section className="mt-6 rounded-lg border border-black/10 bg-background p-6 dark:border-white/10">
+      <section className="bg-card border-themed mt-6 rounded-lg border p-6">
         <h2
-          className="text-2xl font-semibold text-foreground"
+          className="text-page text-2xl font-semibold"
           style={{ fontFamily: "Playfair Display, serif" }}
         >
           Diagnosis
@@ -158,9 +169,9 @@ export default async function BookingDetailsPage({ params }: BookingDetailsPageP
         </div>
       </section>
 
-      <section className="mt-6 rounded-lg border border-black/10 bg-background p-6 dark:border-white/10">
+      <section className="bg-card border-themed mt-6 rounded-lg border p-6">
         <h2
-          className="text-2xl font-semibold text-foreground"
+          className="text-page text-2xl font-semibold"
           style={{ fontFamily: "Playfair Display, serif" }}
         >
           Routine &amp; Guidelines
@@ -170,9 +181,9 @@ export default async function BookingDetailsPage({ params }: BookingDetailsPageP
         </div>
       </section>
 
-      <section className="mt-6 rounded-lg border border-black/10 bg-background p-6 dark:border-white/10">
+      <section className="bg-card border-themed mt-6 rounded-lg border p-6">
         <h2
-          className="text-2xl font-semibold text-foreground"
+          className="text-page text-2xl font-semibold"
           style={{ fontFamily: "Playfair Display, serif" }}
         >
           Customer&apos;s Feedback

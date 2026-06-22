@@ -32,9 +32,9 @@ function DetailItem({
   value: React.ReactNode;
 }) {
   return (
-    <div className="rounded-lg border border-black/10 bg-white p-4 dark:border-white/10 dark:bg-zinc-950">
-      <p className="text-sm font-medium text-foreground/60">{label}</p>
-      <div className="mt-2 text-sm leading-6 text-foreground">{value}</div>
+    <div className="bg-card border-themed rounded-lg border p-4">
+      <p className="text-muted text-sm font-medium">{label}</p>
+      <div className="text-page mt-2 text-sm leading-6">{value}</div>
     </div>
   );
 }
@@ -59,7 +59,7 @@ export default function SurveyProfileDetails({
   emptyMessage?: string;
 }) {
   if (!profile) {
-    return <p className="mt-4 text-sm leading-6 text-foreground/70">{emptyMessage}</p>;
+    return <p className="text-muted mt-4 text-sm leading-6">{emptyMessage}</p>;
   }
 
   return (
@@ -135,7 +135,7 @@ export default function SurveyProfileDetails({
 
       {profile.skinImages.length > 0 ? (
         <div className="mt-8">
-          <h3 className="text-base font-semibold text-foreground">
+          <h3 className="text-page text-base font-semibold">
             Client Skin Photos
           </h3>
           <div className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -145,7 +145,7 @@ export default function SurveyProfileDetails({
                 href={imageUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="block overflow-hidden rounded-lg border border-black/10 bg-background transition-opacity hover:opacity-90 dark:border-white/10"
+                className="bg-card border-themed block overflow-hidden rounded-lg border transition-opacity hover:opacity-90"
               >
                 <div className="relative aspect-[4/3] w-full">
                   <Image
