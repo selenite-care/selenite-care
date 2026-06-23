@@ -4,6 +4,7 @@ import { notFound, redirect } from "next/navigation";
 import { authConfig } from "@/lib/auth";
 import { db } from "@/lib/db";
 import BookingStatusButtons from "./BookingStatusButtons";
+import ClientBookingHistory from "@/components/booking/ClientBookingHistory";
 import DiagnosisEditor from "@/components/diagnosis/DiagnosisEditor";
 import RoutineEditor from "@/components/routine/RoutineEditor";
 import FeedbackEditor from "@/components/feedback/FeedbackEditor";
@@ -160,6 +161,14 @@ export default async function CrmBookingDetailsPage({
       </div>
 
       <BookingStatusButtons bookingId={booking.id} currentStatus={booking.status} />
+
+      <div className="mt-6 border-t border-[#D8C7B5] pt-6 dark:border-[#3D3530]">
+        <ClientBookingHistory
+          currentBookingId={booking.id}
+          userId={booking.user.id}
+          clientName={booking.user.name ?? "Client"}
+        />
+      </div>
 
       <section className="mt-6 rounded-lg border border-black/10 bg-background p-6 dark:border-white/10">
         <h2 className="text-lg font-semibold text-foreground">Survey Profile Responses</h2>

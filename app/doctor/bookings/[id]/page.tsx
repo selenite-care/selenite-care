@@ -3,6 +3,7 @@ import NextAuth from "next-auth";
 import { authConfig } from "@/lib/auth";
 import { db } from "@/lib/db";
 import BookingStatusButtons from "@/components/doctor/BookingStatusButtons";
+import ClientBookingHistory from "@/components/booking/ClientBookingHistory";
 import DiagnosisEditor from "@/components/diagnosis/DiagnosisEditor";
 import RoutineEditor from "@/components/routine/RoutineEditor";
 import FeedbackEditor from "@/components/feedback/FeedbackEditor";
@@ -130,8 +131,12 @@ export default async function BookingDetailsPage({ params }: BookingDetailsPageP
         </section>
       </div>
 
-      <div>
-        <BookingStatusButtons bookingId={booking.id} currentStatus={booking.status} />
+      <div className="mt-6 border-t border-[#D8C7B5] pt-6 dark:border-[#3D3530]">
+        <ClientBookingHistory
+          currentBookingId={booking.id}
+          userId={booking.user.id}
+          clientName={booking.user.name ?? "Client"}
+        />
       </div>
 
       <section className="mt-6 rounded-lg border border-black/10 bg-background p-6 dark:border-white/10">
@@ -177,6 +182,9 @@ export default async function BookingDetailsPage({ params }: BookingDetailsPageP
           <FeedbackEditor bookingId={booking.id} canEdit={false} />
         </div>
       </section>
+      <div>
+        <BookingStatusButtons bookingId={booking.id} currentStatus={booking.status} />
+      </div>
     </section>
   );
 }
