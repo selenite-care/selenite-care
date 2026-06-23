@@ -29,10 +29,40 @@ export async function GET(_request: Request, context: RouteContext) {
     return Response.json({ error: "User ID is required." }, { status: 400 });
   }
 
+  const where: {
+    userId: string;
+    doctorId?: string;
+  } = {
+    userId,
+  };
+
+  if (session.user.role === "DOCTOR") {
+    const userName = session.user.name?.trim() ?? "";
+
+    let doctor = null;
+    if (userName) {
+      doctor = await db.doctor.findFirst({
+        where: { name: userName },
+        select: { id: true },
+      });
+
+      if (!doctor && !userName.toLowerCase().startsWith("dr.")) {
+        doctor = await db.doctor.findFirst({
+          where: { name: `Dr. ${userName}` },
+          select: { id: true },
+        });
+      }
+    }
+
+    if (!doctor) {
+      return Response.json({ error: "Doctor profile not found." }, { status: 404 });
+    }
+
+    where.doctorId = doctor.id;
+  }
+
   const bookings = await db.booking.findMany({
-    where: {
-      userId,
-    },
+    where,
     orderBy: {
       createdAt: "desc",
     },
