@@ -29,13 +29,13 @@ const teamMembers = [
     description:
       "Focused on calm, practical care plans that help clients feel understood and supported from the very first conversation.",
   },
-  {
-    name: "Dr. Hritisha",
-    role: "Wellness Consultant",
-    image: "/doctors/dr hritisha.jpeg",
-    description:
-      "Guides clients through their next steps with clarity, warmth, and routines that feel realistic to maintain.",
-  },
+  // {
+  //   name: "Dr. Hritisha",
+  //   role: "Wellness Consultant",
+  //   image: "/doctors/dr hritisha.jpeg",
+  //   description:
+  //     "Guides clients through their next steps with clarity, warmth, and routines that feel realistic to maintain.",
+  // },
 ];
 
 export default function AboutPage() {

@@ -46,7 +46,7 @@ export default function ContactPage() {
                 Phone
               </p>
               <p className="text-muted mt-1">
-                +88 (01) 681517169
+                +88 01647-660300
               </p>
             </div>
             <div>
@@ -54,8 +54,8 @@ export default function ContactPage() {
                 Location
               </p>
               <p className="text-muted mt-1">
-                Level-6, Building-1, Golden Shower, Mazar Road, Dhaka,
-                Bangladesh
+                Level-6, Building-1, Golden Shower,<br />
+                Mazar Road, Dhaka-1216, Bangladesh.
               </p>
             </div>
           </div>

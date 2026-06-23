@@ -88,7 +88,8 @@ function BlogCard({ post }: { post: BlogPost }) {
   const { day, month } = formatDate(post.date);
 
   return (
-    <article
+    <Link
+      href={`/blog/${post.slug}`}
       className="dark:border-[#3D3530] dark:bg-[#242220]"
       style={{
         background: "#FFFFFF",
@@ -201,9 +202,8 @@ function BlogCard({ post }: { post: BlogPost }) {
         {/* Divider */}
         <div style={{ height: 1, background: "linear-gradient(90deg, #C6A56B44, transparent)", marginBottom: 14 }} />
 
-        <Link
+        <span
           className="dark:text-[#F0EDE8]"
-          href={`/blog/${post.slug}`}
           style={{
             fontSize: 11,
             fontWeight: 700,
@@ -218,9 +218,9 @@ function BlogCard({ post }: { post: BlogPost }) {
         >
           Continue Reading
           <span style={{ color: "#C6A56B", fontSize: 14 }}>→</span>
-        </Link>
+        </span>
       </div>
-    </article>
+    </Link>
   );
 }
 

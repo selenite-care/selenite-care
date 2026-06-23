@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export const dynamic = "force-dynamic";
@@ -43,6 +44,39 @@ const specializationLabels: Record<(typeof specializationOrder)[number], string>
   PSYCHIATRIST: "Psychiatrist",
 };
 
+function normalizeAvailabilityText(availability: string) {
+  return availability
+    .replaceAll("ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œ", "-")
+    .replaceAll("ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“", "-")
+    .replaceAll("Ã¢â‚¬â€œ", "-")
+    .replaceAll("Ã¢â‚¬â€", "-")
+    .replaceAll("â€“", "-")
+    .replaceAll("–", "-")
+    .replaceAll("—", "-")
+    .trim();
+}
+
+function parseAvailabilityParts(availability: string) {
+  const normalized = normalizeAvailabilityText(availability);
+  const segments = normalized
+    .split(",")
+    .map((segment) => segment.trim())
+    .filter(Boolean);
+
+  const timeIndex = segments.findIndex(
+    (segment) => /(?:AM|PM)/i.test(segment) && segment.includes("-"),
+  );
+
+  const daySegments =
+    timeIndex === -1 ? segments : segments.slice(0, timeIndex);
+  const timeLabel = timeIndex === -1 ? "" : segments.slice(timeIndex).join(", ");
+
+  return {
+    daysLabel: daySegments.join(", "),
+    timeLabel,
+  };
+}
+
 function getInitials(name: string) {
   return name
     .split(" ")
@@ -53,6 +87,7 @@ function getInitials(name: string) {
 }
 
 export default function AppointmentPage() {
+  const router = useRouter();
   const [membershipStatus, setMembershipStatus] = useState<
     "loading" | "active" | "inactive" | "expired"
   >("loading");
@@ -150,6 +185,15 @@ export default function AppointmentPage() {
       doctors: doctors.filter((doctor) => doctor.specialization === specialization),
     }))
     .filter((group) => group.doctors.length > 0);
+
+  function handleDoctorCardClick(doctorId: string, isLocked: boolean) {
+    if (isLocked) {
+      setShowMembershipModal(true);
+      return;
+    }
+
+    router.push(`/appointment/date?doctorId=${encodeURIComponent(doctorId)}`);
+  }
 
   return (
     <main className="min-h-screen bg-[#F8F5F0] px-6 py-16 dark:bg-[#1A1814]">
@@ -259,15 +303,28 @@ export default function AppointmentPage() {
                         const lockMessage = !hasActiveMembership
                           ? membershipPromptMessage
                           : "";
+                        const availability = parseAvailabilityParts(
+                          doctor.availability,
+                        );
 
                         return (
                           <article
                             key={doctor.id}
-                            className={`relative overflow-hidden rounded-[20px] border bg-white dark:bg-[#242220] dark:border-[#3D3530] ${
-                              isLocked ? "opacity-70" : ""
-                            }`}
+                            role="button"
+                            tabIndex={0}
+                            onClick={() =>
+                              handleDoctorCardClick(doctor.id, isLocked)
+                            }
+                            onKeyDown={(event) => {
+                              if (event.key === "Enter" || event.key === " ") {
+                                event.preventDefault();
+                                handleDoctorCardClick(doctor.id, isLocked);
+                              }
+                            }}
+                            className="relative overflow-hidden rounded-[20px] border bg-white transition-transform duration-200 hover:-translate-y-0.5 dark:bg-[#242220] dark:border-[#3D3530]"
                             style={{
                               boxShadow: "0 14px 40px rgba(43, 43, 43, 0.06)",
+                              cursor: "pointer",
                             }}
                           >
                             {doctor.image ? (
@@ -294,19 +351,6 @@ export default function AppointmentPage() {
                             )}
 
                             <div className="p-6">
-                              {isLocked ? (
-                                <div
-                                  className="mb-4 inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#8A7D75]"
-                                  style={{
-                                    borderColor: "#D8C7B5",
-                                    backgroundColor: "#F8F5F0",
-                                    color: "#8C7967",
-                                  }}
-                                >
-                                  Locked
-                                </div>
-                              ) : null}
-
                               <h3
                                 className="text-xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]"
                                 style={{
@@ -323,17 +367,27 @@ export default function AppointmentPage() {
                               </p>
 
                               <div
-                                className="mt-5 rounded-xl border px-4 py-3 text-sm dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#8A7D75]"
+                                className="mt-5 rounded-xl border px-4 py-3 dark:border-[#3D3530] dark:bg-[#1A1814]"
                                 style={{
                                   borderColor: "#D8C7B5",
                                   backgroundColor: "#F8F5F0",
-                                  color: "#6E6257",
                                 }}
                               >
-                                <span className="font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
-                                  Availability:
-                                </span>{" "}
-                                {doctor.availability}
+                                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#8C7967] dark:text-[#8A7D75]">
+                                  Availability
+                                </p>
+                                <div className="mt-3 flex flex-wrap gap-2">
+                                  {availability.daysLabel ? (
+                                    <span className="inline-flex items-center rounded-full border border-[#D8C7B5] bg-white px-3 py-1 text-xs font-medium text-[#6E6257] dark:border-[#3D3530] dark:bg-[#242220] dark:text-[#F0EDE8]">
+                                      {availability.daysLabel}
+                                    </span>
+                                  ) : null}
+                                  {availability.timeLabel ? (
+                                    <span className="inline-flex items-center rounded-full border border-[#C6A56B] bg-[#FFF8EE] px-3 py-1 text-xs font-medium text-[#2B2B2B] dark:border-[#C6A56B] dark:bg-[#2A241D] dark:text-[#F0EDE8]">
+                                      {availability.timeLabel}
+                                    </span>
+                                  ) : null}
+                                </div>
                               </div>
 
                               {isLocked ? (
@@ -347,7 +401,10 @@ export default function AppointmentPage() {
                                   {!hasActiveMembership ? (
                                     <button
                                       type="button"
-                                      onClick={() => setShowMembershipModal(true)}
+                                      onClick={(event) => {
+                                        event.stopPropagation();
+                                        setShowMembershipModal(true);
+                                      }}
                                       className="mt-6 inline-flex h-12 w-full items-center justify-center rounded-md px-5 text-sm font-medium transition-colors hover:bg-[#B8A89A]"
                                       style={{
                                         backgroundColor: "#2B2B2B",
@@ -361,6 +418,7 @@ export default function AppointmentPage() {
                               ) : (
                                 <Link
                                   href={`/appointment/date?doctorId=${encodeURIComponent(doctor.id)}`}
+                                  onClick={(event) => event.stopPropagation()}
                                   className="mt-6 inline-flex h-12 w-full items-center justify-center rounded-md px-5 text-sm font-medium transition-colors hover:bg-[#B8A89A]"
                                   style={{
                                     backgroundColor: "#2B2B2B",
