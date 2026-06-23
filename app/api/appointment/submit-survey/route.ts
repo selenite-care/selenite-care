@@ -31,6 +31,74 @@ type SurveyPayload = {
   skinImages?: unknown;
 };
 
+function normalizeAvailabilityText(availability: string) {
+  return availability
+    .replaceAll("ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œ", "-")
+    .replaceAll("ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“", "-")
+    .replaceAll("Ã¢â‚¬â€œ", "-")
+    .replaceAll("Ã¢â‚¬â€", "-")
+    .replaceAll("â€“", "-")
+    .replaceAll("–", "-")
+    .replaceAll("—", "-")
+    .trim();
+}
+
+function parseAvailabilityEndTime(availability: string) {
+  const normalizedAvailability = normalizeAvailabilityText(availability);
+  const segments = normalizedAvailability
+    .split(",")
+    .map((segment) => segment.trim())
+    .filter(Boolean);
+
+  const timeSegment = [...segments]
+    .reverse()
+    .find((segment) => /(?:AM|PM)/i.test(segment) && segment.includes("-"));
+
+  if (!timeSegment) {
+    return null;
+  }
+
+  const [, endTimeRaw] = timeSegment.split("-");
+  const endTimeLabel = endTimeRaw?.trim();
+
+  if (!endTimeLabel) {
+    return null;
+  }
+
+  const match = endTimeLabel.match(/^(\d{1,2})(?::(\d{2}))?\s*(AM|PM)$/i);
+
+  if (!match) {
+    return null;
+  }
+
+  const hours = Number.parseInt(match[1], 10);
+  const minutes = Number.parseInt(match[2] ?? "0", 10);
+  const meridiem = match[3].toUpperCase();
+
+  if (Number.isNaN(hours) || Number.isNaN(minutes)) {
+    return null;
+  }
+
+  let hours24 = hours % 12;
+
+  if (meridiem === "PM") {
+    hours24 += 12;
+  }
+
+  return {
+    hours24,
+    minutes,
+  };
+}
+
+function toDateInputValue(date: Date) {
+  const year = date.getFullYear();
+  const month = `${date.getMonth() + 1}`.padStart(2, "0");
+  const day = `${date.getDate()}`.padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
 function asStringArray(value: unknown): string[] {
   if (Array.isArray(value)) return value.map((v) => String(v));
   if (typeof value === "string" && value.length > 0) return [value];
@@ -180,6 +248,7 @@ export async function POST(request: Request) {
       name: true,
       designation: true,
       specialization: true,
+      availability: true,
       user: {
         select: {
           email: true,
@@ -190,6 +259,26 @@ export async function POST(request: Request) {
 
   if (!doctor) {
     return Response.json({ error: "Doctor not found." }, { status: 404 });
+  }
+
+  if (preferredDateInput === toDateInputValue(new Date())) {
+    const endTime = parseAvailabilityEndTime(doctor.availability);
+
+    if (endTime) {
+      const now = new Date();
+      const cutoffMinutes = endTime.hours24 * 60 + endTime.minutes - 120;
+      const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+      if (currentMinutes >= cutoffMinutes) {
+        return Response.json(
+          {
+            error:
+              "Booking cutoff has passed for today. Please select a future date.",
+          },
+          { status: 400 },
+        );
+      }
+    }
   }
 
   const usesKoreanProducts =
