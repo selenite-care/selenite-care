@@ -50,15 +50,27 @@ export default function Home() {
         <div className="relative z-10 px-4 py-24 sm:px-6 sm:py-32">
           <div className="mx-auto w-full max-w-6xl">
             <div className="max-w-2xl">
-              <h1
-                style={{ fontFamily: "Playfair Display, serif" }}
-                className="glitter-text text-3xl font-bold tracking-tight md:text-5xl [-webkit-text-stroke:0.1px_white]"
-              >
-                Compassionate care for your everyday wellness.
-              </h1>
-              <p className="text-muted mt-6 text-lg leading-8">
-                Schedule personalized support with Selenite Care and receive professional guidance tailored to your needs.
-              </p>
+{/* ── Headline — glitter-text class kept, with stronger shadow for image-bg contrast ── */}
+<h1
+  style={{
+    fontFamily: "Playfair Display, serif",
+    textShadow: "0 4px 24px rgba(0,0,0,.5), 0 1px 4px rgba(0,0,0,.5)",
+  }}
+  className="glitter-text text-4xl font-bold tracking-tight md:text-6xl [-webkit-text-stroke:0.2px_white] leading-[1.1]"
+>
+  Compassionate care for your everyday wellness.
+</h1>
+
+{/* ── Subtext — drop shadow keeps it readable over any part of the slider ── */}
+<p
+  style={{
+    textShadow: "0 2px 12px rgba(0,0,0,0.4)",
+  }}
+  className="mt-6 max-w-xl text-lg leading-8 text-[#F0EDE6]/90"
+>
+  Schedule personalized support with Selenite Care and receive professional guidance tailored to your needs.
+</p>
+
               <div className="mt-10 flex flex-col gap-4 sm:flex-row">
                 <Link
                   href="/services"

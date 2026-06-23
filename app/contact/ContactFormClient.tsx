@@ -4,11 +4,54 @@ import { FormEvent, useState } from "react";
 
 export default function ContactFormClient() {
   const [status, setStatus] = useState("");
+  const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    event.currentTarget.reset();
-    setStatus("Thanks for reaching out. We will get back to you soon.");
+    if (isSubmitting) {
+      return;
+    }
+
+    setStatus("");
+    setError("");
+    setIsSubmitting(true);
+
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: formData.get("name"),
+          email: formData.get("email"),
+          message: formData.get("message"),
+        }),
+      });
+
+      const data = (await response.json().catch(() => null)) as
+        | { ok?: boolean; error?: string }
+        | null;
+
+      if (!response.ok) {
+        throw new Error(data?.error ?? "Unable to send your message.");
+      }
+
+      form.reset();
+      setStatus("Thanks for reaching out. We will get back to you soon.");
+    } catch (submitError) {
+      setError(
+        submitError instanceof Error
+          ? submitError.message
+          : "Unable to send your message.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -57,6 +100,12 @@ export default function ContactFormClient() {
         />
       </div>
 
+      {error ? (
+        <p className="text-sm text-red-600 dark:text-red-300">
+          {error}
+        </p>
+      ) : null}
+
       {status ? (
         <p className="text-muted text-sm">
           {status}
@@ -65,9 +114,10 @@ export default function ContactFormClient() {
 
       <button
         type="submit"
-        className="inline-flex h-11 items-center justify-center rounded-md bg-[var(--sidebar)] px-5 text-sm font-medium text-[var(--sidebar-text)] transition-colors hover:opacity-90"
+        disabled={isSubmitting}
+        className="inline-flex h-11 items-center justify-center rounded-md bg-[var(--sidebar)] px-5 text-sm font-medium text-[var(--sidebar-text)] transition-colors hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
       >
-        Send Message
+        {isSubmitting ? "Sending..." : "Send Message"}
       </button>
     </form>
   );
