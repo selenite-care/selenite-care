@@ -1,6 +1,7 @@
-"use client";
+﻿"use client";
 
 import Image from "next/image";
+import { AlertCircle } from "lucide-react";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -20,6 +21,18 @@ type DoctorResponse = {
 
 const dayOrder = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
+function normalizeAvailabilityText(availability: string) {
+  return availability
+    .replaceAll("ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œ", "-")
+    .replaceAll("ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“", "-")
+    .replaceAll("Ã¢â‚¬â€œ", "-")
+    .replaceAll("Ã¢â‚¬â€", "-")
+    .replaceAll("â€“", "-")
+    .replaceAll("–", "-")
+    .replaceAll("—", "-")
+    .trim();
+}
+
 function getInitials(name: string) {
   return name
     .split(" ")
@@ -31,11 +44,7 @@ function getInitials(name: string) {
 
 function parseAvailableDays(availability: string) {
   const allowed = new Set<number>();
-  const normalizedAvailability = availability
-    .replaceAll("Ã¢â‚¬â€œ", "–")
-    .replaceAll("â€“", "–")
-    .replaceAll("—", "–")
-    .trim();
+  const normalizedAvailability = normalizeAvailabilityText(availability);
   const segments = normalizedAvailability
     .split(",")
     .map((segment) => segment.trim())
@@ -44,7 +53,7 @@ function parseAvailableDays(availability: string) {
   const timeSegmentIndex = [...segments]
     .reverse()
     .findIndex(
-      (segment) => /(?:AM|PM)/i.test(segment) && segment.includes("–"),
+      (segment) => /(?:AM|PM)/i.test(segment) && segment.includes("-"),
     );
 
   const daySegments =
@@ -59,8 +68,8 @@ function parseAvailableDays(availability: string) {
       continue;
     }
 
-    if (compactSegment.includes("–")) {
-      const [startDay, endDay] = compactSegment.split("–");
+    if (compactSegment.includes("-")) {
+      const [startDay, endDay] = compactSegment.split("-");
       const startIndex = dayOrder.indexOf(startDay);
       const endIndex = dayOrder.indexOf(endDay ?? startDay);
 
@@ -98,6 +107,55 @@ function parseAvailableDays(availability: string) {
   }
 
   return allowed;
+}
+
+function parseAvailabilityEndTime(availability: string) {
+  const normalizedAvailability = normalizeAvailabilityText(availability);
+  const segments = normalizedAvailability
+    .split(",")
+    .map((segment) => segment.trim())
+    .filter(Boolean);
+
+  const timeSegment = [...segments]
+    .reverse()
+    .find((segment) => /(?:AM|PM)/i.test(segment) && segment.includes("-"));
+
+  if (!timeSegment) {
+    return null;
+  }
+
+  const [, endTimeRaw] = timeSegment.split("-");
+  const endTimeLabel = endTimeRaw?.trim();
+
+  if (!endTimeLabel) {
+    return null;
+  }
+
+  const match = endTimeLabel.match(/^(\d{1,2})(?::(\d{2}))?\s*(AM|PM)$/i);
+
+  if (!match) {
+    return null;
+  }
+
+  const hours = Number.parseInt(match[1], 10);
+  const minutes = Number.parseInt(match[2] ?? "0", 10);
+  const meridiem = match[3].toUpperCase();
+
+  if (Number.isNaN(hours) || Number.isNaN(minutes)) {
+    return null;
+  }
+
+  let hours24 = hours % 12;
+
+  if (meridiem === "PM") {
+    hours24 += 12;
+  }
+
+  return {
+    endTimeLabel,
+    hours24,
+    minutes,
+  };
 }
 
 function toDateInputValue(date: Date) {
@@ -166,7 +224,7 @@ function AppointmentDatePageContent() {
       }
     }
 
-    loadDoctor();
+    void loadDoctor();
 
     return () => {
       isMounted = false;
@@ -177,6 +235,37 @@ function AppointmentDatePageContent() {
     () => (doctor ? parseAvailableDays(doctor.availability) : new Set<number>()),
     [doctor],
   );
+
+  const sameDayCutoff = useMemo(() => {
+    if (!doctor) {
+      return null;
+    }
+
+    const endTime = parseAvailabilityEndTime(doctor.availability);
+
+    if (!endTime) {
+      return null;
+    }
+
+    const now = new Date();
+    const todayDayIndex = now.getDay();
+
+    if (!availableDays.has(todayDayIndex)) {
+      return null;
+    }
+
+    const cutoffMinutes = endTime.hours24 * 60 + endTime.minutes - 120;
+    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+    if (currentMinutes < cutoffMinutes) {
+      return null;
+    }
+
+    return {
+      todayValue: toDateInputValue(now),
+      endTimeLabel: endTime.endTimeLabel,
+    };
+  }, [availableDays, doctor]);
 
   const dateOptions = useMemo(() => {
     const start = new Date();
@@ -189,10 +278,12 @@ function AppointmentDatePageContent() {
       return {
         value: toDateInputValue(date),
         label: formatDateLabel(date),
-        isAvailable: availableDays.has(date.getDay()),
+        isAvailable:
+          availableDays.has(date.getDay()) &&
+          sameDayCutoff?.todayValue !== toDateInputValue(date),
       };
     });
-  }, [availableDays]);
+  }, [availableDays, sameDayCutoff]);
 
   function handleConfirm() {
     if (!doctorId || !selectedDate) {
@@ -384,6 +475,26 @@ function AppointmentDatePageContent() {
                   );
                 })}
               </div>
+
+              {sameDayCutoff ? (
+                <div className="mt-5 rounded-xl border border-[#D8C7B5] bg-[#F8F5F0] px-4 py-3 dark:border-[#3D3530] dark:bg-[#1A1814]">
+                  <div className="flex items-start gap-3">
+                    <AlertCircle
+                      className="mt-0.5 h-4 w-4 shrink-0 text-[#C6A56B]"
+                      aria-hidden="true"
+                    />
+                    <p className="text-sm leading-6 text-[#8C7967] dark:text-[#8A7D75]">
+                      Same-day booking is no longer available for today.{" "}
+                      <span className="font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
+                        {doctor.name}
+                      </span>{" "}
+                      is available until {sameDayCutoff.endTimeLabel} and
+                      bookings close 2 hours before. Please select a future
+                      date.
+                    </p>
+                  </div>
+                </div>
+              ) : null}
 
               <div
                 className="mt-8 rounded-xl border px-4 py-3 text-sm dark:bg-[#1A1814] dark:border-[#3D3530] dark:text-[#8A7D75]"
