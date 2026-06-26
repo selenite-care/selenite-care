@@ -261,6 +261,15 @@ model CustomerFeedback {
   createdAt DateTime @default(now())
 }
 
+model LeadCapture {
+  id        String   @id @default(cuid())
+  name      String
+  phone     String
+  email     String?
+  interest  String?
+  createdAt DateTime @default(now())
+}
+
 enum Role {
   CLIENT
   DOCTOR
