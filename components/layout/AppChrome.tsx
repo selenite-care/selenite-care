@@ -5,7 +5,7 @@ import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
 import { Footer } from "@/components/layout/Footer";
 import { Navbar } from "@/components/layout/Navbar";
 
-const CHROMELESS_ROUTES = ["/landing", "/login", "/register"];
+const CHROMELESS_ROUTES = ["/landing"];
 
 export default function AppChrome({
   children,
