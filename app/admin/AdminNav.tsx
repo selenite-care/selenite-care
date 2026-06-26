@@ -5,19 +5,28 @@ import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
-const adminLinks = [
-  { href: "/admin", label: "Dashboard Overview" },
-  { href: "/admin/bookings", label: "All Bookings" },
-  { href: "/admin/memberships", label: "Memberships" },
-  { href: "/admin/memberships/manual", label: "Add Manual Membership" },
-  { href: "/admin/memberships/pending", label: "Pending Verifications" },
-  { href: "/admin/users", label: "All Users" },
-  { href: "/admin/products", label: "Products" },
-  { href: "/admin/orders", label: "Orders" },
-  // { href: "/admin/services", label: "Services Management" },
-  { href: "/admin/doctors", label: "Manage Doctors" },
-  { href: "/admin/payments", label: "Membership Payments" },
-];
+const adminSections = [
+  {
+    heading: "Operations",
+    links: [
+      { href: "/admin", label: "Dashboard Overview" },
+      { href: "/admin/bookings", label: "All Bookings" },
+      { href: "/admin/memberships", label: "Memberships" },
+      { href: "/admin/memberships/manual", label: "Add Manual Membership" },
+      { href: "/admin/memberships/pending", label: "Pending Verifications" },
+      { href: "/admin/users", label: "All Users" },
+      { href: "/admin/products", label: "Products" },
+      { href: "/admin/orders", label: "Orders" },
+      // { href: "/admin/services", label: "Services Management" },
+      { href: "/admin/doctors", label: "Manage Doctors" },
+      { href: "/admin/payments", label: "Membership Payments" },
+    ],
+  },
+  {
+    heading: "Marketing",
+    links: [{ href: "/admin/leads", label: "Leads" }],
+  },
+] as const;
 
 function isActiveLink(pathname: string, href: string) {
   if (href === "/admin") {
@@ -80,35 +89,42 @@ export function AdminSidebarNav() {
   const pendingCount = usePendingVerificationCount();
 
   return (
-    <nav className="mt-8 space-y-2">
-      {adminLinks.map((link) => {
-        const isActive = isActiveLink(pathname, link.href);
-        const showPendingBadge =
-          link.href === "/admin/memberships/pending" &&
-          pendingCount !== null &&
-          pendingCount > 0;
+    <nav className="mt-8 space-y-6">
+      {adminSections.map((section) => (
+        <div key={section.heading}>
+          <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">
+            {section.heading}
+          </p>
+          <div className="space-y-2">
+            {section.links.map((link) => {
+              const isActive = isActiveLink(pathname, link.href);
+              const showPendingBadge =
+                link.href === "/admin/memberships/pending" &&
+                pendingCount !== null &&
+                pendingCount > 0;
 
-        return (
-          <Link
-            key={link.href}
-            href={link.href}
-            className={`flex items-center justify-between rounded-md px-3 py-2 text-sm font-medium transition-colors ${
-              isActive
-                ? "bg-[color-mix(in_srgb,var(--gold)_12%,transparent)] text-[var(--gold)]"
-                : "text-[var(--sidebar-text)]"
-            }`}
-          >
-            <span>{link.label}</span>
-            {showPendingBadge ? (
-              <span
-                className="inline-flex min-w-6 items-center justify-center rounded-full bg-[var(--gold)] px-2 py-0.5 text-[11px] font-semibold text-[var(--sidebar)]"
-              >
-                {pendingCount}
-              </span>
-            ) : null}
-          </Link>
-        );
-      })}
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`flex items-center justify-between rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+                    isActive
+                      ? "bg-[color-mix(in_srgb,var(--gold)_12%,transparent)] text-[var(--gold)]"
+                      : "text-[var(--sidebar-text)]"
+                  }`}
+                >
+                  <span>{link.label}</span>
+                  {showPendingBadge ? (
+                    <span className="inline-flex min-w-6 items-center justify-center rounded-full bg-[var(--gold)] px-2 py-0.5 text-[11px] font-semibold text-[var(--sidebar)]">
+                      {pendingCount}
+                    </span>
+                  ) : null}
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      ))}
     </nav>
   );
 }
@@ -160,36 +176,43 @@ export function AdminMobileNav() {
               </button>
             </div>
 
-            <nav className="mt-8 space-y-2">
-              {adminLinks.map((link) => {
-                const isActive = isActiveLink(pathname, link.href);
-                const showPendingBadge =
-                  link.href === "/admin/memberships/pending" &&
-                  pendingCount !== null &&
-                  pendingCount > 0;
+            <nav className="mt-8 space-y-6">
+              {adminSections.map((section) => (
+                <div key={section.heading}>
+                  <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">
+                    {section.heading}
+                  </p>
+                  <div className="space-y-2">
+                    {section.links.map((link) => {
+                      const isActive = isActiveLink(pathname, link.href);
+                      const showPendingBadge =
+                        link.href === "/admin/memberships/pending" &&
+                        pendingCount !== null &&
+                        pendingCount > 0;
 
-                return (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    onClick={() => setIsOpen(false)}
-                    className={`flex items-center justify-between rounded-md px-3 py-3 text-sm font-medium transition-colors ${
-                      isActive
-                        ? "bg-[color-mix(in_srgb,var(--gold)_12%,transparent)] text-[var(--gold)]"
-                        : "text-[var(--sidebar-text)]"
-                    }`}
-                  >
-                    <span>{link.label}</span>
-                    {showPendingBadge ? (
-                      <span
-                        className="inline-flex min-w-6 items-center justify-center rounded-full bg-[var(--gold)] px-2 py-0.5 text-[11px] font-semibold text-[var(--sidebar)]"
-                      >
-                        {pendingCount}
-                      </span>
-                    ) : null}
-                  </Link>
-                );
-              })}
+                      return (
+                        <Link
+                          key={link.href}
+                          href={link.href}
+                          onClick={() => setIsOpen(false)}
+                          className={`flex items-center justify-between rounded-md px-3 py-3 text-sm font-medium transition-colors ${
+                            isActive
+                              ? "bg-[color-mix(in_srgb,var(--gold)_12%,transparent)] text-[var(--gold)]"
+                              : "text-[var(--sidebar-text)]"
+                          }`}
+                        >
+                          <span>{link.label}</span>
+                          {showPendingBadge ? (
+                            <span className="inline-flex min-w-6 items-center justify-center rounded-full bg-[var(--gold)] px-2 py-0.5 text-[11px] font-semibold text-[var(--sidebar)]">
+                              {pendingCount}
+                            </span>
+                          ) : null}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
             </nav>
           </aside>
         </div>

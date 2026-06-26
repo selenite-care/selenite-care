@@ -1,11 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Playfair_Display } from "next/font/google";
-import { Footer } from "@/components/layout/Footer";
-import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
-import { Navbar } from "@/components/layout/Navbar";
 import { CartProvider } from "@/components/cart/CartProvider";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { SessionProvider } from "next-auth/react"
+import AppChrome from "@/components/layout/AppChrome";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -42,10 +40,7 @@ export default function RootLayout({
         <SessionProvider>
           <CartProvider>
             <ThemeProvider>
-              <AnnouncementBar />
-              <Navbar />
-              <main className="flex flex-1 flex-col">{children}</main>
-              <Footer />
+              <AppChrome>{children}</AppChrome>
             </ThemeProvider>
           </CartProvider>
         </SessionProvider>
