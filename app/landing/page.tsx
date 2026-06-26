@@ -525,7 +525,7 @@ const CONTENT = {
 } as const;
 
 const LANDING_VIDEO_URL =
-  "https://www.youtube.com/embed/dQw4w9WgXcQ"; // PLACEHOLDER - replace with real video URL
+  "https://www.facebook.com/reel/2118318732423295"; // PLACEHOLDER - replace with real video URL
 
 type Language = keyof typeof CONTENT;
 
@@ -941,7 +941,7 @@ export default function LandingPage() {
             <div className="grid items-center gap-8 lg:grid-cols-[1fr_1fr]">
               <div className="relative h-[280px] overflow-hidden rounded-[24px] border-2 border-white/80 bg-[#E6D8C8] shadow-[0_16px_50px_rgba(43,43,43,0.12)] dark:border-[#F0EDE8]/10 sm:h-[360px] lg:h-[440px] xl:h-auto xl:min-h-[520px]">
                 <Image
-                  src="https://res.cloudinary.com/dwokjn6zk/image/upload/v1782393722/WhatsApp_Image_2026-06-25_at_6.52.10_PM_w8j8xg.jpg"
+                  src="https://res.cloudinary.com/dwokjn6zk/image/upload/v1782471237/WhatsApp_Image_2026-06-26_at_4.52.20_PM_paxatd.jpg"
                   alt="Selenite Care online skincare consultation"
                   fill
                   priority
