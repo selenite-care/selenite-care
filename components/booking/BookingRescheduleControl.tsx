@@ -3,6 +3,7 @@
 import { CalendarDays } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { formatDateOnly } from "@/lib/dateUtils";
 
 type BookingRescheduleControlProps = {
   bookingId: string;
@@ -35,23 +36,8 @@ function toDateInputValue(value: string | null) {
   return `${year}-${month}-${day}`;
 }
 
-function formatDate(value: string | null) {
-  if (!value) {
-    return "Not scheduled";
-  }
-
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
-    return "Not scheduled";
-  }
-
-  return date.toLocaleDateString("en-US", {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-  });
+function formatAppointmentDate(value: string | null) {
+  return value ? formatDateOnly(value) : "Not scheduled";
 }
 
 export default function BookingRescheduleControl({
@@ -67,7 +53,7 @@ export default function BookingRescheduleControl({
     toDateInputValue(currentAppointmentTime),
   );
   const [currentDateLabel, setCurrentDateLabel] = useState(
-    formatDate(currentAppointmentTime),
+    formatAppointmentDate(currentAppointmentTime),
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState("");
@@ -103,7 +89,7 @@ export default function BookingRescheduleControl({
       }
 
       setCurrentDateValue(selectedDate);
-      setCurrentDateLabel(formatDate(data?.booking?.appointmentTime ?? null));
+      setCurrentDateLabel(formatAppointmentDate(data?.booking?.appointmentTime ?? null));
       setMessage("Appointment date updated.");
       router.refresh();
     } catch (rescheduleError) {

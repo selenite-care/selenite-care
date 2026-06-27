@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { formatDateTime } from "@/lib/dateUtils";
 
 type SurveyProfileDetailsData = {
   name: string | null;
@@ -122,13 +123,13 @@ export default function SurveyProfileDetails({
         {profile.updatedAt ? (
           <DetailItem
             label="Last Updated"
-            value={profile.updatedAt.toLocaleString()}
+            value={formatDateTime(profile.updatedAt)}
           />
         ) : null}
         {profile.createdAt ? (
           <DetailItem
             label="Created At"
-            value={profile.createdAt.toLocaleString()}
+            value={formatDateTime(profile.createdAt)}
           />
         ) : null}
       </div>

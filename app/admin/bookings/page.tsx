@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Papa from "papaparse";
 import { useEffect, useMemo, useState } from "react";
+import { formatDateOnly } from "@/lib/dateUtils";
 
 type AdminBooking = {
   id: string;
@@ -78,7 +79,7 @@ export default function AdminBookingsPage() {
   }, [bookings, searchQuery, statusFilter]);
 
   function formatAppointmentTime(value: string | null) {
-    return value ? new Date(value).toLocaleDateString() : "Not scheduled";
+    return value ? formatDateOnly(value) : "Not scheduled";
   }
 
   function handleExportCsv() {

@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import Papa from "papaparse";
 import { useEffect, useMemo, useState } from "react";
+import { formatDateTime } from "@/lib/dateUtils";
 
 type AdminOrder = {
   id: string;
@@ -194,7 +195,7 @@ export default function AdminOrdersPage() {
         "Payment Method": getPaymentMethodLabel(order.paymentMethod),
         "Transaction Reference": order.transactionRef ?? "",
         Status: order.status,
-        Date: new Date(order.createdAt).toLocaleString(),
+        Date: formatDateTime(order.createdAt),
       })),
     );
 

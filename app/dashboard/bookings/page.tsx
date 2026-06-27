@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { formatDateOnly } from "@/lib/dateUtils";
 
 type ClientBooking = {
   id: string;
@@ -59,7 +60,7 @@ export default function DashboardBookingsPage() {
   }, []);
 
   function formatAppointmentTime(value: string | null) {
-    return value ? new Date(value).toLocaleDateString() : "Not scheduled";
+    return value ? formatDateOnly(value) : "Not scheduled";
   }
 
   return (

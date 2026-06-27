@@ -1,6 +1,9 @@
 import Link from "next/link";
+import { formatDateOnly } from "@/lib/dateUtils";
 
 export function Footer() {
+  const currentYear = formatDateOnly(new Date()).split(", ").at(-1) ?? "";
+
   return (
     <footer className="relative overflow-hidden border-t border-[#C6A56B] bg-[#2B2B2B] px-6 pb-6 pt-12 text-[#F8F5F0] dark:border-[#3D3530] dark:bg-[#141210] dark:text-[#F0EDE8]">
       {/* Subtle decorative top glow */}
@@ -196,7 +199,7 @@ export function Footer() {
         {/* ── Bottom bar ── */}
         <div className="flex flex-col items-center justify-between gap-3 sm:flex-row">
           <p className="text-xs text-[#B8A89A] dark:text-[#8A7D75]">
-            &copy; {new Date().getFullYear()} Selenite Care. All rights reserved.
+            &copy; {currentYear} Selenite Care. All rights reserved.
           </p>
           <p className="text-xs text-[#6B5E54] dark:text-[#8A7D75]">
             Crafted with care &middot; Dhaka, Bangladesh

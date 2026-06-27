@@ -2,6 +2,7 @@
 
 import Papa from "papaparse";
 import { useEffect, useMemo, useState } from "react";
+import { formatDateTime } from "@/lib/dateUtils";
 
 type AdminMembership = {
   id: string;
@@ -233,7 +234,7 @@ export default function AdminMembershipsPage() {
                   ? "Expired"
                   : "-",
           "Payment Status": membership.payment?.status ?? "N/A",
-          "Purchase Date": new Date(membership.createdAt).toLocaleString(),
+          "Purchase Date": formatDateTime(membership.createdAt),
         };
       }),
     );
@@ -440,7 +441,7 @@ export default function AdminMembershipsPage() {
                               </span>
                             </td>
                             <td className="cell-muted px-4 py-4">
-                              {new Date(membership.createdAt).toLocaleString()}
+                              {formatDateTime(membership.createdAt)}
                             </td>
                             <td className="px-4 py-4">
                               <div className="flex flex-wrap gap-2">

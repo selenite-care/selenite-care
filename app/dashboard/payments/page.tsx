@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { formatDateTime } from "@/lib/dateUtils";
 
 type ClientPayment = {
   id: string;
@@ -142,7 +143,7 @@ export default function DashboardPaymentsPage() {
                       </span>
                     </td>
                     <td className="px-4 py-4 text-[#B8A89A] dark:text-[#8A7D75]">
-                      {new Date(payment.createdAt).toLocaleString()}
+                      {formatDateTime(payment.createdAt)}
                     </td>
                   </tr>
                 ))}

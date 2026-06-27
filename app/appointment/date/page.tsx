@@ -4,6 +4,7 @@ import Image from "next/image";
 import { AlertCircle } from "lucide-react";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { formatDateOnly } from "@/lib/dateUtils";
 
 type AppointmentDoctor = {
   id: string;
@@ -167,11 +168,8 @@ function toDateInputValue(date: Date) {
 }
 
 function formatDateLabel(date: Date) {
-  return date.toLocaleDateString("en-US", {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-  });
+  const [month = "", dayWithComma = ""] = formatDateOnly(date).split(" ");
+  return `${month} ${dayWithComma.replace(",", "")}`;
 }
 
 function AppointmentDatePageContent() {
@@ -508,12 +506,7 @@ function AppointmentDatePageContent() {
                   Selected Date:
                 </span>{" "}
                 {selectedDate
-                  ? new Date(selectedDate).toLocaleDateString("en-US", {
-                      weekday: "long",
-                      month: "long",
-                      day: "numeric",
-                      year: "numeric",
-                    })
+                  ? formatDateOnly(selectedDate)
                   : "No date selected yet"}
               </div>
 

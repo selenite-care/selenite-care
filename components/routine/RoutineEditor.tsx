@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { formatDateTime } from "@/lib/dateUtils";
 
 type RoutineEditorProps = {
   bookingId: string;
@@ -19,8 +20,7 @@ type RoutineGuidelineResponse = {
 };
 
 function formatTimestamp(value: string | null) {
-  if (!value) return "Not saved yet";
-  return new Date(value).toLocaleString();
+  return value ? formatDateTime(value) : "Not saved yet";
 }
 
 export default function RoutineEditor({
@@ -101,7 +101,7 @@ export default function RoutineEditor({
       }
 
       setContent(data?.routineGuideline?.content ?? "");
-      setLastSavedAt(data?.routineGuideline?.updatedAt ?? new Date().toISOString());
+      setLastSavedAt(data?.routineGuideline?.updatedAt ?? new Date().toString());
     } catch (saveError) {
       setError(
         saveError instanceof Error ? saveError.message : "Unable to save routine.",

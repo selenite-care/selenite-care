@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
+import { formatDateOnly } from "@/lib/dateUtils";
 
 type MembershipResponse = {
   membership?: {
@@ -99,10 +100,10 @@ function MembershipWelcomePageContent() {
 
   const displayMembershipId = membership?.membershipId ?? membershipId;
   const activationDate = membership?.createdAt
-    ? new Date(membership.createdAt).toLocaleDateString()
+    ? formatDateOnly(membership.createdAt)
     : "Loading...";
   const expiryDate = membership?.expiresAt
-    ? new Date(membership.expiresAt).toLocaleDateString()
+    ? formatDateOnly(membership.expiresAt)
     : "N/A";
 
   return (

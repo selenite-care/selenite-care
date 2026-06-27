@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import FileUploadButton from "@/components/ui/FileUploadButton";
+import { formatDateTime } from "@/lib/dateUtils";
 
 type FeedbackEditorProps = {
   bookingId: string;
@@ -22,8 +23,7 @@ type CustomerFeedbackResponse = {
 };
 
 function formatTimestamp(value: string | null) {
-  if (!value) return "Not saved yet";
-  return new Date(value).toLocaleString();
+  return value ? formatDateTime(value) : "Not saved yet";
 }
 
 export default function FeedbackEditor({
@@ -154,7 +154,7 @@ export default function FeedbackEditor({
 
       setFeedback(data?.customerFeedback?.feedback ?? "");
       setImages(data?.customerFeedback?.images ?? []);
-      setLastSavedAt(data?.customerFeedback?.updatedAt ?? new Date().toISOString());
+      setLastSavedAt(data?.customerFeedback?.updatedAt ?? new Date().toString());
     } catch (saveError) {
       setError(
         saveError instanceof Error ? saveError.message : "Unable to save feedback.",

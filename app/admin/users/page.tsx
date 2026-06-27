@@ -2,6 +2,7 @@
 
 import Papa from "papaparse";
 import { useEffect, useMemo, useState } from "react";
+import { formatDateOnly } from "@/lib/dateUtils";
 
 type AdminUser = {
   id: string;
@@ -199,7 +200,7 @@ export default function AdminUsersPage() {
         Membership: user.memberships[0]
           ? `${getTierLabel(user.memberships[0].tier)} (${user.memberships[0].status})`
           : "No Membership",
-        "Registration Date": new Date(user.createdAt).toLocaleDateString(),
+        "Registration Date": formatDateOnly(user.createdAt),
         "Total Bookings": user._count.bookings,
       })),
       {
@@ -406,7 +407,7 @@ export default function AdminUsersPage() {
                             </span>
                           </td>
                           <td className="cell-muted px-4 py-4">
-                            {new Date(user.createdAt).toLocaleDateString()}
+                            {formatDateOnly(user.createdAt)}
                           </td>
                           <td className="cell-muted px-4 py-4">
                             {user._count.bookings}

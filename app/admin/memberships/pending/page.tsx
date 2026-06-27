@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { formatDateTime } from "@/lib/dateUtils";
 
 type PendingMembership = {
   id: string;
@@ -392,7 +393,7 @@ export default function AdminPendingMembershipsPage() {
                           Submitted
                         </p>
                         <p className="mt-2 text-sm text-[#2B2B2B] dark:text-[#F0EDE8]">
-                          {new Date(membership.createdAt).toLocaleString()}
+                          {formatDateTime(membership.createdAt)}
                         </p>
                       </div>
                       <div>

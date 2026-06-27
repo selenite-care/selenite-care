@@ -2,6 +2,7 @@
 
 import Papa from "papaparse";
 import { useEffect, useMemo, useState } from "react";
+import { formatDateOnly } from "@/lib/dateUtils";
 
 export type CrmClientListItem = {
   id: string;
@@ -32,14 +33,6 @@ const MEMBERSHIP_FILTERS = [
   { value: "expired", label: "Expired" },
   { value: "cancelled", label: "Cancelled" },
 ] as const;
-
-function formatDate(value: string) {
-  return new Date(value).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
-}
 
 function getTierLabel(tier: "SIGNATURE" | "CRYSTAL" | "PLATINUM") {
   switch (tier) {
@@ -171,7 +164,7 @@ export default function CrmClientsClient({ clients }: CrmClientsClientProps) {
         Membership: client.memberships[0]
           ? `${getTierLabel(client.memberships[0].tier)} (${client.memberships[0].status})`
           : "No Membership",
-        "Registration Date": formatDate(client.createdAt),
+        "Registration Date": formatDateOnly(client.createdAt),
         "Total Bookings": client._count.bookings,
       })),
       {
@@ -312,7 +305,7 @@ export default function CrmClientsClient({ clients }: CrmClientsClientProps) {
                             : "No Membership"}
                         </span>
                       </td>
-                      <td className="cell-muted px-4 py-4">{formatDate(client.createdAt)}</td>
+                  <td className="cell-muted px-4 py-4">{formatDateOnly(client.createdAt)}</td>
                       <td className="cell-muted px-4 py-4">{client._count.bookings}</td>
                     </tr>
                   );
