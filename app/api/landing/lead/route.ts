@@ -38,9 +38,9 @@ export async function POST(request: Request) {
   const email = asOptionalString(body?.email);
   const interest = asOptionalString(body?.interest);
 
-  if (!name || !phone) {
+  if (!phone && !email) {
     return Response.json(
-      { error: "Name and phone are required." },
+      { error: "Please provide either your phone number or email address." },
       { status: 400 },
     );
   }
@@ -54,7 +54,7 @@ export async function POST(request: Request) {
 
   const lead = await db.leadCapture.create({
     data: {
-      name,
+      name: name || "Marketing Lead",
       phone,
       email: email || null,
       interest: interest || null,
@@ -74,11 +74,11 @@ export async function POST(request: Request) {
         <tbody>
           <tr>
             <td style="padding: 10px; border: 1px solid #D8C7B5; font-weight: bold;">Name</td>
-            <td style="padding: 10px; border: 1px solid #D8C7B5;">${escapeHtml(name)}</td>
+            <td style="padding: 10px; border: 1px solid #D8C7B5;">${name ? escapeHtml(name) : "Not provided"}</td>
           </tr>
           <tr>
             <td style="padding: 10px; border: 1px solid #D8C7B5; font-weight: bold;">Phone</td>
-            <td style="padding: 10px; border: 1px solid #D8C7B5;">${escapeHtml(phone)}</td>
+            <td style="padding: 10px; border: 1px solid #D8C7B5;">${phone ? escapeHtml(phone) : "Not provided"}</td>
           </tr>
           <tr>
             <td style="padding: 10px; border: 1px solid #D8C7B5; font-weight: bold;">Email</td>
