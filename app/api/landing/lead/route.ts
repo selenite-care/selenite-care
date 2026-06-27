@@ -1,5 +1,6 @@
 import { db } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
+import { sanitizeEmail, sanitizeName, sanitizePhone, sanitizeText } from "@/lib/sanitize";
 
 type LeadPayload = {
   name?: unknown;
@@ -7,10 +8,6 @@ type LeadPayload = {
   email?: unknown;
   interest?: unknown;
 };
-
-function asOptionalString(value: unknown) {
-  return typeof value === "string" ? value.trim() : "";
-}
 
 function escapeHtml(value: string) {
   return value
@@ -33,10 +30,11 @@ export async function POST(request: Request) {
 
   const body = (await request.json().catch(() => null)) as LeadPayload | null;
 
-  const name = asOptionalString(body?.name);
-  const phone = asOptionalString(body?.phone);
-  const email = asOptionalString(body?.email);
-  const interest = asOptionalString(body?.interest);
+  const name = typeof body?.name === "string" ? sanitizeName(body.name) : "";
+  const phone = typeof body?.phone === "string" ? sanitizePhone(body.phone) : "";
+  const email = typeof body?.email === "string" ? sanitizeEmail(body.email) : "";
+  const interest =
+    typeof body?.interest === "string" ? sanitizeText(body.interest) : "";
 
   if (!phone && !email) {
     return Response.json(

@@ -2,6 +2,7 @@ import NextAuth from "next-auth";
 import { authConfig } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
+import { sanitizeText } from "@/lib/sanitize";
 
 const { auth } = NextAuth(authConfig);
 const adminEmail = process.env.ADMIN_EMAIL ?? "";
@@ -100,8 +101,15 @@ function toDateInputValue(date: Date) {
 }
 
 function asStringArray(value: unknown): string[] {
-  if (Array.isArray(value)) return value.map((v) => String(v));
-  if (typeof value === "string" && value.length > 0) return [value];
+  if (Array.isArray(value)) {
+    return value
+      .map((v) => sanitizeText(String(v)))
+      .filter(Boolean);
+  }
+  if (typeof value === "string" && value.length > 0) {
+    const sanitized = sanitizeText(value);
+    return sanitized ? [sanitized] : [];
+  }
   return [];
 }
 
@@ -110,7 +118,7 @@ function asOptionalString(value: unknown): string | null {
     return null;
   }
 
-  const trimmed = value.trim();
+  const trimmed = sanitizeText(value);
   return trimmed.length > 0 ? trimmed : null;
 }
 
@@ -219,11 +227,11 @@ export async function POST(request: Request) {
       : typeof body.date === "string"
         ? body.date.trim()
         : "";
-  const name = typeof body.name === "string" ? body.name.trim() : "";
-  const age = typeof body.age === "string" ? body.age.trim() : "";
-  const phone = typeof body.phone === "string" ? body.phone.trim() : "";
-  const email = typeof body.email === "string" ? body.email.trim() : "";
-  const skinType = typeof body.skinType === "string" ? body.skinType.trim() : "";
+  const name = typeof body.name === "string" ? sanitizeText(body.name) : "";
+  const age = typeof body.age === "string" ? sanitizeText(body.age) : "";
+  const phone = typeof body.phone === "string" ? sanitizeText(body.phone) : "";
+  const email = typeof body.email === "string" ? sanitizeText(body.email) : "";
+  const skinType = typeof body.skinType === "string" ? sanitizeText(body.skinType) : "";
 
   if (!doctorId || !preferredDateInput || !name || !phone || !email || !skinType) {
     return Response.json(
@@ -293,9 +301,9 @@ export async function POST(request: Request) {
   const allergicIngredients = asStringArray(body.allergicIngredients);
   const doubleCleansePreference =
     typeof body.doubleCleansePreference === "string"
-      ? body.doubleCleansePreference
+      ? sanitizeText(body.doubleCleansePreference)
       : "";
-  const sleepHours = typeof body.sleepHours === "string" ? body.sleepHours : "";
+  const sleepHours = typeof body.sleepHours === "string" ? sanitizeText(body.sleepHours) : "";
   const appliesSunscreen =
     body.appliesSunscreen === true || String(body.appliesSunscreen) === "true";
   const regularPeriodCycle =

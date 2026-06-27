@@ -1,6 +1,7 @@
 import NextAuth from "next-auth";
 import { authConfig } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { sanitizeHtml } from "@/lib/sanitize";
 
 const { auth } = NextAuth(authConfig);
 
@@ -49,7 +50,7 @@ function normalizeRecommendations(input: unknown) {
       typeof item.productId === "string" ? item.productId.trim() : "";
     const note =
       typeof item.note === "string" && item.note.trim()
-        ? item.note.trim()
+        ? sanitizeHtml(item.note) || null
         : null;
 
     if (productId) {
@@ -146,7 +147,7 @@ export async function PUT(request: Request, context: RouteContext) {
   const body = (await request.json().catch(() => ({}))) as PutPayload;
   const problemIdentification =
     typeof body.problemIdentification === "string"
-      ? body.problemIdentification.trim() || null
+      ? sanitizeHtml(body.problemIdentification) || null
       : null;
   const recommendationsInput = normalizeRecommendations(body.productIds);
   const productIds = recommendationsInput.map((item) => item.productId);
