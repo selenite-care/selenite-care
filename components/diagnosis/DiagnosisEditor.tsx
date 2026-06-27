@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { formatDateTime } from "@/lib/dateUtils";
 
 type DiagnosisEditorProps = {
   bookingId: string;
@@ -62,8 +63,7 @@ function formatPrice(price: number) {
 }
 
 function formatTimestamp(value: string | null) {
-  if (!value) return "Not saved yet";
-  return new Date(value).toLocaleString();
+  return value ? formatDateTime(value) : "Not saved yet";
 }
 
 function getStockBadgeClasses(stockStatus: ProductSearchResult["stockStatus"]) {
@@ -144,7 +144,7 @@ export default function DiagnosisEditor({
         const diagnosis = isDiagnosisResponse(data) ? data.diagnosis : null;
         setProblemIdentification(diagnosis?.problemIdentification ?? "");
         setRecommendedProducts(mapDiagnosisProducts(diagnosis));
-        setLastSavedAt(new Date().toISOString());
+        setLastSavedAt(new Date().toString());
         setHasLoadedOnce(true);
       } catch (loadError) {
         if (!isMounted) return;
@@ -264,7 +264,7 @@ export default function DiagnosisEditor({
       const diagnosis = isDiagnosisResponse(data) ? data.diagnosis : null;
       setProblemIdentification(diagnosis?.problemIdentification ?? "");
       setRecommendedProducts(mapDiagnosisProducts(diagnosis));
-      setLastSavedAt(new Date().toISOString());
+      setLastSavedAt(new Date().toString());
     } catch (saveError) {
       setError(
         saveError instanceof Error

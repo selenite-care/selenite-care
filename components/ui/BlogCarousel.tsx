@@ -4,6 +4,7 @@ import useEmblaCarousel from "embla-carousel-react";
 import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { formatDateOnly } from "@/lib/dateUtils";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -75,10 +76,11 @@ const BLOG_POSTS: BlogPost[] = [
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function formatDate(iso: string) {
-  const d = new Date(iso);
+  const [month = "", dayWithComma = ""] = formatDateOnly(iso).split(" ");
+
   return {
-    day: d.toLocaleDateString("en-US", { day: "2-digit" }),
-    month: d.toLocaleDateString("en-US", { month: "short" }).toUpperCase(),
+    day: dayWithComma.replace(",", "").padStart(2, "0"),
+    month: month.toUpperCase(),
   };
 }
 

@@ -2,6 +2,7 @@
 
 import Papa from "papaparse";
 import { useEffect, useMemo, useState } from "react";
+import { formatDateTime } from "@/lib/dateUtils";
 
 type Lead = {
   id: string;
@@ -102,7 +103,7 @@ export default function AdminLeadsPage() {
         Phone: lead.phone,
         Email: lead.email ?? "",
         Interest: lead.interest ?? "",
-        "Date Submitted": new Date(lead.createdAt).toLocaleString(),
+        "Date Submitted": formatDateTime(lead.createdAt),
       })),
     );
 
@@ -220,7 +221,7 @@ export default function AdminLeadsPage() {
                           {lead.interest ?? "Not specified"}
                         </td>
                         <td className="cell-muted px-4 py-4">
-                          {new Date(lead.createdAt).toLocaleString()}
+                          {formatDateTime(lead.createdAt)}
                         </td>
                       </tr>
                     ))

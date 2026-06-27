@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { formatDateOnly } from "@/lib/dateUtils";
 
 type ClientOrder = {
   id: string;
@@ -100,7 +101,7 @@ export default function DashboardOrdersPage() {
   }, []);
 
   function formatOrderDate(value: string) {
-    return new Date(value).toLocaleDateString();
+    return formatDateOnly(value);
   }
 
   return (

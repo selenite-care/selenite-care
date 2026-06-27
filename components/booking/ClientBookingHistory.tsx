@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ClipboardList, Star, Stethoscope } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { formatDateOnly } from "@/lib/dateUtils";
 
 type ClientBookingHistoryProps = {
   currentBookingId: string;
@@ -28,18 +29,8 @@ type BookingHistoryResponse = {
   error?: string;
 };
 
-function formatDate(value: string | null) {
-  if (!value) {
-    return "Not scheduled";
-  }
-
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
-    return "Not scheduled";
-  }
-
-  return date.toLocaleDateString();
+function formatAppointmentDate(value: string | null) {
+  return value ? formatDateOnly(value) : "Not scheduled";
 }
 
 function getStatusBadgeClasses(status: BookingHistoryItem["status"]) {
@@ -155,7 +146,7 @@ export default function ClientBookingHistory({
                   {booking.doctorName ?? "Doctor not assigned"}
                 </p>
                 <p className="mt-1 text-sm text-[#B8A89A] dark:text-[#8A7D75]">
-                  {formatDate(booking.appointmentTime)}
+                  {formatAppointmentDate(booking.appointmentTime)}
                 </p>
               </div>
 

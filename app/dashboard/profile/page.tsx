@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import Link from "next/link";
 import ProfileEditForm from "@/components/dashboard/ProfileEditForm";
 import ChangePasswordForm from "@/components/dashboard/ChangePasswordForm";
+import { formatDateOnly } from "@/lib/dateUtils";
 
 const { auth } = NextAuth(authConfig);
 
@@ -78,7 +79,7 @@ export default async function ProfilePage() {
             <div>
               <p className="text-muted font-medium">Registered</p>
               <p className="text-page mt-1">
-                {user.createdAt.toLocaleDateString()}
+                {formatDateOnly(user.createdAt)}
               </p>
             </div>
           </div>

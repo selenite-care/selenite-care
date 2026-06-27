@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Papa from "papaparse";
 import { useMemo, useState } from "react";
+import { formatDateOnly } from "@/lib/dateUtils";
 
 export type CrmBookingListItem = {
   id: string;
@@ -53,7 +54,7 @@ function formatAppointmentTime(value: string | null) {
     return "Not scheduled";
   }
 
-  return new Date(value).toLocaleDateString("en-US");
+  return formatDateOnly(value);
 }
 
 export default function CrmBookingsClient({ bookings }: CrmBookingsClientProps) {

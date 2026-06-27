@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import BookingAnalyticsWidget from "@/components/analytics/BookingAnalyticsWidget";
 import MembershipAnalyticsWidget from "@/components/analytics/MembershipAnalyticsWidget";
+import { formatDateOnly } from "@/lib/dateUtils";
 
 export const dynamic = "force-dynamic";
 
@@ -52,9 +53,7 @@ export default function CrmPage() {
   }, []);
 
   function formatAppointmentTime(value: string | null) {
-    return value
-      ? new Date(value).toLocaleDateString("en-US")
-      : "Not scheduled";
+    return value ? formatDateOnly(value) : "Not scheduled";
   }
 
   return (

@@ -2,6 +2,7 @@
 
 import Papa from "papaparse";
 import { useEffect, useMemo, useState } from "react";
+import { formatDateTime } from "@/lib/dateUtils";
 
 type MembershipTier = "SIGNATURE" | "CRYSTAL" | "PLATINUM";
 
@@ -133,7 +134,7 @@ export default function AdminPaymentsPage() {
         Tier: formatTierLabel(membership.tier),
         Amount: getMembershipAmount(membership.tier),
         "Payment Status": membership.payment?.status ?? "UNPAID",
-        "Purchase Date": new Date(membership.createdAt).toLocaleString(),
+        "Purchase Date": formatDateTime(membership.createdAt),
       })),
     );
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
@@ -271,7 +272,7 @@ export default function AdminPaymentsPage() {
                             {membership.payment?.status ?? "UNPAID"}
                           </td>
                           <td className="cell-muted px-4 py-4">
-                            {new Date(membership.createdAt).toLocaleString()}
+                            {formatDateTime(membership.createdAt)}
                           </td>
                         </tr>
                       );
