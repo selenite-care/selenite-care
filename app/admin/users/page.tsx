@@ -2,6 +2,7 @@
 
 import Papa from "papaparse";
 import { useEffect, useMemo, useState } from "react";
+import { SkeletonTable } from "@/components/ui/Skeleton";
 import { formatDateOnly } from "@/lib/dateUtils";
 
 type AdminUser = {
@@ -242,7 +243,9 @@ export default function AdminUsersPage() {
       </div>
 
       {isLoading ? (
-        <p className="mt-8 text-sm text-foreground/70">Loading users...</p>
+        <div className="mt-8">
+          <SkeletonTable rows={6} cols={7} />
+        </div>
       ) : null}
 
       {error ? <p className="mt-8 text-sm text-red-600">{error}</p> : null}

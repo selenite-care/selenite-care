@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import BookingAnalyticsWidget from "@/components/analytics/BookingAnalyticsWidget";
 import MembershipAnalyticsWidget from "@/components/analytics/MembershipAnalyticsWidget";
+import { SkeletonStat } from "@/components/ui/Skeleton";
 
 export const dynamic = "force-dynamic";
 
@@ -74,9 +75,11 @@ export default function AdminPage() {
       </div>
 
       {isLoading ? (
-        <p className="mt-8 text-sm text-[#B8A89A] dark:text-[#8A7D75]">
-          Loading stats...
-        </p>
+        <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+          {Array.from({ length: statLabels.length }).map((_, index) => (
+            <SkeletonStat key={index} />
+          ))}
+        </div>
       ) : null}
 
       {error ? <p className="mt-8 text-sm text-red-600">{error}</p> : null}
