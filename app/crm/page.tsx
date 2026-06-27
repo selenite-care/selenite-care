@@ -1,6 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import BookingAnalyticsWidget from "@/components/analytics/BookingAnalyticsWidget";
+import MembershipAnalyticsWidget from "@/components/analytics/MembershipAnalyticsWidget";
+
+export const dynamic = "force-dynamic";
 
 type CrmStats = {
   totalClients: number;
@@ -88,6 +92,14 @@ export default function CrmPage() {
               </div>
             </div>
           ) : null}
+
+          <div className="mt-8 w-full">
+            <BookingAnalyticsWidget />
+          </div>
+
+          <div className="mt-8 w-full">
+            <MembershipAnalyticsWidget />
+          </div>
         </div>
 
         {stats && !isLoading && !error ? (

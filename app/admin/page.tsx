@@ -1,6 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import BookingAnalyticsWidget from "@/components/analytics/BookingAnalyticsWidget";
+import MembershipAnalyticsWidget from "@/components/analytics/MembershipAnalyticsWidget";
+
+export const dynamic = "force-dynamic";
 
 type AdminStats = {
   totalUsers: number;
@@ -97,6 +101,14 @@ export default function AdminPage() {
           ))}
         </div>
       ) : null}
+
+      <div className="mt-8 w-full">
+        <BookingAnalyticsWidget />
+      </div>
+
+      <div className="mt-8 w-full">
+        <MembershipAnalyticsWidget />
+      </div>
     </section>
   );
 }

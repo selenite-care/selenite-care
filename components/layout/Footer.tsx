@@ -138,10 +138,10 @@ export function Footer() {
 
               {/* Location */}
               <a
-                href="https://www.google.com/maps/search/?api=1&query=Level-6%2C%20Building-1%2C%20Golden%20Shower%2C%20Mazar%20Road%2C%20Dhaka-1216%2C%20Bangladesh"
+                href="https://maps.app.goo.gl/pbXp975nt5G1qoSy9"
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex w-fit items-start gap-3 text-sm leading-6 text-[#D8C7B5] transition-opacity hover:opacity-80 dark:text-[#F0EDE8]"
+                className="group inline-flex w-fit items-start gap-3 text-sm leading-6 text-[#D8C7B5] transition-colors duration-200 hover:text-[#C6A56B] dark:text-[#F0EDE8]"
               >
                 <svg className="mt-0.5 shrink-0" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
