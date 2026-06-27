@@ -3,6 +3,12 @@ import { notFound, redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 
+type DashboardOrderDetailsPageProps = {
+  params: Promise<{
+    id: string;
+  }>;
+};
+
 function formatBdt(amount: number) {
   return `${Math.round(amount)} BDT`;
 }
@@ -42,7 +48,7 @@ function getPaymentMethodLabel(paymentMethod: string) {
 }
 
 export default async function DashboardOrderDetailsPage(
-  props: PageProps<"/dashboard/orders/[id]">,
+  props: DashboardOrderDetailsPageProps,
 ) {
   const session = await auth();
 

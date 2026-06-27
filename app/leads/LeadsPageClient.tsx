@@ -5,12 +5,9 @@ import Image from "next/image";
 import Link from "next/link";
 import {
   Check,
-  Mail,
   MessageCircle,
-  Package,
   Phone,
   Sparkles,
-  Stethoscope,
 } from "lucide-react";
 
 type LeadResponse = {
@@ -25,24 +22,6 @@ const interestOptions = [
   "Skincare procedures",
   "Product recommendations",
   "Not sure yet",
-] as const;
-
-const featureCards = [
-  {
-    icon: Stethoscope,
-    title: "Expert Consultation",
-    text: "Understand your skin with guidance from certified specialists.",
-  },
-  {
-    icon: Sparkles,
-    title: "Personalized Plans",
-    text: "Get routine and care suggestions tailored to your skin goals.",
-  },
-  {
-    icon: Package,
-    title: "Product Guidance",
-    text: "Learn which products fit your skin before spending blindly.",
-  },
 ] as const;
 
 export default function LeadsPageClient({ embedded = false }: { embedded?: boolean }) {
@@ -118,9 +97,6 @@ export default function LeadsPageClient({ embedded = false }: { embedded?: boole
   const contentShellClassName = embedded
     ? "relative mx-auto grid w-full max-w-6xl gap-8 rounded-[32px] border border-themed bg-card p-6 shadow-sm lg:grid-cols-[minmax(0,1fr)_minmax(280px,340px)] lg:items-center sm:p-8"
     : "relative mx-auto grid w-full max-w-6xl gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(280px,340px)] lg:items-center";
-  const eyebrowClassName = embedded
-    ? "inline-flex items-center gap-2 rounded-full border border-themed bg-card px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#8C7355] dark:text-[#D4B47A]"
-    : "inline-flex items-center gap-2 rounded-full border border-[#D8C7B5] bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#8C7355] dark:border-[#3D3530] dark:bg-[#242220] dark:text-[#D4B47A]";
   const heroHeadingClassName = embedded
     ? "mt-6 max-w-3xl text-4xl font-semibold leading-tight text-page sm:text-5xl lg:text-[3.5rem]"
     : "mt-6 max-w-3xl text-4xl font-semibold leading-tight text-[#2B2B2B] dark:text-[#F0EDE8] sm:text-5xl lg:text-6xl";

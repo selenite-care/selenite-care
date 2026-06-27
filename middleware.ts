@@ -163,7 +163,6 @@ export const config = {
     "/login",
     "/register",
     "/dashboard/:path*",
-    "/booking/:path*",
     "/payment/:path*",
     "/admin/:path*",
     "/doctor/:path*",
