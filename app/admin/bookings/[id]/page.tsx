@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import BookingStatusControls from "./BookingStatusControls";
 import ClientBookingHistory from "@/components/booking/ClientBookingHistory";
+import BookingRescheduleControl from "@/components/booking/BookingRescheduleControl";
 import DiagnosisEditor from "@/components/diagnosis/DiagnosisEditor";
 import RoutineEditor from "@/components/routine/RoutineEditor";
 import FeedbackEditor from "@/components/feedback/FeedbackEditor";
@@ -147,6 +148,12 @@ export default async function BookingDetailsPage({
           </div>
         </section>
       </div>
+
+      <BookingRescheduleControl
+        bookingId={booking.id}
+        currentAppointmentTime={booking.appointmentTime?.toISOString() ?? null}
+        disabled={booking.status === "COMPLETED" || booking.status === "CANCELLED"}
+      />
 
       <div className="mt-6 border-t border-[#D8C7B5] pt-6 dark:border-[#3D3530]">
         <ClientBookingHistory
