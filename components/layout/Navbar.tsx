@@ -270,7 +270,7 @@ function NavbarContent() {
             </Link>
           ))}
 
-          {/* <div
+          <div
             ref={productsMenuRef}
             className="relative"
             onMouseEnter={openProductsMenu}
@@ -339,7 +339,7 @@ function NavbarContent() {
                 </div>
               </div>
             ) : null}
-          </div> */}
+          </div>
 
           <Link
             href="/services"
@@ -420,7 +420,7 @@ function NavbarContent() {
             </Link>
           ))}
 
-          {/* <div className="rounded-md">
+          <div className="rounded-md">
             <button
               type="button"
               onClick={() => setMobileProductsOpen((current) => !current)}
@@ -469,7 +469,7 @@ function NavbarContent() {
                 </div>
               </div>
             ) : null}
-          </div> */}
+          </div>
 
           <Link
             href="/services"
