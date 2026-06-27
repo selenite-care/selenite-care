@@ -2,6 +2,7 @@ import { randomBytes } from "node:crypto";
 import bcrypt from "bcryptjs";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
+import { sanitizeEmail, sanitizeName, sanitizePhone, sanitizeText } from "@/lib/sanitize";
 import type { MembershipStatus, MembershipTier, PaymentMethod } from "@prisma/client";
 
 export const runtime = "nodejs";
@@ -35,7 +36,7 @@ function generateTemporaryPassword(length = 10) {
 }
 
 function parseString(value: unknown) {
-  return typeof value === "string" ? value.trim() : "";
+  return typeof value === "string" ? sanitizeText(value) : "";
 }
 
 function parseTier(value: unknown): MembershipTier | null {
@@ -129,9 +130,9 @@ export async function POST(request: Request) {
 
   const body = (await request.json()) as ManualMembershipPayload;
 
-  const name = parseString(body.name);
-  const email = parseString(body.email).toLowerCase();
-  const phone = parseString(body.phone);
+  const name = typeof body.name === "string" ? sanitizeName(body.name) : "";
+  const email = typeof body.email === "string" ? sanitizeEmail(body.email) : "";
+  const phone = typeof body.phone === "string" ? sanitizePhone(body.phone) : "";
   const age = parseString(body.age);
   const dateOfBirthValue = parseString(body.dateOfBirth);
   const gender = parseString(body.gender);

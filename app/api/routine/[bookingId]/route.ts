@@ -1,6 +1,7 @@
 import NextAuth from "next-auth";
 import { authConfig } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { sanitizeHtml } from "@/lib/sanitize";
 
 const { auth } = NextAuth(authConfig);
 
@@ -80,7 +81,7 @@ export async function PUT(request: Request, context: RouteContext) {
 
   const body = (await request.json().catch(() => ({}))) as PutPayload;
   const content =
-    typeof body.content === "string" ? body.content.trim() || null : null;
+    typeof body.content === "string" ? sanitizeHtml(body.content) || null : null;
 
   const routineGuideline = await db.routineGuideline.upsert({
     where: {

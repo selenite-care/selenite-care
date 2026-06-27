@@ -1,6 +1,7 @@
 import NextAuth from "next-auth";
 import { authConfig } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { sanitizeHtml, sanitizeText } from "@/lib/sanitize";
 
 const { auth } = NextAuth(authConfig);
 
@@ -24,7 +25,7 @@ function normalizeImages(input: unknown) {
 
   return input
     .filter((item): item is string => typeof item === "string")
-    .map((item) => item.trim())
+    .map((item) => sanitizeText(item))
     .filter(Boolean)
     .slice(0, 2);
 }
@@ -96,7 +97,7 @@ export async function PUT(request: Request, context: RouteContext) {
 
   const body = (await request.json().catch(() => ({}))) as PutPayload;
   const feedback =
-    typeof body.feedback === "string" ? body.feedback.trim() || null : null;
+    typeof body.feedback === "string" ? sanitizeHtml(body.feedback) || null : null;
   const images = normalizeImages(body.images);
 
   if (Array.isArray(body.images) && body.images.length > 2) {

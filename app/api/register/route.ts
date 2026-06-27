@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
+import { sanitizeEmail, sanitizeName, sanitizePhone } from "@/lib/sanitize";
 
 type RegisterPayload = {
   name?: unknown;
@@ -15,10 +16,9 @@ const INTERNATIONAL_PHONE_REGEX = /^\+[1-9]\d{7,14}$/;
 
 export async function POST(request: Request) {
   const body = (await request.json()) as RegisterPayload;
-  const name = typeof body.name === "string" ? body.name.trim() : "";
-  const email =
-    typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
-  const phone = typeof body.phone === "string" ? body.phone.trim() : "";
+  const name = typeof body.name === "string" ? sanitizeName(body.name) : "";
+  const email = typeof body.email === "string" ? sanitizeEmail(body.email) : "";
+  const phone = typeof body.phone === "string" ? sanitizePhone(body.phone) : "";
   const password = typeof body.password === "string" ? body.password : "";
   const dateOfBirthValue =
     typeof body.dateOfBirth === "string" ? body.dateOfBirth.trim() : "";
