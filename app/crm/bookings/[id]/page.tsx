@@ -5,6 +5,7 @@ import { authConfig } from "@/lib/auth";
 import { db } from "@/lib/db";
 import BookingStatusButtons from "./BookingStatusButtons";
 import ClientBookingHistory from "@/components/booking/ClientBookingHistory";
+import BookingRescheduleControl from "@/components/booking/BookingRescheduleControl";
 import DiagnosisEditor from "@/components/diagnosis/DiagnosisEditor";
 import RoutineEditor from "@/components/routine/RoutineEditor";
 import FeedbackEditor from "@/components/feedback/FeedbackEditor";
@@ -159,6 +160,12 @@ export default async function CrmBookingDetailsPage({
           </div>
         </section>
       </div>
+
+      <BookingRescheduleControl
+        bookingId={booking.id}
+        currentAppointmentTime={booking.appointmentTime?.toISOString() ?? null}
+        disabled={booking.status === "COMPLETED" || booking.status === "CANCELLED"}
+      />
 
       <BookingStatusButtons bookingId={booking.id} currentStatus={booking.status} />
 
