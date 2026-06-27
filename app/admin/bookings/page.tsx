@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Papa from "papaparse";
 import { useEffect, useMemo, useState } from "react";
+import { SkeletonTable } from "@/components/ui/Skeleton";
 import { formatDateOnly } from "@/lib/dateUtils";
 
 type AdminBooking = {
@@ -132,7 +133,9 @@ export default function AdminBookingsPage() {
       </div>
 
       {isLoading ? (
-        <p className="mt-8 text-sm text-foreground/70">Loading bookings...</p>
+        <div className="mt-8">
+          <SkeletonTable rows={6} cols={5} />
+        </div>
       ) : null}
 
       {error ? <p className="mt-8 text-sm text-red-600">{error}</p> : null}

@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { SkeletonCard } from "@/components/ui/Skeleton";
 
 export const dynamic = "force-dynamic";
 
@@ -222,9 +223,11 @@ export default function AppointmentPage() {
         ) : null}
 
         {membershipStatus === "loading" ? (
-          <p className="mt-10 text-sm text-[#B8A89A] dark:text-[#8A7D75]">
-            Checking membership...
-          </p>
+          <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, index) => (
+              <SkeletonCard key={index} className="min-h-[420px]" />
+            ))}
+          </div>
         ) : null}
 
         {membershipStatus === "inactive" || membershipStatus === "expired" ? (
@@ -263,9 +266,11 @@ export default function AppointmentPage() {
         {membershipStatus !== "loading" ? (
           <>
             {isLoadingDoctors ? (
-              <p className="mt-10 text-sm text-[#B8A89A] dark:text-[#8A7D75]">
-                Loading doctors...
-              </p>
+              <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-3">
+                {Array.from({ length: 6 }).map((_, index) => (
+                  <SkeletonCard key={index} className="min-h-[420px]" />
+                ))}
+              </div>
             ) : null}
 
             {!isLoadingDoctors && doctors.length === 0 ? (

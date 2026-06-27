@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import BookingAnalyticsWidget from "@/components/analytics/BookingAnalyticsWidget";
 import MembershipAnalyticsWidget from "@/components/analytics/MembershipAnalyticsWidget";
+import { SkeletonStat, SkeletonTable } from "@/components/ui/Skeleton";
 import { formatDateOnly } from "@/lib/dateUtils";
 
 export const dynamic = "force-dynamic";
@@ -66,7 +67,11 @@ export default function CrmPage() {
           </p>
 
           {isLoading ? (
-            <p className="mt-6 text-sm text-foreground/70">Loading stats...</p>
+            <div className="mt-8 grid gap-4 sm:grid-cols-3">
+              {Array.from({ length: 3 }).map((_, index) => (
+                <SkeletonStat key={index} />
+              ))}
+            </div>
           ) : null}
 
           {error ? (
@@ -100,6 +105,12 @@ export default function CrmPage() {
             <MembershipAnalyticsWidget />
           </div>
         </div>
+
+        {isLoading ? (
+          <div className="rounded-3xl border border-black/10 bg-background p-8 shadow-sm dark:border-white/10 dark:bg-zinc-950">
+            <SkeletonTable rows={4} cols={5} />
+          </div>
+        ) : null}
 
         {stats && !isLoading && !error ? (
           <div className="rounded-3xl border border-black/10 bg-background p-8 shadow-sm dark:border-white/10 dark:bg-zinc-950">

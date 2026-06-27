@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { useCart } from "@/components/cart/CartProvider";
+import { Skeleton, SkeletonCard } from "@/components/ui/Skeleton";
 
 export const dynamic = "force-dynamic";
 
@@ -181,7 +182,7 @@ export default function ProductsPage() {
 
   const productCountLabel = useMemo(() => {
     if (isLoading) {
-      return "Loading products...";
+      return "";
     }
 
     return `${totalCount} product${totalCount === 1 ? "" : "s"}`;
@@ -417,7 +418,11 @@ export default function ProductsPage() {
               }}
               className="dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#8A7D75]"
             >
-              {productCountLabel}
+              {isLoading ? (
+                <Skeleton className="mx-auto h-4 w-24" />
+              ) : (
+                productCountLabel
+              )}
             </div>
           </div>
         </section>
@@ -442,55 +447,7 @@ export default function ProductsPage() {
         {isLoading ? (
           <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
             {Array.from({ length: 8 }).map((_, index) => (
-              <div
-                key={index}
-                style={{
-                  borderRadius: 22,
-                  border: "1px solid #E8DDD0",
-                  background: "#FFFFFF",
-                  overflow: "hidden",
-                  height: 420,
-                }}
-                className="dark:border-[#3D3530] dark:bg-[#242220]"
-              >
-                <div
-                  style={{
-                    height: 240,
-                    background:
-                      "linear-gradient(110deg, #F0E9DD 8%, #F8F5F0 18%, #F0E9DD 33%)",
-                    backgroundSize: "200% 100%",
-                    animation: "shimmerLoad 1.6s linear infinite",
-                  }}
-                />
-                <div style={{ padding: 20 }}>
-                  <div
-                    style={{
-                      height: 14,
-                      width: "60%",
-                      background: "#F0E9DD",
-                      borderRadius: 6,
-                      marginBottom: 12,
-                    }}
-                  />
-                  <div
-                    style={{
-                      height: 20,
-                      width: "85%",
-                      background: "#F0E9DD",
-                      borderRadius: 6,
-                      marginBottom: 16,
-                    }}
-                  />
-                  <div
-                    style={{
-                      height: 28,
-                      width: "40%",
-                      background: "#F0E9DD",
-                      borderRadius: 6,
-                    }}
-                  />
-                </div>
-              </div>
+              <SkeletonCard key={index} className="min-h-[420px]" />
             ))}
           </div>
         ) : products.length === 0 ? (

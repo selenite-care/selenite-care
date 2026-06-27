@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { SkeletonTable } from "@/components/ui/Skeleton";
 import { formatDateOnly } from "@/lib/dateUtils";
 
 type ClientBooking = {
@@ -78,7 +79,9 @@ export default function DashboardBookingsPage() {
       </div>
 
       {isLoading ? (
-        <p className="mt-8 text-sm text-[#B8A89A] dark:text-[#8A7D75]">Loading bookings...</p>
+        <div className="mt-8">
+          <SkeletonTable rows={5} cols={5} />
+        </div>
       ) : null}
 
       {error ? <p className="mt-8 text-sm text-red-600">{error}</p> : null}
