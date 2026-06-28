@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import Papa from "papaparse";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
+import Pagination from "@/components/ui/Pagination";
 import { SkeletonTable } from "@/components/ui/Skeleton";
 import { formatDateOnly } from "@/lib/dateUtils";
 
@@ -24,6 +25,11 @@ type AdminBooking = {
   } | null;
 };
 
+type AdminBookingsResponse = {
+  bookings?: AdminBooking[];
+  totalCount?: number;
+};
+
 const bookingStatuses = [
   "All",
   "PENDING",
@@ -31,6 +37,7 @@ const bookingStatuses = [
   "COMPLETED",
   "CANCELLED",
 ] as const;
+const ITEMS_PER_PAGE = 20;
 
 export default function AdminBookingsPage() {
   const [bookings, setBookings] = useState<AdminBooking[]>([]);
@@ -39,45 +46,52 @@ export default function AdminBookingsPage() {
     useState<(typeof bookingStatuses)[number]>("All");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const totalPages = Math.max(1, Math.ceil(totalCount / ITEMS_PER_PAGE));
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, statusFilter]);
 
   useEffect(() => {
     async function loadBookings() {
       try {
-        const response = await fetch("/api/admin/bookings");
+        setError("");
+        setIsLoading(true);
+
+        const searchParams = new URLSearchParams();
+        searchParams.set("page", String(currentPage));
+        searchParams.set("limit", String(ITEMS_PER_PAGE));
+        if (searchQuery.trim()) {
+          searchParams.set("search", searchQuery.trim());
+        }
+        if (statusFilter !== "All") {
+          searchParams.set("statusFilter", statusFilter);
+        }
+
+        const response = await fetch(`/api/admin/bookings?${searchParams.toString()}`);
 
         if (!response.ok) {
           throw new Error("Unable to load bookings.");
         }
 
-        const data = (await response.json()) as { bookings?: AdminBooking[] };
+        const data = (await response.json()) as AdminBookingsResponse;
         setBookings(data.bookings ?? []);
+        setTotalCount(data.totalCount ?? 0);
       } catch {
         setError("Bookings are not available right now.");
+        setBookings([]);
+        setTotalCount(0);
       } finally {
         setIsLoading(false);
       }
     }
 
     loadBookings();
-  }, []);
+  }, [currentPage, searchQuery, statusFilter]);
 
-  const filteredBookings = useMemo(() => {
-    const normalizedQuery = searchQuery.trim().toLowerCase();
-
-    return bookings.filter((booking) => {
-      const bookingToken = booking.token ?? booking.id;
-      const clientName = booking.user.name ?? booking.user.email;
-      const matchesSearch =
-        !normalizedQuery ||
-        clientName.toLowerCase().includes(normalizedQuery) ||
-        bookingToken.toLowerCase().includes(normalizedQuery) ||
-        (booking.service?.name ?? "").toLowerCase().includes(normalizedQuery);
-      const matchesStatus =
-        statusFilter === "All" || booking.status === statusFilter;
-
-      return matchesSearch && matchesStatus;
-    });
-  }, [bookings, searchQuery, statusFilter]);
+  const filteredBookings = bookings;
 
   function formatAppointmentTime(value: string | null) {
     return value ? formatDateOnly(value) : "Not scheduled";
@@ -140,13 +154,13 @@ export default function AdminBookingsPage() {
 
       {error ? <p className="mt-8 text-sm text-red-600">{error}</p> : null}
 
-      {!isLoading && !error && bookings.length === 0 ? (
+      {!isLoading && !error && totalCount === 0 ? (
         <p className="mt-8 text-sm text-foreground/70">
           No bookings found.
         </p>
       ) : null}
 
-      {!isLoading && !error && bookings.length > 0 ? (
+      {!isLoading && !error && totalCount > 0 ? (
         <>
           <div className="mt-8 rounded-lg border border-[#D8C7B5] bg-white p-4">
             <div className="grid gap-4 md:grid-cols-[1fr_220px_auto] md:items-end">
@@ -207,7 +221,7 @@ export default function AdminBookingsPage() {
             </div>
 
             <p className="mt-4 text-sm text-[#B8A89A]">
-              Showing {filteredBookings.length} of {bookings.length} bookings.
+              Showing {filteredBookings.length} of {totalCount} bookings.
             </p>
           </div>
 
@@ -270,6 +284,14 @@ export default function AdminBookingsPage() {
               Scroll to see more
             </p>
           </div>
+
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+            totalItems={totalCount}
+            itemsPerPage={ITEMS_PER_PAGE}
+          />
         </>
       ) : null}
     </section>

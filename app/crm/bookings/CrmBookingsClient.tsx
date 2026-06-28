@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import Papa from "papaparse";
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
+import Pagination from "@/components/ui/Pagination";
 import { formatDateOnly } from "@/lib/dateUtils";
 
 export type CrmBookingListItem = {
@@ -23,7 +24,12 @@ export type CrmBookingListItem = {
 };
 
 type CrmBookingsClientProps = {
-  bookings: CrmBookingListItem[];
+  bookings?: CrmBookingListItem[];
+};
+
+type CrmBookingsResponse = {
+  bookings?: CrmBookingListItem[];
+  totalCount?: number;
 };
 
 const bookingStatuses = [
@@ -33,6 +39,7 @@ const bookingStatuses = [
   "COMPLETED",
   "CANCELLED",
 ] as const;
+const ITEMS_PER_PAGE = 20;
 
 function getBookingStatusBadgeClasses(status: string) {
   switch (status) {
@@ -58,27 +65,73 @@ function formatAppointmentTime(value: string | null) {
 }
 
 export default function CrmBookingsClient({ bookings }: CrmBookingsClientProps) {
+  const [bookingItems, setBookingItems] = useState(bookings ?? []);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] =
     useState<(typeof bookingStatuses)[number]>("All");
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const totalPages = Math.max(1, Math.ceil(totalCount / ITEMS_PER_PAGE));
 
-  const filteredBookings = useMemo(() => {
-    const normalizedQuery = searchQuery.trim().toLowerCase();
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, statusFilter]);
 
-    return bookings.filter((booking) => {
-      const bookingToken = booking.token ?? booking.id;
-      const matchesSearch =
-        !normalizedQuery ||
-        (booking.user.name ?? "").toLowerCase().includes(normalizedQuery) ||
-        (booking.user.phone ?? "").toLowerCase().includes(normalizedQuery) ||
-        bookingToken.toLowerCase().includes(normalizedQuery) ||
-        (booking.service?.name ?? "").toLowerCase().includes(normalizedQuery);
-      const matchesStatus =
-        statusFilter === "All" || booking.status === statusFilter;
+  useEffect(() => {
+    let isMounted = true;
 
-      return matchesSearch && matchesStatus;
-    });
-  }, [bookings, searchQuery, statusFilter]);
+    async function loadBookings() {
+      try {
+        if (isMounted) {
+          setIsLoading(true);
+          setError("");
+        }
+
+        const searchParams = new URLSearchParams();
+        searchParams.set("page", String(currentPage));
+        searchParams.set("limit", String(ITEMS_PER_PAGE));
+        if (searchQuery.trim()) {
+          searchParams.set("search", searchQuery.trim());
+        }
+        if (statusFilter !== "All") {
+          searchParams.set("statusFilter", statusFilter);
+        }
+
+        const response = await fetch(`/api/crm/bookings?${searchParams.toString()}`);
+
+        if (!response.ok) {
+          throw new Error("Unable to load bookings.");
+        }
+
+        const data = (await response.json()) as CrmBookingsResponse;
+
+        if (isMounted) {
+          setBookingItems(data.bookings ?? []);
+          setTotalCount(data.totalCount ?? 0);
+        }
+      } catch {
+        if (isMounted) {
+          setError("Bookings are not available right now.");
+          setBookingItems([]);
+          setTotalCount(0);
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    loadBookings();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [currentPage, searchQuery, statusFilter]);
+
+  const filteredBookings = bookingItems;
 
   function handleExportCsv() {
     const csv = Papa.unparse(
@@ -176,9 +229,15 @@ export default function CrmBookingsClient({ bookings }: CrmBookingsClientProps) 
         </div>
 
         <p className="mt-4 text-sm text-[#B8A89A]">
-          Showing {filteredBookings.length} of {bookings.length} bookings.
+          Showing {filteredBookings.length} of {totalCount} bookings.
         </p>
       </div>
+
+      {isLoading ? (
+        <p className="mb-4 text-sm text-[#8C7967]">Loading bookings...</p>
+      ) : null}
+
+      {error ? <p className="mb-4 text-sm text-red-600">{error}</p> : null}
 
       <div className="overflow-hidden rounded-3xl border border-themed bg-card shadow-sm">
         <div className="overflow-x-auto">
@@ -249,6 +308,14 @@ export default function CrmBookingsClient({ bookings }: CrmBookingsClientProps) 
         </div>
         <p className="px-4 pb-4 text-xs text-muted md:hidden">Scroll to see more</p>
       </div>
+
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+        totalItems={totalCount}
+        itemsPerPage={ITEMS_PER_PAGE}
+      />
     </>
   );
 }

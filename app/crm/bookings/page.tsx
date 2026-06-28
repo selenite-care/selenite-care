@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import db from "@/lib/db";
 import CrmBookingsClient from "./CrmBookingsClient";
 
 export default async function CrmBookingsPage() {
@@ -14,39 +13,6 @@ export default async function CrmBookingsPage() {
     redirect("/dashboard");
   }
 
-  const bookings = await db.booking.findMany({
-    orderBy: {
-      appointmentTime: "desc",
-    },
-    select: {
-      id: true,
-      token: true,
-      appointmentTime: true,
-      status: true,
-      user: {
-        select: {
-          name: true,
-          phone: true,
-        },
-      },
-      service: {
-        select: {
-          name: true,
-        },
-      },
-      doctor: {
-        select: {
-          name: true,
-        },
-      },
-    },
-  });
-
-  const bookingItems = bookings.map((booking) => ({
-    ...booking,
-    appointmentTime: booking.appointmentTime?.toISOString() ?? "Not scheduled",
-  }));
-
   return (
     <section className="min-h-screen bg-zinc-50 px-6 py-10 dark:bg-black">
       <div className="mx-auto w-full max-w-7xl">
@@ -57,7 +23,7 @@ export default async function CrmBookingsPage() {
           </p>
         </div>
 
-        <CrmBookingsClient bookings={bookingItems} />
+        <CrmBookingsClient />
       </div>
     </section>
   );

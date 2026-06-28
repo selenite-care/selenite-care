@@ -1,7 +1,8 @@
 "use client";
 
 import Papa from "papaparse";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
+import Pagination from "@/components/ui/Pagination";
 import { formatDateTime } from "@/lib/dateUtils";
 
 type CrmMembership = {
@@ -20,6 +21,7 @@ type CrmMembership = {
 
 type MembershipResponse = {
   memberships?: CrmMembership[];
+  totalCount?: number;
   error?: string;
 };
 
@@ -30,6 +32,7 @@ const membershipStatuses = [
   "EXPIRED",
   "CANCELLED",
 ] as const;
+const ITEMS_PER_PAGE = 20;
 
 function getTierBadgeStyles(tier: CrmMembership["tier"]) {
   switch (tier) {
@@ -93,11 +96,31 @@ export default function CrmMembershipsPage() {
     useState<(typeof membershipStatuses)[number]>("All");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const totalPages = Math.max(1, Math.ceil(totalCount / ITEMS_PER_PAGE));
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, statusFilter]);
 
   useEffect(() => {
     async function loadMemberships() {
       try {
-        const response = await fetch("/api/crm/memberships");
+        setError("");
+        setIsLoading(true);
+
+        const searchParams = new URLSearchParams();
+        searchParams.set("page", String(currentPage));
+        searchParams.set("limit", String(ITEMS_PER_PAGE));
+        if (searchQuery.trim()) {
+          searchParams.set("search", searchQuery.trim());
+        }
+        if (statusFilter !== "All") {
+          searchParams.set("statusFilter", statusFilter);
+        }
+
+        const response = await fetch(`/api/crm/memberships?${searchParams.toString()}`);
         const data = (await response.json()) as MembershipResponse;
 
         if (!response.ok) {
@@ -105,38 +128,24 @@ export default function CrmMembershipsPage() {
         }
 
         setMemberships(data.memberships ?? []);
+        setTotalCount(data.totalCount ?? 0);
       } catch (loadError) {
         setError(
           loadError instanceof Error
             ? loadError.message
             : "Memberships are not available right now.",
         );
+        setMemberships([]);
+        setTotalCount(0);
       } finally {
         setIsLoading(false);
       }
     }
 
     loadMemberships();
-  }, []);
+  }, [currentPage, searchQuery, statusFilter]);
 
-  const filteredMemberships = useMemo(() => {
-    const normalizedQuery = searchQuery.trim().toLowerCase();
-
-    return memberships.filter((membership) => {
-      const clientName = membership.user.name ?? membership.user.email;
-      const matchesSearch =
-        !normalizedQuery ||
-        membership.membershipId.toLowerCase().includes(normalizedQuery) ||
-        clientName.toLowerCase().includes(normalizedQuery) ||
-        membership.user.email.toLowerCase().includes(normalizedQuery) ||
-        (membership.user.phone ?? "").toLowerCase().includes(normalizedQuery) ||
-        membership.tier.toLowerCase().includes(normalizedQuery);
-      const matchesStatus =
-        statusFilter === "All" || membership.status === statusFilter;
-
-      return matchesSearch && matchesStatus;
-    });
-  }, [memberships, searchQuery, statusFilter]);
+  const filteredMemberships = memberships;
 
   function handleExportCsv() {
     const csv = Papa.unparse(
@@ -202,13 +211,13 @@ export default function CrmMembershipsPage() {
 
         {error ? <p className="text-sm text-red-600">{error}</p> : null}
 
-        {!isLoading && !error && memberships.length === 0 ? (
+        {!isLoading && !error && totalCount === 0 ? (
           <p className="text-sm text-[#B8A89A] dark:text-[#8A7D75]">
             No memberships found.
           </p>
         ) : null}
 
-        {!isLoading && !error && memberships.length > 0 ? (
+        {!isLoading && !error && totalCount > 0 ? (
           <>
             <div className="mb-6 rounded-3xl border border-[#D8C7B5] bg-white p-5 shadow-sm dark:border-[#3D3530] dark:bg-[#242220]">
               <div className="grid gap-4 md:grid-cols-[1fr_220px_auto] md:items-end">
@@ -265,7 +274,7 @@ export default function CrmMembershipsPage() {
               </div>
 
               <p className="mt-4 text-sm text-[#B8A89A]">
-                Showing {filteredMemberships.length} of {memberships.length} memberships.
+                Showing {filteredMemberships.length} of {totalCount} memberships.
               </p>
             </div>
 
@@ -364,6 +373,14 @@ export default function CrmMembershipsPage() {
                 </p>
               </div>
             )}
+
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+              totalItems={totalCount}
+              itemsPerPage={ITEMS_PER_PAGE}
+            />
           </>
         ) : null}
       </div>

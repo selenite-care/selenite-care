@@ -1,6 +1,7 @@
 import NextAuth from "next-auth";
 import { authConfig } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { getPaginationMeta, getPaginationParams } from "@/lib/apiPagination";
 
 const { auth } = NextAuth(authConfig);
 
@@ -27,6 +28,7 @@ export async function GET(request: Request) {
   const roleFilter = searchParams.get("roleFilter")?.trim().toUpperCase() ?? "ALL";
   const membershipFilter =
     searchParams.get("membershipFilter")?.trim().toLowerCase() ?? "all";
+  const { page, limit, skip, take } = getPaginationParams(searchParams);
 
   const where: {
     OR?: Array<{
@@ -69,37 +71,46 @@ export async function GET(request: Request) {
     };
   }
 
-  const users = await db.user.findMany({
-    where,
-    orderBy: {
-      createdAt: "desc",
-    },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      phone: true,
-      role: true,
-      createdAt: true,
-      memberships: {
-        orderBy: {
-          createdAt: "desc",
+  const [users, totalCount] = await Promise.all([
+    db.user.findMany({
+      where,
+      orderBy: {
+        createdAt: "desc",
+      },
+      skip,
+      take,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+        role: true,
+        createdAt: true,
+        memberships: {
+          orderBy: {
+            createdAt: "desc",
+          },
+          take: 1,
+          select: {
+            id: true,
+            tier: true,
+            status: true,
+            createdAt: true,
+          },
         },
-        take: 1,
-        select: {
-          id: true,
-          tier: true,
-          status: true,
-          createdAt: true,
+        _count: {
+          select: {
+            bookings: true,
+          },
         },
       },
-      _count: {
-        select: {
-          bookings: true,
-        },
-      },
-    },
-  });
+    }),
+    db.user.count({ where }),
+  ]);
 
-  return Response.json({ users });
+  return Response.json({
+    users,
+    totalCount,
+    pagination: getPaginationMeta({ page, limit, totalCount }),
+  });
 }

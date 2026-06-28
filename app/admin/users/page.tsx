@@ -1,7 +1,8 @@
 "use client";
 
 import Papa from "papaparse";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
+import Pagination from "@/components/ui/Pagination";
 import { SkeletonTable } from "@/components/ui/Skeleton";
 import { formatDateOnly } from "@/lib/dateUtils";
 
@@ -23,6 +24,11 @@ type AdminUser = {
   };
 };
 
+type AdminUsersResponse = {
+  users?: AdminUser[];
+  totalCount?: number;
+};
+
 const ROLES = ["CLIENT", "DOCTOR", "CRM", "ADMIN"];
 const ROLE_FILTERS = ["All", "CLIENT", "DOCTOR", "CRM", "ADMIN"] as const;
 const MEMBERSHIP_FILTERS = [
@@ -33,6 +39,7 @@ const MEMBERSHIP_FILTERS = [
   { value: "expired", label: "Expired" },
   { value: "cancelled", label: "Cancelled" },
 ] as const;
+const ITEMS_PER_PAGE = 20;
 
 const roleColors: Record<string, { badge: string; text: string }> = {
   CLIENT: {
@@ -105,6 +112,13 @@ export default function AdminUsersPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [updateError, setUpdateError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const totalPages = Math.max(1, Math.ceil(totalCount / ITEMS_PER_PAGE));
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, roleFilter, membershipFilter]);
 
   useEffect(() => {
     async function loadUsers() {
@@ -113,6 +127,14 @@ export default function AdminUsersPage() {
         setIsLoading(true);
 
         const searchParams = new URLSearchParams();
+        searchParams.set("page", String(currentPage));
+        searchParams.set("limit", String(ITEMS_PER_PAGE));
+        if (searchQuery.trim()) {
+          searchParams.set("search", searchQuery.trim());
+        }
+        if (roleFilter !== "All") {
+          searchParams.set("roleFilter", roleFilter);
+        }
         if (membershipFilter !== "all") {
           searchParams.set("membershipFilter", membershipFilter);
         }
@@ -125,17 +147,20 @@ export default function AdminUsersPage() {
           throw new Error("Unable to load users.");
         }
 
-        const data = (await response.json()) as { users?: AdminUser[] };
+        const data = (await response.json()) as AdminUsersResponse;
         setUsers(data.users ?? []);
+        setTotalCount(data.totalCount ?? 0);
       } catch {
         setError("Users are not available right now.");
+        setUsers([]);
+        setTotalCount(0);
       } finally {
         setIsLoading(false);
       }
     }
 
     loadUsers();
-  }, [membershipFilter]);
+  }, [currentPage, membershipFilter, roleFilter, searchQuery]);
 
   async function handleRoleChange(userId: string, newRole: string) {
     if (updatingId) {
@@ -176,20 +201,7 @@ export default function AdminUsersPage() {
     }
   }
 
-  const filteredUsers = useMemo(() => {
-    const normalizedQuery = searchQuery.trim().toLowerCase();
-
-    return users.filter((user) => {
-      const matchesSearch =
-        !normalizedQuery ||
-        (user.name ?? "").toLowerCase().includes(normalizedQuery) ||
-        user.email.toLowerCase().includes(normalizedQuery) ||
-        (user.phone ?? "").toLowerCase().includes(normalizedQuery);
-      const matchesRole = roleFilter === "All" || user.role === roleFilter;
-
-      return matchesSearch && matchesRole;
-    });
-  }, [roleFilter, searchQuery, users]);
+  const filteredUsers = users;
 
   function handleExportCsv() {
     const csv = Papa.unparse(
@@ -426,6 +438,14 @@ export default function AdminUsersPage() {
               Scroll to see more
             </p>
           </div>
+
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+            totalItems={totalCount}
+            itemsPerPage={ITEMS_PER_PAGE}
+          />
         </>
       ) : null}
     </section>
