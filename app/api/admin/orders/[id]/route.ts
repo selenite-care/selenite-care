@@ -1,6 +1,8 @@
 import NextAuth from "next-auth";
 import { authConfig } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { sendEmail } from "@/lib/email";
+import { createNotification, NOTIFICATION_TYPES } from "@/lib/notifications";
 import type { OrderStatus } from "@prisma/client";
 
 const { auth } = NextAuth(authConfig);
@@ -23,6 +25,31 @@ const ORDER_STATUSES: OrderStatus[] = [
   "DELIVERED",
   "CANCELLED",
 ];
+
+const ORDER_NOTIFICATION_COPY: Partial<
+  Record<OrderStatus, { title: string; message: string }>
+> = {
+  VERIFIED: {
+    title: "Order Verified",
+    message: "Your order has been verified and is being prepared.",
+  },
+  PROCESSING: {
+    title: "Order Processing",
+    message: "Your order is being processed.",
+  },
+  SHIPPED: {
+    title: "Order Shipped",
+    message: "Your order has been shipped! You will receive it soon.",
+  },
+  DELIVERED: {
+    title: "Order Delivered",
+    message: "Your order has been delivered. Thank you!",
+  },
+  CANCELLED: {
+    title: "Order Cancelled",
+    message: "Your order has been cancelled. Please contact us if you have questions.",
+  },
+};
 
 async function requireAdmin() {
   const session = await auth();
@@ -134,8 +161,78 @@ export async function PATCH(request: Request, context: RouteContext) {
     select: {
       id: true,
       status: true,
+      user: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
     },
   });
+
+  const notificationCopy = ORDER_NOTIFICATION_COPY[order.status];
+
+  if (notificationCopy) {
+    try {
+      await createNotification(
+        order.user.id,
+        notificationCopy.title,
+        notificationCopy.message,
+        NOTIFICATION_TYPES.ORDER,
+        `/dashboard/orders/${order.id}`,
+      );
+    } catch (notificationError) {
+      console.error("Failed to create order status notification", notificationError);
+    }
+  }
+
+  if (order.status === "SHIPPED" || order.status === "DELIVERED") {
+    try {
+      const title =
+        order.status === "SHIPPED" ? "Your Order Has Shipped" : "Your Order Was Delivered";
+      const message =
+        order.status === "SHIPPED"
+          ? "Your Selenite Care order has been shipped and should reach you soon."
+          : "Your Selenite Care order has been delivered. Thank you for shopping with us.";
+
+      await sendEmail({
+        to: order.user.email,
+        subject:
+          order.status === "SHIPPED"
+            ? "Your Selenite Care Order Has Shipped"
+            : "Your Selenite Care Order Has Been Delivered",
+        html: `
+          <div style="margin:0;padding:32px 16px;background-color:#F8F5F0;font-family:Arial,sans-serif;color:#2B2B2B;">
+            <div style="max-width:640px;margin:0 auto;background:#FFFFFF;border:1px solid #D8C7B5;border-radius:18px;overflow:hidden;">
+              <div style="padding:24px 28px;background:#2B2B2B;color:#F8F5F0;">
+                <div style="font-size:12px;letter-spacing:0.22em;text-transform:uppercase;color:#C6A56B;">Selenite Care</div>
+                <h1 style="margin:12px 0 0;font-size:28px;line-height:1.2;font-family:'Playfair Display',Georgia,serif;">${title}</h1>
+              </div>
+              <div style="padding:28px;">
+                <p style="margin:0 0 16px;font-size:15px;line-height:1.7;">Hello ${order.user.name ?? "Valued Client"},</p>
+                <p style="margin:0 0 20px;font-size:15px;line-height:1.7;color:#4B4037;">${message}</p>
+                <table style="width:100%;border-collapse:collapse;font-size:14px;line-height:1.6;">
+                  <tbody>
+                    <tr>
+                      <td style="padding:12px 0;border-bottom:1px solid #E9DFD2;color:#6E6257;width:42%;">Order ID</td>
+                      <td style="padding:12px 0;border-bottom:1px solid #E9DFD2;font-weight:600;">${order.id}</td>
+                    </tr>
+                    <tr>
+                      <td style="padding:12px 0;border-bottom:1px solid #E9DFD2;color:#6E6257;">Status</td>
+                      <td style="padding:12px 0;border-bottom:1px solid #E9DFD2;">${order.status}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        `,
+      });
+    } catch (emailError) {
+      console.error("Failed to send order status email", emailError);
+    }
+  }
 
   return Response.json({ order });
 }
