@@ -77,10 +77,6 @@ export async function PATCH(request: Request, context: RouteContext) {
     return Response.json({ error: "Type cannot be empty." }, { status: 400 });
   }
 
-  if (skinType !== undefined && !skinType) {
-    return Response.json({ error: "Skin type cannot be empty." }, { status: 400 });
-  }
-
   if (price !== undefined && price < 0) {
     return Response.json({ error: "Price must be a valid non-negative number." }, { status: 400 });
   }
