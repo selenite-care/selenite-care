@@ -1,6 +1,8 @@
 ﻿import NextAuth from "next-auth";
 import { authConfig } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { formatDate } from "@/lib/dateUtils";
+import { notifyBookingChange } from "@/lib/notifications";
 
 const { auth } = NextAuth(authConfig);
 
@@ -298,6 +300,21 @@ export async function PATCH(request: Request, context: RouteContext) {
       appointmentTime: true,
     },
   });
+
+  try {
+    const triggeredByRole = session.user.role === "CRM" ? "CRM" : "Admin";
+
+    await notifyBookingChange({
+      bookingId: updatedBooking.id,
+      triggeredByRole,
+      triggeredByUserId: session.user.id,
+      changeType: "APPOINTMENT_DATE",
+      changeDetail: "Appointment date updated",
+      newValue: formatDate(updatedBooking.appointmentTime),
+    });
+  } catch (notificationError) {
+    console.error("Failed to send appointment date notification", notificationError);
+  }
 
   return Response.json({ booking: updatedBooking });
 }

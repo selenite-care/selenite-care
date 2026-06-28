@@ -3,6 +3,7 @@ import { NextRequest } from "next/server";
 import type { BookingStatus } from "@prisma/client";
 import { authConfig } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { notifyBookingChange } from "@/lib/notifications";
 
 const { auth } = NextAuth(authConfig);
 
@@ -18,6 +19,22 @@ async function findDoctorForSession() {
   }
 
   return doctor;
+}
+
+async function findDoctorContextForSession() {
+  const session = await auth();
+  if (!session?.user || session.user.role !== "DOCTOR") return null;
+  const userName = session.user.name?.trim() ?? "";
+  if (!userName) return null;
+
+  let doctor = await db.doctor.findFirst({ where: { name: userName }, select: { id: true } });
+  if (!doctor && !userName.toLowerCase().startsWith("dr.")) {
+    doctor = await db.doctor.findFirst({ where: { name: `Dr. ${userName}` }, select: { id: true } });
+  }
+
+  if (!doctor) return null;
+
+  return { doctor, session };
 }
 
 type BookingRouteContext = {
@@ -58,10 +75,11 @@ export async function GET(_request: NextRequest, { params }: BookingRouteContext
 }
 
 export async function PATCH(request: NextRequest, { params }: BookingRouteContext) {
-  const doctor = await findDoctorForSession();
-  if (!doctor) {
+  const doctorContext = await findDoctorContextForSession();
+  if (!doctorContext) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 403, headers: { "Content-Type": "application/json" } });
   }
+  const { doctor, session } = doctorContext;
 
   const { id } = await params;
   const body = (await request.json().catch(() => ({}))) as BookingStatusPayload;
@@ -83,6 +101,19 @@ export async function PATCH(request: NextRequest, { params }: BookingRouteContex
     where: { id },
     data: { status: newStatus as BookingStatus },
   });
+
+  try {
+    await notifyBookingChange({
+      bookingId: booking.id,
+      triggeredByRole: "Doctor",
+      triggeredByUserId: session.user.id,
+      changeType: "BOOKING_STATUS",
+      changeDetail: "Booking status updated",
+      newValue: booking.status,
+    });
+  } catch (notificationError) {
+    console.error("Failed to send doctor booking status notification", notificationError);
+  }
 
   return new Response(JSON.stringify({ booking }), { status: 200, headers: { "Content-Type": "application/json" } });
 }
