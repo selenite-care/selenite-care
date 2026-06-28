@@ -2,6 +2,7 @@ import NextAuth from "next-auth";
 import type { BookingStatus } from "@prisma/client";
 import { authConfig } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { notifyBookingChange } from "@/lib/notifications";
 
 const { auth } = NextAuth(authConfig);
 
@@ -122,6 +123,19 @@ export async function PATCH(request: Request, context: RouteContext) {
       status: true,
     },
   });
+
+  try {
+    await notifyBookingChange({
+      bookingId: booking.id,
+      triggeredByRole: "Admin",
+      triggeredByUserId: session.user.id,
+      changeType: "BOOKING_STATUS",
+      changeDetail: "Booking status updated",
+      newValue: booking.status,
+    });
+  } catch (notificationError) {
+    console.error("Failed to send booking status notification", notificationError);
+  }
 
   return Response.json({ booking });
 }

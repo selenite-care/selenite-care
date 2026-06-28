@@ -9,7 +9,15 @@ type NotificationItem = {
   id: string;
   title: string;
   message: string;
-  type: "INFO" | "SUCCESS" | "WARNING" | "BOOKING" | "MEMBERSHIP" | "ORDER" | string;
+  type:
+    | "INFO"
+    | "SUCCESS"
+    | "WARNING"
+    | "BOOKING"
+    | "MEMBERSHIP"
+    | "ORDER"
+    | "FEEDBACK"
+    | string;
   isRead: boolean;
   link: string | null;
   createdAt: string;
@@ -27,6 +35,7 @@ const typeBorderClasses: Record<string, string> = {
   BOOKING: "border-l-[#C6A56B]",
   MEMBERSHIP: "border-l-purple-500",
   ORDER: "border-l-orange-500",
+  FEEDBACK: "border-l-[#9B59B6]",
 };
 
 function getTypeBorderClass(type: string) {
