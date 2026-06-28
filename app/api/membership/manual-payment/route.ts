@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
 import { isMembershipAvailable } from "@/lib/membershipAvailability";
+import { createNotification, NOTIFICATION_TYPES } from "@/lib/notifications";
 import type { MembershipTier, PaymentMethod } from "@prisma/client";
 
 export const runtime = "nodejs";
@@ -305,6 +306,18 @@ export async function POST(request: Request) {
       });
     } catch (error) {
       console.error("Failed to send manual payment email", error);
+    }
+
+    try {
+      await createNotification(
+        user.id,
+        "Payment Received",
+        "We received your payment. Our team will verify and activate your membership shortly.",
+        NOTIFICATION_TYPES.SUCCESS,
+        "/membership/pending",
+      );
+    } catch (notificationError) {
+      console.error("Failed to create manual payment notification", notificationError);
     }
 
     return Response.json({ membershipId: membership.membershipId }, { status: 201 });

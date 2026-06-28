@@ -8,6 +8,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronDown, Moon, Sun } from "lucide-react";
 import CartIcon from "@/components/cart/CartIcon";
 import { useTheme } from "@/components/providers/ThemeProvider";
+import NotificationBell from "@/components/ui/NotificationBell";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -382,6 +383,7 @@ function NavbarContent() {
             </>
           ) : (
             <>
+              <NotificationBell />
               <Link
                 href={dashboardHref}
                 style={{ color: "#2B2B2B" }}
@@ -495,6 +497,7 @@ function NavbarContent() {
               {renderThemeToggle(
                 "inline-flex items-center gap-2 rounded-md px-3 py-3 text-sm font-medium",
               )}
+              {status === "authenticated" ? <NotificationBell /> : null}
             </div>
 
             {status === "loading" ? (

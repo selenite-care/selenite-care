@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
+import { createNotification, NOTIFICATION_TYPES } from "@/lib/notifications";
 import type { PaymentMethod, StockStatus } from "@prisma/client";
 
 export const runtime = "nodejs";
@@ -369,6 +370,32 @@ export async function POST(request: Request) {
     } catch (error) {
       console.error("Failed to send product order email", error);
     }
+  }
+
+  try {
+    const admins = await db.user.findMany({
+      where: {
+        role: "ADMIN",
+      },
+      select: {
+        id: true,
+      },
+    });
+    const clientName = user.name ?? user.email ?? "a client";
+
+    await Promise.all(
+      admins.map((admin) =>
+        createNotification(
+          admin.id,
+          "New Order",
+          `A new product order has been placed by ${clientName}`,
+          NOTIFICATION_TYPES.ORDER,
+          "/admin/orders",
+        ),
+      ),
+    );
+  } catch (notificationError) {
+    console.error("Failed to create admin order notification", notificationError);
   }
 
   return Response.json(
