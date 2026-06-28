@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import db from "@/lib/db";
 import CrmClientsClient from "./CrmClientsClient";
 
 export default async function CrmClientsPage() {
@@ -14,48 +13,6 @@ export default async function CrmClientsPage() {
     redirect("/dashboard");
   }
 
-  const clients = await db.user.findMany({
-    where: {
-      role: "CLIENT",
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      phone: true,
-      createdAt: true,
-      memberships: {
-        orderBy: {
-          createdAt: "desc",
-        },
-        take: 1,
-        select: {
-          id: true,
-          tier: true,
-          status: true,
-          createdAt: true,
-        },
-      },
-      _count: {
-        select: {
-          bookings: true,
-        },
-      },
-    },
-  });
-
-  const clientItems = clients.map((client) => ({
-    ...client,
-    createdAt: client.createdAt.toISOString(),
-    memberships: client.memberships.map((membership) => ({
-      ...membership,
-      createdAt: membership.createdAt.toISOString(),
-    })),
-  }));
-
   return (
     <section className="min-h-screen bg-zinc-50 px-6 py-10 dark:bg-black">
       <div className="mx-auto w-full max-w-6xl">
@@ -66,7 +23,7 @@ export default async function CrmClientsPage() {
           </p>
         </div>
 
-        <CrmClientsClient clients={clientItems} />
+        <CrmClientsClient />
       </div>
     </section>
   );

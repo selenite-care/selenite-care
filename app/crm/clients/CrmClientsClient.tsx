@@ -1,7 +1,8 @@
 "use client";
 
 import Papa from "papaparse";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
+import Pagination from "@/components/ui/Pagination";
 import { formatDateOnly } from "@/lib/dateUtils";
 
 export type CrmClientListItem = {
@@ -22,7 +23,12 @@ export type CrmClientListItem = {
 };
 
 type CrmClientsClientProps = {
-  clients: CrmClientListItem[];
+  clients?: CrmClientListItem[];
+};
+
+type CrmClientsResponse = {
+  clients?: CrmClientListItem[];
+  totalCount?: number;
 };
 
 const MEMBERSHIP_FILTERS = [
@@ -33,6 +39,7 @@ const MEMBERSHIP_FILTERS = [
   { value: "expired", label: "Expired" },
   { value: "cancelled", label: "Cancelled" },
 ] as const;
+const ITEMS_PER_PAGE = 20;
 
 function getTierLabel(tier: "SIGNATURE" | "CRYSTAL" | "PLATINUM") {
   switch (tier) {
@@ -76,55 +83,56 @@ function getMembershipStatusStyles(
 }
 
 export default function CrmClientsClient({ clients }: CrmClientsClientProps) {
-  const [clientItems, setClientItems] = useState(clients);
+  const [clientItems, setClientItems] = useState(clients ?? []);
   const [searchQuery, setSearchQuery] = useState("");
   const [membershipFilter, setMembershipFilter] =
     useState<(typeof MEMBERSHIP_FILTERS)[number]["value"]>("all");
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const totalPages = Math.max(1, Math.ceil(totalCount / ITEMS_PER_PAGE));
 
   useEffect(() => {
-    setClientItems(clients);
-  }, [clients]);
+    setCurrentPage(1);
+  }, [searchQuery, membershipFilter]);
 
   useEffect(() => {
     let isMounted = true;
 
     async function loadClients() {
-      if (membershipFilter === "all") {
-        if (isMounted) {
-          setClientItems(clients);
-          setError("");
-          setIsLoading(false);
-        }
-        return;
-      }
-
       try {
         if (isMounted) {
           setIsLoading(true);
           setError("");
         }
 
-        const searchParams = new URLSearchParams({
-          membershipFilter,
-        });
+        const searchParams = new URLSearchParams();
+        searchParams.set("page", String(currentPage));
+        searchParams.set("limit", String(ITEMS_PER_PAGE));
+        if (searchQuery.trim()) {
+          searchParams.set("search", searchQuery.trim());
+        }
+        if (membershipFilter !== "all") {
+          searchParams.set("membershipFilter", membershipFilter);
+        }
         const response = await fetch(`/api/crm/clients?${searchParams.toString()}`);
 
         if (!response.ok) {
           throw new Error("Unable to load clients.");
         }
 
-        const data = (await response.json()) as {
-          clients?: CrmClientListItem[];
-        };
+        const data = (await response.json()) as CrmClientsResponse;
 
         if (isMounted) {
           setClientItems(data.clients ?? []);
+          setTotalCount(data.totalCount ?? 0);
         }
       } catch {
         if (isMounted) {
           setError("Clients are not available right now.");
+          setClientItems([]);
+          setTotalCount(0);
         }
       } finally {
         if (isMounted) {
@@ -138,22 +146,9 @@ export default function CrmClientsClient({ clients }: CrmClientsClientProps) {
     return () => {
       isMounted = false;
     };
-  }, [clients, membershipFilter]);
+  }, [currentPage, membershipFilter, searchQuery]);
 
-  const filteredClients = useMemo(() => {
-    const normalizedQuery = searchQuery.trim().toLowerCase();
-
-    if (!normalizedQuery) {
-      return clientItems;
-    }
-
-    return clientItems.filter(
-      (client) =>
-        (client.name ?? "").toLowerCase().includes(normalizedQuery) ||
-        client.email.toLowerCase().includes(normalizedQuery) ||
-        (client.phone ?? "").toLowerCase().includes(normalizedQuery),
-    );
-  }, [clientItems, searchQuery]);
+  const filteredClients = clientItems;
 
   function handleExportCsv() {
     const csv = Papa.unparse(
@@ -251,7 +246,7 @@ export default function CrmClientsClient({ clients }: CrmClientsClientProps) {
         </div>
 
         <p className="mt-4 text-sm text-[#B8A89A]">
-          Showing {filteredClients.length} of {clientItems.length} clients.
+          Showing {filteredClients.length} of {totalCount} clients.
         </p>
       </div>
 
@@ -316,6 +311,14 @@ export default function CrmClientsClient({ clients }: CrmClientsClientProps) {
         </div>
         <p className="px-4 pb-4 text-xs text-muted md:hidden">Scroll to see more</p>
       </div>
+
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+        totalItems={totalCount}
+        itemsPerPage={ITEMS_PER_PAGE}
+      />
     </>
   );
 }

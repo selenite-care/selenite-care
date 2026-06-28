@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { FormEvent, useEffect, useState } from "react";
 import FileUploadButton from "@/components/ui/FileUploadButton";
+import Pagination from "@/components/ui/Pagination";
 
 type Product = {
   id: string;
@@ -67,6 +68,7 @@ const STOCK_STATUS_OPTIONS = [
   { value: "LIMITED", label: "Limited Stock" },
   { value: "OUT_OF_STOCK", label: "Out of Stock" },
 ] as const;
+const ITEMS_PER_PAGE = 20;
 
 function formatBdt(amount: number) {
   const normalized = Number.isInteger(amount) ? amount.toString() : amount.toFixed(2);
@@ -173,6 +175,7 @@ export default function AdminProductsPage() {
     try {
       const params = new URLSearchParams({
         page: String(targetPage),
+        limit: String(ITEMS_PER_PAGE),
       });
 
       if (query.trim()) {
@@ -726,29 +729,13 @@ export default function AdminProductsPage() {
             </>
           )}
 
-          <div className="flex items-center justify-between gap-3 border-t border-themed px-5 py-4 text-sm">
-            <button
-              type="button"
-              onClick={() => setPage((current) => Math.max(current - 1, 1))}
-              disabled={page <= 1 || isLoading}
-              className="inline-flex h-10 items-center justify-center rounded-md border border-[#C6A56B] px-4 font-medium text-[#2B2B2B] transition-colors hover:bg-[#C6A56B]/10 disabled:cursor-not-allowed disabled:opacity-60 dark:text-[#F0EDE8]"
-            >
-              Previous
-            </button>
-            <span className="text-[#B8A89A] dark:text-[#8A7D75]">
-              Page {page} of {totalPages}
-            </span>
-            <button
-              type="button"
-              onClick={() =>
-                setPage((current) => Math.min(current + 1, totalPages))
-              }
-              disabled={page >= totalPages || isLoading}
-              className="inline-flex h-10 items-center justify-center rounded-md border border-[#C6A56B] px-4 font-medium text-[#2B2B2B] transition-colors hover:bg-[#C6A56B]/10 disabled:cursor-not-allowed disabled:opacity-60 dark:text-[#F0EDE8]"
-            >
-              Next
-            </button>
-          </div>
+          <Pagination
+            currentPage={page}
+            totalPages={totalPages}
+            onPageChange={setPage}
+            totalItems={totalCount}
+            itemsPerPage={ITEMS_PER_PAGE}
+          />
         </div>
 
         <section className="rounded-lg border border-black/10 bg-background p-6 dark:border-white/10">

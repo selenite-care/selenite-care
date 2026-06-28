@@ -1,8 +1,7 @@
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
+import { getPaginationMeta, getPaginationParams } from "@/lib/apiPagination";
 import type { StockStatus } from "@prisma/client";
-
-const PAGE_SIZE = 20;
 
 type ProductPayload = {
   name?: unknown;
@@ -24,7 +23,7 @@ export async function GET(request: Request) {
   }
 
   const { searchParams } = new URL(request.url);
-  const page = Math.max(Number(searchParams.get("page") ?? "1") || 1, 1);
+  const { page, limit, skip, take } = getPaginationParams(searchParams);
   const query = searchParams.get("q")?.trim() ?? "";
   const rawStockStatus = searchParams.get("stockStatus")?.trim().toUpperCase() ?? "";
   const stockStatus: StockStatus | undefined =
@@ -81,8 +80,8 @@ export async function GET(request: Request) {
       orderBy: {
         createdAt: "desc",
       },
-      skip: (page - 1) * PAGE_SIZE,
-      take: PAGE_SIZE,
+      skip,
+      take,
     }),
     db.product.count({ where }),
   ]);
@@ -90,10 +89,7 @@ export async function GET(request: Request) {
   return Response.json({
     products,
     pagination: {
-      page,
-      pageSize: PAGE_SIZE,
-      totalCount,
-      totalPages: Math.max(Math.ceil(totalCount / PAGE_SIZE), 1),
+      ...getPaginationMeta({ page, limit, totalCount }),
     },
   });
 }

@@ -1,7 +1,8 @@
 "use client";
 
 import Papa from "papaparse";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
+import Pagination from "@/components/ui/Pagination";
 import { SkeletonTable } from "@/components/ui/Skeleton";
 import { formatDateTime } from "@/lib/dateUtils";
 
@@ -25,6 +26,7 @@ type AdminMembership = {
 
 type MembershipResponse = {
   memberships?: AdminMembership[];
+  totalCount?: number;
   error?: string;
 };
 
@@ -35,6 +37,7 @@ const membershipStatuses = [
   "EXPIRED",
   "CANCELLED",
 ] as const;
+const ITEMS_PER_PAGE = 20;
 
 function getTierBadgeStyles(tier: AdminMembership["tier"]) {
   switch (tier) {
@@ -124,11 +127,31 @@ export default function AdminMembershipsPage() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const totalPages = Math.max(1, Math.ceil(totalCount / ITEMS_PER_PAGE));
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, statusFilter]);
 
   useEffect(() => {
     async function loadMemberships() {
       try {
-        const response = await fetch("/api/admin/memberships");
+        setError("");
+        setIsLoading(true);
+
+        const searchParams = new URLSearchParams();
+        searchParams.set("page", String(currentPage));
+        searchParams.set("limit", String(ITEMS_PER_PAGE));
+        if (searchQuery.trim()) {
+          searchParams.set("search", searchQuery.trim());
+        }
+        if (statusFilter !== "All") {
+          searchParams.set("statusFilter", statusFilter);
+        }
+
+        const response = await fetch(`/api/admin/memberships?${searchParams.toString()}`);
         const data = (await response.json()) as MembershipResponse;
 
         if (!response.ok) {
@@ -136,19 +159,22 @@ export default function AdminMembershipsPage() {
         }
 
         setMemberships(data.memberships ?? []);
+        setTotalCount(data.totalCount ?? 0);
       } catch (loadError) {
         setError(
           loadError instanceof Error
             ? loadError.message
             : "Memberships are not available right now.",
         );
+        setMemberships([]);
+        setTotalCount(0);
       } finally {
         setIsLoading(false);
       }
     }
 
     loadMemberships();
-  }, []);
+  }, [currentPage, searchQuery, statusFilter]);
 
   async function updateMembershipStatus(membershipId: string, status: "CANCELLED") {
     setUpdatingId(membershipId);
@@ -186,31 +212,8 @@ export default function AdminMembershipsPage() {
     }
   }
 
-  const filteredMemberships = useMemo(() => {
-    const normalizedQuery = searchQuery.trim().toLowerCase();
-
-    return memberships.filter((membership) => {
-      const clientName = membership.user.name ?? membership.user.email;
-      const paymentStatus = membership.payment?.status ?? "N/A";
-      const matchesSearch =
-        !normalizedQuery ||
-        membership.membershipId.toLowerCase().includes(normalizedQuery) ||
-        clientName.toLowerCase().includes(normalizedQuery) ||
-        membership.user.email.toLowerCase().includes(normalizedQuery) ||
-        (membership.user.phone ?? "").toLowerCase().includes(normalizedQuery) ||
-        membership.tier.toLowerCase().includes(normalizedQuery) ||
-        paymentStatus.toLowerCase().includes(normalizedQuery);
-      const matchesStatus =
-        statusFilter === "All" || membership.status === statusFilter;
-
-      return matchesSearch && matchesStatus;
-    });
-  }, [memberships, searchQuery, statusFilter]);
-
-  const hasMemberships = useMemo(
-    () => memberships.length > 0,
-    [memberships],
-  );
+  const filteredMemberships = memberships;
+  const hasMemberships = totalCount > 0;
 
   function handleExportCsv() {
     const csv = Papa.unparse(
@@ -350,7 +353,7 @@ export default function AdminMembershipsPage() {
             </div>
 
             <p className="mt-4 text-sm text-[#B8A89A]">
-              Showing {filteredMemberships.length} of {memberships.length} memberships.
+              Showing {filteredMemberships.length} of {totalCount} memberships.
             </p>
           </div>
 
@@ -475,6 +478,14 @@ export default function AdminMembershipsPage() {
               </p>
             </div>
           )}
+
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+            totalItems={totalCount}
+            itemsPerPage={ITEMS_PER_PAGE}
+          />
         </>
       ) : null}
     </section>

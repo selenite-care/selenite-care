@@ -1,6 +1,7 @@
 import NextAuth from "next-auth";
 import { authConfig } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { getPaginationMeta, getPaginationParams } from "@/lib/apiPagination";
 
 const { auth } = NextAuth(authConfig);
 
@@ -25,9 +26,16 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const membershipFilter =
     searchParams.get("membershipFilter")?.trim().toLowerCase() ?? "all";
+  const search = searchParams.get("search")?.trim() || searchParams.get("q")?.trim() || "";
+  const { page, limit, skip, take } = getPaginationParams(searchParams);
 
   const where: {
     role: "CLIENT";
+    OR?: Array<{
+      name?: { contains: string; mode: "insensitive" };
+      email?: { contains: string; mode: "insensitive" };
+      phone?: { contains: string; mode: "insensitive" };
+    }>;
     memberships?:
       | { none: Record<string, never> }
       | {
@@ -38,6 +46,14 @@ export async function GET(request: Request) {
   } = {
     role: "CLIENT",
   };
+
+  if (search) {
+    where.OR = [
+      { name: { contains: search, mode: "insensitive" } },
+      { email: { contains: search, mode: "insensitive" } },
+      { phone: { contains: search, mode: "insensitive" } },
+    ];
+  }
 
   if (membershipFilter === "none") {
     where.memberships = { none: {} };
@@ -52,36 +68,45 @@ export async function GET(request: Request) {
     };
   }
 
-  const clients = await db.user.findMany({
-    where,
-    orderBy: {
-      createdAt: "desc",
-    },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      phone: true,
-      createdAt: true,
-      memberships: {
-        orderBy: {
-          createdAt: "desc",
+  const [clients, totalCount] = await Promise.all([
+    db.user.findMany({
+      where,
+      orderBy: {
+        createdAt: "desc",
+      },
+      skip,
+      take,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+        createdAt: true,
+        memberships: {
+          orderBy: {
+            createdAt: "desc",
+          },
+          take: 1,
+          select: {
+            id: true,
+            tier: true,
+            status: true,
+            createdAt: true,
+          },
         },
-        take: 1,
-        select: {
-          id: true,
-          tier: true,
-          status: true,
-          createdAt: true,
+        _count: {
+          select: {
+            bookings: true,
+          },
         },
       },
-      _count: {
-        select: {
-          bookings: true,
-        },
-      },
-    },
-  });
+    }),
+    db.user.count({ where }),
+  ]);
 
-  return Response.json({ clients });
+  return Response.json({
+    clients,
+    totalCount,
+    pagination: getPaginationMeta({ page, limit, totalCount }),
+  });
 }
