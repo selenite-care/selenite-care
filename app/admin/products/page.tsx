@@ -965,6 +965,7 @@ export default function AdminProductsPage() {
                     className="mt-2 h-11 w-full rounded-md border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
                   />
                 </div>
+                {/* skin type issue fixed */}
                 <div>
                   <label className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
                     Skin Type
