@@ -2,6 +2,7 @@ import NextAuth from "next-auth";
 import { authConfig } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
+import { createNotification, NOTIFICATION_TYPES } from "@/lib/notifications";
 
 const { auth } = NextAuth(authConfig);
 
@@ -204,6 +205,18 @@ export async function PATCH(_request: Request, context: RouteContext) {
     } catch (error) {
       console.error("Failed to send payment receipt email", error);
     }
+  }
+
+  try {
+    await createNotification(
+      membership.user.id,
+      "Membership Activated!",
+      `Your ${formatTierLabel(membership.tier)} membership has been activated. Welcome to Selenite Care!`,
+      NOTIFICATION_TYPES.MEMBERSHIP,
+      "/dashboard",
+    );
+  } catch (notificationError) {
+    console.error("Failed to create membership activation notification", notificationError);
   }
 
   return Response.json({ membership });

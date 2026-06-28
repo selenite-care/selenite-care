@@ -2,6 +2,7 @@ import NextAuth from "next-auth";
 import { authConfig } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
+import { createNotification, NOTIFICATION_TYPES } from "@/lib/notifications";
 import { sanitizeText } from "@/lib/sanitize";
 
 const { auth } = NextAuth(authConfig);
@@ -259,6 +260,7 @@ export async function POST(request: Request) {
       availability: true,
       user: {
         select: {
+          id: true,
           email: true,
         },
       },
@@ -484,6 +486,20 @@ export async function POST(request: Request) {
         html: clientEmailHtml,
       }),
     );
+
+    if (doctor.user?.id) {
+      try {
+        await createNotification(
+          doctor.user.id,
+          "New Appointment",
+          `A new appointment has been booked with you. Token: ${booking.token}`,
+          NOTIFICATION_TYPES.BOOKING,
+          `/doctor/bookings/${booking.id}`,
+        );
+      } catch (notificationError) {
+        console.error("Failed to create doctor appointment notification", notificationError);
+      }
+    }
 
     await Promise.all(emailPromises);
 
