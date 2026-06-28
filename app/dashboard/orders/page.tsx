@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { formatDateOnly } from "@/lib/dateUtils";
+import { useEffect, useMemo, useState } from "react";
+import Pagination from "@/components/ui/Pagination";
+import { SkeletonTable } from "@/components/ui/Skeleton";
+import { formatDateTime } from "@/lib/dateUtils";
 
 type ClientOrder = {
   id: string;
@@ -16,10 +18,24 @@ type ClientOrder = {
     | "SHIPPED"
     | "DELIVERED"
     | "CANCELLED";
-  _count: {
-    items: number;
-  };
+  items: Array<{
+    id: string;
+    product: {
+      name: string;
+    };
+  }>;
 };
+
+const ORDER_STATUSES = [
+  "All",
+  "PENDING",
+  "VERIFIED",
+  "PROCESSING",
+  "SHIPPED",
+  "DELIVERED",
+  "CANCELLED",
+] as const;
+const ITEMS_PER_PAGE = 20;
 
 function formatBdt(amount: number) {
   return `${Math.round(amount)} BDT`;
@@ -78,6 +94,9 @@ export default function DashboardOrdersPage() {
   const [orders, setOrders] = useState<ClientOrder[]>([]);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [statusFilter, setStatusFilter] =
+    useState<(typeof ORDER_STATUSES)[number]>("All");
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     async function loadOrders() {
@@ -101,8 +120,39 @@ export default function DashboardOrdersPage() {
   }, []);
 
   function formatOrderDate(value: string) {
-    return formatDateOnly(value);
+    return formatDateTime(value);
   }
+
+  function getProductSummary(order: ClientOrder) {
+    const productNames = order.items.map((item) => item.product.name);
+    const visibleNames = productNames.slice(0, 2).join(", ");
+    const remainingCount = Math.max(productNames.length - 2, 0);
+
+    if (!visibleNames) {
+      return "No products";
+    }
+
+    return remainingCount > 0
+      ? `${visibleNames} and ${remainingCount} more`
+      : visibleNames;
+  }
+
+  const filteredOrders = useMemo(
+    () =>
+      statusFilter === "All"
+        ? orders
+        : orders.filter((order) => order.status === statusFilter),
+    [orders, statusFilter],
+  );
+  const totalPages = Math.max(1, Math.ceil(filteredOrders.length / ITEMS_PER_PAGE));
+  const paginatedOrders = filteredOrders.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE,
+  );
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [statusFilter]);
 
   return (
     <section className="min-h-screen bg-[#F8F5F0] px-6 py-10 dark:bg-[#1A1814]">
@@ -119,9 +169,9 @@ export default function DashboardOrdersPage() {
       </div>
 
       {isLoading ? (
-        <p className="mt-8 text-sm text-[#B8A89A] dark:text-[#8A7D75]">
-          Loading orders...
-        </p>
+        <div className="mt-8">
+          <SkeletonTable rows={6} cols={7} />
+        </div>
       ) : null}
 
       {error ? <p className="mt-8 text-sm text-red-600">{error}</p> : null}
@@ -133,36 +183,82 @@ export default function DashboardOrdersPage() {
       ) : null}
 
       {!isLoading && !error && orders.length > 0 ? (
-        <div className="bg-card border-themed mt-8 overflow-hidden rounded-lg border">
-          <div className="overflow-x-auto">
-            <table className="table-themed w-full min-w-[920px] text-left text-sm">
-              <thead>
-                <tr>
-                  <th className="px-4 py-3 font-medium">Order ID</th>
-                  <th className="px-4 py-3 font-medium">Date</th>
-                  <th className="px-4 py-3 font-medium">Items</th>
-                  <th className="px-4 py-3 font-medium">Total Amount</th>
-                  <th className="px-4 py-3 font-medium">Payment Method</th>
-                  <th className="px-4 py-3 font-medium">Order Status</th>
-                  <th className="px-4 py-3 font-medium">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {orders.map((order) => (
-                  <tr key={order.id}>
-                    <td className="px-4 py-4 font-mono text-xs text-foreground/70">
-                      {order.id}
-                    </td>
-                    <td className="px-4 py-4 text-foreground/70">
-                      {formatOrderDate(order.createdAt)}
-                    </td>
-                    <td className="px-4 py-4 text-foreground/70">
-                      {order._count.items}
-                    </td>
-                    <td className="px-4 py-4 text-foreground/70">
-                      {formatBdt(order.totalAmount)}
-                    </td>
-                    <td className="px-4 py-4">
+        <>
+          <div className="mt-8 rounded-lg border border-[#D8C7B5] bg-white p-4 dark:border-[#3D3530] dark:bg-[#242220]">
+            <div className="max-w-xs">
+              <label
+                htmlFor="order-status-filter"
+                className="text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]"
+              >
+                Order Status
+              </label>
+              <select
+                id="order-status-filter"
+                value={statusFilter}
+                onChange={(event) =>
+                  setStatusFilter(
+                    event.target.value as (typeof ORDER_STATUSES)[number],
+                  )
+                }
+                className="mt-2 h-11 w-full rounded-md border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#F0EDE8]"
+              >
+                {ORDER_STATUSES.map((status) => (
+                  <option key={status} value={status}>
+                    {status}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {filteredOrders.length === 0 ? (
+            <p className="mt-8 text-sm text-[#B8A89A] dark:text-[#8A7D75]">
+              No orders match your selected status.
+            </p>
+          ) : (
+            <>
+              <div className="mt-6 grid gap-4 md:hidden">
+                {paginatedOrders.map((order) => (
+                  <article
+                    key={order.id}
+                    className="rounded-2xl border border-[#D8C7B5] bg-white p-5 shadow-sm dark:border-[#3D3530] dark:bg-[#242220]"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <p className="break-all font-mono text-xs font-semibold text-[#C6A56B]">
+                        {order.id}
+                      </p>
+                      <span
+                        className={`inline-flex shrink-0 rounded-full border px-3 py-1 text-xs font-medium ${getStatusBadgeClasses(
+                          order.status,
+                        )}`}
+                      >
+                        {order.status}
+                      </span>
+                    </div>
+
+                    <div className="mt-4 space-y-3 text-sm">
+                      <div>
+                        <p className="text-xs font-medium uppercase tracking-[0.14em] text-[#B8A89A]">
+                          Date
+                        </p>
+                        <p className="mt-1 text-[#6E6257] dark:text-[#8A7D75]">
+                          {formatOrderDate(order.createdAt)}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs font-medium uppercase tracking-[0.14em] text-[#B8A89A]">
+                          Products
+                        </p>
+                        <p className="mt-1 text-[#2B2B2B] dark:text-[#F0EDE8]">
+                          {getProductSummary(order)}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+                      <p className="text-lg font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]">
+                        {formatBdt(order.totalAmount)}
+                      </p>
                       <span
                         className={`inline-flex rounded-full border px-3 py-1 text-xs font-medium ${getPaymentMethodBadgeClasses(
                           order.paymentMethod,
@@ -170,30 +266,90 @@ export default function DashboardOrdersPage() {
                       >
                         {getPaymentMethodLabel(order.paymentMethod)}
                       </span>
-                    </td>
-                    <td className="px-4 py-4">
-                      <span
-                        className={`inline-flex rounded-full border px-3 py-1 text-xs font-medium ${getStatusBadgeClasses(
-                          order.status,
-                        )}`}
-                      >
-                        {order.status}
-                      </span>
-                    </td>
-                    <td className="px-4 py-4">
-                      <Link
-                        href={`/dashboard/orders/${order.id}`}
-                        className="border-themed text-page inline-flex h-9 items-center justify-center rounded-md border px-3 text-sm font-medium transition-colors hover:bg-black/5 dark:hover:bg-white/5"
-                      >
-                        View Details
-                      </Link>
-                    </td>
-                  </tr>
+                    </div>
+
+                    <Link
+                      href={`/dashboard/orders/${order.id}`}
+                      className="mt-5 inline-flex h-10 w-full items-center justify-center rounded-md bg-[#2B2B2B] px-4 text-sm font-medium text-[#F8F5F0] transition-colors hover:bg-[#3A3734] dark:bg-[#C6A56B] dark:text-[#141210] dark:hover:bg-[#D4B47A]"
+                    >
+                      View Details
+                    </Link>
+                  </article>
                 ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+              </div>
+
+              <div className="bg-card border-themed mt-6 hidden overflow-hidden rounded-lg border md:block">
+                <div className="overflow-x-auto">
+                  <table className="table-themed w-full min-w-[920px] text-left text-sm">
+                    <thead>
+                      <tr>
+                        <th className="px-4 py-3 font-medium">Order ID</th>
+                        <th className="px-4 py-3 font-medium">Date</th>
+                        <th className="px-4 py-3 font-medium">Products</th>
+                        <th className="px-4 py-3 font-medium">Total Amount</th>
+                        <th className="px-4 py-3 font-medium">Payment Method</th>
+                        <th className="px-4 py-3 font-medium">Order Status</th>
+                        <th className="px-4 py-3 font-medium">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {paginatedOrders.map((order) => (
+                        <tr key={order.id}>
+                          <td className="px-4 py-4 font-mono text-xs text-[#C6A56B]">
+                            {order.id}
+                          </td>
+                          <td className="px-4 py-4 text-foreground/70">
+                            {formatOrderDate(order.createdAt)}
+                          </td>
+                          <td className="px-4 py-4 text-foreground/70">
+                            {getProductSummary(order)}
+                          </td>
+                          <td className="px-4 py-4 text-foreground/70">
+                            {formatBdt(order.totalAmount)}
+                          </td>
+                          <td className="px-4 py-4">
+                            <span
+                              className={`inline-flex rounded-full border px-3 py-1 text-xs font-medium ${getPaymentMethodBadgeClasses(
+                                order.paymentMethod,
+                              )}`}
+                            >
+                              {getPaymentMethodLabel(order.paymentMethod)}
+                            </span>
+                          </td>
+                          <td className="px-4 py-4">
+                            <span
+                              className={`inline-flex rounded-full border px-3 py-1 text-xs font-medium ${getStatusBadgeClasses(
+                                order.status,
+                              )}`}
+                            >
+                              {order.status}
+                            </span>
+                          </td>
+                          <td className="px-4 py-4">
+                            <Link
+                              href={`/dashboard/orders/${order.id}`}
+                              className="border-themed text-page inline-flex h-9 items-center justify-center rounded-md border px-3 text-sm font-medium transition-colors hover:bg-black/5 dark:hover:bg-white/5"
+                            >
+                              View Details
+                            </Link>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+                totalItems={filteredOrders.length}
+                itemsPerPage={ITEMS_PER_PAGE}
+              />
+            </>
+          )}
+        </>
       ) : null}
     </section>
   );
