@@ -1077,6 +1077,8 @@ export default function AdminProductsPage() {
                 Visible to clients
               </label>
 
+              {error ? <p className="text-sm text-red-600">{error}</p> : null}
+
               <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
                 <button
                   type="button"
