@@ -120,7 +120,6 @@ export default function CompleteProfilePage() {
           ? saveError.message
           : "Unable to save your phone number.",
       );
-    } finally {
       setIsSubmitting(false);
     }
   }
