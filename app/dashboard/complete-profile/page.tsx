@@ -113,8 +113,7 @@ export default function CompleteProfilePage() {
           needsProfileCompletion: false,
         },
       });
-      router.refresh();
-      router.replace("/dashboard");
+      window.location.replace("/dashboard");
     } catch (saveError) {
       setError(
         saveError instanceof Error
