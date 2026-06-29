@@ -3,16 +3,14 @@ import NextAuth from "next-auth";
 import { getAuthConfig } from "@/lib/auth";
 
 function withNoCacheHeaders(response: Response) {
-  const nextResponse = new Response(response.body, response);
-
-  nextResponse.headers.set(
+  response.headers.set(
     "Cache-Control",
     "no-store, no-cache, must-revalidate, proxy-revalidate",
   );
-  nextResponse.headers.set("Pragma", "no-cache");
-  nextResponse.headers.set("Expires", "0");
+  response.headers.set("Pragma", "no-cache");
+  response.headers.set("Expires", "0");
 
-  return nextResponse;
+  return response;
 }
 
 export async function GET(request: NextRequest) {
