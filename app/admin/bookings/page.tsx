@@ -46,6 +46,7 @@ export default function AdminBookingsPage() {
     useState<(typeof bookingStatuses)[number]>("All");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [hasLoaded, setHasLoaded] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const totalPages = Math.max(1, Math.ceil(totalCount / ITEMS_PER_PAGE));
@@ -84,6 +85,7 @@ export default function AdminBookingsPage() {
         setBookings([]);
         setTotalCount(0);
       } finally {
+        setHasLoaded(true);
         setIsLoading(false);
       }
     }
@@ -92,6 +94,7 @@ export default function AdminBookingsPage() {
   }, [currentPage, searchQuery, statusFilter]);
 
   const filteredBookings = bookings;
+  const isInitialLoading = isLoading && !hasLoaded;
 
   function formatAppointmentTime(value: string | null) {
     return value ? formatDateOnly(value) : "Not scheduled";
@@ -146,7 +149,7 @@ export default function AdminBookingsPage() {
         </p>
       </div>
 
-      {isLoading ? (
+      {isInitialLoading ? (
         <div className="mt-8">
           <SkeletonTable rows={6} cols={5} />
         </div>
@@ -154,13 +157,7 @@ export default function AdminBookingsPage() {
 
       {error ? <p className="mt-8 text-sm text-red-600">{error}</p> : null}
 
-      {!isLoading && !error && totalCount === 0 ? (
-        <p className="mt-8 text-sm text-foreground/70">
-          No bookings found.
-        </p>
-      ) : null}
-
-      {!isLoading && !error && totalCount > 0 ? (
+      {!isInitialLoading && !error ? (
         <>
           <div className="mt-8 rounded-lg border border-[#D8C7B5] bg-white p-4">
             <div className="grid gap-4 md:grid-cols-[1fr_220px_auto] md:items-end">
@@ -223,6 +220,11 @@ export default function AdminBookingsPage() {
             <p className="mt-4 text-sm text-[#B8A89A]">
               Showing {filteredBookings.length} of {totalCount} bookings.
             </p>
+            {isLoading ? (
+              <p className="mt-2 text-xs text-[#B8A89A]">
+                Updating results...
+              </p>
+            ) : null}
           </div>
 
           <div className="mt-6 overflow-hidden rounded-lg border border-themed bg-card">

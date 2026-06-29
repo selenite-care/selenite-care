@@ -96,6 +96,7 @@ export default function CrmMembershipsPage() {
     useState<(typeof membershipStatuses)[number]>("All");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [hasLoaded, setHasLoaded] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const totalPages = Math.max(1, Math.ceil(totalCount / ITEMS_PER_PAGE));
@@ -138,6 +139,7 @@ export default function CrmMembershipsPage() {
         setMemberships([]);
         setTotalCount(0);
       } finally {
+        setHasLoaded(true);
         setIsLoading(false);
       }
     }
@@ -146,6 +148,7 @@ export default function CrmMembershipsPage() {
   }, [currentPage, searchQuery, statusFilter]);
 
   const filteredMemberships = memberships;
+  const isInitialLoading = isLoading && !hasLoaded;
 
   function handleExportCsv() {
     const csv = Papa.unparse(
@@ -203,7 +206,7 @@ export default function CrmMembershipsPage() {
           </p>
         </div>
 
-        {isLoading ? (
+        {isInitialLoading ? (
           <p className="text-sm text-[#B8A89A] dark:text-[#8A7D75]">
             Loading memberships...
           </p>
@@ -211,13 +214,7 @@ export default function CrmMembershipsPage() {
 
         {error ? <p className="text-sm text-red-600">{error}</p> : null}
 
-        {!isLoading && !error && totalCount === 0 ? (
-          <p className="text-sm text-[#B8A89A] dark:text-[#8A7D75]">
-            No memberships found.
-          </p>
-        ) : null}
-
-        {!isLoading && !error && totalCount > 0 ? (
+        {!isInitialLoading && !error ? (
           <>
             <div className="mb-6 rounded-3xl border border-[#D8C7B5] bg-white p-5 shadow-sm dark:border-[#3D3530] dark:bg-[#242220]">
               <div className="grid gap-4 md:grid-cols-[1fr_220px_auto] md:items-end">
@@ -276,11 +273,18 @@ export default function CrmMembershipsPage() {
               <p className="mt-4 text-sm text-[#B8A89A]">
                 Showing {filteredMemberships.length} of {totalCount} memberships.
               </p>
+              {isLoading ? (
+                <p className="mt-2 text-xs text-[#B8A89A] dark:text-[#8A7D75]">
+                  Updating results...
+                </p>
+              ) : null}
             </div>
 
             {filteredMemberships.length === 0 ? (
               <p className="text-sm text-[#B8A89A] dark:text-[#8A7D75]">
-                No memberships match your filters.
+                {totalCount === 0
+                  ? "No memberships found."
+                  : "No memberships match your filters."}
               </p>
             ) : (
               <div className="overflow-hidden rounded-2xl border border-themed bg-card shadow-sm">
