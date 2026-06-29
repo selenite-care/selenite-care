@@ -8,6 +8,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronDown, Moon, Sun } from "lucide-react";
 import CartIcon from "@/components/cart/CartIcon";
 import { useTheme } from "@/components/providers/ThemeProvider";
+import Avatar from "@/components/ui/Avatar";
 import NotificationBell from "@/components/ui/NotificationBell";
 
 const navLinks = [
@@ -384,6 +385,11 @@ function NavbarContent() {
           ) : (
             <>
               <NotificationBell />
+              <Avatar
+                imageUrl={session?.user?.image ?? null}
+                name={session?.user?.name ?? null}
+                size="sm"
+              />
               <Link
                 href={dashboardHref}
                 style={{ color: "#2B2B2B" }}
@@ -526,6 +532,21 @@ function NavbarContent() {
               </div>
             ) : (
               <div className="flex flex-col gap-1">
+                <div className="flex items-center gap-3 rounded-md px-3 py-3">
+                  <Avatar
+                    imageUrl={session?.user?.image ?? null}
+                    name={session?.user?.name ?? null}
+                    size="sm"
+                  />
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold text-[#F8F5F0]">
+                      {session?.user?.name ?? "Selenite Care User"}
+                    </p>
+                    <p className="mt-1 text-xs font-medium uppercase tracking-[0.12em] text-[#C6A56B]">
+                      {session?.user?.role ?? "CLIENT"}
+                    </p>
+                  </div>
+                </div>
                 <Link
                   href={dashboardHref}
                   style={{ color: isActiveLink(dashboardHref) ? "#C6A56B" : "#D8C7B5" }}

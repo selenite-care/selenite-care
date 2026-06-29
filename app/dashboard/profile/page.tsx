@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import Link from "next/link";
 import ProfileEditForm from "@/components/dashboard/ProfileEditForm";
 import ChangePasswordForm from "@/components/dashboard/ChangePasswordForm";
+import ProfilePhotoSection from "@/components/dashboard/ProfilePhotoSection";
 import { formatDateOnly } from "@/lib/dateUtils";
 
 const { auth } = NextAuth(authConfig);
@@ -25,6 +26,7 @@ export default async function ProfilePage() {
       id: true,
       name: true,
       email: true,
+      image: true,
       createdAt: true,
     },
   });
@@ -36,6 +38,16 @@ export default async function ProfilePage() {
       </section>
     );
   }
+
+  const googleAccount = await db.account.findFirst({
+    where: {
+      userId: session.user.id,
+      provider: "google",
+    },
+    select: {
+      id: true,
+    },
+  });
 
   return (
     <section>
@@ -60,6 +72,14 @@ export default async function ProfilePage() {
       </div>
 
       <div className="mt-6 grid gap-6 md:grid-cols-2">
+        <div className="md:col-span-2">
+          <ProfilePhotoSection
+            initialImage={user.image}
+            name={user.name}
+            hasGoogleAccount={Boolean(googleAccount)}
+          />
+        </div>
+
         <section className="bg-card border-themed rounded-lg border p-6">
           <h2
             className="text-page text-lg font-semibold"

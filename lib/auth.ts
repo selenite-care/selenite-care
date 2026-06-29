@@ -1,7 +1,10 @@
 import type { DefaultSession, NextAuthConfig } from "next-auth";
 import { CredentialsSignin } from "next-auth";
+import { PrismaAdapter } from "@auth/prisma-adapter";
 import Credentials from "next-auth/providers/credentials";
+import Google from "next-auth/providers/google";
 import type { Role } from "@prisma/client";
+import { cookies } from "next/headers";
 import type { NextRequest } from "next/server";
 import { getToken } from "@auth/core/jwt";
 import bcrypt from "bcryptjs";
@@ -20,12 +23,17 @@ declare module "next-auth" {
     user: {
       id: string;
       role: Role;
+      phone?: string | null;
+      image?: string | null;
+      needsProfileCompletion?: boolean;
       rememberMe?: boolean;
     } & DefaultSession["user"];
   }
 
   interface User {
-    role: Role;
+    role?: Role;
+    phone?: string | null;
+    image?: string | null;
     rememberMe?: boolean;
   }
 }
@@ -34,6 +42,9 @@ declare module "@auth/core/jwt" {
   interface JWT {
     id?: string;
     role?: Role;
+    phone?: string | null;
+    image?: string | null;
+    needsProfileCompletion?: boolean;
     rememberMe?: boolean;
   }
 }
@@ -48,6 +59,17 @@ function isRememberMeValue(value: unknown) {
     value === "on" ||
     value === true
   );
+}
+
+async function getGoogleOAuthIntent() {
+  try {
+    const cookieStore = await cookies();
+    const intent = cookieStore.get("selenite_google_oauth_intent")?.value;
+
+    return intent === "register" ? "register" : "login";
+  } catch {
+    return "login";
+  }
 }
 
 async function resolveRememberMe(request?: NextRequest) {
@@ -75,12 +97,17 @@ async function resolveRememberMe(request?: NextRequest) {
 
 function createAuthConfig(sessionMaxAge: number): NextAuthConfig {
   return {
+    adapter: PrismaAdapter(db),
     session: {
       strategy: "jwt",
       maxAge: sessionMaxAge,
     },
     jwt: {
       maxAge: sessionMaxAge,
+    },
+    pages: {
+      signIn: "/login",
+      error: "/login",
     },
     providers: [
       Credentials({
@@ -110,6 +137,8 @@ function createAuthConfig(sessionMaxAge: number): NextAuthConfig {
               id: true,
               name: true,
               email: true,
+              phone: true,
+              image: true,
               password: true,
               emailVerified: true,
               isActive: true,
@@ -139,18 +168,113 @@ function createAuthConfig(sessionMaxAge: number): NextAuthConfig {
             id: user.id,
             name: user.name,
             email: user.email,
+            phone: user.phone,
+            image: user.image,
             role: user.role,
             rememberMe,
           };
         },
       }),
+      Google({
+        clientId: process.env.GOOGLE_CLIENT_ID!,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+        allowDangerousEmailAccountLinking: true,
+      }),
     ],
     callbacks: {
-      jwt({ token, user }) {
+      async signIn({ user, account }) {
+        if (account?.provider === "google") {
+          const googleOAuthIntent = await getGoogleOAuthIntent();
+          const email =
+            typeof user.email === "string" ? user.email.toLowerCase() : "";
+
+          if (!email) {
+            return "/login?error=GoogleProfileNotFound";
+          }
+
+          const existingUser = await db.user.findUnique({
+            where: { email },
+            select: {
+              id: true,
+              isActive: true,
+            },
+          });
+
+          if (!existingUser && googleOAuthIntent !== "register") {
+            return "/login?error=GoogleProfileNotFound";
+          }
+
+          if (existingUser && !existingUser.isActive) {
+            return "/login?error=AccountInactive";
+          }
+        }
+
+        return true;
+      },
+      async jwt({ token, user, account, trigger, session }) {
+        if (trigger === "update" && session?.user) {
+          const updatedUser = session.user as {
+            phone?: unknown;
+            image?: unknown;
+            needsProfileCompletion?: unknown;
+          };
+
+          if ("phone" in updatedUser) {
+            const phone =
+              typeof updatedUser.phone === "string" ? updatedUser.phone : null;
+
+            token.phone = phone;
+            token.needsProfileCompletion = !phone?.trim();
+          }
+
+          if ("image" in updatedUser) {
+            token.image =
+              typeof updatedUser.image === "string" ? updatedUser.image : null;
+          }
+
+          if (typeof updatedUser.needsProfileCompletion === "boolean") {
+            token.needsProfileCompletion = updatedUser.needsProfileCompletion;
+          }
+        }
+
         if (user) {
           token.id = user.id;
-          token.role = user.role;
+          token.phone = user.phone ?? null;
+          token.image = user.image ?? token.picture ?? null;
           token.rememberMe = user.rememberMe === true;
+
+          if (user.role) {
+            token.role = user.role;
+          } else if (user.id) {
+            const dbUser = await db.user.findUnique({
+              where: { id: user.id },
+              select: {
+                role: true,
+                phone: true,
+                image: true,
+              },
+            });
+
+            token.role = dbUser?.role ?? "CLIENT";
+            token.phone = dbUser?.phone ?? null;
+            token.image = dbUser?.image ?? token.picture ?? null;
+          } else {
+            token.role = "CLIENT";
+          }
+
+          token.needsProfileCompletion =
+            account?.provider === "google" && !token.phone?.trim();
+        }
+
+        if (token.id && !token.image) {
+          const dbUser = await db.user.findUnique({
+            where: { id: token.id },
+            select: {
+              image: true,
+            },
+          });
+
+          token.image = dbUser?.image ?? token.picture ?? null;
         }
 
         return token;
@@ -160,6 +284,10 @@ function createAuthConfig(sessionMaxAge: number): NextAuthConfig {
         session.user.role = token.role ?? "CLIENT";
         session.user.name = token.name ?? null;
         session.user.email = token.email ?? "";
+        session.user.phone = token.phone ?? null;
+        session.user.image = token.image ?? null;
+        session.user.needsProfileCompletion =
+          token.needsProfileCompletion === true;
         session.user.rememberMe = token.rememberMe === true;
 
         return session;
@@ -168,11 +296,13 @@ function createAuthConfig(sessionMaxAge: number): NextAuthConfig {
   };
 }
 
-export const authConfig = async (request?: NextRequest) => {
+export const authConfig = createAuthConfig(DEFAULT_SESSION_MAX_AGE);
+
+export async function getAuthConfig(request?: NextRequest) {
   const rememberMe = await resolveRememberMe(request);
   return createAuthConfig(
     rememberMe ? REMEMBER_ME_SESSION_MAX_AGE : DEFAULT_SESSION_MAX_AGE,
   );
-};
+}
 
 export default authConfig;
