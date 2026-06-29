@@ -60,6 +60,15 @@ const TIER_ORDER = {
   PLATINUM: 3,
 } as const;
 
+function trackMetaPixelEvent(
+  eventName: string,
+  parameters?: Record<string, unknown>,
+) {
+  if (typeof window !== "undefined" && typeof window.fbq !== "undefined") {
+    window.fbq("track", eventName, parameters);
+  }
+}
+
 const memberships: MembershipTier[] = [
   {
     key: "signature",
@@ -489,6 +498,13 @@ export default function ServicesClient() {
     null,
   );
   const [isMembershipLoading, setIsMembershipLoading] = useState(false);
+
+  useEffect(() => {
+    trackMetaPixelEvent("ViewContent", {
+      content_name: "Membership Plans",
+      content_category: "Services",
+    });
+  }, []);
 
   useEffect(() => {
     let isMounted = true;

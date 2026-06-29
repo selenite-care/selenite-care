@@ -17,6 +17,21 @@ type MembershipResponse = {
   error?: string;
 };
 
+const MEMBERSHIP_AMOUNTS: Record<"SIGNATURE" | "CRYSTAL" | "PLATINUM", number> = {
+  SIGNATURE: 490,
+  CRYSTAL: 3990,
+  PLATINUM: 9990,
+};
+
+function trackMetaPixelEvent(
+  eventName: string,
+  parameters?: Record<string, unknown>,
+) {
+  if (typeof window !== "undefined" && typeof window.fbq !== "undefined") {
+    window.fbq("track", eventName, parameters);
+  }
+}
+
 function getTierBadgeStyles(tier: "SIGNATURE" | "CRYSTAL" | "PLATINUM") {
   switch (tier) {
     case "PLATINUM":
@@ -58,6 +73,7 @@ function MembershipWelcomePageContent() {
   );
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [hasTrackedPurchase, setHasTrackedPurchase] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -97,6 +113,18 @@ function MembershipWelcomePageContent() {
       isMounted = false;
     };
   }, []);
+
+  useEffect(() => {
+    if (!membership || hasTrackedPurchase) {
+      return;
+    }
+
+    trackMetaPixelEvent("Purchase", {
+      value: MEMBERSHIP_AMOUNTS[membership.tier],
+      currency: "BDT",
+    });
+    setHasTrackedPurchase(true);
+  }, [hasTrackedPurchase, membership]);
 
   const displayMembershipId = membership?.membershipId ?? membershipId;
   const activationDate = membership?.createdAt

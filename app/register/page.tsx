@@ -6,6 +6,12 @@ import { FormEvent, Suspense, useEffect, useState } from "react";
 import { signIn } from "next-auth/react";
 import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
 
+function trackMetaPixelEvent(eventName: string) {
+  if (typeof window !== "undefined" && typeof window.fbq !== "undefined") {
+    window.fbq("track", eventName);
+  }
+}
+
 function RegisterPageContent() {
   const [error, setError] = useState("");
   const [showExistingAccountNotice, setShowExistingAccountNotice] = useState(false);
@@ -80,6 +86,7 @@ function RegisterPageContent() {
         return;
       }
 
+      trackMetaPixelEvent("CompleteRegistration");
       setRegisteredEmail(email);
       setResendCountdown(60);
     } catch {

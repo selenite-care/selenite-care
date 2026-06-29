@@ -105,6 +105,15 @@ function formatBdt(amount: number) {
   return `${Math.round(amount)} BDT`;
 }
 
+function trackMetaPixelEvent(
+  eventName: string,
+  parameters?: Record<string, unknown>,
+) {
+  if (typeof window !== "undefined" && typeof window.fbq !== "undefined") {
+    window.fbq("track", eventName, parameters);
+  }
+}
+
 function getPendingMembershipRedirectHref(tier: MembershipTier, amount: number) {
   return `/membership/pending?tier=${encodeURIComponent(tier)}&amount=${encodeURIComponent(String(amount))}`;
 }
@@ -970,6 +979,17 @@ function MembershipPaymentPageContent() {
       isMounted = false;
     };
   }, [router]);
+
+  useEffect(() => {
+    if (!tier) {
+      return;
+    }
+
+    trackMetaPixelEvent("InitiateCheckout", {
+      value: MEMBERSHIPS[tier].price,
+      currency: "BDT",
+    });
+  }, [tier]);
 
   if (isCheckingPendingMembership) {
     return <MembershipPaymentLoadingFallback />;
