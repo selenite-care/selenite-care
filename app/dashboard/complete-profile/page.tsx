@@ -105,12 +105,15 @@ export default function CompleteProfilePage() {
         throw new Error(data?.error ?? "Unable to save your phone number.");
       }
 
+      const savedPhone = data?.user?.phone ?? phone;
+
       await update({
         user: {
-          phone,
+          phone: savedPhone,
           needsProfileCompletion: false,
         },
       });
+      router.refresh();
       router.replace("/dashboard");
     } catch (saveError) {
       setError(
