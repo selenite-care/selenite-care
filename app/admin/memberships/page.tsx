@@ -126,6 +126,7 @@ export default function AdminMembershipsPage() {
     useState<(typeof membershipStatuses)[number]>("All");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [hasLoaded, setHasLoaded] = useState(false);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
@@ -169,6 +170,7 @@ export default function AdminMembershipsPage() {
         setMemberships([]);
         setTotalCount(0);
       } finally {
+        setHasLoaded(true);
         setIsLoading(false);
       }
     }
@@ -214,6 +216,8 @@ export default function AdminMembershipsPage() {
 
   const filteredMemberships = memberships;
   const hasMemberships = totalCount > 0;
+  const isInitialLoading = isLoading && !hasLoaded;
+  const hasActiveFilters = searchQuery.trim().length > 0 || statusFilter !== "All";
 
   function handleExportCsv() {
     const csv = Papa.unparse(
@@ -282,7 +286,7 @@ export default function AdminMembershipsPage() {
         </p>
       </div>
 
-      {isLoading ? (
+      {isInitialLoading ? (
         <div className="mt-8">
           <SkeletonTable rows={6} cols={9} />
         </div>
@@ -290,13 +294,7 @@ export default function AdminMembershipsPage() {
 
       {error ? <p className="mt-8 text-sm text-red-600">{error}</p> : null}
 
-      {!isLoading && !error && !hasMemberships ? (
-        <p className="mt-8 text-sm text-[#B8A89A] dark:text-[#8A7D75]">
-          No memberships found.
-        </p>
-      ) : null}
-
-      {!isLoading && hasMemberships ? (
+      {!isInitialLoading && !error ? (
         <>
           <div className="mt-8 rounded-lg border border-[#D8C7B5] bg-white p-4 dark:border-[#3D3530] dark:bg-[#242220]">
             <div className="grid gap-4 md:grid-cols-[1fr_220px_auto] md:items-end">
@@ -355,9 +353,20 @@ export default function AdminMembershipsPage() {
             <p className="mt-4 text-sm text-[#B8A89A]">
               Showing {filteredMemberships.length} of {totalCount} memberships.
             </p>
+            {isLoading ? (
+              <p className="mt-2 text-xs text-[#B8A89A] dark:text-[#8A7D75]">
+                Updating results...
+              </p>
+            ) : null}
           </div>
 
-          {filteredMemberships.length === 0 ? (
+          {!hasMemberships ? (
+            <p className="mt-8 text-sm text-[#B8A89A] dark:text-[#8A7D75]">
+              {hasActiveFilters
+                ? "No memberships match your filters."
+                : "No memberships found."}
+            </p>
+          ) : filteredMemberships.length === 0 ? (
             <p className="mt-8 text-sm text-[#B8A89A] dark:text-[#8A7D75]">
               No memberships match your filters.
             </p>

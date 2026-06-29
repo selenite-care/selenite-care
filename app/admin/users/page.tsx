@@ -110,6 +110,7 @@ export default function AdminUsersPage() {
   const [membershipFilter, setMembershipFilter] =
     useState<(typeof MEMBERSHIP_FILTERS)[number]["value"]>("all");
   const [isLoading, setIsLoading] = useState(true);
+  const [hasLoaded, setHasLoaded] = useState(false);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [updateError, setUpdateError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -155,6 +156,7 @@ export default function AdminUsersPage() {
         setUsers([]);
         setTotalCount(0);
       } finally {
+        setHasLoaded(true);
         setIsLoading(false);
       }
     }
@@ -202,6 +204,7 @@ export default function AdminUsersPage() {
   }
 
   const filteredUsers = users;
+  const isInitialLoading = isLoading && !hasLoaded;
 
   function handleExportCsv() {
     const csv = Papa.unparse(
@@ -254,7 +257,7 @@ export default function AdminUsersPage() {
         </p>
       </div>
 
-      {isLoading ? (
+      {isInitialLoading ? (
         <div className="mt-8">
           <SkeletonTable rows={6} cols={7} />
         </div>
@@ -268,7 +271,7 @@ export default function AdminUsersPage() {
         </p>
       ) : null}
 
-      {!isLoading && !error ? (
+      {!isInitialLoading && !error ? (
         <>
           <div className="mt-8 rounded-lg border border-[#D8C7B5] bg-white p-4">
             <div className="grid gap-4 md:grid-cols-[1fr_220px_220px_auto] md:items-end">
@@ -352,6 +355,11 @@ export default function AdminUsersPage() {
                 Export CSV
               </button>
             </div>
+            {isLoading ? (
+              <p className="mt-4 text-xs text-[#B8A89A] dark:text-[#8A7D75]">
+                Updating results...
+              </p>
+            ) : null}
           </div>
 
           <div className="mt-6 overflow-hidden rounded-lg border border-themed bg-card">
