@@ -2,15 +2,113 @@ import NextAuth from "next-auth";
 import bcrypt from "bcryptjs";
 import { authConfig } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { sanitizePhone } from "@/lib/sanitize";
 
 const { auth } = NextAuth(authConfig);
 
 type ProfilePayload = {
   name?: unknown;
+  phone?: unknown;
+  image?: unknown;
+  dateOfBirth?: unknown;
+  gender?: unknown;
   action?: unknown;
   currentPassword?: unknown;
   newPassword?: unknown;
 };
+
+const allowedGenders = new Set(["Male", "Female", "Other", "Prefer not to say"]);
+
+const profileSelect = {
+  id: true,
+  name: true,
+  email: true,
+  phone: true,
+  image: true,
+  dateOfBirth: true,
+  gender: true,
+  createdAt: true,
+};
+
+function buildProfileUpdateData(body: ProfilePayload) {
+  const data: {
+    name?: string;
+    phone?: string;
+    dateOfBirth?: Date | null;
+    gender?: string | null;
+    image?: string | null;
+  } = {};
+
+  if (typeof body.name === "string") {
+    const name = body.name.trim();
+
+    if (!name) {
+      return { error: "Name cannot be empty." };
+    }
+
+    data.name = name;
+  }
+
+  if (typeof body.phone === "string") {
+    const phone = sanitizePhone(body.phone);
+
+    if (!phone) {
+      return { error: "Phone number is required." };
+    }
+
+    data.phone = phone;
+  }
+
+  if (typeof body.image === "string") {
+    data.image = body.image.trim() || null;
+  }
+
+  if (typeof body.dateOfBirth === "string") {
+    if (body.dateOfBirth) {
+      const dateOfBirth = new Date(body.dateOfBirth);
+
+      if (Number.isNaN(dateOfBirth.getTime())) {
+        return { error: "Invalid date of birth." };
+      }
+
+      data.dateOfBirth = dateOfBirth;
+    } else {
+      data.dateOfBirth = null;
+    }
+  }
+
+  if (typeof body.gender === "string") {
+    const gender = body.gender.trim();
+
+    if (gender && !allowedGenders.has(gender)) {
+      return { error: "Invalid gender value." };
+    }
+
+    data.gender = gender || null;
+  }
+
+  return { data };
+}
+
+async function updateProfile(sessionUserId: string, body: ProfilePayload) {
+  const profileUpdate = buildProfileUpdateData(body);
+
+  if (profileUpdate.error) {
+    return Response.json({ error: profileUpdate.error }, { status: 400 });
+  }
+
+  if (!profileUpdate.data || Object.keys(profileUpdate.data).length === 0) {
+    return Response.json({ error: "Invalid request." }, { status: 400 });
+  }
+
+  const user = await db.user.update({
+    where: { id: sessionUserId },
+    data: profileUpdate.data,
+    select: profileSelect,
+  });
+
+  return Response.json({ user });
+}
 
 export async function GET() {
   const session = await auth();
@@ -21,13 +119,7 @@ export async function GET() {
 
   const user = await db.user.findUnique({
     where: { id: session.user.id },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      phone: true,
-      createdAt: true,
-    },
+    select: profileSelect,
   });
 
   if (!user) {
@@ -45,23 +137,6 @@ export async function PUT(req: Request) {
   }
 
   const body = (await req.json()) as ProfilePayload;
-
-  // Update name
-  if (body.name && typeof body.name === "string") {
-    const name = body.name.trim();
-
-    if (!name) {
-      return Response.json({ error: "Name cannot be empty." }, { status: 400 });
-    }
-
-    const user = await db.user.update({
-      where: { id: session.user.id },
-      data: { name },
-      select: { id: true, name: true, email: true, createdAt: true },
-    });
-
-    return Response.json({ user });
-  }
 
   // Change password
   if (body.action === "changePassword") {
@@ -102,5 +177,17 @@ export async function PUT(req: Request) {
     return Response.json({ ok: true });
   }
 
-  return Response.json({ error: "Invalid request." }, { status: 400 });
+  return updateProfile(session.user.id, body);
+}
+
+export async function PATCH(req: Request) {
+  const session = await auth();
+
+  if (!session?.user?.id) {
+    return Response.json({ error: "Unauthorized." }, { status: 401 });
+  }
+
+  const body = (await req.json()) as ProfilePayload;
+
+  return updateProfile(session.user.id, body);
 }

@@ -4,12 +4,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ClipboardList, Star, Stethoscope } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import Avatar from "@/components/ui/Avatar";
 import { formatDateOnly } from "@/lib/dateUtils";
 
 type ClientBookingHistoryProps = {
   currentBookingId: string;
   userId: string;
   clientName: string;
+  clientImage?: string | null;
 };
 
 type BookingHistoryItem = {
@@ -52,6 +54,7 @@ export default function ClientBookingHistory({
   currentBookingId,
   userId,
   clientName,
+  clientImage = null,
 }: ClientBookingHistoryProps) {
   const pathname = usePathname();
   const [bookings, setBookings] = useState<BookingHistoryItem[]>([]);
@@ -114,12 +117,15 @@ export default function ClientBookingHistory({
     <section className="mt-6 rounded-lg border border-[#D8C7B5] bg-white p-6 dark:border-[#3D3530] dark:bg-[#242220]">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h2
-            className="text-2xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]"
-            style={{ fontFamily: "Playfair Display, serif" }}
-          >
-            Other Bookings by {clientName}
-          </h2>
+          <div className="flex items-center gap-3">
+            <Avatar imageUrl={clientImage} name={clientName} size="sm" />
+            <h2
+              className="text-2xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]"
+              style={{ fontFamily: "Playfair Display, serif" }}
+            >
+              Other Bookings by {clientName}
+            </h2>
+          </div>
           <p className="mt-2 text-sm text-[#B8A89A] dark:text-[#8A7D75]">
             Click to switch booking view.
           </p>

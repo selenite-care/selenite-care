@@ -7,6 +7,7 @@ import DiagnosisEditor from "@/components/diagnosis/DiagnosisEditor";
 import RoutineEditor from "@/components/routine/RoutineEditor";
 import FeedbackEditor from "@/components/feedback/FeedbackEditor";
 import SurveyProfileDetails from "@/components/survey/SurveyProfileDetails";
+import Avatar from "@/components/ui/Avatar";
 import Link from "next/link";
 
 type BookingDetailsPageProps = {
@@ -41,6 +42,7 @@ export default async function BookingDetailsPage({
         select: {
           id: true,
           name: true,
+          image: true,
           email: true,
           phone: true,
           createdAt: true,
@@ -94,7 +96,19 @@ export default async function BookingDetailsPage({
             Client Info
           </h2>
           <div className="mt-5 grid gap-5 sm:grid-cols-2">
-            <DetailItem label="Name" value={booking.user.name ?? "Not set"} />
+            <DetailItem
+              label="Name"
+              value={
+                <span className="inline-flex items-center gap-3">
+                  <Avatar
+                    imageUrl={booking.user.image}
+                    name={booking.user.name}
+                    size="sm"
+                  />
+                  <span>{booking.user.name ?? "Not set"}</span>
+                </span>
+              }
+            />
             <DetailItem label="Email" value={booking.user.email} />
             <DetailItem label="Phone" value={booking.user.phone ?? "Not set"} />
           </div>
@@ -160,6 +174,7 @@ export default async function BookingDetailsPage({
           currentBookingId={booking.id}
           userId={booking.user.id}
           clientName={booking.user.name ?? "Client"}
+          clientImage={booking.user.image}
         />
       </div>
 

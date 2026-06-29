@@ -25,6 +25,10 @@ const AUTH_CONTENT_ENCRYPTION_ALG = "A256CBC-HS512"
 
 type SessionPayload = JWTPayload & {
   role?: SessionRole
+  needsProfileCompletion?: boolean
+  user?: {
+    needsProfileCompletion?: boolean
+  }
 }
 
 async function getDerivedEncryptionKey(secret: string, salt: string) {
@@ -128,6 +132,9 @@ export default async function middleware(request: NextRequest) {
   const session = await getSessionFromRequest(request)
   const role = session?.role
   const isAuthenticated = Boolean(session)
+  const needsProfileCompletion =
+    session?.needsProfileCompletion === true ||
+    session?.user?.needsProfileCompletion === true
 
   if (AUTH_PAGES.includes(pathname as (typeof AUTH_PAGES)[number])) {
     if (isAuthenticated) {
@@ -141,6 +148,20 @@ export default async function middleware(request: NextRequest) {
     const loginUrl = new URL("/login", request.url)
     loginUrl.searchParams.set("callbackUrl", pathname)
     return NextResponse.redirect(loginUrl)
+  }
+
+  if (
+    needsProfileCompletion &&
+    pathname !== "/dashboard/complete-profile" &&
+    !pathname.startsWith("/api/")
+  ) {
+    return NextResponse.redirect(
+      new URL("/dashboard/complete-profile", request.url),
+    )
+  }
+
+  if (pathname.startsWith("/dashboard") && role && role !== "CLIENT") {
+    return NextResponse.redirect(new URL(getRedirectForRole(role), request.url))
   }
 
   if (pathname.startsWith("/admin") && role !== "ADMIN") {

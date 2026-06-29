@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
+import Avatar from "@/components/ui/Avatar";
 import { DashboardMobileNav, DashboardSidebarNav } from "./DashboardNav";
 
 export const dynamic = "force-dynamic";
@@ -19,9 +20,20 @@ export default async function DashboardLayout({
   return (
     <div className="bg-page flex flex-1">
       <aside className="bg-sidebar-themed text-sidebar-themed hidden w-72 px-6 py-8 md:block">
-        <div>
+        <div className="flex flex-col items-start">
+          <Avatar
+            imageUrl={session.user.image ?? null}
+            name={session.user.name ?? null}
+            size="md"
+          />
+          <p className="mt-3 text-sm font-bold text-[#2B2B2B] dark:text-[#F0EDE8]">
+            {session.user.name ?? "Client"}
+          </p>
+          <span className="mt-2 inline-flex rounded-full bg-[#C6A56B] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#2B2B2B]">
+            {session.user.role}
+          </span>
           <p
-            className="text-sm font-medium uppercase"
+            className="mt-6 text-sm font-medium uppercase"
             style={{ color: "var(--muted)" }}
           >
             Dashboard

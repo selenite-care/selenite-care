@@ -1,8 +1,6 @@
 import type { NextRequest } from "next/server";
 import NextAuth from "next-auth";
-import { authConfig } from "@/lib/auth";
-
-const { handlers } = NextAuth(authConfig);
+import { getAuthConfig } from "@/lib/auth";
 
 function withNoCacheHeaders(response: Response) {
   const nextResponse = new Response(response.body, response);
@@ -18,11 +16,13 @@ function withNoCacheHeaders(response: Response) {
 }
 
 export async function GET(request: NextRequest) {
+  const { handlers } = NextAuth(await getAuthConfig(request));
   const response = await handlers.GET(request);
   return withNoCacheHeaders(response);
 }
 
 export async function POST(request: NextRequest) {
+  const { handlers } = NextAuth(await getAuthConfig(request));
   const response = await handlers.POST(request);
   return withNoCacheHeaders(response);
 }
