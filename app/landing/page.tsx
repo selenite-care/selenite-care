@@ -582,6 +582,12 @@ function getSpecializationLabel(language: Language, specialization: string) {
   );
 }
 
+function trackMetaPixelEvent(eventName: string) {
+  if (typeof window !== "undefined" && typeof window.fbq !== "undefined") {
+    window.fbq("track", eventName);
+  }
+}
+
 export default function LandingPage() {
   const [language, setLanguage] = useState<Language>("en");
   const [openFaqId, setOpenFaqId] = useState<string | null>("1");
@@ -762,6 +768,8 @@ export default function LandingPage() {
         return;
       }
 
+      trackMetaPixelEvent("Lead");
+      trackMetaPixelEvent("CompleteRegistration");
       setRegisteredEmail(email);
       setResendCountdown(60);
     } catch {

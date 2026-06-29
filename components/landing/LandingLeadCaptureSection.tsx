@@ -8,6 +8,12 @@ type LeadResponse = {
   error?: string;
 };
 
+function trackMetaPixelEvent(eventName: string) {
+  if (typeof window !== "undefined" && typeof window.fbq !== "undefined") {
+    window.fbq("track", eventName);
+  }
+}
+
 export default function LandingLeadCaptureSection() {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -50,6 +56,7 @@ export default function LandingLeadCaptureSection() {
         throw new Error(data?.error ?? "Unable to send your details right now.");
       }
 
+      trackMetaPixelEvent("Lead");
       setIsSuccess(true);
     } catch (submitError) {
       setError(
