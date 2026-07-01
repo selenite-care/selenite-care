@@ -73,6 +73,17 @@ async function getGoogleOAuthIntent() {
   }
 }
 
+async function getGoogleOAuthSource() {
+  try {
+    const cookieStore = await cookies();
+    const source = cookieStore.get("selenite_google_oauth_source")?.value;
+
+    return source === "landing" ? "landing" : "website";
+  } catch {
+    return "website";
+  }
+}
+
 async function resolveRememberMe(request?: NextRequest) {
   if (!request) {
     return false;
@@ -186,6 +197,7 @@ function createAuthConfig(sessionMaxAge: number): NextAuthConfig {
       async signIn({ user, account }) {
         if (account?.provider === "google") {
           const googleOAuthIntent = await getGoogleOAuthIntent();
+          const googleOAuthSource = await getGoogleOAuthSource();
           const email =
             typeof user.email === "string" ? user.email.toLowerCase() : "";
 
@@ -221,11 +233,14 @@ function createAuthConfig(sessionMaxAge: number): NextAuthConfig {
 
           if (!existingGoogleAccount) {
             try {
-              void appendToSheet({
+              await appendToSheet({
                 name: user.name ?? "Google User",
                 email,
                 phone: "Not provided yet",
-                source: "Google Sign-In",
+                source:
+                  googleOAuthSource === "landing"
+                    ? "Landing Page Google Sign-In"
+                    : "Google Sign-In",
               });
             } catch (error) {
               console.error("Google sign-in sheet sync failed:", error);
