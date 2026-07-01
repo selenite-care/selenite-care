@@ -94,7 +94,7 @@ export async function POST(request: Request) {
     name,
     email,
     phone,
-    dob: dateOfBirthValue,
+    dateOfBirth: dateOfBirthValue,
     source: sheetSource,
   });
 
