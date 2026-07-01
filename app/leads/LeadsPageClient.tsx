@@ -170,7 +170,7 @@ export default function LeadsPageClient({ embedded = false }: { embedded?: boole
                 <div>
                   <div className="inline-flex items-center gap-3 rounded-full border border-[#D8C7B5]/30 bg-[#3D3530] px-3 py-2">
                     <Image
-                      src="/new_logo_512x512.png"
+                      src="/final_logo.png"
                       alt="Selenite Care logo"
                       width={32}
                       height={32}

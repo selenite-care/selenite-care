@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
+import { appendToSheet } from "@/lib/googleSheets";
 import { sanitizeEmail, sanitizeName, sanitizePhone } from "@/lib/sanitize";
 
 type RegisterPayload = {
@@ -10,6 +11,7 @@ type RegisterPayload = {
   phone?: unknown;
   password?: unknown;
   dateOfBirth?: unknown;
+  source?: unknown;
 };
 
 const INTERNATIONAL_PHONE_REGEX = /^\+[1-9]\d{7,14}$/;
@@ -23,6 +25,14 @@ export async function POST(request: Request) {
   const dateOfBirthValue =
     typeof body.dateOfBirth === "string" ? body.dateOfBirth.trim() : "";
   const dateOfBirth = dateOfBirthValue ? new Date(dateOfBirthValue) : null;
+  const source =
+    typeof body.source === "string" && body.source.trim()
+      ? body.source.trim()
+      : "website";
+  const sheetSource =
+    source.toLowerCase() === "landing"
+      ? "Landing Page Register"
+      : "Website Register";
 
   if (!name || !email || !phone || !password) {
     return Response.json(
@@ -78,6 +88,14 @@ export async function POST(request: Request) {
       dateOfBirth: true,
       role: true,
     },
+  });
+
+  void appendToSheet({
+    name,
+    email,
+    phone,
+    dob: dateOfBirthValue,
+    source: sheetSource,
   });
 
   await sendEmail({

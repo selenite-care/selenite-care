@@ -44,7 +44,7 @@ const CONTENT = {
       label: "ABOUT US",
       heading: "What is Selenite Care?",
       body:
-        "Selenite Care is a professional skincare consultation platform connecting you with certified aestheticians and skin specialists. We provide personalized skin analysis, customized routines, and expert product recommendations to help you achieve your best skin.",
+        "Selenite Care is a premium personalized skincare consultation and skin management platform that provides expert-led consultations, customized skincare solutions, and continuous professional support to help individuals achieve healthier skin through evidence-based care.",
       bullets: [
         "Certified Skin Specialists",
         "Personalized Care Plans",
@@ -52,7 +52,7 @@ const CONTENT = {
         "Ongoing Support & Guidance",
       ],
       stats: [
-        { number: "500+", label: "Happy Clients" },
+        { number: "2000+", label: "Happy Clients" },
         { number: "3", label: "Membership Plans" },
         { number: "100%", label: "Personalized" },
         { number: "24/7", label: "Online Support" },
@@ -221,7 +221,7 @@ const CONTENT = {
       card1Label: "Call Us",
       card2Label: "WhatsApp",
       card3Label: "Facebook",
-      bigButton:  "Call Our Office Now",
+      bigButton:  "Visit our Website",
     },
     footer: {
       copyright: "\u00A9 2026 Selenite Care. All rights reserved.",
@@ -250,7 +250,7 @@ const CONTENT = {
         "\u0995\u09b2 \u0995\u09b0\u09c1\u09a8",
       trustBadges: [
         "\u09b8\u09be\u09b0\u09cd\u099f\u09bf\u09ab\u09be\u0987\u09a1 \u09b8\u09cd\u0995\u09bf\u09a8 \u09ac\u09bf\u09b6\u09c7\u09b7\u099c\u09cd\u099e",
-        "\u09ac\u09cd\u09af\u0995\u09cd\u09a4\u09bf\u0997\u09a4\u0995\u09c3\u09a4 \u09b8\u09cd\u0995\u09bf\u09a8 \u09aa\u09cd\u09b2\u09cd\u09af\u09be\u09a8",
+        "পার্সোনালাইজড স্কিন প্ল্যান",
         "\u0985\u09a8\u09b2\u09be\u0987\u09a8 \u0993 \u0985\u09ab\u09b2\u09be\u0987\u09a8 \u09b8\u09be\u09aa\u09cb\u09b0\u09cd\u099f",
         "\u09ac\u09bf\u09b6\u09c7\u09b7\u099c\u09cd\u099e \u0997\u09be\u0987\u09a1\u09c7\u09a8\u09cd\u09b8",
       ],
@@ -261,16 +261,16 @@ const CONTENT = {
       heading:
         "\u09b8\u09c7\u09b2\u09c7\u09a8\u09be\u0987\u099f \u0995\u09c7\u09df\u09be\u09b0 \u0995\u09c0?",
       body:
-        "\u09b8\u09c7\u09b2\u09c7\u09a8\u09be\u0987\u099f \u0995\u09c7\u09df\u09be\u09b0 \u098f\u0995\u099f\u09bf \u09aa\u09c7\u09b6\u09be\u09a6\u09be\u09b0 \u09b8\u09cd\u0995\u09bf\u09a8\u0995\u09c7\u09df\u09be\u09b0 \u0995\u09a8\u09b8\u09be\u09b2\u099f\u09c7\u09b6\u09a8 \u09aa\u09cd\u09b2\u09be\u099f\u09ab\u09b0\u09cd\u09ae \u09af\u09be \u0986\u09aa\u09a8\u09be\u0995\u09c7 \u09b8\u09be\u09b0\u09cd\u099f\u09bf\u09ab\u09be\u0987\u09a1 \u098f\u09b8\u09cd\u09a5\u09c7\u099f\u09bf\u09b6\u09bf\u09df\u09be\u09a8 \u0993 \u09b8\u09cd\u0995\u09bf\u09a8 \u09ac\u09bf\u09b6\u09c7\u09b7\u099c\u09cd\u099e\u09a6\u09c7\u09b0 \u09b8\u09be\u09a5\u09c7 \u09b8\u0982\u09af\u09c1\u0995\u09cd\u09a4 \u0995\u09b0\u09c7\u0964 \u0986\u09ae\u09b0\u09be \u09ac\u09cd\u09af\u0995\u09cd\u09a4\u09bf\u0997\u09a4\u0995\u09c3\u09a4 \u09b8\u09cd\u0995\u09bf\u09a8 \u09ac\u09bf\u09b6\u09cd\u09b2\u09c7\u09b7\u09a3, \u0995\u09be\u09b8\u09cd\u099f\u09ae\u09be\u0987\u099c\u09a1 \u09b0\u09c1\u099f\u09bf\u09a8 \u098f\u09ac\u0982 \u09ac\u09bf\u09b6\u09c7\u09b7\u099c\u09cd\u099e \u09aa\u09a3\u09cd\u09af \u09b8\u09c1\u09aa\u09be\u09b0\u09bf\u09b6 \u09aa\u09cd\u09b0\u09a6\u09be\u09a8 \u0995\u09b0\u09bf\u0964",
+        "সেলেনাইট কেয়ার একটি প্রিমিয়াম পার্সোনালাইজড স্কিনকেয়ার কনসালটেশন ও স্কিন ম্যানেজমেন্ট প্ল্যাটফর্ম, যেখানে বিশেষজ্ঞদের পরিচালিত কনসালটেশন, কাস্টমাইজড স্কিনকেয়ার সমাধান এবং ধারাবাহিক প্রোফেশনাল সাপোর্টের মাধ্যমে প্রমাণভিত্তিক যত্নে মানুষকে স্বাস্থ্যকর ত্বক অর্জনে সহায়তা করা হয়।",
       bullets: [
         "\u09b8\u09be\u09b0\u09cd\u099f\u09bf\u09ab\u09be\u0987\u09a1 \u09b8\u09cd\u0995\u09bf\u09a8 \u09ac\u09bf\u09b6\u09c7\u09b7\u099c\u09cd\u099e",
-        "\u09ac\u09cd\u09af\u0995\u09cd\u09a4\u09bf\u0997\u09a4\u0995\u09c3\u09a4 \u0995\u09c7\u09df\u09be\u09b0 \u09aa\u09cd\u09b2\u09cd\u09af\u09be\u09a8",
+        "পার্সোনালাইজড \u0995\u09c7\u09df\u09be\u09b0 \u09aa\u09cd\u09b2\u09cd\u09af\u09be\u09a8",
         "\u0985\u09a8\u09b2\u09be\u0987\u09a8 \u0993 \u0985\u09ab\u09b2\u09be\u0987\u09a8 \u0995\u09a8\u09b8\u09be\u09b2\u099f\u09c7\u09b6\u09a8",
-        "\u099a\u09b2\u09ae\u09be\u09a8 \u09b8\u09be\u09aa\u09cb\u09b0\u09cd\u099f \u0993 \u0997\u09be\u0987\u09a1\u09c7\u09a8\u09cd\u09b8",
+        "নিরবচ্ছিন্ন \u09b8\u09be\u09aa\u09cb\u09b0\u09cd\u099f \u0993 \u0997\u09be\u0987\u09a1\u09c7\u09a8\u09cd\u09b8",
       ],
       stats: [
         {
-          number: "\u09eb\u09e6\u09e6+",
+          number: "২০০০+",
           label:
             "\u09b8\u09a8\u09cd\u09a4\u09c1\u09b7\u09cd\u099f \u0995\u09cd\u09b2\u09be\u09df\u09c7\u09a8\u09cd\u099f",
         },
@@ -282,7 +282,7 @@ const CONTENT = {
         {
           number: "\u09e7\u09e6\u09e6%",
           label:
-            "\u09ac\u09cd\u09af\u0995\u09cd\u09a4\u09bf\u0997\u09a4\u0995\u09c3\u09a4",
+            "পার্সোনালাইজড",
         },
         {
           number: "\u09e8\u09ea/\u09ed",
@@ -515,7 +515,7 @@ const CONTENT = {
       card3Label:
         "\u09ab\u09c7\u09b8\u09ac\u09c1\u0995 \u09aa\u09c7\u099c",
       bigButton:
-        "\ud83d\udcde \u098f\u0996\u09a8\u0987 \u0995\u09b2 \u0995\u09b0\u09c1\u09a8",
+        "আমাদের ওয়েবসাইট ভিজিট করুন",
     },
     footer: {
       copyright:
@@ -525,7 +525,53 @@ const CONTENT = {
 } as const;
 
 const LANDING_VIDEO_URL =
-  "https://www.facebook.com/reel/2118318732423295"; // PLACEHOLDER - replace with real video URL
+  "https://res.cloudinary.com/dwokjn6zk/video/upload/v1782807261/VID_20260630_140605_e6fx9c.mp4"; // PLACEHOLDER - replace with real video URL
+
+const LANDING_FAQ_TRANSLATIONS: Record<
+  string,
+  { question: string; answer: string }
+> = {
+  "1": {
+    question: "সেলেনাইট কেয়ার কী?",
+    answer:
+      "সেলেনাইট কেয়ার একটি স্কিনকেয়ার কনসালটেশন ও ওয়েলনেস প্ল্যাটফর্ম, যেখানে ব্যক্তিগতকৃত স্কিন অ্যানালাইসিস, বিশেষজ্ঞ গাইডেন্স, কাস্টমাইজড স্কিনকেয়ার রুটিন এবং ধারাবাহিক সাপোর্টের মাধ্যমে ক্লায়েন্টদের স্বাস্থ্যকর ত্বক ও দীর্ঘমেয়াদি ফলাফল অর্জনে সাহায্য করা হয়।",
+  },
+  "2": {
+    question: "মেম্বারশিপ প্রোগ্রাম কী?",
+    answer:
+      "আমাদের Signature, Crystal এবং Platinum মেম্বারশিপ প্রোগ্রাম সক্রিয় মেম্বারশিপ সময়ের মধ্যে আনলিমিটেড কনসালটেশন, দীর্ঘমেয়াদি বিশেষজ্ঞ সাপোর্ট, ব্যক্তিগতকৃত স্কিনকেয়ার কনসালটেশন, অ্যাডভান্সড স্কিন অ্যানালাইসিস, কাস্টমাইজড রুটিন এবং অনলাইন ও অফলাইন সাপোর্ট প্রদান করে।",
+  },
+  "3": {
+    question: "কনসালটেশন প্রক্রিয়া কীভাবে কাজ করে?",
+    answer:
+      "কনসালটেশন বুক করার পর আপনি একটি স্কিন অ্যাসেসমেন্ট ফর্ম পূরণ করবেন এবং আপনার ত্বকের পরিষ্কার ছবি জমা দেবেন। আমাদের এস্থেটিশিয়ান আপনার তথ্য পর্যালোচনা করে কনসালটেশন সেশনে ব্যক্তিগতকৃত পরামর্শ প্রদান করবেন।",
+  },
+  "6": {
+    question: "আমি কি ব্যক্তিগতকৃত স্কিনকেয়ার রুটিন পাব?",
+    answer:
+      "আপনার মেম্বারশিপের সুবিধা, স্কিন অ্যাসেসমেন্ট এবং কনসালটেশনের ভিত্তিতে আপনার স্কিন টাইপ, সমস্যা এবং লক্ষ্য অনুযায়ী একটি কাস্টমাইজড স্কিনকেয়ার রুটিন প্রদান করা হবে।",
+  },
+  "11": {
+    question: "মেম্বারশিপ ফি কি ফেরতযোগ্য?",
+    answer:
+      "সাধারণত সেবা শুরু হয়ে গেলে মেম্বারশিপ ফি ফেরতযোগ্য নয়। সম্পূর্ণ বিস্তারিত জানার জন্য অনুগ্রহ করে আমাদের Terms and Conditions দেখুন।",
+  },
+  "14": {
+    question: "সেলেনাইট কেয়ারকে আলাদা করে কী?",
+    answer:
+      "আমাদের পদ্ধতি শুধু পণ্য সুপারিশের মধ্যে সীমাবদ্ধ নয়। আমরা ব্যক্তিগতকৃত কনসালটেশন, স্কিন এডুকেশন, দীর্ঘমেয়াদি রূপান্তর, ধারাবাহিক সাপোর্ট এবং প্রত্যেক ব্যক্তির জন্য একটি প্রিমিয়াম স্কিনকেয়ার অভিজ্ঞতা তৈরিতে গুরুত্ব দিই।",
+  },
+};
+
+const REVIEW_IMAGES = [
+  "/reviews/review1.jpeg",
+  "/reviews/review2.jpeg",
+  "/reviews/review3.jpeg",
+  "/reviews/review4.jpeg",
+  "/reviews/review5.jpeg",
+  "/reviews/review6.jpeg",
+  "/reviews/review7.jpeg",
+] as const;
 
 type Language = keyof typeof CONTENT;
 
@@ -588,6 +634,60 @@ function trackMetaPixelEvent(eventName: string) {
   }
 }
 
+function ReviewCard({ image, index }: { image: string; index: number }) {
+  return (
+    <article
+      className="group flex h-full flex-col overflow-hidden rounded-2xl border border-[#E8DDD5] bg-white transition duration-300 hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(198,165,107,0.18)] dark:border-[#3D3530] dark:bg-[#242220]"
+    >
+      <div className="relative aspect-[16/10] w-full bg-[#F8F5F0] dark:bg-[#1A1814]">
+        <Image
+          src={image}
+          alt={`Selenite Care client review ${index + 1}`}
+          fill
+          sizes="(max-width: 480px) 92vw, (max-width: 768px) 85vw, 33vw"
+          className="object-contain p-3 transition-transform duration-300 group-hover:scale-[1.015]"
+        />
+      </div>
+    </article>
+  );
+}
+
+function ReviewsCarousel({ heading }: { heading: string }) {
+  const marqueeImages = [...REVIEW_IMAGES, ...REVIEW_IMAGES];
+
+  return (
+    <section className="relative overflow-hidden bg-[#D8C7B5] px-6 py-12 dark:bg-[#221d1a]">
+      <div className="pointer-events-none absolute bottom-[-60px] right-[-60px] h-80 w-80 rounded-full bg-[radial-gradient(circle,rgba(198,165,107,0.16)_0%,transparent_70%)] blur-3xl" />
+
+      <div className="relative mx-auto w-full max-w-6xl">
+        <div className="relative">
+          <div className="mx-auto max-w-3xl text-center">
+            <h2
+              className="text-3xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8] sm:text-4xl"
+              style={{ fontFamily: "Playfair Display, serif" }}
+            >
+              {heading}
+            </h2>
+          </div>
+        </div>
+
+        <div className="mt-8 overflow-hidden [mask-image:linear-gradient(90deg,transparent,black_8%,black_92%,transparent)]">
+          <div className="flex w-max gap-5 hover:[animation-play-state:paused]" style={{ animation: "landing-reviews-marquee 45s linear infinite" }}>
+            {marqueeImages.map((image, index) => (
+              <div
+                key={`${image}-${index}`}
+                className="w-[calc((100vw-72px)*0.92)] max-w-[390px] shrink-0 sm:w-[360px] lg:w-[calc((72rem-40px)/3)]"
+              >
+                <ReviewCard image={image} index={index % REVIEW_IMAGES.length} />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function LandingPage() {
   const [language, setLanguage] = useState<Language>("en");
   const [openFaqId, setOpenFaqId] = useState<string | null>("1");
@@ -605,7 +705,6 @@ export default function LandingPage() {
   const footerContent = CONTENT[language].footer;
   const [doctors, setDoctors] = useState<LandingDoctor[]>([]);
   const [isLoadingDoctors, setIsLoadingDoctors] = useState(true);
-  const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [registerError, setRegisterError] = useState("");
   const [showExistingAccountNotice, setShowExistingAccountNotice] =
     useState(false);
@@ -623,7 +722,15 @@ export default function LandingPage() {
   ];
   const faqItems = FAQS.filter((item) =>
     ["1", "2", "3", "6", "11", "14"].includes(item.id),
-  );
+  ).map((item) => {
+    if (language !== "bn") {
+      return item;
+    }
+
+    const translation = LANDING_FAQ_TRANSLATIONS[item.id];
+
+    return translation ? { ...item, ...translation } : item;
+  });
   const noDoctorsMessage =
     language === "en"
       ? "Our expert team is ready to help you."
@@ -703,18 +810,6 @@ export default function LandingPage() {
     return () => window.clearTimeout(timer);
   }, [resendCountdown]);
 
-  function openRegisterModal() {
-    setShowRegisterModal(true);
-  }
-
-  function closeRegisterModal() {
-    setShowRegisterModal(false);
-    setRegisterError("");
-    setShowExistingAccountNotice(false);
-    setResendError("");
-    setResendSuccess("");
-  }
-
   async function handleRegisterSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (isSubmittingRegister) {
@@ -749,6 +844,7 @@ export default function LandingPage() {
           email,
           password,
           dateOfBirth,
+          source: "landing",
         }),
       });
 
@@ -762,9 +858,7 @@ export default function LandingPage() {
           return;
         }
 
-        setRegisterError(
-          data?.error ?? registrationContent.fallbackError,
-        );
+        setRegisterError(data?.error ?? registrationContent.fallbackError);
         return;
       }
 
@@ -802,9 +896,7 @@ export default function LandingPage() {
         | null;
 
       if (!response.ok) {
-        throw new Error(
-          data?.error ?? registrationContent.fallbackError,
-        );
+        throw new Error(data?.error ?? registrationContent.fallbackError);
       }
 
       setResendSuccess(registrationContent.resendSuccess);
@@ -892,6 +984,44 @@ export default function LandingPage() {
 
         .dark .brand-phone-input-wrapper .PhoneInputInput::placeholder {
           color: #8a7d75;
+        }
+
+        @keyframes landing-website-cta-aura {
+          0%, 100% {
+            box-shadow:
+              0 16px 34px rgba(198, 165, 107, 0.18),
+              0 0 0 1px rgba(198, 165, 107, 0.35),
+              0 0 0 0 rgba(198, 165, 107, 0.28);
+            transform: translateY(0);
+          }
+
+          50% {
+            box-shadow:
+              0 24px 52px rgba(198, 165, 107, 0.34),
+              0 0 0 1px rgba(255, 255, 255, 0.55),
+              0 0 0 10px rgba(198, 165, 107, 0);
+            transform: translateY(-2px);
+          }
+        }
+
+        @keyframes landing-website-cta-edge {
+          from {
+            transform: translateX(-120%) rotate(10deg);
+          }
+
+          to {
+            transform: translateX(120%) rotate(10deg);
+          }
+        }
+
+        @keyframes landing-reviews-marquee {
+          from {
+            transform: translateX(0);
+          }
+
+          to {
+            transform: translateX(calc(-50% - 10px));
+          }
         }
       `}</style>
 
@@ -1011,16 +1141,16 @@ export default function LandingPage() {
         <section className="bg-[#F8F5F0] px-6 py-12 dark:bg-[#141210]">
           <div className="mx-auto grid w-full max-w-6xl gap-10 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] lg:items-start">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#C6A56B] sm:text-sm">
+              <h1 className="mt-4 text-3xl font-semibold uppercase text-[#C6A56B] sm:text-4xl">
                 {aboutContent.label}
-              </p>
+              </h1>
 
-              <h2
+              {/* <h2
                 className="mt-4 text-3xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8] sm:text-4xl"
                 style={{ fontFamily: "Playfair Display, serif" }}
               >
                 {aboutContent.heading}
-              </h2>
+              </h2> */}
 
               <p className="mt-5 max-w-2xl text-base leading-8 text-[#B8A89A] dark:text-[#8A7D75]">
                 {aboutContent.body}
@@ -1312,42 +1442,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section className="bg-[#D8C7B5] px-6 py-12 dark:bg-[#221d1a]">
-          <div className="mx-auto w-full max-w-6xl">
-            <div className="mx-auto max-w-3xl text-center">
-              <h2
-                className="text-3xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8] sm:text-4xl"
-                style={{ fontFamily: "Playfair Display, serif" }}
-              >
-                {testimonialsContent.heading}
-              </h2>
-            </div>
-
-            <div className="mt-10 grid gap-6 md:grid-cols-3">
-              {testimonialsContent.items.map((item) => (
-                <article
-                  key={`${item.name}-${item.concern}`}
-                  className="flex h-full flex-col rounded-2xl border border-[#D8C7B5] bg-white p-6 dark:border-[#3D3530] dark:bg-[#242220]"
-                >
-                  <div className="text-4xl leading-none text-[#C6A56B]">"</div>
-
-                  <p className="mt-4 flex-1 text-sm italic leading-7 text-[#2B2B2B] dark:text-[#F0EDE8]">
-                    {item.text}
-                  </p>
-
-                  <div className="mt-6">
-                    <p className="text-base font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]">
-                      {item.name}
-                    </p>
-                    <span className="mt-3 inline-flex rounded-full bg-[#F8F5F0] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#8C7967] dark:bg-[#1A1814] dark:text-[#8A7D75]">
-                      {item.concern}
-                    </span>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
+        <ReviewsCarousel heading={testimonialsContent.heading} />
 
         <section className="bg-[#F8F5F0] px-6 py-12 dark:bg-[#141210]">
           <div className="mx-auto w-full max-w-4xl">
@@ -1431,13 +1526,189 @@ export default function LandingPage() {
               {registrationContent.subtext}
             </p>
 
-            <button
-              type="button"
-              onClick={openRegisterModal}
-              className="mt-8 inline-flex h-12 items-center justify-center rounded-md bg-[#C6A56B] px-6 text-sm font-medium text-[#2B2B2B] transition-colors hover:bg-[#D4B47A]"
-            >
-              {registrationContent.openButton}
-            </button>
+            <div className="mx-auto mt-8 w-full max-w-md text-left">
+              {registeredEmail ? (
+                <div className="rounded-2xl border border-[#D8C7B5] bg-[#F8F5F0] p-6 text-center dark:border-[#3D3530] dark:bg-[#181513]">
+                  <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#C6A56B]/15 text-[#C6A56B]">
+                    <Check className="h-7 w-7" />
+                  </div>
+                  <h3
+                    className="mt-4 text-2xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]"
+                    style={{ fontFamily: "Playfair Display, serif" }}
+                  >
+                    {registrationContent.successTitle}
+                  </h3>
+                  <p className="mt-3 text-sm leading-7 text-[#6E6257] dark:text-[#8A7D75]">
+                    {registrationContent.successPrefix}{" "}
+                    <span className="font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]">
+                      {registeredEmail}
+                    </span>
+                    {registrationContent.successSuffix}
+                  </p>
+
+                  <button
+                    type="button"
+                    onClick={handleResendVerification}
+                    disabled={isResending || resendCountdown > 0}
+                    className={`mt-5 inline-flex h-11 w-full items-center justify-center rounded-md px-5 text-sm font-medium transition-colors ${
+                      isResending || resendCountdown > 0
+                        ? "cursor-not-allowed bg-[#D8C7B5] text-[#6E6257] opacity-80 dark:bg-[#3D3530] dark:text-[#8A7D75]"
+                        : "bg-[#2B2B2B] text-[#F8F5F0] hover:bg-[#3A3734] dark:bg-[#C6A56B] dark:text-[#141210] dark:hover:bg-[#D4B47A]"
+                    }`}
+                  >
+                    {isResending
+                      ? registrationContent.resendSending
+                      : resendCountdown > 0
+                        ? `${registrationContent.resendButton} (${resendCountdown}s)`
+                        : registrationContent.resendButton}
+                  </button>
+
+                  {resendSuccess ? (
+                    <p className="mt-3 text-sm text-[#8A6A2F] dark:text-[#D4B47A]">
+                      {resendSuccess}
+                    </p>
+                  ) : null}
+
+                  {resendError ? (
+                    <p className="mt-3 text-sm text-red-600 dark:text-red-400">
+                      {resendError}
+                    </p>
+                  ) : null}
+                </div>
+              ) : (
+                <form
+                  onSubmit={handleRegisterSubmit}
+                  className="space-y-4 rounded-2xl border border-[#D8C7B5] bg-[#F8F5F0] p-6 dark:border-[#3D3530] dark:bg-[#181513]"
+                >
+                  <div>
+                    <label
+                      htmlFor="landing-register-name"
+                      className="mb-2 block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]"
+                    >
+                      {registrationContent.nameLabel}
+                    </label>
+                    <input
+                      id="landing-register-name"
+                      name="name"
+                      type="text"
+                      autoComplete="name"
+                      required
+                      className="h-12 w-full rounded-md border border-[#D8C7B5] bg-white px-4 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#F0EDE8]"
+                    />
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="landing-register-phone"
+                      className="mb-2 block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]"
+                    >
+                      {registrationContent.phoneLabel}
+                    </label>
+                    <div className="brand-phone-input-wrapper">
+                      <PhoneInput
+                        id="landing-register-phone"
+                        international
+                        countryCallingCodeEditable={false}
+                        defaultCountry="BD"
+                        value={registerPhone}
+                        onChange={(value) => setRegisterPhone(value ?? "")}
+                        numberInputProps={{
+                          autoComplete: "tel",
+                          required: true,
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="landing-register-email"
+                      className="mb-2 block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]"
+                    >
+                      {registrationContent.emailLabel}
+                    </label>
+                    <input
+                      id="landing-register-email"
+                      name="email"
+                      type="email"
+                      autoComplete="email"
+                      required
+                      className="h-12 w-full rounded-md border border-[#D8C7B5] bg-white px-4 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#F0EDE8]"
+                    />
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="landing-register-dob"
+                      className="mb-2 block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]"
+                    >
+                      {registrationContent.dobLabel}
+                    </label>
+                    <input
+                      id="landing-register-dob"
+                      name="dateOfBirth"
+                      type="date"
+                      className="h-12 w-full rounded-md border border-[#D8C7B5] bg-white px-4 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#F0EDE8]"
+                    />
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="landing-register-password"
+                      className="mb-2 block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]"
+                    >
+                      {registrationContent.passwordLabel}
+                    </label>
+                    <input
+                      id="landing-register-password"
+                      name="password"
+                      type="password"
+                      autoComplete="new-password"
+                      required
+                      className="h-12 w-full rounded-md border border-[#D8C7B5] bg-white px-4 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#F0EDE8]"
+                    />
+                  </div>
+
+                  {showExistingAccountNotice ? (
+                    <div className="rounded-xl border border-[#C6A56B] bg-white px-4 py-3 dark:bg-[#242220]">
+                      <p className="text-sm leading-7 text-[#6E6257] dark:text-[#8A7D75]">
+                        {registrationContent.existingAccount}
+                      </p>
+                    </div>
+                  ) : null}
+
+                  {registerError ? (
+                    <p className="text-sm text-red-600 dark:text-red-400">
+                      {registerError}
+                    </p>
+                  ) : null}
+
+                  <button
+                    type="submit"
+                    disabled={isSubmittingRegister}
+                    className={`inline-flex h-12 w-full items-center justify-center rounded-md px-5 text-sm font-medium transition-colors ${
+                      isSubmittingRegister
+                        ? "cursor-not-allowed bg-[#D8C7B5] text-[#6E6257] opacity-80 dark:bg-[#3D3530] dark:text-[#8A7D75]"
+                        : "bg-[#C6A56B] text-[#2B2B2B] hover:bg-[#D4B47A]"
+                    }`}
+                  >
+                    {isSubmittingRegister
+                      ? registrationContent.submittingButton
+                      : registrationContent.submitButton}
+                  </button>
+
+                  <p className="text-center text-sm leading-6 text-[#6E6257] dark:text-[#8A7D75]">
+                    {registrationContent.loginPrompt}{" "}
+                    <Link
+                      href="/login"
+                      className="text-[#2B2B2B] underline transition-opacity hover:opacity-80 dark:text-[#F0EDE8]"
+                    >
+                      {registrationContent.loginLink}
+                    </Link>
+                  </p>
+                </form>
+              )}
+            </div>
           </div>
         </section>
 
@@ -1454,8 +1725,20 @@ export default function LandingPage() {
 
             <div className="mt-10 grid gap-6 md:grid-cols-3">
               <article className="flex flex-col rounded-2xl border border-[#D8C7B5] bg-white p-6 text-center dark:border-[#3D3530] dark:bg-[#242220]">
-                <div className="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-full bg-[#F8F5F0] text-[#C6A56B] dark:bg-[#1A1814]">
-                  <Phone className="h-5 w-5" />
+                <div className="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-full bg-[#F8F5F0] dark:bg-[#1A1814]">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <circle cx="12" cy="12" r="10" fill="#C6A56B" />
+                    <path
+                      fill="#FFFFFF"
+                      d="M16.85 14.58c-.72 0-1.42-.11-2.07-.32a.95.95 0 0 0-.92.2l-1.31 1.01a11.05 11.05 0 0 1-4.02-4.02l1.01-1.31a.95.95 0 0 0 .2-.92 6.72 6.72 0 0 1-.32-2.07c0-.52-.43-.95-.95-.95H6.15c-.52 0-.95.43-.95.95 0 6.43 5.22 11.65 11.65 11.65.52 0 .95-.43.95-.95v-2.32c0-.52-.43-.95-.95-.95Z"
+                    />
+                  </svg>
                 </div>
                 <p className="mt-5 text-base font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]">
                   {contactContent.card1Label}
@@ -1464,7 +1747,6 @@ export default function LandingPage() {
                   className="mt-3 text-2xl font-semibold text-[#C6A56B]"
                   style={{ fontFamily: "Playfair Display, serif" }}
                 >
-                  +880 1647-660300
                 </p>
                 <a
                   href="tel:+8801647660300"
@@ -1475,8 +1757,23 @@ export default function LandingPage() {
               </article>
 
               <article className="flex flex-col rounded-2xl border border-[#D8C7B5] bg-white p-6 text-center dark:border-[#3D3530] dark:bg-[#242220]">
-                <div className="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-full bg-[#F8F5F0] text-[#C6A56B] dark:bg-[#1A1814]">
-                  <MessageCircle className="h-5 w-5" />
+                <div className="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-full bg-[#F8F5F0] dark:bg-[#1A1814]">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path
+                      fill="#25D366"
+                      d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.33 4.95L2 22l5.29-1.39a9.86 9.86 0 0 0 4.75 1.21h.01c5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2Z"
+                    />
+                    <path
+                      fill="#FFFFFF"
+                      d="M17.8 14.54c-.29-.15-1.73-.85-2-.95-.27-.1-.46-.15-.66.15-.19.29-.76.95-.93 1.14-.17.2-.34.22-.63.08-.29-.15-1.23-.45-2.35-1.45-.87-.77-1.46-1.73-1.63-2.02-.17-.29-.02-.45.13-.6.13-.13.29-.34.44-.51.15-.17.2-.29.29-.49.1-.2.05-.37-.02-.51-.07-.15-.66-1.59-.9-2.17-.24-.57-.48-.49-.66-.5h-.56c-.2 0-.51.07-.78.37-.27.29-1.02 1-1.02 2.44s1.05 2.83 1.2 3.03c.15.2 2.07 3.16 5.01 4.43.7.3 1.25.48 1.68.61.7.22 1.34.19 1.85.12.56-.08 1.73-.71 1.97-1.39.24-.68.24-1.27.17-1.39-.07-.12-.27-.19-.56-.34Z"
+                    />
+                  </svg>
                 </div>
                 <p className="mt-5 text-base font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]">
                   {contactContent.card2Label}
@@ -1485,7 +1782,6 @@ export default function LandingPage() {
                   className="mt-3 text-2xl font-semibold text-[#C6A56B]"
                   style={{ fontFamily: "Playfair Display, serif" }}
                 >
-                  +880 1647-660300
                 </p>
                 <a
                   href="https://wa.me/8801647660300"
@@ -1498,8 +1794,20 @@ export default function LandingPage() {
               </article>
 
               <article className="flex flex-col rounded-2xl border border-[#D8C7B5] bg-white p-6 text-center dark:border-[#3D3530] dark:bg-[#242220]">
-                <div className="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-full bg-[#F8F5F0] text-[#C6A56B] dark:bg-[#1A1814]">
-                  <ExternalLink className="h-5 w-5" />
+                <div className="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-full bg-[#F8F5F0] dark:bg-[#1A1814]">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <circle cx="12" cy="12" r="10" fill="#1877F2" />
+                    <path
+                      fill="#FFFFFF"
+                      d="M13.26 21.92v-7.65h2.57l.39-2.98h-2.96V9.38c0-.86.24-1.45 1.48-1.45h1.58V5.27c-.27-.04-1.21-.12-2.3-.12-2.28 0-3.84 1.39-3.84 3.95v2.2H7.6v2.98h2.58v7.65c.59.05 1.09.07 1.82.07.42 0 .84-.03 1.26-.08Z"
+                    />
+                  </svg>
                 </div>
                 <p className="mt-5 text-base font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]">
                   {contactContent.card3Label}
@@ -1508,7 +1816,6 @@ export default function LandingPage() {
                   className="mt-3 text-2xl font-semibold text-[#C6A56B]"
                   style={{ fontFamily: "Playfair Display, serif" }}
                 >
-                  @care.selenite
                 </p>
                 <a
                   href="https://www.facebook.com/care.selenite"
@@ -1522,13 +1829,17 @@ export default function LandingPage() {
             </div>
             <div>
               <center>
-            <a
-              href="tel:+8801647660300"
-              className="mx-auto mt-8 inline-flex h-14 w-full max-w-sm items-center justify-center gap-3 rounded-md bg-[#C6A56B] px-6 text-lg font-bold text-[#2B2B2B] transition-colors hover:bg-[#D4B47A]"
+            <Link
+              href="/"
+              className="group relative mx-auto mt-8 inline-flex h-14 w-full max-w-sm items-center justify-center gap-3 overflow-hidden rounded-md border border-[#C6A56B]/70 bg-[#F8F5F0] px-6 text-lg font-bold text-[#2B2B2B] transition-transform hover:-translate-y-1 dark:bg-[#1A1814]"
+              style={{ animation: "breathe 4s ease-in-out infinite" }}
             >
-              <Phone className="h-5 w-5" />
-              <span>{contactContent.bigButton}</span>
-            </a>
+              <span className="pointer-events-none absolute inset-1 rounded-[5px] border border-[#C6A56B]/30" />
+              <ExternalLink className="relative h-5 w-5 text-[#C6A56B] transition-transform duration-300 group-hover:rotate-6 group-hover:scale-110" />
+              <span className="glitter-text relative leading-none">
+                {contactContent.bigButton}
+              </span>
+            </Link>
             </center>
           </div>
           </div>
@@ -1606,212 +1917,6 @@ export default function LandingPage() {
             </div>
           </div>
         </footer>
-
-        {showRegisterModal ? (
-          <div
-            className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 px-4 py-6"
-            onClick={closeRegisterModal}
-          >
-            <div
-              className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-[24px] border border-[#D8C7B5] bg-[#F8F5F0] p-6 shadow-2xl dark:border-[#3D3530] dark:bg-[#181513]"
-              onClick={(event) => event.stopPropagation()}
-            >
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#C6A56B]">
-                    {registrationContent.label}
-                  </p>
-                  <h3
-                    className="mt-3 text-3xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]"
-                    style={{ fontFamily: "Playfair Display, serif" }}
-                  >
-                    {registeredEmail
-                      ? registrationContent.successTitle
-                      : registrationContent.modalTitle}
-                  </h3>
-                  <p className="mt-3 text-sm leading-7 text-[#6E6257] dark:text-[#8A7D75]">
-                    {registeredEmail
-                      ? `${registrationContent.successPrefix} ${registeredEmail}${registrationContent.successSuffix}`
-                      : registrationContent.modalSubtext}
-                  </p>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={closeRegisterModal}
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#D8C7B5] bg-white text-lg text-[#2B2B2B] transition-colors hover:bg-[#F3EEE6] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#F0EDE8] dark:hover:bg-[#242220]"
-                  aria-label={registrationContent.closeButton}
-                >
-                  ×
-                </button>
-              </div>
-
-              <div className="mt-6">
-                {registeredEmail ? (
-                  <div className="space-y-4">
-                    <button
-                      type="button"
-                      onClick={handleResendVerification}
-                      disabled={isResending || resendCountdown > 0}
-                      className={`inline-flex h-12 w-full items-center justify-center rounded-md px-5 text-sm font-medium transition-colors ${
-                        isResending || resendCountdown > 0
-                          ? "cursor-not-allowed bg-[#D8C7B5] text-[#6E6257] opacity-80 dark:bg-[#3D3530] dark:text-[#8A7D75]"
-                          : "bg-[#2B2B2B] text-[#F8F5F0] hover:bg-[#3A3734] dark:bg-[#C6A56B] dark:text-[#141210] dark:hover:bg-[#D4B47A]"
-                      }`}
-                    >
-                      {isResending
-                        ? registrationContent.resendSending
-                        : resendCountdown > 0
-                          ? `${registrationContent.resendButton} (${resendCountdown}s)`
-                          : registrationContent.resendButton}
-                    </button>
-
-                    {resendSuccess ? (
-                      <p className="text-sm text-[#8A6A2F] dark:text-[#D4B47A]">
-                        {resendSuccess}
-                      </p>
-                    ) : null}
-
-                    {resendError ? (
-                      <p className="text-sm text-red-600 dark:text-red-400">
-                        {resendError}
-                      </p>
-                    ) : null}
-                  </div>
-                ) : (
-                  <form onSubmit={handleRegisterSubmit} className="space-y-5">
-                    <div>
-                      <label
-                        htmlFor="landing-register-name"
-                        className="mb-2 block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]"
-                      >
-                        {registrationContent.nameLabel}
-                      </label>
-                      <input
-                        id="landing-register-name"
-                        name="name"
-                        type="text"
-                        autoComplete="name"
-                        required
-                        className="h-12 w-full rounded-md border border-[#D8C7B5] bg-white px-4 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#F0EDE8]"
-                      />
-                    </div>
-
-                    <div>
-                      <label
-                        htmlFor="landing-register-phone"
-                        className="mb-2 block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]"
-                      >
-                        {registrationContent.phoneLabel}
-                      </label>
-                      <div className="brand-phone-input-wrapper">
-                        <PhoneInput
-                          id="landing-register-phone"
-                          international
-                          countryCallingCodeEditable={false}
-                          defaultCountry="BD"
-                          value={registerPhone}
-                          onChange={(value) => setRegisterPhone(value ?? "")}
-                          numberInputProps={{
-                            autoComplete: "tel",
-                            required: true,
-                          }}
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <label
-                        htmlFor="landing-register-email"
-                        className="mb-2 block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]"
-                      >
-                        {registrationContent.emailLabel}
-                      </label>
-                      <input
-                        id="landing-register-email"
-                        name="email"
-                        type="email"
-                        autoComplete="email"
-                        required
-                        className="h-12 w-full rounded-md border border-[#D8C7B5] bg-white px-4 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#F0EDE8]"
-                      />
-                    </div>
-
-                    <div>
-                      <label
-                        htmlFor="landing-register-dob"
-                        className="mb-2 block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]"
-                      >
-                        {registrationContent.dobLabel}
-                      </label>
-                      <input
-                        id="landing-register-dob"
-                        name="dateOfBirth"
-                        type="date"
-                        className="h-12 w-full rounded-md border border-[#D8C7B5] bg-white px-4 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#F0EDE8]"
-                      />
-                    </div>
-
-                    <div>
-                      <label
-                        htmlFor="landing-register-password"
-                        className="mb-2 block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]"
-                      >
-                        {registrationContent.passwordLabel}
-                      </label>
-                      <input
-                        id="landing-register-password"
-                        name="password"
-                        type="password"
-                        autoComplete="new-password"
-                        required
-                        className="h-12 w-full rounded-md border border-[#D8C7B5] bg-white px-4 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#F0EDE8]"
-                      />
-                    </div>
-
-                    {showExistingAccountNotice ? (
-                      <div className="rounded-xl border border-[#C6A56B] bg-[#F8F5F0] px-4 py-3 dark:bg-[#242220]">
-                        <p className="text-sm leading-7 text-[#6E6257] dark:text-[#8A7D75]">
-                          {registrationContent.existingAccount}
-                        </p>
-                      </div>
-                    ) : null}
-
-                    {registerError ? (
-                      <p className="text-sm text-red-600 dark:text-red-400">
-                        {registerError}
-                      </p>
-                    ) : null}
-
-                    <button
-                      type="submit"
-                      disabled={isSubmittingRegister}
-                      className={`inline-flex h-12 w-full items-center justify-center rounded-md px-5 text-sm font-medium transition-colors ${
-                        isSubmittingRegister
-                          ? "cursor-not-allowed bg-[#D8C7B5] text-[#6E6257] opacity-80 dark:bg-[#3D3530] dark:text-[#8A7D75]"
-                          : "bg-[#2B2B2B] text-[#F8F5F0] hover:bg-[#3A3734] dark:bg-[#C6A56B] dark:text-[#141210] dark:hover:bg-[#D4B47A]"
-                      }`}
-                    >
-                      {isSubmittingRegister
-                        ? registrationContent.submittingButton
-                        : registrationContent.submitButton}
-                    </button>
-
-                    <p className="text-center text-sm leading-6 text-[#6E6257] dark:text-[#8A7D75]">
-                      {registrationContent.loginPrompt}{" "}
-                      <Link
-                        href="/login"
-                        className="text-[#2B2B2B] underline transition-opacity hover:opacity-80 dark:text-[#F0EDE8]"
-                      >
-                        {registrationContent.loginLink}
-                      </Link>
-                    </p>
-                  </form>
-                )}
-              </div>
-            </div>
-          </div>
-        ) : null}
 
         <div className="fixed bottom-0 left-0 right-0 z-50 grid grid-cols-3 border-t border-[#3D3530] bg-[#2B2B2B] md:hidden dark:bg-[#0F0D0C]">
           <a

@@ -1,5 +1,6 @@
 import { db } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
+import { appendToSheet } from "@/lib/googleSheets";
 import { sanitizeEmail, sanitizeName, sanitizePhone, sanitizeText } from "@/lib/sanitize";
 
 type LeadPayload = {
@@ -57,6 +58,13 @@ export async function POST(request: Request) {
       email: email || null,
       interest: interest || null,
     },
+  });
+
+  void appendToSheet({
+    name: name || "Marketing Lead",
+    email: email || "Not provided",
+    phone,
+    source: "Landing Page Lead",
   });
 
   const submittedAt = lead.createdAt.toLocaleString("en-BD", {
