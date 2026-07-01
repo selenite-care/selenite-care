@@ -9,6 +9,7 @@ import type { NextRequest } from "next/server";
 import { getToken } from "@auth/core/jwt";
 import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
+import { appendToSheet } from "@/lib/googleSheets";
 
 class EmailNotVerifiedError extends CredentialsSignin {
   code = "email_not_verified";
@@ -206,6 +207,29 @@ function createAuthConfig(sessionMaxAge: number): NextAuthConfig {
 
           if (existingUser && !existingUser.isActive) {
             return "/login?error=AccountInactive";
+          }
+
+          const existingGoogleAccount = await db.account.findUnique({
+            where: {
+              provider_providerAccountId: {
+                provider: account.provider,
+                providerAccountId: account.providerAccountId,
+              },
+            },
+            select: { id: true },
+          });
+
+          if (!existingGoogleAccount) {
+            try {
+              void appendToSheet({
+                name: user.name ?? "Google User",
+                email,
+                phone: "Not provided yet",
+                source: "Google Sign-In",
+              });
+            } catch (error) {
+              console.error("Google sign-in sheet sync failed:", error);
+            }
           }
         }
 

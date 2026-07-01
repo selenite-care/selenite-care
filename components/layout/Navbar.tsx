@@ -198,7 +198,7 @@ function NavbarContent() {
         >
         <Image
     className="object-contain"
-    src="/new_logo_512x512.png"
+    src="/final_logo.png"
     alt="Selenite Care Logo"
     width={40}
     height={40}

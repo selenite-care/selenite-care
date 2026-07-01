@@ -4,6 +4,7 @@ import "react-phone-number-input/style.css";
 
 import { FormEvent, Suspense, useEffect, useState } from "react";
 import { signIn } from "next-auth/react";
+import { useSearchParams } from "next/navigation";
 import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
 
 function trackMetaPixelEvent(eventName: string) {
@@ -13,6 +14,8 @@ function trackMetaPixelEvent(eventName: string) {
 }
 
 function RegisterPageContent() {
+  const searchParams = useSearchParams();
+  const source = searchParams.get("source")?.trim() || "website";
   const [error, setError] = useState("");
   const [showExistingAccountNotice, setShowExistingAccountNotice] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -69,7 +72,14 @@ function RegisterPageContent() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ name, phone, email, password, dateOfBirth }),
+        body: JSON.stringify({
+          name,
+          phone,
+          email,
+          password,
+          dateOfBirth,
+          source,
+        }),
       });
 
       if (!response.ok) {

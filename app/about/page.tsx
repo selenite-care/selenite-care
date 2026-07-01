@@ -121,7 +121,7 @@ export default function AboutPage() {
                   }}
                 >
                   <Image
-                    src="/new_logo_512x512.png"
+                    src="/final_logo.png"
                     alt="Selenite Care logo"
                     width={112}
                     height={112}
