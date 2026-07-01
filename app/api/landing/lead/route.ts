@@ -64,6 +64,7 @@ export async function POST(request: Request) {
     name: name || "Marketing Lead",
     email: email || "Not provided",
     phone,
+    dateOfBirth: null,
     source: "Landing Page Lead",
   });
 

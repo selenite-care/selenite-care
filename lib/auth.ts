@@ -237,6 +237,7 @@ function createAuthConfig(sessionMaxAge: number): NextAuthConfig {
                 name: user.name ?? "Google User",
                 email,
                 phone: "Not provided yet",
+                dateOfBirth: null,
                 source:
                   googleOAuthSource === "landing"
                     ? "Landing Page Google Sign-In"
