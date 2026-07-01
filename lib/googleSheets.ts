@@ -8,6 +8,31 @@ type SheetLeadData = {
   dob?: string | null;
 };
 
+async function getSheetsClient() {
+  const clientEmail = process.env.GOOGLE_SHEETS_CLIENT_EMAIL;
+  const privateKey = process.env.GOOGLE_SHEETS_PRIVATE_KEY?.replace(
+    /\\n/g,
+    "\n",
+  );
+  const spreadsheetId = process.env.GOOGLE_SHEET_ID;
+
+  if (!clientEmail || !privateKey || !spreadsheetId) {
+    console.error("Google Sheets sync skipped: missing environment variables.");
+    return null;
+  }
+
+  const auth = new google.auth.JWT({
+    email: clientEmail,
+    key: privateKey,
+    scopes: ["https://www.googleapis.com/auth/spreadsheets"],
+  });
+
+  return {
+    spreadsheetId,
+    sheets: google.sheets({ version: "v4", auth }),
+  };
+}
+
 function formatDateForSheet(date: Date) {
   return date.toLocaleDateString("en-US", {
     month: "short",
@@ -26,29 +51,16 @@ function formatTimeForSheet(date: Date) {
 
 export async function appendToSheet(data: SheetLeadData) {
   try {
-    const clientEmail = process.env.GOOGLE_SHEETS_CLIENT_EMAIL;
-    const privateKey = process.env.GOOGLE_SHEETS_PRIVATE_KEY?.replace(
-      /\\n/g,
-      "\n",
-    );
-    const spreadsheetId = process.env.GOOGLE_SHEET_ID;
+    const client = await getSheetsClient();
 
-    if (!clientEmail || !privateKey || !spreadsheetId) {
-      console.error("Google Sheets sync skipped: missing environment variables.");
+    if (!client) {
       return;
     }
 
-    const auth = new google.auth.JWT({
-      email: clientEmail,
-      key: privateKey,
-      scopes: ["https://www.googleapis.com/auth/spreadsheets"],
-    });
-
-    const sheets = google.sheets({ version: "v4", auth });
     const now = new Date();
 
-    await sheets.spreadsheets.values.append({
-      spreadsheetId,
+    await client.sheets.spreadsheets.values.append({
+      spreadsheetId: client.spreadsheetId,
       range: "Sheet1!A:F",
       valueInputOption: "USER_ENTERED",
       requestBody: {
@@ -66,5 +78,58 @@ export async function appendToSheet(data: SheetLeadData) {
     });
   } catch (error) {
     console.error("Google Sheets sync failed:", error);
+  }
+}
+
+export async function updateSheetPhoneByEmail(email: string, phone: string) {
+  try {
+    const normalizedEmail = email.trim().toLowerCase();
+    const normalizedPhone = phone.trim();
+
+    if (!normalizedEmail || !normalizedPhone) {
+      return;
+    }
+
+    const client = await getSheetsClient();
+
+    if (!client) {
+      return;
+    }
+
+    const response = await client.sheets.spreadsheets.values.get({
+      spreadsheetId: client.spreadsheetId,
+      range: "Sheet1!A:F",
+    });
+
+    const rows = response.data.values ?? [];
+    let targetRowNumber: number | null = null;
+
+    rows.forEach((row, index) => {
+      const rowEmail = String(row[1] ?? "").trim().toLowerCase();
+      const rowPhone = String(row[2] ?? "").trim().toLowerCase();
+
+      if (rowEmail !== normalizedEmail) {
+        return;
+      }
+
+      if (!rowPhone || rowPhone === "not provided yet") {
+        targetRowNumber = index + 1;
+      }
+    });
+
+    if (!targetRowNumber) {
+      return;
+    }
+
+    await client.sheets.spreadsheets.values.update({
+      spreadsheetId: client.spreadsheetId,
+      range: `Sheet1!C${targetRowNumber}`,
+      valueInputOption: "USER_ENTERED",
+      requestBody: {
+        values: [[normalizedPhone]],
+      },
+    });
+  } catch (error) {
+    console.error("Google Sheets phone update failed:", error);
   }
 }

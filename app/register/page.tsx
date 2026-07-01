@@ -29,6 +29,8 @@ function RegisterPageContent() {
   function handleGoogleRegister() {
     document.cookie =
       "selenite_google_oauth_intent=register; path=/; max-age=300; samesite=lax";
+    document.cookie =
+      "selenite_google_oauth_source=website; path=/; max-age=300; samesite=lax";
     void signIn("google", { callbackUrl: "/dashboard" });
   }
 

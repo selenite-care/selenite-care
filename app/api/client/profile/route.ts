@@ -2,6 +2,7 @@ import NextAuth from "next-auth";
 import bcrypt from "bcryptjs";
 import { authConfig } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { updateSheetPhoneByEmail } from "@/lib/googleSheets";
 import { sanitizePhone } from "@/lib/sanitize";
 
 const { auth } = NextAuth(authConfig);
@@ -106,6 +107,10 @@ async function updateProfile(sessionUserId: string, body: ProfilePayload) {
     data: profileUpdate.data,
     select: profileSelect,
   });
+
+  if (profileUpdate.data.phone && user.email) {
+    await updateSheetPhoneByEmail(user.email, profileUpdate.data.phone);
+  }
 
   return Response.json({ user });
 }
