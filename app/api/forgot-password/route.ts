@@ -47,9 +47,9 @@ export async function POST(request: Request) {
     subject: "Reset your password - Selenite Care",
     html: `
       <div style="margin:0;padding:32px 16px;background-color:#F8F5F0;font-family:Arial,sans-serif;color:#2B2B2B;">
-        <div style="max-width:640px;margin:0 auto;background:#FFFFFF;border:1px solid #D8C7B5;border-radius:18px;overflow:hidden;">
+        <div style="max-width:640px;margin:0 auto;background:#FFFFFF;border:1px solid #EADDCD;border-radius:18px;overflow:hidden;">
           <div style="padding:24px 28px;background:#2B2B2B;color:#F8F5F0;">
-            <div style="font-size:12px;letter-spacing:0.22em;text-transform:uppercase;color:#C6A56B;">Selenite Care</div>
+            <div style="font-size:12px;letter-spacing:0.22em;text-transform:uppercase;color:#B87B68;">Selenite Care</div>
             <h1 style="margin:12px 0 0;font-size:28px;line-height:1.2;font-family:'Playfair Display',Georgia,serif;">Reset Your Password</h1>
           </div>
           <div style="padding:28px;">
@@ -74,7 +74,7 @@ export async function POST(request: Request) {
               If the button does not work, copy and paste this link into your browser:
             </p>
             <p style="margin:12px 0 0;">
-              <a href="https://selenitecare.com/reset-password?token=${resetPasswordToken}" style="color:#C6A56B;">
+              <a href="https://selenitecare.com/reset-password?token=${resetPasswordToken}" style="color:#B87B68;">
                 https://selenitecare.com/reset-password?token=${resetPasswordToken}
               </a>
             </p>

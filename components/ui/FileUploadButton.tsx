@@ -72,7 +72,7 @@ export default function FileUploadButton({
           color: "#F8F5F0",
         }}
         onMouseEnter={(event) => {
-          event.currentTarget.style.backgroundColor = "#B8A89A";
+          event.currentTarget.style.backgroundColor = "#884F38";
         }}
         onMouseLeave={(event) => {
           event.currentTarget.style.backgroundColor = "#2B2B2B";
@@ -87,7 +87,7 @@ export default function FileUploadButton({
             <div
               className="h-12 w-12 overflow-hidden rounded-md border"
               style={{
-                borderColor: "#D8C7B5",
+                borderColor: "#EADDCD",
                 backgroundColor: "#F8F5F0",
               }}
             >

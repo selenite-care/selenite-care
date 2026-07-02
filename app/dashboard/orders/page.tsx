@@ -163,7 +163,7 @@ export default function DashboardOrdersPage() {
         >
           My Orders
         </h1>
-        <p className="mt-3 text-sm leading-6 text-[#B8A89A] dark:text-[#8A7D75]">
+        <p className="mt-3 text-sm leading-6 text-[#884F38] dark:text-[#8A7D75]">
           Track your recent product orders and payment status.
         </p>
       </div>
@@ -177,14 +177,14 @@ export default function DashboardOrdersPage() {
       {error ? <p className="mt-8 text-sm text-red-600">{error}</p> : null}
 
       {!isLoading && !error && orders.length === 0 ? (
-        <p className="mt-8 text-sm text-[#B8A89A] dark:text-[#8A7D75]">
+        <p className="mt-8 text-sm text-[#884F38] dark:text-[#8A7D75]">
           You do not have any orders yet.
         </p>
       ) : null}
 
       {!isLoading && !error && orders.length > 0 ? (
         <>
-          <div className="mt-8 rounded-lg border border-[#D8C7B5] bg-white p-4 dark:border-[#3D3530] dark:bg-[#242220]">
+          <div className="mt-8 rounded-lg border border-[#EADDCD] bg-white p-4 dark:border-[#3D3530] dark:bg-[#242220]">
             <div className="max-w-xs">
               <label
                 htmlFor="order-status-filter"
@@ -200,7 +200,7 @@ export default function DashboardOrdersPage() {
                     event.target.value as (typeof ORDER_STATUSES)[number],
                   )
                 }
-                className="mt-2 h-11 w-full rounded-md border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#F0EDE8]"
+                className="mt-2 h-11 w-full rounded-md border border-[#EADDCD] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#F0EDE8]"
               >
                 {ORDER_STATUSES.map((status) => (
                   <option key={status} value={status}>
@@ -212,7 +212,7 @@ export default function DashboardOrdersPage() {
           </div>
 
           {filteredOrders.length === 0 ? (
-            <p className="mt-8 text-sm text-[#B8A89A] dark:text-[#8A7D75]">
+            <p className="mt-8 text-sm text-[#884F38] dark:text-[#8A7D75]">
               No orders match your selected status.
             </p>
           ) : (
@@ -221,10 +221,10 @@ export default function DashboardOrdersPage() {
                 {paginatedOrders.map((order) => (
                   <article
                     key={order.id}
-                    className="rounded-2xl border border-[#D8C7B5] bg-white p-5 shadow-sm dark:border-[#3D3530] dark:bg-[#242220]"
+                    className="rounded-2xl border border-[#EADDCD] bg-white p-5 shadow-sm dark:border-[#3D3530] dark:bg-[#242220]"
                   >
                     <div className="flex items-start justify-between gap-3">
-                      <p className="break-all font-mono text-xs font-semibold text-[#C6A56B]">
+                      <p className="break-all font-mono text-xs font-semibold text-[#B87B68]">
                         {order.id}
                       </p>
                       <span
@@ -238,7 +238,7 @@ export default function DashboardOrdersPage() {
 
                     <div className="mt-4 space-y-3 text-sm">
                       <div>
-                        <p className="text-xs font-medium uppercase tracking-[0.14em] text-[#B8A89A]">
+                        <p className="text-xs font-medium uppercase tracking-[0.14em] text-[#884F38]">
                           Date
                         </p>
                         <p className="mt-1 text-[#6E6257] dark:text-[#8A7D75]">
@@ -246,7 +246,7 @@ export default function DashboardOrdersPage() {
                         </p>
                       </div>
                       <div>
-                        <p className="text-xs font-medium uppercase tracking-[0.14em] text-[#B8A89A]">
+                        <p className="text-xs font-medium uppercase tracking-[0.14em] text-[#884F38]">
                           Products
                         </p>
                         <p className="mt-1 text-[#2B2B2B] dark:text-[#F0EDE8]">
@@ -270,7 +270,7 @@ export default function DashboardOrdersPage() {
 
                     <Link
                       href={`/dashboard/orders/${order.id}`}
-                      className="mt-5 inline-flex h-10 w-full items-center justify-center rounded-md bg-[#2B2B2B] px-4 text-sm font-medium text-[#F8F5F0] transition-colors hover:bg-[#3A3734] dark:bg-[#C6A56B] dark:text-[#141210] dark:hover:bg-[#D4B47A]"
+                      className="mt-5 inline-flex h-10 w-full items-center justify-center rounded-md bg-[#2B2B2B] px-4 text-sm font-medium text-[#F8F5F0] transition-colors hover:bg-[#3A3734] dark:bg-[#B87B68] dark:text-[#141210] dark:hover:bg-[#D4B47A]"
                     >
                       View Details
                     </Link>
@@ -295,7 +295,7 @@ export default function DashboardOrdersPage() {
                     <tbody>
                       {paginatedOrders.map((order) => (
                         <tr key={order.id}>
-                          <td className="px-4 py-4 font-mono text-xs text-[#C6A56B]">
+                          <td className="px-4 py-4 font-mono text-xs text-[#B87B68]">
                             {order.id}
                           </td>
                           <td className="px-4 py-4 text-foreground/70">

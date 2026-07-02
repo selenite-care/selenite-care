@@ -284,14 +284,14 @@ function AppointmentSurveyPageContent() {
           >
             Appointment Survey
           </h1>
-          <p className="mt-2 text-sm text-[#B8A89A] dark:text-[#8A7D75]">
+          <p className="mt-2 text-sm text-[#884F38] dark:text-[#8A7D75]">
             Please fill out the form to help us prepare for your consultation.
           </p>
         </div>
 
         <form
           onSubmit={handleSubmit}
-          className="survey-form mt-6 space-y-6 rounded-xl border border-[#D8C7B5] bg-white p-4 dark:border-[#3D3530] dark:bg-[#242220] sm:p-6"
+          className="survey-form mt-6 space-y-6 rounded-xl border border-[#EADDCD] bg-white p-4 dark:border-[#3D3530] dark:bg-[#242220] sm:p-6"
         >
           <style>{`
             .survey-form > div + div {
@@ -315,7 +315,7 @@ function AppointmentSurveyPageContent() {
               min-height: 44px;
               width: 100%;
               align-items: center;
-              border: 1px solid #D8C7B5;
+              border: 1px solid #EADDCD;
               border-radius: 8px;
               background: #FFFFFF;
               padding: 8px 10px;
@@ -361,7 +361,7 @@ function AppointmentSurveyPageContent() {
                 value={formState.name}
                 onChange={(event) => updateField("name", event.target.value)}
                 required
-                className="mt-2 h-11 rounded-md border border-[#D8C7B5] px-3 text-[#2B2B2B] focus:border-[#C6A56B] focus:outline-none focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:text-[#F0EDE8]"
+                className="mt-2 h-11 rounded-md border border-[#EADDCD] px-3 text-[#2B2B2B] focus:border-[#B87B68] focus:outline-none focus:ring-1 focus:ring-[#B87B68] dark:border-[#3D3530] dark:text-[#F0EDE8]"
               />
             </div>
 
@@ -372,7 +372,7 @@ function AppointmentSurveyPageContent() {
               <input
                 value={formState.age}
                 onChange={(event) => updateField("age", event.target.value)}
-                className="mt-2 h-11 rounded-md border border-[#D8C7B5] px-3 text-[#2B2B2B] focus:border-[#C6A56B] focus:outline-none focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:text-[#F0EDE8]"
+                className="mt-2 h-11 rounded-md border border-[#EADDCD] px-3 text-[#2B2B2B] focus:border-[#B87B68] focus:outline-none focus:ring-1 focus:ring-[#B87B68] dark:border-[#3D3530] dark:text-[#F0EDE8]"
               />
             </div>
 
@@ -385,7 +385,7 @@ function AppointmentSurveyPageContent() {
                 value={formState.phone}
                 onChange={(event) => updateField("phone", event.target.value)}
                 required
-                className="mt-2 h-11 rounded-md border border-[#D8C7B5] px-3 text-[#2B2B2B] focus:border-[#C6A56B] focus:outline-none focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:text-[#F0EDE8]"
+                className="mt-2 h-11 rounded-md border border-[#EADDCD] px-3 text-[#2B2B2B] focus:border-[#B87B68] focus:outline-none focus:ring-1 focus:ring-[#B87B68] dark:border-[#3D3530] dark:text-[#F0EDE8]"
               />
             </div>
 
@@ -398,7 +398,7 @@ function AppointmentSurveyPageContent() {
                 value={formState.email}
                 onChange={(event) => updateField("email", event.target.value)}
                 required
-                className="mt-2 h-11 rounded-md border border-[#D8C7B5] px-3 text-[#2B2B2B] focus:border-[#C6A56B] focus:outline-none focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:text-[#F0EDE8]"
+                className="mt-2 h-11 rounded-md border border-[#EADDCD] px-3 text-[#2B2B2B] focus:border-[#B87B68] focus:outline-none focus:ring-1 focus:ring-[#B87B68] dark:border-[#3D3530] dark:text-[#F0EDE8]"
               />
             </div>
 
@@ -410,7 +410,7 @@ function AppointmentSurveyPageContent() {
                 value={formState.skinType}
                 onChange={(event) => updateField("skinType", event.target.value)}
                 required
-                className="mt-2 h-11 rounded-md border border-[#D8C7B5] px-3 text-[#2B2B2B] focus:border-[#C6A56B] focus:outline-none focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:text-[#F0EDE8]"
+                className="mt-2 h-11 rounded-md border border-[#EADDCD] px-3 text-[#2B2B2B] focus:border-[#B87B68] focus:outline-none focus:ring-1 focus:ring-[#B87B68] dark:border-[#3D3530] dark:text-[#F0EDE8]"
               />
             </div>
           </div>
@@ -428,7 +428,7 @@ function AppointmentSurveyPageContent() {
                       value={option}
                       checked={formState.usesKoreanProducts === option}
                       onChange={() => updateField("usesKoreanProducts", option)}
-                      style={{ accentColor: "#C6A56B" }}
+                      style={{ accentColor: "#B87B68" }}
                       className="mr-2"
                     />
                     <span className="text-[#2B2B2B] dark:text-[#F0EDE8]">
@@ -451,7 +451,7 @@ function AppointmentSurveyPageContent() {
                       value={option}
                       checked={formState.facingSkinIssues === option}
                       onChange={() => updateField("facingSkinIssues", option)}
-                      style={{ accentColor: "#C6A56B" }}
+                      style={{ accentColor: "#B87B68" }}
                       className="mr-2"
                     />
                     <span className="text-[#2B2B2B] dark:text-[#F0EDE8]">
@@ -474,7 +474,7 @@ function AppointmentSurveyPageContent() {
                     type="checkbox"
                     checked={formState.skinIssues.includes(option)}
                     onChange={() => toggleArrayField("skinIssues", option)}
-                    style={{ accentColor: "#C6A56B" }}
+                    style={{ accentColor: "#B87B68" }}
                     className="mr-2"
                   />
                   <span className="text-[#2B2B2B] dark:text-[#F0EDE8]">{option}</span>
@@ -492,7 +492,7 @@ function AppointmentSurveyPageContent() {
               onChange={(event) =>
                 updateField("skinIssueDuration", event.target.value)
               }
-              className="mt-2 h-11 rounded-md border border-[#D8C7B5] px-3 text-[#2B2B2B] focus:border-[#C6A56B] focus:outline-none focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:text-[#F0EDE8]"
+              className="mt-2 h-11 rounded-md border border-[#EADDCD] px-3 text-[#2B2B2B] focus:border-[#B87B68] focus:outline-none focus:ring-1 focus:ring-[#B87B68] dark:border-[#3D3530] dark:text-[#F0EDE8]"
             />
           </div>
 
@@ -507,7 +507,7 @@ function AppointmentSurveyPageContent() {
                     type="checkbox"
                     checked={formState.currentProducts.includes(option)}
                     onChange={() => toggleArrayField("currentProducts", option)}
-                    style={{ accentColor: "#C6A56B" }}
+                    style={{ accentColor: "#B87B68" }}
                     className="mr-2"
                   />
                   <span className="text-[#2B2B2B] dark:text-[#F0EDE8]">{option}</span>
@@ -527,7 +527,7 @@ function AppointmentSurveyPageContent() {
                     type="checkbox"
                     checked={formState.allergicIngredients.includes(option)}
                     onChange={() => toggleArrayField("allergicIngredients", option)}
-                    style={{ accentColor: "#C6A56B" }}
+                    style={{ accentColor: "#B87B68" }}
                     className="mr-2"
                   />
                   <span className="text-[#2B2B2B] dark:text-[#F0EDE8]">{option}</span>
@@ -545,7 +545,7 @@ function AppointmentSurveyPageContent() {
                     updateField("allergicIngredientsOther", event.target.value)
                   }
                   placeholder="Type custom allergic ingredients"
-                  className="mt-2 h-11 rounded-md border border-[#D8C7B5] px-3 text-[#2B2B2B] focus:border-[#C6A56B] focus:outline-none focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:text-[#F0EDE8]"
+                  className="mt-2 h-11 rounded-md border border-[#EADDCD] px-3 text-[#2B2B2B] focus:border-[#B87B68] focus:outline-none focus:ring-1 focus:ring-[#B87B68] dark:border-[#3D3530] dark:text-[#F0EDE8]"
                 />
               </div>
             ) : null}
@@ -565,7 +565,7 @@ function AppointmentSurveyPageContent() {
                       onChange={() =>
                         updateField("doubleCleansePreference", option)
                       }
-                      style={{ accentColor: "#C6A56B" }}
+                      style={{ accentColor: "#B87B68" }}
                       className="mr-2"
                     />
                     <span className="text-[#2B2B2B] dark:text-[#F0EDE8]">{option}</span>
@@ -587,7 +587,7 @@ function AppointmentSurveyPageContent() {
                       type="radio"
                       checked={formState.sleepHours === option}
                       onChange={() => updateField("sleepHours", option)}
-                      style={{ accentColor: "#C6A56B" }}
+                      style={{ accentColor: "#B87B68" }}
                       className="mr-2"
                     />
                     <span className="text-[#2B2B2B] dark:text-[#F0EDE8]">{option}</span>
@@ -609,7 +609,7 @@ function AppointmentSurveyPageContent() {
                       type="radio"
                       checked={formState.waterIntake === option}
                       onChange={() => updateField("waterIntake", option)}
-                      style={{ accentColor: "#C6A56B" }}
+                      style={{ accentColor: "#B87B68" }}
                       className="mr-2"
                     />
                     <span className="text-[#2B2B2B] dark:text-[#F0EDE8]">{option}</span>
@@ -645,7 +645,7 @@ function AppointmentSurveyPageContent() {
                         type="radio"
                         checked={formState[item.field] === option}
                         onChange={() => updateField(item.field, option)}
-                        style={{ accentColor: "#C6A56B" }}
+                        style={{ accentColor: "#B87B68" }}
                         className="mr-2"
                       />
                       <span className="text-[#2B2B2B] dark:text-[#F0EDE8]">
@@ -667,17 +667,17 @@ function AppointmentSurveyPageContent() {
               onChange={(event) => updateField("note", event.target.value)}
               placeholder="Any additional information..."
               rows={4}
-              className="mt-2 rounded-md border border-[#D8C7B5] px-3 py-2 text-[#2B2B2B] focus:border-[#C6A56B] focus:outline-none focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:text-[#F0EDE8]"
+              className="mt-2 rounded-md border border-[#EADDCD] px-3 py-2 text-[#2B2B2B] focus:border-[#B87B68] focus:outline-none focus:ring-1 focus:ring-[#B87B68] dark:border-[#3D3530] dark:text-[#F0EDE8]"
             />
           </div>
 
           <div
-            className="rounded-lg border border-[#D8C7B5] bg-[#F8F5F0] p-4 dark:border-[#3D3530] dark:bg-[#1A1814]"
+            className="rounded-lg border border-[#EADDCD] bg-[#F8F5F0] p-4 dark:border-[#3D3530] dark:bg-[#1A1814]"
           >
             <label className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
               Skin Photos
             </label>
-            <p className="mt-2 text-sm leading-6 text-[#B8A89A] dark:text-[#8A7D75]">
+            <p className="mt-2 text-sm leading-6 text-[#884F38] dark:text-[#8A7D75]">
               Uploading photos is optional. You can submit the survey without photos if you prefer.
             </p>
 
@@ -696,11 +696,11 @@ function AppointmentSurveyPageContent() {
             </div>
 
             <div className="mt-3 flex items-center justify-between gap-3 text-sm">
-              <span className="text-[#B8A89A] dark:text-[#8A7D75]">
+              <span className="text-[#884F38] dark:text-[#8A7D75]">
                 {formState.skinImages.length}/4 images uploaded
               </span>
               {isUploadingSkinImage ? (
-                <span style={{ color: "#C6A56B" }}>Uploading...</span>
+                <span style={{ color: "#B87B68" }}>Uploading...</span>
               ) : null}
             </div>
 
@@ -709,7 +709,7 @@ function AppointmentSurveyPageContent() {
                 {formState.skinImages.map((imageUrl) => (
                   <div
                     key={imageUrl}
-                    className="overflow-hidden rounded-lg border border-[#D8C7B5] bg-white dark:border-[#3D3530] dark:bg-[#242220]"
+                    className="overflow-hidden rounded-lg border border-[#EADDCD] bg-white dark:border-[#3D3530] dark:bg-[#242220]"
                   >
                     <div className="relative h-40 w-full">
                       <Image
@@ -738,7 +738,7 @@ function AppointmentSurveyPageContent() {
               type="submit"
               disabled={isSubmitting}
               style={{ backgroundColor: "#2B2B2B", color: "#F8F5F0" }}
-              className="h-12 w-full rounded-md text-sm font-medium transition-colors duration-200 hover:bg-[#B8A89A] disabled:cursor-not-allowed disabled:opacity-50 sm:h-11 sm:flex-1"
+              className="h-12 w-full rounded-md text-sm font-medium transition-colors duration-200 hover:bg-[#884F38] disabled:cursor-not-allowed disabled:opacity-50 sm:h-11 sm:flex-1"
             >
               {isSubmitting ? "Submitting..." : "Submit Survey"}
             </button>
@@ -753,7 +753,7 @@ function AppointmentSurveyLoadingFallback() {
   return (
     <section className="flex min-h-screen flex-col bg-[#F8F5F0] px-6 py-16 dark:bg-[#1A1814]">
       <div className="mx-auto w-full" style={{ maxWidth: "48rem" }}>
-        <p className="text-sm text-[#B8A89A] dark:text-[#8A7D75]">
+        <p className="text-sm text-[#884F38] dark:text-[#8A7D75]">
           Loading...
         </p>
       </div>

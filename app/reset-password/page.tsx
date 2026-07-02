@@ -88,7 +88,7 @@ function ResetPasswordContent() {
 
         <form
           onSubmit={handleSubmit}
-          className="rounded-xl border border-[#D8C7B5] bg-white p-6 dark:border-[#3D3530] dark:bg-[#242220]"
+          className="rounded-xl border border-[#EADDCD] bg-white p-6 dark:border-[#3D3530] dark:bg-[#242220]"
         >
           <label
             htmlFor="password"
@@ -102,8 +102,8 @@ function ResetPasswordContent() {
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             required
-            className="mt-2 h-11 w-full rounded-md border bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
-            style={{ borderColor: "#D8C7B5" }}
+            className="mt-2 h-11 w-full rounded-md border bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68]"
+            style={{ borderColor: "#EADDCD" }}
           />
 
           <label
@@ -118,8 +118,8 @@ function ResetPasswordContent() {
             value={confirmPassword}
             onChange={(event) => setConfirmPassword(event.target.value)}
             required
-            className="mt-2 h-11 w-full rounded-md border bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
-            style={{ borderColor: "#D8C7B5" }}
+            className="mt-2 h-11 w-full rounded-md border bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68]"
+            style={{ borderColor: "#EADDCD" }}
           />
 
           {error ? (
@@ -143,7 +143,7 @@ function ResetPasswordContent() {
             <div className="mt-5 text-center">
               <Link
                 href="/login"
-                className="text-sm underline text-[#C6A56B]"
+                className="text-sm underline text-[#B87B68]"
               >
                 Go to Login
               </Link>
@@ -158,7 +158,7 @@ function ResetPasswordContent() {
 function ResetPasswordFallback() {
   return (
     <section className="flex min-h-screen items-center justify-center bg-[#F8F5F0] px-6 py-16 dark:bg-[#1A1814]">
-      <p className="text-[#B8A89A] dark:text-[#8A7D75]">Loading...</p>
+      <p className="text-[#884F38] dark:text-[#8A7D75]">Loading...</p>
     </section>
   );
 }

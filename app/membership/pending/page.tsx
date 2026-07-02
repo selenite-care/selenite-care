@@ -50,12 +50,12 @@ function PendingMembershipContent() {
           style={{
             background:
               "linear-gradient(180deg, rgba(255,255,255,0.92) 0%, rgba(248,245,240,1) 100%)",
-            borderColor: "#D8C7B5",
+            borderColor: "#EADDCD",
             boxShadow: "0 24px 60px rgba(43, 43, 43, 0.08)",
           }}
         >
-          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full border border-[#C6A56B] bg-[rgba(198,165,107,0.12)] dark:bg-[rgba(198,165,107,0.14)]">
-            <Clock3 className="h-10 w-10 text-[#C6A56B]" />
+          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full border border-[#B87B68] bg-[rgba(198,165,107,0.12)] dark:bg-[rgba(198,165,107,0.14)]">
+            <Clock3 className="h-10 w-10 text-[#B87B68]" />
           </div>
 
           <h1
@@ -74,7 +74,7 @@ function PendingMembershipContent() {
           </p>
 
           {tier || amount ? (
-            <div className="mx-auto mt-8 max-w-xl rounded-2xl border border-[#C6A56B] bg-[rgba(198,165,107,0.08)] px-5 py-5 dark:bg-[rgba(198,165,107,0.12)]">
+            <div className="mx-auto mt-8 max-w-xl rounded-2xl border border-[#B87B68] bg-[rgba(198,165,107,0.08)] px-5 py-5 dark:bg-[rgba(198,165,107,0.12)]">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8C7967] dark:text-[#8A7D75]">
                 Submitted Membership
               </p>
@@ -99,7 +99,7 @@ function PendingMembershipContent() {
           <div className="mt-10 flex justify-center">
             <Link
               href="/contact"
-              className="inline-flex h-12 items-center justify-center rounded-md bg-[#2B2B2B] px-6 text-sm font-medium text-[#F8F5F0] transition-colors hover:bg-[#B8A89A] dark:bg-[#C6A56B] dark:text-[#141210] dark:hover:bg-[#D4B47A]"
+              className="inline-flex h-12 items-center justify-center rounded-md bg-[#2B2B2B] px-6 text-sm font-medium text-[#F8F5F0] transition-colors hover:bg-[#884F38] dark:bg-[#B87B68] dark:text-[#141210] dark:hover:bg-[#D4B47A]"
             >
               Contact Us
             </Link>
@@ -114,7 +114,7 @@ function PendingMembershipFallback() {
   return (
     <main className="flex min-h-screen items-center bg-[#F8F5F0] px-6 py-16 dark:bg-[#1A1814]">
       <div className="mx-auto w-full max-w-3xl">
-        <p className="text-sm text-[#B8A89A] dark:text-[#8A7D75]">Loading...</p>
+        <p className="text-sm text-[#884F38] dark:text-[#8A7D75]">Loading...</p>
       </div>
     </main>
   );

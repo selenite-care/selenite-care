@@ -93,7 +93,7 @@ export default function BlogPage() {
                     className="mb-[14px] h-px"
                     style={{
                       background:
-                        "linear-gradient(90deg, #C6A56B44, transparent)",
+                        "linear-gradient(90deg, #B87B6844, transparent)",
                     }}
                   />
 
@@ -103,7 +103,7 @@ export default function BlogPage() {
                     style={{ color: "#2B2B2B" }}
                   >
                     Continue Reading
-                    <span style={{ color: "#C6A56B", fontSize: "14px" }}>
+                    <span style={{ color: "#B87B68", fontSize: "14px" }}>
                       →
                     </span>
                   </Link>

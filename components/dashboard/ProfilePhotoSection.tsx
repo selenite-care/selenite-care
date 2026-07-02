@@ -138,7 +138,7 @@ export default function ProfilePhotoSection({
           <img
             src={previewUrl}
             alt="Selected profile preview"
-            className="h-24 w-24 rounded-full border-2 border-[#D8C7B5] object-cover"
+            className="h-24 w-24 rounded-full border-2 border-[#EADDCD] object-cover"
           />
         ) : (
           <Avatar imageUrl={currentImage} name={name} size="xl" />
@@ -171,7 +171,7 @@ export default function ProfilePhotoSection({
             type="button"
             onClick={() => inputRef.current?.click()}
             disabled={isSaving}
-            className="inline-flex h-10 items-center justify-center rounded-md border border-[#C6A56B] px-4 text-sm font-medium text-[#C6A56B] transition-colors hover:bg-[#C6A56B]/10 disabled:cursor-not-allowed disabled:opacity-70"
+            className="inline-flex h-10 items-center justify-center rounded-md border border-[#B87B68] px-4 text-sm font-medium text-[#B87B68] transition-colors hover:bg-[#B87B68]/10 disabled:cursor-not-allowed disabled:opacity-70"
           >
             Update Photo
           </button>
@@ -181,7 +181,7 @@ export default function ProfilePhotoSection({
               type="button"
               onClick={handleSavePhoto}
               disabled={isSaving}
-              className="inline-flex h-10 items-center justify-center rounded-md bg-[#2B2B2B] px-4 text-sm font-medium text-[#F8F5F0] transition-colors hover:bg-[#3A3734] disabled:cursor-not-allowed disabled:opacity-70 dark:bg-[#C6A56B] dark:text-[#141210] dark:hover:bg-[#D4B47A]"
+              className="inline-flex h-10 items-center justify-center rounded-md bg-[#2B2B2B] px-4 text-sm font-medium text-[#F8F5F0] transition-colors hover:bg-[#3A3734] disabled:cursor-not-allowed disabled:opacity-70 dark:bg-[#B87B68] dark:text-[#141210] dark:hover:bg-[#D4B47A]"
             >
               {isSaving ? "Saving..." : "Save Photo"}
             </button>

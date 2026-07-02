@@ -266,7 +266,7 @@ export default function ProductsPage() {
               marginBottom: 16,
             }}
           >
-            <span style={{ color: "#C6A56B", fontSize: 13 }}>*</span>
+            <span style={{ color: "#B87B68", fontSize: 13 }}>*</span>
             <span
               style={{
                 fontSize: 11,
@@ -322,7 +322,7 @@ export default function ProductsPage() {
                     left: 14,
                     top: "50%",
                     transform: "translateY(-50%)",
-                    color: "#C6A56B",
+                    color: "#B87B68",
                     fontSize: 15,
                     pointerEvents: "none",
                   }}
@@ -348,7 +348,7 @@ export default function ProductsPage() {
                     transition: "all 0.2s ease",
                   }}
                   onFocus={(event) => {
-                    event.currentTarget.style.borderColor = "#C6A56B";
+                    event.currentTarget.style.borderColor = "#B87B68";
                     event.currentTarget.style.boxShadow =
                       "0 0 0 3px rgba(198,165,107,0.12)";
                   }}
@@ -388,7 +388,7 @@ export default function ProductsPage() {
                   cursor: "pointer",
                 }}
                 onFocus={(event) => {
-                  event.currentTarget.style.borderColor = "#C6A56B";
+                  event.currentTarget.style.borderColor = "#B87B68";
                 }}
                 onBlur={(event) => {
                   event.currentTarget.style.borderColor = "#E8DDD0";
@@ -577,7 +577,7 @@ export default function ProductsPage() {
                             style={{
                               fontSize: 30,
                               fontWeight: 700,
-                              color: "#C6A56B",
+                              color: "#B87B68",
                               letterSpacing: "0.02em",
                             }}
                           >
@@ -702,7 +702,7 @@ export default function ProductsPage() {
                           style={{
                             fontSize: 24,
                             fontWeight: 800,
-                            color: "#C6A56B",
+                            color: "#B87B68",
                             fontFamily: "Playfair Display, serif",
                             margin: 0,
                           }}
@@ -747,7 +747,7 @@ export default function ProductsPage() {
                           background: isOutOfStock
                             ? "#E8DDD0"
                             : recentlyAddedId === product.id
-                              ? "#D8C7B5"
+                              ? "#EADDCD"
                               : "#2B2B2B",
                           color: isOutOfStock
                             ? "#A8916F"
@@ -760,7 +760,7 @@ export default function ProductsPage() {
                             return;
                           }
 
-                          event.currentTarget.style.background = "#C6A56B";
+                          event.currentTarget.style.background = "#B87B68";
                         }}
                         onMouseLeave={(event) => {
                           if (isOutOfStock || recentlyAddedId === product.id) {
@@ -805,7 +805,7 @@ export default function ProductsPage() {
                       onClick={() => setPage(pageNumber)}
                       className={`inline-flex h-10 w-10 items-center justify-center rounded-full border text-sm font-medium transition-colors ${
                         pageNumber === page
-                          ? "border-[#C6A56B] bg-[#C6A56B] text-[#141210]"
+                          ? "border-[#B87B68] bg-[#B87B68] text-[#141210]"
                           : "border-[#E8DDD0] bg-white text-[#2B2B2B] hover:bg-[#F8F5F0] dark:border-[#3D3530] dark:bg-[#242220] dark:text-[#F0EDE8] dark:hover:bg-[#1A1814]"
                       }`}
                     >

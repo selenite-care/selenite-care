@@ -138,7 +138,7 @@ function BlogCard({ post }: { post: BlogPost }) {
           <p className="dark:text-[#F0EDE8]" style={{ fontSize: 18, fontWeight: 800, color: "#2B2B2B", lineHeight: 1, margin: 0 }}>
             {day}
           </p>
-          <p style={{ fontSize: 9, fontWeight: 700, color: "#C6A56B", letterSpacing: "0.08em", margin: "2px 0 0" }}>
+          <p style={{ fontSize: 9, fontWeight: 700, color: "#B87B68", letterSpacing: "0.08em", margin: "2px 0 0" }}>
             {month}
           </p>
         </div>
@@ -179,7 +179,7 @@ function BlogCard({ post }: { post: BlogPost }) {
         </h3>
 
         {/* Author row */}
-        <p className="dark:text-[#8A7D75]" style={{ fontSize: 11, color: "#B8A89A", margin: "0 0 12px", letterSpacing: "0.02em" }}>
+        <p className="dark:text-[#8A7D75]" style={{ fontSize: 11, color: "#884F38", margin: "0 0 12px", letterSpacing: "0.02em" }}>
           Posted by{" "}
           <span style={{ color: "#8C7355", fontWeight: 600 }}>{post.author}</span>
         </p>
@@ -202,7 +202,7 @@ function BlogCard({ post }: { post: BlogPost }) {
         </p>
 
         {/* Divider */}
-        <div style={{ height: 1, background: "linear-gradient(90deg, #C6A56B44, transparent)", marginBottom: 14 }} />
+        <div style={{ height: 1, background: "linear-gradient(90deg, #B87B6844, transparent)", marginBottom: 14 }} />
 
         <span
           className="dark:text-[#F0EDE8]"
@@ -219,7 +219,7 @@ function BlogCard({ post }: { post: BlogPost }) {
           }}
         >
           Continue Reading
-          <span style={{ color: "#C6A56B", fontSize: 14 }}>→</span>
+          <span style={{ color: "#B87B68", fontSize: 14 }}>→</span>
         </span>
       </div>
     </Link>
@@ -285,7 +285,7 @@ export default function BlogCarousel() {
             >
               Our Blogs &amp; Articles
             </h2>
-            <p className="text-muted mt-3 text-base leading-7">
+            <p className="text-muted mt-3 text-base leading-7 text-[#884F38] dark:text-[#8A7D75]">
               Skincare insights, wellness guidance, and expert perspectives — written for you.
             </p>
           </div>
@@ -294,7 +294,7 @@ export default function BlogCarousel() {
           <div className="hidden sm:flex items-center gap-4">
             <Link
               href="/blog"
-              style={{ color: "#C6A56B" }}
+              style={{ color: "#B87B68" }}
               className="text-sm font-semibold transition-colors duration-200 hover:opacity-80"
             >
               View All
@@ -304,9 +304,9 @@ export default function BlogCarousel() {
               aria-label="Previous"
               style={{
                 width: 42, height: 42, borderRadius: "50%",
-                border: `1.5px solid ${canScrollPrev ? "#C6A56B" : "#D8C7B5"}`,
-                background: canScrollPrev ? "#C6A56B" : "transparent",
-                color: canScrollPrev ? "#FFF8EE" : "#B8A89A",
+                border: `1.5px solid ${canScrollPrev ? "#B87B68" : "#EADDCD"}`,
+                background: canScrollPrev ? "#B87B68" : "transparent",
+                color: canScrollPrev ? "#FFF8EE" : "#884F38",
                 display: "flex", alignItems: "center", justifyContent: "center",
                 cursor: canScrollPrev ? "pointer" : "default",
                 transition: "all 0.2s ease",
@@ -320,9 +320,9 @@ export default function BlogCarousel() {
               aria-label="Next"
               style={{
                 width: 42, height: 42, borderRadius: "50%",
-                border: `1.5px solid ${canScrollNext ? "#C6A56B" : "#D8C7B5"}`,
-                background: canScrollNext ? "#C6A56B" : "transparent",
-                color: canScrollNext ? "#FFF8EE" : "#B8A89A",
+                border: `1.5px solid ${canScrollNext ? "#B87B68" : "#EADDCD"}`,
+                background: canScrollNext ? "#B87B68" : "transparent",
+                color: canScrollNext ? "#FFF8EE" : "#884F38",
                 display: "flex", alignItems: "center", justifyContent: "center",
                 cursor: canScrollNext ? "pointer" : "default",
                 transition: "all 0.2s ease",
@@ -337,7 +337,7 @@ export default function BlogCarousel() {
         <div className="mt-4 sm:hidden">
           <Link
             href="/blog"
-            style={{ color: "#C6A56B" }}
+            style={{ color: "#B87B68" }}
             className="text-sm font-semibold transition-colors duration-200 hover:opacity-80"
           >
             View All
@@ -370,7 +370,7 @@ export default function BlogCarousel() {
                 width: selectedIndex === i ? 24 : 8,
                 height: 8,
                 borderRadius: 99,
-                background: selectedIndex === i ? "#C6A56B" : "#D8C7B5",
+                background: selectedIndex === i ? "#B87B68" : "#EADDCD",
                 border: "none",
                 cursor: "pointer",
                 padding: 0,
@@ -386,8 +386,8 @@ export default function BlogCarousel() {
             onClick={scrollPrev}
             style={{
               width: 42, height: 42, borderRadius: "50%",
-              border: "1.5px solid #C6A56B", background: "transparent",
-              color: "#C6A56B", fontSize: 18, cursor: "pointer",
+              border: "1.5px solid #B87B68", background: "transparent",
+              color: "#B87B68", fontSize: 18, cursor: "pointer",
               display: "flex", alignItems: "center", justifyContent: "center",
             }}
           >
@@ -397,7 +397,7 @@ export default function BlogCarousel() {
             onClick={scrollNext}
             style={{
               width: 42, height: 42, borderRadius: "50%",
-              border: "1.5px solid #C6A56B", background: "#C6A56B",
+              border: "1.5px solid #B87B68", background: "#B87B68",
               color: "#FFF8EE", fontSize: 18, cursor: "pointer",
               display: "flex", alignItems: "center", justifyContent: "center",
             }}

@@ -86,7 +86,7 @@ export default function DashboardPaymentsPage() {
           }}>
           My Payments
         </h1>
-        <p className="mt-3 text-sm leading-6 text-[#B8A89A] dark:text-[#8A7D75]">
+        <p className="mt-3 text-sm leading-6 text-[#884F38] dark:text-[#8A7D75]">
           Review your payment history for your membership purchases.
         </p>
       </div>
@@ -100,7 +100,7 @@ export default function DashboardPaymentsPage() {
       {error ? <p className="mt-8 text-sm text-red-600">{error}</p> : null}
 
       {!isLoading && !error && payments.length === 0 ? (
-        <p className="mt-8 text-sm text-[#B8A89A] dark:text-[#8A7D75]">
+        <p className="mt-8 text-sm text-[#884F38] dark:text-[#8A7D75]">
           You have not made any payments yet.
         </p>
       ) : null}
@@ -133,7 +133,7 @@ export default function DashboardPaymentsPage() {
                         {payment.membership.tier}
                       </span>
                     </td>
-                    <td className="px-4 py-4 text-[#B8A89A] dark:text-[#8A7D75]">
+                    <td className="px-4 py-4 text-[#884F38] dark:text-[#8A7D75]">
                       {formatBdt(payment.amount)}
                     </td>
                     <td className="px-4 py-4">
@@ -145,7 +145,7 @@ export default function DashboardPaymentsPage() {
                         {payment.status}
                       </span>
                     </td>
-                    <td className="px-4 py-4 text-[#B8A89A] dark:text-[#8A7D75]">
+                    <td className="px-4 py-4 text-[#884F38] dark:text-[#8A7D75]">
                       {formatDateTime(payment.createdAt)}
                     </td>
                   </tr>

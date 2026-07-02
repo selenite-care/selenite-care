@@ -102,9 +102,9 @@ export async function PATCH(request: Request, context: RouteContext) {
         subject: "Payment Receipt - Selenite Care",
         html: `
         <div style="margin:0;padding:32px 16px;background-color:#F8F5F0;font-family:Arial,sans-serif;color:#2B2B2B;">
-          <div style="max-width:640px;margin:0 auto;background:#FFFFFF;border:1px solid #D8C7B5;border-radius:18px;overflow:hidden;">
+          <div style="max-width:640px;margin:0 auto;background:#FFFFFF;border:1px solid #EADDCD;border-radius:18px;overflow:hidden;">
             <div style="padding:24px 28px;background:#2B2B2B;color:#F8F5F0;">
-              <div style="font-size:12px;letter-spacing:0.22em;text-transform:uppercase;color:#C6A56B;">Selenite Care</div>
+              <div style="font-size:12px;letter-spacing:0.22em;text-transform:uppercase;color:#B87B68;">Selenite Care</div>
               <h1 style="margin:12px 0 0;font-size:28px;line-height:1.2;font-family:'Playfair Display',Georgia,serif;">Payment Receipt</h1>
               <p style="margin:10px 0 0;font-size:14px;line-height:1.6;color:#EDE6DA;">
                 Thank you for choosing Selenite Care. Your membership payment has been verified successfully.
@@ -149,7 +149,7 @@ export async function PATCH(request: Request, context: RouteContext) {
                 </tbody>
               </table>
 
-              <div style="margin-top:24px;padding:18px 20px;border:1px solid #D8C7B5;border-radius:14px;background:#FCFAF7;">
+              <div style="margin-top:24px;padding:18px 20px;border:1px solid #EADDCD;border-radius:14px;background:#FCFAF7;">
                 <p style="margin:0;font-size:14px;line-height:1.7;color:#4B4037;">
                   Thank you for your payment and for being part of Selenite Care. We are delighted to support your skincare journey.
                 </p>

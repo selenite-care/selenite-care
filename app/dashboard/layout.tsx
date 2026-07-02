@@ -29,7 +29,7 @@ export default async function DashboardLayout({
           <p className="mt-3 text-sm font-bold text-[#2B2B2B] dark:text-[#F0EDE8]">
             {session.user.name ?? "Client"}
           </p>
-          <span className="mt-2 inline-flex rounded-full bg-[#C6A56B] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#2B2B2B]">
+          <span className="mt-2 inline-flex rounded-full bg-[#B87B68] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#2B2B2B]">
             {session.user.role}
           </span>
           <p

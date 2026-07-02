@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useSession } from "next-auth/react"
 import { FormEvent, Suspense, useEffect, useState } from "react";
@@ -152,7 +152,7 @@ function PaymentForm({
       onSubmit={handleSubmit}
       style={{
         borderRadius: '12px',
-        border: '1px solid #D8C7B5',
+        border: '1px solid #EADDCD',
         backgroundColor: '#FFFFFF',
         padding: '24px',
       }}
@@ -166,18 +166,18 @@ function PaymentForm({
       <div style={{
         marginTop: '20px',
         borderRadius: '8px',
-        border: '2px solid #D8C7B5',
+        border: '2px solid #EADDCD',
         padding: '12px',
         transition: 'border-color 0.2s ease',
       }}
       onFocus={(e) => {
         if (e.currentTarget === e.currentTarget.parentElement) {
-          e.currentTarget.style.borderColor = '#C6A56B';
+          e.currentTarget.style.borderColor = '#B87B68';
         }
       }}
       onBlur={(e) => {
         if (e.currentTarget === e.currentTarget.parentElement) {
-          e.currentTarget.style.borderColor = '#D8C7B5';
+          e.currentTarget.style.borderColor = '#EADDCD';
         }
       }}
       >
@@ -190,7 +190,7 @@ function PaymentForm({
                 fontFamily: "Arial, Helvetica, sans-serif",
                 fontSize: "16px",
                 "::placeholder": {
-                  color: "#B8A89A",
+                  color: "#884F38",
                 },
               },
             },
@@ -215,7 +215,7 @@ function PaymentForm({
           alignItems: 'center',
           justifyContent: 'center',
           borderRadius: '8px',
-          backgroundColor: !stripe || isSubmitting ? '#D8C7B5' : '#2B2B2B',
+          backgroundColor: !stripe || isSubmitting ? '#EADDCD' : '#2B2B2B',
           paddingLeft: '20px',
           paddingRight: '20px',
           fontSize: '14px',
@@ -228,7 +228,7 @@ function PaymentForm({
         }}
         onMouseEnter={(e) => {
           if (!(!stripe || isSubmitting)) {
-            e.currentTarget.style.backgroundColor = '#B8A89A';
+            e.currentTarget.style.backgroundColor = '#884F38';
           }
         }}
         onMouseLeave={(e) => {
@@ -309,7 +309,7 @@ function PaymentPageContent() {
             marginTop: '16px',
             fontSize: '16px',
             lineHeight: '1.75',
-            color: '#B8A89A',
+            color: '#884F38',
           }}>
             Review your selected service and choose your payment method.
           </p>
@@ -319,7 +319,7 @@ function PaymentPageContent() {
           <p style={{
             marginTop: '40px',
             fontSize: '14px',
-            color: '#B8A89A',
+            color: '#884F38',
           }}>Loading payment...</p>
         ) : null}
 
@@ -333,7 +333,7 @@ function PaymentPageContent() {
           <p style={{
             marginTop: '40px',
             fontSize: '14px',
-            color: '#B8A89A',
+            color: '#884F38',
           }}>
             Please choose a service before continuing to payment.
           </p>
@@ -355,7 +355,7 @@ function PaymentPageContent() {
                 flexWrap: 'wrap',
                 gap: '8px',
                 borderRadius: '12px',
-                border: '1px solid #D8C7B5',
+                border: '1px solid #EADDCD',
                 backgroundColor: '#FFFFFF',
                 padding: '4px',
               }}>
@@ -374,7 +374,7 @@ function PaymentPageContent() {
                     border: 'none',
                     cursor: 'pointer',
                     backgroundColor: paymentMethod === "card" ? '#2B2B2B' : 'transparent',
-                    color: paymentMethod === "card" ? '#F8F5F0' : '#B8A89A',
+                    color: paymentMethod === "card" ? '#F8F5F0' : '#884F38',
                   }}
                   className="w-full sm:w-auto"
                   onMouseEnter={(e) => {
@@ -384,7 +384,7 @@ function PaymentPageContent() {
                   }}
                   onMouseLeave={(e) => {
                     if (paymentMethod !== "card") {
-                      e.currentTarget.style.color = '#B8A89A';
+                      e.currentTarget.style.color = '#884F38';
                     }
                   }}
                 >
@@ -405,7 +405,7 @@ function PaymentPageContent() {
                     border: 'none',
                     cursor: 'pointer',
                     backgroundColor: paymentMethod === "bkash" ? '#2B2B2B' : 'transparent',
-                    color: paymentMethod === "bkash" ? '#F8F5F0' : '#B8A89A',
+                    color: paymentMethod === "bkash" ? '#F8F5F0' : '#884F38',
                   }}
                   className="w-full sm:w-auto"
                   onMouseEnter={(e) => {
@@ -415,7 +415,7 @@ function PaymentPageContent() {
                   }}
                   onMouseLeave={(e) => {
                     if (paymentMethod !== "bkash") {
-                      e.currentTarget.style.color = '#B8A89A';
+                      e.currentTarget.style.color = '#884F38';
                     }
                   }}
                 >
@@ -447,7 +447,7 @@ function PaymentPageContent() {
               ) : (
                 <section style={{
                   borderRadius: '8px',
-                  border: '1px solid #D8C7B5',
+                  border: '1px solid #EADDCD',
                   backgroundColor: '#FFFFFF',
                   padding: '24px',
                 }}>
@@ -463,7 +463,7 @@ function PaymentPageContent() {
                     marginTop: '16px',
                     fontSize: '14px',
                     lineHeight: '1.5',
-                    color: '#B8A89A',
+                    color: '#884F38',
                   }}>
                     bKash payment coming soon. Please use card payment for now.
                   </p>
@@ -476,7 +476,7 @@ function PaymentPageContent() {
               style={{
                 height: 'fit-content',
                 borderRadius: '8px',
-                border: '1px solid #D8C7B5',
+                border: '1px solid #EADDCD',
                 backgroundColor: '#FFFFFF',
                 padding: '24px',
               }}
@@ -507,7 +507,7 @@ function PaymentPageContent() {
                 {selectedDate && selectedSlot ? (
                   <div style={{
                     borderRadius: '8px',
-                    border: '1px solid #D8C7B5',
+                    border: '1px solid #EADDCD',
                     backgroundColor: '#F8F5F0',
                     padding: '16px',
                     fontSize: '14px',
@@ -519,14 +519,14 @@ function PaymentPageContent() {
                     }}>Appointment</p>
                     <p style={{
                       marginTop: '8px',
-                      color: '#B8A89A',
+                      color: '#884F38',
                     }}>
                       {selectedDate} at {selectedSlot}
                     </p>
                   </div>
                 ) : null}
                 <div style={{
-                  borderTop: '1px solid #D8C7B5',
+                  borderTop: '1px solid #EADDCD',
                   paddingTop: '16px',
                 }}>
                   <div style={{
@@ -534,7 +534,7 @@ function PaymentPageContent() {
                     alignItems: 'center',
                     justifyContent: 'space-between',
                   }}>
-                    <span style={{ color: '#B8A89A' }}>Total</span>
+                    <span style={{ color: '#884F38' }}>Total</span>
                     <span style={{
                       fontWeight: '600',
                       color: '#2B2B2B',
@@ -582,7 +582,7 @@ export default function PaymentPage() {
           <p style={{
             marginTop: '16px',
             fontSize: '14px',
-            color: '#B8A89A',
+            color: '#884F38',
           }}>
             Stripe publishable key is not configured.
           </p>
@@ -612,7 +612,7 @@ export default function PaymentPage() {
             }}>
               <p style={{
                 fontSize: '14px',
-                color: '#B8A89A',
+                color: '#884F38',
               }}>Loading...</p>
             </div>
           </section>

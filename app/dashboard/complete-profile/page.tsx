@@ -137,7 +137,7 @@ export default function CompleteProfilePage() {
       <div className="mx-auto w-full max-w-md">
         <div className="border-themed bg-card rounded-xl border p-6 shadow-[0_18px_44px_rgba(43,43,43,0.08)] dark:shadow-none sm:p-7">
           <div className="text-center">
-            <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border-2 border-[#C6A56B] bg-[#F8F5F0] text-2xl font-semibold text-[#C6A56B] dark:bg-[#1E1C1A]">
+            <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border-2 border-[#B87B68] bg-[#F8F5F0] text-2xl font-semibold text-[#B87B68] dark:bg-[#1E1C1A]">
               {session?.user?.image ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -161,7 +161,7 @@ export default function CompleteProfilePage() {
                 Welcome, {session.user.name}
               </p>
             ) : null}
-            <div className="mx-auto mb-5 h-1 w-16 rounded-full bg-[#C6A56B]" />
+            <div className="mx-auto mb-5 h-1 w-16 rounded-full bg-[#B87B68]" />
             <h1
               className="text-page text-3xl font-semibold tracking-tight sm:text-4xl"
               style={{ fontFamily: '"Playfair Display", serif' }}
@@ -210,7 +210,7 @@ export default function CompleteProfilePage() {
                 type="date"
                 value={dateOfBirth}
                 onChange={(event) => setDateOfBirth(event.target.value)}
-                className="h-11 w-full rounded-lg border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
+                className="h-11 w-full rounded-lg border border-[#EADDCD] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
               />
             </div>
 
@@ -225,7 +225,7 @@ export default function CompleteProfilePage() {
                 id="gender"
                 value={gender}
                 onChange={(event) => setGender(event.target.value)}
-                className="h-11 w-full rounded-lg border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
+                className="h-11 w-full rounded-lg border border-[#EADDCD] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
               >
                 {genderOptions.map((option) => (
                   <option key={option || "empty"} value={option}>
@@ -246,8 +246,8 @@ export default function CompleteProfilePage() {
               disabled={isSubmitting}
               className={`flex h-11 w-full items-center justify-center rounded-lg px-4 text-sm font-medium transition-colors ${
                 isSubmitting
-                  ? "cursor-not-allowed bg-[#D8C7B5] text-[#8A7D75] dark:bg-[#3D3530]"
-                  : "bg-[#2B2B2B] text-[#F8F5F0] hover:bg-[#3A3734] dark:bg-[#C6A56B] dark:text-[#141210] dark:hover:bg-[#D4B47A]"
+                  ? "cursor-not-allowed bg-[#EADDCD] text-[#8A7D75] dark:bg-[#3D3530]"
+                  : "bg-[#2B2B2B] text-[#F8F5F0] hover:bg-[#3A3734] dark:bg-[#B87B68] dark:text-[#141210] dark:hover:bg-[#D4B47A]"
               }`}
             >
               {isSubmitting ? "Saving..." : "Save"}

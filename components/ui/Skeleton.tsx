@@ -6,7 +6,7 @@ export function Skeleton({ className }: { className?: string }) {
   return (
     <div
       className={joinClassNames(
-        "animate-pulse rounded bg-[#D8C7B5] dark:bg-[#3D3530]",
+        "animate-pulse rounded bg-[#EADDCD] dark:bg-[#3D3530]",
         className,
       )}
     />
@@ -38,7 +38,7 @@ export function SkeletonCard({ className }: { className?: string }) {
   return (
     <div
       className={joinClassNames(
-        "rounded-lg border border-[#D8C7B5] bg-card p-6 dark:border-[#3D3530]",
+        "rounded-lg border border-[#EADDCD] bg-card p-6 dark:border-[#3D3530]",
         className,
       )}
     >
@@ -56,11 +56,11 @@ export function SkeletonTable({
   cols?: number;
 }) {
   return (
-    <div className="overflow-hidden rounded-lg border border-[#D8C7B5] bg-card dark:border-[#3D3530]">
+    <div className="overflow-hidden rounded-lg border border-[#EADDCD] bg-card dark:border-[#3D3530]">
       <div className="overflow-x-auto">
         <table className="w-full min-w-[720px] text-left">
           <thead>
-            <tr className="border-b border-[#D8C7B5] dark:border-[#3D3530]">
+            <tr className="border-b border-[#EADDCD] dark:border-[#3D3530]">
               {Array.from({ length: cols }).map((_, index) => (
                 <th key={index} className="px-4 py-3">
                   <Skeleton className="h-3 w-20" />
@@ -72,7 +72,7 @@ export function SkeletonTable({
             {Array.from({ length: rows }).map((_, rowIndex) => (
               <tr
                 key={rowIndex}
-                className="border-b border-[#D8C7B5]/70 last:border-b-0 dark:border-[#3D3530]"
+                className="border-b border-[#EADDCD]/70 last:border-b-0 dark:border-[#3D3530]"
               >
                 {Array.from({ length: cols }).map((_, colIndex) => (
                   <td key={colIndex} className="px-4 py-4">
@@ -99,7 +99,7 @@ export function SkeletonTable({
 
 export function SkeletonStat() {
   return (
-    <div className="rounded-2xl border border-[#D8C7B5] bg-card p-6 shadow-sm dark:border-[#3D3530]">
+    <div className="rounded-2xl border border-[#EADDCD] bg-card p-6 shadow-sm dark:border-[#3D3530]">
       <Skeleton className="h-3 w-28" />
       <Skeleton className="mt-4 h-9 w-16" />
     </div>

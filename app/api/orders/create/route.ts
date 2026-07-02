@@ -283,9 +283,9 @@ export async function POST(request: Request) {
 
     const adminHtml = `
       <div style="font-family: Arial, sans-serif; color: #2B2B2B; line-height: 1.6; background: #F8F5F0; padding: 24px;">
-        <div style="max-width: 760px; margin: 0 auto; background: #FFFFFF; border: 1px solid #D8C7B5; border-radius: 16px; overflow: hidden;">
+        <div style="max-width: 760px; margin: 0 auto; background: #FFFFFF; border: 1px solid #EADDCD; border-radius: 16px; overflow: hidden;">
           <div style="background: #2B2B2B; padding: 24px 28px;">
-            <div style="font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: #C6A56B;">Selenite Care</div>
+            <div style="font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: #B87B68;">Selenite Care</div>
             <h1 style="margin: 12px 0 0; font-size: 28px; line-height: 1.2; color: #F8F5F0;">New Product Order - Selenite Care</h1>
           </div>
           <div style="padding: 28px;">
@@ -324,7 +324,7 @@ export async function POST(request: Request) {
                     ? `
                 <tr>
                   <td style="padding: 10px 0; border-bottom: 1px solid #EEE0D0; color: #6E6257;">Proof Image</td>
-                  <td style="padding: 10px 0; border-bottom: 1px solid #EEE0D0;"><a href="${proofImageUrl}" style="color: #C6A56B;">View uploaded proof</a></td>
+                  <td style="padding: 10px 0; border-bottom: 1px solid #EEE0D0;"><a href="${proofImageUrl}" style="color: #B87B68;">View uploaded proof</a></td>
                 </tr>`
                     : ""
                 }
@@ -345,10 +345,10 @@ export async function POST(request: Request) {
               <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
                 <thead>
                   <tr>
-                    <th style="padding: 10px 0; border-bottom: 1px solid #D8C7B5; text-align: left; color: #2B2B2B;">Item</th>
-                    <th style="padding: 10px 0; border-bottom: 1px solid #D8C7B5; text-align: center; color: #2B2B2B;">Qty</th>
-                    <th style="padding: 10px 0; border-bottom: 1px solid #D8C7B5; text-align: right; color: #2B2B2B;">Price</th>
-                    <th style="padding: 10px 0; border-bottom: 1px solid #D8C7B5; text-align: right; color: #2B2B2B;">Subtotal</th>
+                    <th style="padding: 10px 0; border-bottom: 1px solid #EADDCD; text-align: left; color: #2B2B2B;">Item</th>
+                    <th style="padding: 10px 0; border-bottom: 1px solid #EADDCD; text-align: center; color: #2B2B2B;">Qty</th>
+                    <th style="padding: 10px 0; border-bottom: 1px solid #EADDCD; text-align: right; color: #2B2B2B;">Price</th>
+                    <th style="padding: 10px 0; border-bottom: 1px solid #EADDCD; text-align: right; color: #2B2B2B;">Subtotal</th>
                   </tr>
                 </thead>
                 <tbody>

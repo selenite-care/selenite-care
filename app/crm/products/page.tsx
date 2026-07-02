@@ -453,7 +453,7 @@ export default function CrmProductsPage() {
           }}>
             Products
           </h1>
-          <p className="mt-3 text-sm leading-6 text-[#B8A89A] dark:text-[#8A7D75]">
+          <p className="mt-3 text-sm leading-6 text-[#884F38] dark:text-[#8A7D75]">
             Search, add, and manage product recommendations.
           </p>
         </div>
@@ -474,7 +474,7 @@ export default function CrmProductsPage() {
               setPage(1);
             }}
             placeholder="Search by name, type, or skin type"
-            className="mt-2 h-11 w-full rounded-md border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8] dark:placeholder-[#8A7D75]"
+            className="mt-2 h-11 w-full rounded-md border border-[#EADDCD] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8] dark:placeholder-[#8A7D75]"
           />
         </div>
           <div>
@@ -491,7 +491,7 @@ export default function CrmProductsPage() {
                 setStockFilter(event.target.value);
                 setPage(1);
               }}
-              className="mt-2 h-11 w-full rounded-md border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
+              className="mt-2 h-11 w-full rounded-md border border-[#EADDCD] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
             >
               <option value="ALL">All Stock Statuses</option>
               <option value="AVAILABLE">Available</option>
@@ -546,7 +546,7 @@ export default function CrmProductsPage() {
                                 {product.name}
                               </p>
                               {!product.isVisible ? (
-                                <p className="mt-1 text-xs text-[#B8A89A] dark:text-[#8A7D75]">
+                                <p className="mt-1 text-xs text-[#884F38] dark:text-[#8A7D75]">
                                   Hidden from clients
                                 </p>
                               ) : null}
@@ -576,7 +576,7 @@ export default function CrmProductsPage() {
                               <button
                                 type="button"
                                 onClick={() => openEditModal(product)}
-                                className="inline-flex h-9 items-center justify-center rounded-md border border-[#C6A56B] px-3 text-sm font-medium text-[#2B2B2B] transition-colors hover:bg-[#C6A56B]/10 dark:text-[#F0EDE8]"
+                                className="inline-flex h-9 items-center justify-center rounded-md border border-[#B87B68] px-3 text-sm font-medium text-[#2B2B2B] transition-colors hover:bg-[#B87B68]/10 dark:text-[#F0EDE8]"
                               >
                                 Edit
                               </button>
@@ -593,7 +593,7 @@ export default function CrmProductsPage() {
                                     stockNote: product.stockNote,
                                   });
                                 }}
-                                className="inline-flex h-9 items-center justify-center rounded-md border border-[#D8C7B5] px-3 text-sm font-medium text-[#2B2B2B] transition-colors hover:bg-black/5 dark:border-[#3D3530] dark:text-[#F0EDE8] dark:hover:bg-white/5"
+                                className="inline-flex h-9 items-center justify-center rounded-md border border-[#EADDCD] px-3 text-sm font-medium text-[#2B2B2B] transition-colors hover:bg-black/5 dark:border-[#3D3530] dark:text-[#F0EDE8] dark:hover:bg-white/5"
                               >
                                 {quickToggleLabel}
                               </button>
@@ -630,7 +630,7 @@ export default function CrmProductsPage() {
                   return (
                     <article
                       key={product.id}
-                      className="rounded-xl border border-[#D8C7B5] bg-white p-4 dark:border-[#3D3530] dark:bg-[#242220]"
+                      className="rounded-xl border border-[#EADDCD] bg-white p-4 dark:border-[#3D3530] dark:bg-[#242220]"
                     >
                       <div className="flex items-start gap-4">
                         <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg border border-themed bg-[#FCFAF7] dark:bg-[#1A1814]">
@@ -660,7 +660,7 @@ export default function CrmProductsPage() {
                             {formatBdt(product.price)}
                           </p>
                           {!product.isVisible ? (
-                            <p className="mt-1 text-xs text-[#B8A89A] dark:text-[#8A7D75]">
+                            <p className="mt-1 text-xs text-[#884F38] dark:text-[#8A7D75]">
                               Hidden from clients
                             </p>
                           ) : null}
@@ -683,7 +683,7 @@ export default function CrmProductsPage() {
                         <button
                           type="button"
                           onClick={() => openEditModal(product)}
-                          className="inline-flex h-10 items-center justify-center rounded-md border border-[#C6A56B] px-3 text-sm font-medium text-[#2B2B2B] transition-colors hover:bg-[#C6A56B]/10 dark:text-[#F0EDE8]"
+                          className="inline-flex h-10 items-center justify-center rounded-md border border-[#B87B68] px-3 text-sm font-medium text-[#2B2B2B] transition-colors hover:bg-[#B87B68]/10 dark:text-[#F0EDE8]"
                         >
                           Edit
                         </button>
@@ -700,7 +700,7 @@ export default function CrmProductsPage() {
                               stockNote: product.stockNote,
                             });
                           }}
-                          className="inline-flex h-10 items-center justify-center rounded-md border border-[#D8C7B5] px-3 text-sm font-medium text-[#2B2B2B] transition-colors hover:bg-black/5 dark:border-[#3D3530] dark:text-[#F0EDE8] dark:hover:bg-white/5"
+                          className="inline-flex h-10 items-center justify-center rounded-md border border-[#EADDCD] px-3 text-sm font-medium text-[#2B2B2B] transition-colors hover:bg-black/5 dark:border-[#3D3530] dark:text-[#F0EDE8] dark:hover:bg-white/5"
                         >
                           {quickToggleLabel}
                         </button>
@@ -766,7 +766,7 @@ export default function CrmProductsPage() {
                   setForm((current) => ({ ...current, name: event.target.value }))
                 }
                 required
-                className="mt-2 h-11 w-full rounded-md border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
+                className="mt-2 h-11 w-full rounded-md border border-[#EADDCD] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
               />
             </div>
 
@@ -784,7 +784,7 @@ export default function CrmProductsPage() {
                   setForm((current) => ({ ...current, type: event.target.value }))
                 }
                 required
-                className="mt-2 h-11 w-full rounded-md border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
+                className="mt-2 h-11 w-full rounded-md border border-[#EADDCD] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
               />
             </div>
 
@@ -805,7 +805,7 @@ export default function CrmProductsPage() {
                   setForm((current) => ({ ...current, price: event.target.value }))
                 }
                 required
-                className="mt-2 h-11 w-full rounded-md border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
+                className="mt-2 h-11 w-full rounded-md border border-[#EADDCD] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
               />
             </div>
 
@@ -826,7 +826,7 @@ export default function CrmProductsPage() {
                     description: event.target.value,
                   }))
                 }
-                className="mt-2 w-full rounded-md border border-[#D8C7B5] bg-white px-3 py-2 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
+                className="mt-2 w-full rounded-md border border-[#EADDCD] bg-white px-3 py-2 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
               />
             </div>
 
@@ -891,7 +891,7 @@ export default function CrmProductsPage() {
           onClick={closeEditModal}
         >
           <div
-            className="modal-card w-full max-w-2xl rounded-2xl border border-[#D8C7B5] bg-white p-6 shadow-2xl dark:border-[#3D3530] dark:bg-[#242220]"
+            className="modal-card w-full max-w-2xl rounded-2xl border border-[#EADDCD] bg-white p-6 shadow-2xl dark:border-[#3D3530] dark:bg-[#242220]"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="flex items-start justify-between gap-4">
@@ -902,14 +902,14 @@ export default function CrmProductsPage() {
                 >
                   Edit Product
                 </h2>
-                <p className="mt-2 text-sm text-[#B8A89A] dark:text-[#8A7D75]">
+                <p className="mt-2 text-sm text-[#884F38] dark:text-[#8A7D75]">
                   Update product details, stock visibility, and image.
                 </p>
               </div>
               <button
                 type="button"
                 onClick={closeEditModal}
-                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#D8C7B5] text-lg text-[#2B2B2B] transition-colors hover:bg-black/5 dark:border-[#3D3530] dark:text-[#F0EDE8] dark:hover:bg-white/5"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#EADDCD] text-lg text-[#2B2B2B] transition-colors hover:bg-black/5 dark:border-[#3D3530] dark:text-[#F0EDE8] dark:hover:bg-white/5"
               >
                 x
               </button>
@@ -929,7 +929,7 @@ export default function CrmProductsPage() {
                       )
                     }
                     required
-                    className="mt-2 h-11 w-full rounded-md border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
+                    className="mt-2 h-11 w-full rounded-md border border-[#EADDCD] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
                   />
                 </div>
                 <div>
@@ -944,7 +944,7 @@ export default function CrmProductsPage() {
                       )
                     }
                     required
-                    className="mt-2 h-11 w-full rounded-md border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
+                    className="mt-2 h-11 w-full rounded-md border border-[#EADDCD] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
                   />
                 </div>
                 <div>
@@ -962,7 +962,7 @@ export default function CrmProductsPage() {
                       )
                     }
                     required
-                    className="mt-2 h-11 w-full rounded-md border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
+                    className="mt-2 h-11 w-full rounded-md border border-[#EADDCD] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
                   />
                 </div>
                 <div>
@@ -979,7 +979,7 @@ export default function CrmProductsPage() {
                       )
                     }
                     placeholder="Dry, oily, sensitive..."
-                    className="mt-2 h-11 w-full rounded-md border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8] dark:placeholder-[#8A7D75]"
+                    className="mt-2 h-11 w-full rounded-md border border-[#EADDCD] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8] dark:placeholder-[#8A7D75]"
                   />
                 </div>
                 <div>
@@ -998,7 +998,7 @@ export default function CrmProductsPage() {
                           : current,
                       )
                     }
-                    className="mt-2 h-11 w-full rounded-md border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
+                    className="mt-2 h-11 w-full rounded-md border border-[#EADDCD] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
                   >
                     {STOCK_STATUS_OPTIONS.map((option) => (
                       <option key={option.value} value={option.value}>
@@ -1019,7 +1019,7 @@ export default function CrmProductsPage() {
                       )
                     }
                     placeholder="Only 3 left"
-                    className="mt-2 h-11 w-full rounded-md border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8] dark:placeholder-[#8A7D75]"
+                    className="mt-2 h-11 w-full rounded-md border border-[#EADDCD] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8] dark:placeholder-[#8A7D75]"
                   />
                 </div>
               </div>
@@ -1036,7 +1036,7 @@ export default function CrmProductsPage() {
                       current ? { ...current, description: event.target.value } : current,
                     )
                   }
-                  className="mt-2 w-full rounded-md border border-[#D8C7B5] bg-white px-3 py-2 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
+                  className="mt-2 w-full rounded-md border border-[#EADDCD] bg-white px-3 py-2 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
                 />
               </div>
 
@@ -1071,8 +1071,8 @@ export default function CrmProductsPage() {
                         : current,
                     )
                   }
-                  className="h-4 w-4 rounded border border-[#D8C7B5] dark:border-[#3D3530]"
-                  style={{ accentColor: "#C6A56B" }}
+                  className="h-4 w-4 rounded border border-[#EADDCD] dark:border-[#3D3530]"
+                  style={{ accentColor: "#B87B68" }}
                 />
                 Visible to clients
               </label>
@@ -1081,7 +1081,7 @@ export default function CrmProductsPage() {
                 <button
                   type="button"
                   onClick={closeEditModal}
-                  className="inline-flex h-11 items-center justify-center rounded-md border border-[#D8C7B5] px-5 text-sm font-medium text-[#2B2B2B] transition-colors hover:bg-black/5 dark:border-[#3D3530] dark:text-[#F0EDE8] dark:hover:bg-white/5"
+                  className="inline-flex h-11 items-center justify-center rounded-md border border-[#EADDCD] px-5 text-sm font-medium text-[#2B2B2B] transition-colors hover:bg-black/5 dark:border-[#3D3530] dark:text-[#F0EDE8] dark:hover:bg-white/5"
                 >
                   Cancel
                 </button>

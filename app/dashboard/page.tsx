@@ -17,7 +17,7 @@ const MEMBERSHIP_AMOUNTS = {
 function getTierClasses(tier: "SIGNATURE" | "CRYSTAL" | "PLATINUM" | string) {
   switch (tier) {
     case "PLATINUM":
-      return "bg-[#2B2B2B] text-[#F8F5F0] dark:bg-[#C6A56B] dark:text-[#141210]";
+      return "bg-[#2B2B2B] text-[#F8F5F0] dark:bg-[#B87B68] dark:text-[#141210]";
     case "CRYSTAL":
       return "bg-[rgba(59,130,246,0.14)] text-[#1D4ED8] dark:bg-[rgba(59,130,246,0.22)] dark:text-[#93C5FD]";
     case "SIGNATURE":
@@ -126,7 +126,7 @@ export default async function DashboardPage() {
 
         <Link
           href="/services"
-          className="inline-flex h-11 items-center justify-center rounded-md bg-[var(--sidebar)] px-5 text-sm font-medium text-[var(--sidebar-text)] transition-colors hover:opacity-90 dark:bg-[#D8C7B5] dark:text-[#2B2B2B]"
+          className="inline-flex h-11 items-center justify-center rounded-md bg-[var(--sidebar)] px-5 text-sm font-medium text-[var(--sidebar-text)] transition-colors hover:opacity-90 dark:bg-[#EADDCD] dark:text-[#2B2B2B]"
         >
           Book New Appointment
         </Link>

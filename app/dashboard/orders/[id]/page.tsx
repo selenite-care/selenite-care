@@ -41,7 +41,7 @@ function getStepClasses(status: string, step: string) {
   if (status === "CANCELLED") {
     return step === "PENDING"
       ? "border-red-500 bg-red-50 text-red-700 dark:bg-red-950/20 dark:text-red-300"
-      : "border-[#D8C7B5] bg-[#F8F5F0] text-[#8C7967] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#8A7D75]";
+      : "border-[#EADDCD] bg-[#F8F5F0] text-[#8C7967] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#8A7D75]";
   }
 
   if (stepIndex < currentIndex) {
@@ -49,10 +49,10 @@ function getStepClasses(status: string, step: string) {
   }
 
   if (stepIndex === currentIndex) {
-    return "border-[#C6A56B] bg-[#C6A56B] text-[#2B2B2B]";
+    return "border-[#B87B68] bg-[#B87B68] text-[#2B2B2B]";
   }
 
-  return "border-[#D8C7B5] bg-[#F8F5F0] text-[#8C7967] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#8A7D75]";
+  return "border-[#EADDCD] bg-[#F8F5F0] text-[#8C7967] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#8A7D75]";
 }
 
 export default async function DashboardOrderDetailsPage(
@@ -118,14 +118,14 @@ export default async function DashboardOrderDetailsPage(
     <section className="min-h-screen bg-[#F8F5F0] px-6 py-10 dark:bg-[#1A1814]">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="font-mono text-sm text-[#C6A56B]">{order.id}</p>
+          <p className="font-mono text-sm text-[#B87B68]">{order.id}</p>
           <h1
             className="mt-2 text-3xl font-semibold tracking-tight text-[#2B2B2B] dark:text-[#F0EDE8]"
             style={{ fontFamily: "Playfair Display, serif" }}
           >
             Order Details
           </h1>
-          <p className="mt-3 text-sm leading-6 text-[#B8A89A] dark:text-[#8A7D75]">
+          <p className="mt-3 text-sm leading-6 text-[#884F38] dark:text-[#8A7D75]">
             Placed on {formatDateTime(order.createdAt)}
           </p>
         </div>
@@ -138,7 +138,7 @@ export default async function DashboardOrderDetailsPage(
         </Link>
       </div>
 
-      <section className="mt-8 rounded-2xl border border-[#D8C7B5] bg-white p-5 dark:border-[#3D3530] dark:bg-[#242220]">
+      <section className="mt-8 rounded-2xl border border-[#EADDCD] bg-white p-5 dark:border-[#3D3530] dark:bg-[#242220]">
         <h2 className="text-lg font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]">
           Order Status
         </h2>
@@ -146,7 +146,7 @@ export default async function DashboardOrderDetailsPage(
           {ORDER_STEPS.map((step, index) => (
             <div key={step} className="relative">
               {index < ORDER_STEPS.length - 1 ? (
-                <div className="absolute left-6 top-6 hidden h-px w-full bg-[#D8C7B5] md:block dark:bg-[#3D3530]" />
+                <div className="absolute left-6 top-6 hidden h-px w-full bg-[#EADDCD] md:block dark:bg-[#3D3530]" />
               ) : null}
               <div className="relative flex items-center gap-3 md:flex-col md:text-center">
                 <span
@@ -169,7 +169,7 @@ export default async function DashboardOrderDetailsPage(
       <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
         <section className="bg-card border-themed rounded-2xl border p-6">
           <h2 className="text-page text-lg font-semibold">Items</h2>
-          <div className="mt-4 overflow-hidden rounded-xl border border-[#D8C7B5] dark:border-[#3D3530]">
+          <div className="mt-4 overflow-hidden rounded-xl border border-[#EADDCD] dark:border-[#3D3530]">
             <div className="overflow-x-auto">
               <table className="table-themed w-full min-w-[820px] text-left text-sm">
                 <thead>
@@ -186,7 +186,7 @@ export default async function DashboardOrderDetailsPage(
                     <tr key={item.id}>
                       <td className="px-4 py-4">
                         <div className="flex items-center gap-3">
-                          <div className="relative h-14 w-14 overflow-hidden rounded-lg border border-[#D8C7B5] bg-[#F8F5F0] dark:border-[#3D3530] dark:bg-[#1A1814]">
+                          <div className="relative h-14 w-14 overflow-hidden rounded-lg border border-[#EADDCD] bg-[#F8F5F0] dark:border-[#3D3530] dark:bg-[#1A1814]">
                             {item.product.image ? (
                               <Image
                                 src={item.product.image}
@@ -223,9 +223,9 @@ export default async function DashboardOrderDetailsPage(
               <span className="text-muted font-medium">Subtotal</span>
               <span className="text-page font-semibold">{formatBdt(subtotal)}</span>
             </div>
-            <div className="flex items-center justify-between gap-4 border-t border-[#D8C7B5] pt-4 dark:border-[#3D3530]">
+            <div className="flex items-center justify-between gap-4 border-t border-[#EADDCD] pt-4 dark:border-[#3D3530]">
               <span className="text-muted font-medium">Total</span>
-              <span className="text-xl font-semibold text-[#C6A56B]">
+              <span className="text-xl font-semibold text-[#B87B68]">
                 {formatBdt(order.totalAmount)}
               </span>
             </div>
@@ -254,7 +254,7 @@ export default async function DashboardOrderDetailsPage(
                 href={order.proofImageUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex text-sm font-medium text-[#C6A56B] underline"
+                className="inline-flex text-sm font-medium text-[#B87B68] underline"
               >
                 View payment proof
               </a>
@@ -266,7 +266,7 @@ export default async function DashboardOrderDetailsPage(
         </aside>
       </div>
 
-      <section className="mt-8 rounded-2xl border border-[#D8C7B5] bg-[#2B2B2B] p-6 text-[#F8F5F0] dark:border-[#3D3530] dark:bg-[#0F0D0C]">
+      <section className="mt-8 rounded-2xl border border-[#EADDCD] bg-[#2B2B2B] p-6 text-[#F8F5F0] dark:border-[#3D3530] dark:bg-[#0F0D0C]">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2
@@ -275,7 +275,7 @@ export default async function DashboardOrderDetailsPage(
             >
               Have an issue with your order?
             </h2>
-            <p className="mt-2 text-sm text-[#D8C7B5]">Contact us for support.</p>
+            <p className="mt-2 text-sm text-[#EADDCD]">Contact us for support.</p>
           </div>
           <a
             href="https://wa.me/8801647660300"

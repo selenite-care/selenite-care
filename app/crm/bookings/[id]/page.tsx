@@ -183,7 +183,7 @@ export default async function CrmBookingDetailsPage({
 
       <BookingStatusButtons bookingId={booking.id} currentStatus={booking.status} />
 
-      <div className="mt-6 border-t border-[#D8C7B5] pt-6 dark:border-[#3D3530]">
+      <div className="mt-6 border-t border-[#EADDCD] pt-6 dark:border-[#3D3530]">
         <ClientBookingHistory
           currentBookingId={booking.id}
           userId={booking.user.id}

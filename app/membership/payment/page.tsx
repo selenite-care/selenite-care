@@ -236,7 +236,7 @@ function MembershipPaymentForm({
     <form
       onSubmit={handleSubmit}
       className="rounded-2xl border bg-white p-6 dark:bg-[#242220] dark:border-[#3D3530]"
-      style={{ borderColor: "#D8C7B5" }}
+      style={{ borderColor: "#EADDCD" }}
     >
       <h2
         className="text-xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]"
@@ -249,7 +249,7 @@ function MembershipPaymentForm({
 
       <div
         className="mt-5 rounded-xl border-2 p-4"
-        style={{ borderColor: "#D8C7B5" }}
+        style={{ borderColor: "#EADDCD" }}
       >
         <CardElement
           options={{
@@ -260,7 +260,7 @@ function MembershipPaymentForm({
                 fontFamily: "Arial, Helvetica, sans-serif",
                 fontSize: "16px",
                 "::placeholder": {
-                  color: "#B8A89A",
+                  color: "#884F38",
                 },
               },
             },
@@ -277,7 +277,7 @@ function MembershipPaymentForm({
         disabled={!stripe || isSubmitting}
         className="mt-6 inline-flex h-12 w-full items-center justify-center rounded-md px-5 text-sm font-medium transition-colors"
         style={{
-          backgroundColor: !stripe || isSubmitting ? "#D8C7B5" : "#2B2B2B",
+          backgroundColor: !stripe || isSubmitting ? "#EADDCD" : "#2B2B2B",
           color: "#F8F5F0",
           cursor: !stripe || isSubmitting ? "not-allowed" : "pointer",
         }}
@@ -416,7 +416,7 @@ function BkashManualPaymentForm({
   }
 
   return (
-    <section className="rounded-2xl border border-[#D8C7B5] bg-white p-6 dark:border-[#3D3530] dark:bg-[#242220]">
+    <section className="rounded-2xl border border-[#EADDCD] bg-white p-6 dark:border-[#3D3530] dark:bg-[#242220]">
       <h2
         className="text-xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]"
         style={{
@@ -426,7 +426,7 @@ function BkashManualPaymentForm({
         Pay with bKash
       </h2>
 
-      <div className="mt-5 rounded-2xl border border-[#C6A56B] bg-[rgba(198,165,107,0.08)] px-5 py-5 dark:bg-[rgba(198,165,107,0.12)]">
+      <div className="mt-5 rounded-2xl border border-[#B87B68] bg-[rgba(198,165,107,0.08)] px-5 py-5 dark:bg-[rgba(198,165,107,0.12)]">
         <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#8C7967] dark:text-[#8A7D75]">
           bKash Merchant Number
         </p>
@@ -440,7 +440,7 @@ function BkashManualPaymentForm({
           <button
             type="button"
             onClick={handleCopyNumber}
-            className="inline-flex h-11 items-center justify-center rounded-md bg-[#2B2B2B] px-5 text-sm font-medium text-[#F8F5F0] transition-colors hover:opacity-90 dark:bg-[#C6A56B] dark:text-[#141210]"
+            className="inline-flex h-11 items-center justify-center rounded-md bg-[#2B2B2B] px-5 text-sm font-medium text-[#F8F5F0] transition-colors hover:opacity-90 dark:bg-[#B87B68] dark:text-[#141210]"
           >
             {copied ? "Copied!" : "Copy Number"}
           </button>
@@ -475,7 +475,7 @@ function BkashManualPaymentForm({
             type="text"
             value={transactionId}
             onChange={(event) => setTransactionId(event.target.value)}
-            className="mt-2 h-11 w-full rounded-md border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors placeholder:text-[#B8A89A] focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8] dark:placeholder:text-[#8A7D75]"
+            className="mt-2 h-11 w-full rounded-md border border-[#EADDCD] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors placeholder:text-[#884F38] focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8] dark:placeholder:text-[#8A7D75]"
             placeholder="Enter your TrxID"
           />
         </div>
@@ -526,7 +526,7 @@ function BkashManualPaymentForm({
             />
           </div>
           {uploadingProof ? (
-            <p className="mt-2 text-sm text-[#B8A89A] dark:text-[#8A7D75]">
+            <p className="mt-2 text-sm text-[#884F38] dark:text-[#8A7D75]">
               Uploading screenshot...
             </p>
           ) : null}
@@ -535,7 +535,7 @@ function BkashManualPaymentForm({
               href={proofImageUrl}
               target="_blank"
               rel="noreferrer"
-              className="mt-2 inline-block text-sm text-[#C6A56B] underline"
+              className="mt-2 inline-block text-sm text-[#B87B68] underline"
             >
               View uploaded screenshot
             </a>
@@ -549,27 +549,27 @@ function BkashManualPaymentForm({
           disabled={isSubmitting || uploadingProof}
           className={`inline-flex h-12 w-full items-center justify-center rounded-md px-5 text-sm font-medium transition-colors ${
             isSubmitting || uploadingProof
-              ? "cursor-not-allowed bg-[#D8C7B5] text-[#F8F5F0] dark:bg-[#3D3530] dark:text-[#8A7D75]"
-              : "bg-[#2B2B2B] text-[#F8F5F0] hover:opacity-90 dark:bg-[#C6A56B] dark:text-[#141210]"
+              ? "cursor-not-allowed bg-[#EADDCD] text-[#F8F5F0] dark:bg-[#3D3530] dark:text-[#8A7D75]"
+              : "bg-[#2B2B2B] text-[#F8F5F0] hover:opacity-90 dark:bg-[#B87B68] dark:text-[#141210]"
           }`}
         >
           {isSubmitting ? "Submitting..." : "Submit bKash Payment"}
         </button>
       </form>
 
-      <div className="mt-6 rounded-2xl border border-[#D8C7B5] bg-[#FCFAF7] dark:border-[#3D3530] dark:bg-[#1A1814]">
+      <div className="mt-6 rounded-2xl border border-[#EADDCD] bg-[#FCFAF7] dark:border-[#3D3530] dark:bg-[#1A1814]">
         <button
           type="button"
           onClick={() => setShowQr((current) => !current)}
           className="flex w-full items-center justify-between px-5 py-4 text-left text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]"
         >
           <span>Prefer to scan a QR code instead? (Best if using a second device)</span>
-          <span className="text-[#C6A56B]">{showQr ? "Hide" : "Show"}</span>
+          <span className="text-[#B87B68]">{showQr ? "Hide" : "Show"}</span>
         </button>
 
         {showQr ? (
-          <div className="border-t border-[#D8C7B5] px-5 py-5 dark:border-[#3D3530]">
-            <div className="mx-auto max-w-xs overflow-hidden rounded-2xl border border-[#D8C7B5] bg-white p-3 dark:border-[#3D3530] dark:bg-[#242220]">
+          <div className="border-t border-[#EADDCD] px-5 py-5 dark:border-[#3D3530]">
+            <div className="mx-auto max-w-xs overflow-hidden rounded-2xl border border-[#EADDCD] bg-white p-3 dark:border-[#3D3530] dark:bg-[#242220]">
               <div className="relative aspect-square w-full">
                 <Image
                   src="/images/bkash-qr.jpeg"
@@ -775,7 +775,7 @@ function BankTransferManualPaymentForm({
   }
 
   return (
-    <section className="rounded-2xl border border-[#D8C7B5] bg-white p-6 dark:border-[#3D3530] dark:bg-[#242220]">
+    <section className="rounded-2xl border border-[#EADDCD] bg-white p-6 dark:border-[#3D3530] dark:bg-[#242220]">
       <h2
         className="text-xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]"
         style={{
@@ -785,7 +785,7 @@ function BankTransferManualPaymentForm({
         Bank Transfer
       </h2>
 
-      <div className="mt-5 rounded-2xl border border-[#C6A56B] bg-[rgba(198,165,107,0.08)] px-5 py-5 dark:bg-[rgba(198,165,107,0.12)]">
+      <div className="mt-5 rounded-2xl border border-[#B87B68] bg-[rgba(198,165,107,0.08)] px-5 py-5 dark:bg-[rgba(198,165,107,0.12)]">
         <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#8C7967] dark:text-[#8A7D75]">
           BRAC Bank Account Details
         </p>
@@ -823,7 +823,7 @@ function BankTransferManualPaymentForm({
               <button
                 type="button"
                 onClick={handleCopyAccountNumber}
-                className="inline-flex h-11 items-center justify-center rounded-md bg-[#2B2B2B] px-5 text-sm font-medium text-[#F8F5F0] transition-colors hover:opacity-90 dark:bg-[#C6A56B] dark:text-[#141210]"
+                className="inline-flex h-11 items-center justify-center rounded-md bg-[#2B2B2B] px-5 text-sm font-medium text-[#F8F5F0] transition-colors hover:opacity-90 dark:bg-[#B87B68] dark:text-[#141210]"
               >
                 {copied ? "Copied!" : "Copy Number"}
               </button>
@@ -863,7 +863,7 @@ function BankTransferManualPaymentForm({
             type="text"
             value={transactionRef}
             onChange={(event) => setTransactionRef(event.target.value)}
-            className="mt-2 h-11 w-full rounded-md border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors placeholder:text-[#B8A89A] focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8] dark:placeholder:text-[#8A7D75]"
+            className="mt-2 h-11 w-full rounded-md border border-[#EADDCD] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors placeholder:text-[#884F38] focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8] dark:placeholder:text-[#8A7D75]"
             placeholder="Enter your transfer reference"
           />
         </div>
@@ -890,7 +890,7 @@ function BankTransferManualPaymentForm({
             />
           </div>
           {uploadingProof ? (
-            <p className="mt-2 text-sm text-[#B8A89A] dark:text-[#8A7D75]">
+            <p className="mt-2 text-sm text-[#884F38] dark:text-[#8A7D75]">
               Uploading screenshot...
             </p>
           ) : null}
@@ -899,7 +899,7 @@ function BankTransferManualPaymentForm({
               href={proofImageUrl}
               target="_blank"
               rel="noreferrer"
-              className="mt-2 inline-block text-sm text-[#C6A56B] underline"
+              className="mt-2 inline-block text-sm text-[#B87B68] underline"
             >
               View uploaded screenshot
             </a>
@@ -913,8 +913,8 @@ function BankTransferManualPaymentForm({
           disabled={isSubmitting || uploadingProof}
           className={`inline-flex h-12 w-full items-center justify-center rounded-md px-5 text-sm font-medium transition-colors ${
             isSubmitting || uploadingProof
-              ? "cursor-not-allowed bg-[#D8C7B5] text-[#F8F5F0] dark:bg-[#3D3530] dark:text-[#8A7D75]"
-              : "bg-[#2B2B2B] text-[#F8F5F0] hover:opacity-90 dark:bg-[#C6A56B] dark:text-[#141210]"
+              ? "cursor-not-allowed bg-[#EADDCD] text-[#F8F5F0] dark:bg-[#3D3530] dark:text-[#8A7D75]"
+              : "bg-[#2B2B2B] text-[#F8F5F0] hover:opacity-90 dark:bg-[#B87B68] dark:text-[#141210]"
           }`}
         >
           {isSubmitting ? "Submitting..." : "Submit Bank Transfer"}
@@ -1009,7 +1009,7 @@ function MembershipPaymentPageContent() {
           >
             Membership Payment
           </h1>
-          <p className="mt-4 text-sm text-[#B8A89A] dark:text-[#8A7D75]">
+          <p className="mt-4 text-sm text-[#884F38] dark:text-[#8A7D75]">
             A valid membership tier is required to continue.
           </p>
         </div>
@@ -1026,8 +1026,8 @@ function MembershipPaymentPageContent() {
     return (
       <section className="flex flex-1 bg-[#F8F5F0] px-6 py-16 dark:bg-[#1A1814]">
         <div className="mx-auto w-full max-w-4xl">
-          <div className="rounded-2xl border border-[#D8C7B5] bg-white p-8 text-center dark:border-[#3D3530] dark:bg-[#242220]">
-            <div className="mx-auto inline-flex rounded-full bg-[#2B2B2B] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#F8F5F0] dark:bg-[#C6A56B] dark:text-[#141210]">
+          <div className="rounded-2xl border border-[#EADDCD] bg-white p-8 text-center dark:border-[#3D3530] dark:bg-[#242220]">
+            <div className="mx-auto inline-flex rounded-full bg-[#2B2B2B] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#F8F5F0] dark:bg-[#B87B68] dark:text-[#141210]">
               Coming Soon
             </div>
             <h1
@@ -1044,7 +1044,7 @@ function MembershipPaymentPageContent() {
             <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
               <a
                 href="/services"
-                className="inline-flex h-12 items-center justify-center rounded-md bg-[#2B2B2B] px-5 text-sm font-medium text-[#F8F5F0] transition-colors hover:bg-[#B8A89A] dark:bg-[#C6A56B] dark:text-[#141210]"
+                className="inline-flex h-12 items-center justify-center rounded-md bg-[#2B2B2B] px-5 text-sm font-medium text-[#F8F5F0] transition-colors hover:bg-[#884F38] dark:bg-[#B87B68] dark:text-[#141210]"
               >
                 Back to Memberships
               </a>
@@ -1052,7 +1052,7 @@ function MembershipPaymentPageContent() {
                 href="/contact"
                 className="inline-flex h-12 items-center justify-center rounded-md border bg-[#F8F5F0] px-5 text-sm font-medium text-[#2B2B2B] transition-colors dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#F0EDE8]"
                 style={{
-                  borderColor: "#D8C7B5",
+                  borderColor: "#EADDCD",
                 }}
               >
                 Contact Us
@@ -1076,14 +1076,14 @@ function MembershipPaymentPageContent() {
           >
             Membership Payment
           </h1>
-          <p className="mt-4 text-base leading-7 text-[#B8A89A] dark:text-[#8A7D75]">
+          <p className="mt-4 text-base leading-7 text-[#884F38] dark:text-[#8A7D75]">
             Complete your payment to secure your Selenite Care membership.
           </p>
         </div>
 
         <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-8">
           <div className="order-2 flex flex-col gap-6 lg:order-1">
-            <div className="flex flex-wrap gap-2 rounded-2xl border border-[#D8C7B5] bg-white p-1 dark:border-[#3D3530] dark:bg-[#242220]">
+            <div className="flex flex-wrap gap-2 rounded-2xl border border-[#EADDCD] bg-white p-1 dark:border-[#3D3530] dark:bg-[#242220]">
               {/*
                 Card payments are temporarily unavailable.
                 Re-enable this tab button when Stripe card checkout is ready again.
@@ -1095,7 +1095,7 @@ function MembershipPaymentPageContent() {
                 style={{
                   backgroundColor:
                     paymentMethod === "card" ? "#2B2B2B" : "transparent",
-                  color: paymentMethod === "card" ? "#F8F5F0" : "#B8A89A",
+                  color: paymentMethod === "card" ? "#F8F5F0" : "#884F38",
                   cursor: !cardPaymentsAvailable ? "not-allowed" : "pointer",
                   opacity: !cardPaymentsAvailable ? 0.5 : 1,
                 }}
@@ -1108,8 +1108,8 @@ function MembershipPaymentPageContent() {
                 onClick={() => setPaymentMethod("bkash")}
                 className={`h-11 rounded-xl px-5 text-sm font-medium transition-colors ${
                   paymentMethod === "bkash"
-                    ? "bg-[#2B2B2B] text-[#F8F5F0] dark:bg-[#C6A56B] dark:text-[#141210]"
-                    : "text-[#B8A89A] hover:bg-black/5 dark:text-[#8A7D75] dark:hover:bg-white/5"
+                    ? "bg-[#2B2B2B] text-[#F8F5F0] dark:bg-[#B87B68] dark:text-[#141210]"
+                    : "text-[#884F38] hover:bg-black/5 dark:text-[#8A7D75] dark:hover:bg-white/5"
                 }`}
               >
                 bKash
@@ -1119,8 +1119,8 @@ function MembershipPaymentPageContent() {
                 onClick={() => setPaymentMethod("bank")}
                 className={`h-11 rounded-xl px-5 text-sm font-medium transition-colors ${
                   paymentMethod === "bank"
-                    ? "bg-[#2B2B2B] text-[#F8F5F0] dark:bg-[#C6A56B] dark:text-[#141210]"
-                    : "text-[#B8A89A] hover:bg-black/5 dark:text-[#8A7D75] dark:hover:bg-white/5"
+                    ? "bg-[#2B2B2B] text-[#F8F5F0] dark:bg-[#B87B68] dark:text-[#141210]"
+                    : "text-[#884F38] hover:bg-black/5 dark:text-[#8A7D75] dark:hover:bg-white/5"
                 }`}
               >
                 Bank Transfer
@@ -1136,7 +1136,7 @@ function MembershipPaymentPageContent() {
               ) : (
                 <section
                   className="rounded-2xl border bg-white p-6"
-                  style={{ borderColor: "#D8C7B5" }}
+                  style={{ borderColor: "#EADDCD" }}
                 >
                   <h2
                     className="text-xl font-semibold"
@@ -1149,7 +1149,7 @@ function MembershipPaymentPageContent() {
                   </h2>
                   <p
                     className="mt-4 text-sm leading-6"
-                    style={{ color: "#B8A89A" }}
+                    style={{ color: "#884F38" }}
                   >
                     Card payment is currently unavailable. Please use the bKash
                     option below.
@@ -1170,7 +1170,7 @@ function MembershipPaymentPageContent() {
             )}
           </div>
 
-          <aside className="order-1 h-fit rounded-2xl border border-[#D8C7B5] bg-white p-6 dark:border-[#3D3530] dark:bg-[#242220] lg:order-2">
+          <aside className="order-1 h-fit rounded-2xl border border-[#EADDCD] bg-white p-6 dark:border-[#3D3530] dark:bg-[#242220] lg:order-2">
             <h2
               className="text-xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]"
               style={{
@@ -1186,7 +1186,7 @@ function MembershipPaymentPageContent() {
               </p>
               {tier === "SIGNATURE" && membership.originalPrice ? (
                 <>
-                  <div className="mt-3 inline-flex rounded-full bg-[#2B2B2B] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#F8F5F0] dark:bg-[#C6A56B] dark:text-[#141210]">
+                  <div className="mt-3 inline-flex rounded-full bg-[#2B2B2B] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#F8F5F0] dark:bg-[#B87B68] dark:text-[#141210]">
                     LIMITED TIME - 51% OFF
                   </div>
                   <div className="mt-3 flex flex-wrap items-baseline gap-3">
@@ -1194,7 +1194,7 @@ function MembershipPaymentPageContent() {
                       {formatBdt(membership.originalPrice)}
                     </span>
                     <p
-                      className="text-3xl font-semibold text-[#C6A56B]"
+                      className="text-3xl font-semibold text-[#B87B68]"
                       style={{
                         fontFamily: "Playfair Display, serif",
                       }}
@@ -1208,7 +1208,7 @@ function MembershipPaymentPageContent() {
                 </>
               ) : (
                 <p
-                  className="mt-3 text-2xl font-semibold text-[#C6A56B]"
+                  className="mt-3 text-2xl font-semibold text-[#B87B68]"
                   style={{
                     fontFamily: "Playfair Display, serif",
                   }}
@@ -1218,7 +1218,7 @@ function MembershipPaymentPageContent() {
               )}
             </div>
 
-            <div className="mt-6 border-t border-[#D8C7B5] pt-5 dark:border-[#3D3530]">
+            <div className="mt-6 border-t border-[#EADDCD] pt-5 dark:border-[#3D3530]">
               <p className="text-sm font-semibold uppercase tracking-[0.12em] text-[#8C7967] dark:text-[#8A7D75]">
                 Benefits
               </p>
@@ -1228,7 +1228,7 @@ function MembershipPaymentPageContent() {
                     key={benefit}
                     className="flex gap-2 text-sm leading-6 text-[#6E6257] dark:text-[#8A7D75]"
                   >
-                    <span className="text-[#C6A56B]">*</span>
+                    <span className="text-[#B87B68]">*</span>
                     <span>{benefit}</span>
                   </li>
                 ))}
@@ -1245,7 +1245,7 @@ function MembershipPaymentLoadingFallback() {
   return (
     <section className="flex min-h-screen flex-1 bg-[#F8F5F0] px-6 py-16 dark:bg-[#1A1814]">
       <div className="mx-auto w-full max-w-6xl">
-        <p className="text-sm text-[#B8A89A] dark:text-[#8A7D75]">
+        <p className="text-sm text-[#884F38] dark:text-[#8A7D75]">
           Loading...
         </p>
       </div>

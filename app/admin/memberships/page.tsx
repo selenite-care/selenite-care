@@ -281,7 +281,7 @@ export default function AdminMembershipsPage() {
         >
           Memberships
         </h1>
-        <p className="mt-3 text-sm leading-6 text-[#B8A89A] dark:text-[#8A7D75]">
+        <p className="mt-3 text-sm leading-6 text-[#884F38] dark:text-[#8A7D75]">
           Review membership purchases and keep an eye on expiry windows.
         </p>
       </div>
@@ -296,7 +296,7 @@ export default function AdminMembershipsPage() {
 
       {!isInitialLoading && !error ? (
         <>
-          <div className="mt-8 rounded-lg border border-[#D8C7B5] bg-white p-4 dark:border-[#3D3530] dark:bg-[#242220]">
+          <div className="mt-8 rounded-lg border border-[#EADDCD] bg-white p-4 dark:border-[#3D3530] dark:bg-[#242220]">
             <div className="grid gap-4 md:grid-cols-[1fr_220px_auto] md:items-end">
               <div>
                 <label
@@ -311,7 +311,7 @@ export default function AdminMembershipsPage() {
                   value={searchQuery}
                   onChange={(event) => setSearchQuery(event.target.value)}
                   placeholder="Membership ID, client name, email, phone, tier, or payment status"
-                  className="mt-2 h-11 w-full rounded-md border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors placeholder:text-[#B8A89A] focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
+                  className="mt-2 h-11 w-full rounded-md border border-[#EADDCD] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors placeholder:text-[#884F38] focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68]"
                 />
               </div>
 
@@ -330,7 +330,7 @@ export default function AdminMembershipsPage() {
                       event.target.value as (typeof membershipStatuses)[number],
                     )
                   }
-                  className="mt-2 h-11 w-full rounded-md border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
+                  className="mt-2 h-11 w-full rounded-md border border-[#EADDCD] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68]"
                 >
                   {membershipStatuses.map((status) => (
                     <option key={status} value={status}>
@@ -344,30 +344,30 @@ export default function AdminMembershipsPage() {
                 type="button"
                 onClick={handleExportCsv}
                 disabled={filteredMemberships.length === 0}
-                className="inline-flex h-11 items-center justify-center rounded-md bg-[#2B2B2B] px-5 text-sm font-medium text-[#F8F5F0] transition-colors disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#C6A56B] dark:text-[#141210] dark:hover:bg-[#D4B47A]"
+                className="inline-flex h-11 items-center justify-center rounded-md bg-[#2B2B2B] px-5 text-sm font-medium text-[#F8F5F0] transition-colors disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#B87B68] dark:text-[#141210] dark:hover:bg-[#D4B47A]"
               >
                 Export CSV
               </button>
             </div>
 
-            <p className="mt-4 text-sm text-[#B8A89A]">
+            <p className="mt-4 text-sm text-[#884F38]">
               Showing {filteredMemberships.length} of {totalCount} memberships.
             </p>
             {isLoading ? (
-              <p className="mt-2 text-xs text-[#B8A89A] dark:text-[#8A7D75]">
+              <p className="mt-2 text-xs text-[#884F38] dark:text-[#8A7D75]">
                 Updating results...
               </p>
             ) : null}
           </div>
 
           {!hasMemberships ? (
-            <p className="mt-8 text-sm text-[#B8A89A] dark:text-[#8A7D75]">
+            <p className="mt-8 text-sm text-[#884F38] dark:text-[#8A7D75]">
               {hasActiveFilters
                 ? "No memberships match your filters."
                 : "No memberships found."}
             </p>
           ) : filteredMemberships.length === 0 ? (
-            <p className="mt-8 text-sm text-[#B8A89A] dark:text-[#8A7D75]">
+            <p className="mt-8 text-sm text-[#884F38] dark:text-[#8A7D75]">
               No memberships match your filters.
             </p>
           ) : (
@@ -466,7 +466,7 @@ export default function AdminMembershipsPage() {
                                     disabled={isUpdating}
                                     className="inline-flex h-9 items-center justify-center rounded-md border px-3 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
                                     style={{
-                                      borderColor: "#C6A56B",
+                                      borderColor: "#B87B68",
                                       color: "#2B2B2B",
                                       backgroundColor: "#FFFFFF",
                                     }}

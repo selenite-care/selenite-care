@@ -171,7 +171,7 @@ export default function CrmBookingsClient({ bookings }: CrmBookingsClientProps) 
 
   return (
     <>
-      <div className="mb-6 rounded-3xl border border-[#D8C7B5] bg-white p-5 shadow-sm">
+      <div className="mb-6 rounded-3xl border border-[#EADDCD] bg-white p-5 shadow-sm">
         <div className="grid gap-4 md:grid-cols-[1fr_220px_auto] md:items-end">
           <div>
             <label
@@ -186,7 +186,7 @@ export default function CrmBookingsClient({ bookings }: CrmBookingsClientProps) 
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
               placeholder="Client name, phone, booking token, or service name"
-              className="mt-2 h-11 w-full rounded-md border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors placeholder:text-[#B8A89A] focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
+              className="mt-2 h-11 w-full rounded-md border border-[#EADDCD] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors placeholder:text-[#884F38] focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68]"
             />
           </div>
 
@@ -205,7 +205,7 @@ export default function CrmBookingsClient({ bookings }: CrmBookingsClientProps) 
                   event.target.value as (typeof bookingStatuses)[number],
                 )
               }
-              className="mt-2 h-11 w-full rounded-md border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
+              className="mt-2 h-11 w-full rounded-md border border-[#EADDCD] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68]"
             >
               {bookingStatuses.map((status) => (
                 <option key={status} value={status}>
@@ -229,7 +229,7 @@ export default function CrmBookingsClient({ bookings }: CrmBookingsClientProps) 
           </button>
         </div>
 
-        <p className="mt-4 text-sm text-[#B8A89A]">
+        <p className="mt-4 text-sm text-[#884F38]">
           Showing {filteredBookings.length} of {totalCount} bookings.
         </p>
       </div>

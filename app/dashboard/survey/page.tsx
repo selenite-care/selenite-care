@@ -502,7 +502,7 @@ export default function DashboardSurveyPage() {
                     type="radio"
                     checked={formState.usesKoreanProducts === option}
                     onChange={() => updateField("usesKoreanProducts", option)}
-                    className="mr-2 accent-[#C6A56B]"
+                    className="mr-2 accent-[#B87B68]"
                   />
                   <span className="text-page">
                     {option === "yes" ? "Yes" : "No"}
@@ -523,7 +523,7 @@ export default function DashboardSurveyPage() {
                     type="radio"
                     checked={formState.facingSkinIssues === option}
                     onChange={() => updateField("facingSkinIssues", option)}
-                    className="mr-2 accent-[#C6A56B]"
+                    className="mr-2 accent-[#B87B68]"
                   />
                   <span className="text-page">
                     {option === "yes" ? "Yes" : "No"}
@@ -545,7 +545,7 @@ export default function DashboardSurveyPage() {
                   type="checkbox"
                   checked={formState.skinIssues.includes(option)}
                   onChange={() => toggleArrayField("skinIssues", option)}
-                  className="mr-2 accent-[#C6A56B]"
+                  className="mr-2 accent-[#B87B68]"
                 />
                 <span className="text-page">{option}</span>
               </label>
@@ -577,7 +577,7 @@ export default function DashboardSurveyPage() {
                   type="checkbox"
                   checked={formState.currentProducts.includes(option)}
                   onChange={() => toggleArrayField("currentProducts", option)}
-                  className="mr-2 accent-[#C6A56B]"
+                  className="mr-2 accent-[#B87B68]"
                 />
                 <span className="text-page">{option}</span>
               </label>
@@ -596,7 +596,7 @@ export default function DashboardSurveyPage() {
                   type="checkbox"
                   checked={formState.allergicIngredients.includes(option)}
                   onChange={() => toggleArrayField("allergicIngredients", option)}
-                  className="mr-2 accent-[#C6A56B]"
+                  className="mr-2 accent-[#B87B68]"
                 />
                 <span className="text-page">{option}</span>
               </label>
@@ -631,7 +631,7 @@ export default function DashboardSurveyPage() {
                     type="radio"
                     checked={formState.doubleCleansePreference === option}
                     onChange={() => updateField("doubleCleansePreference", option)}
-                    className="mr-2 accent-[#C6A56B]"
+                    className="mr-2 accent-[#B87B68]"
                   />
                   <span className="text-page">{option}</span>
                 </label>
@@ -652,7 +652,7 @@ export default function DashboardSurveyPage() {
                     type="radio"
                     checked={formState.sleepHours === option}
                     onChange={() => updateField("sleepHours", option)}
-                    className="mr-2 accent-[#C6A56B]"
+                    className="mr-2 accent-[#B87B68]"
                   />
                   <span className="text-page">{option}</span>
                 </label>
@@ -673,7 +673,7 @@ export default function DashboardSurveyPage() {
                     type="radio"
                     checked={formState.waterIntake === option}
                     onChange={() => updateField("waterIntake", option)}
-                    className="mr-2 accent-[#C6A56B]"
+                    className="mr-2 accent-[#B87B68]"
                   />
                   <span className="text-page">{option}</span>
                 </label>
@@ -702,7 +702,7 @@ export default function DashboardSurveyPage() {
                       type="radio"
                       checked={formState[item.field] === option}
                       onChange={() => updateField(item.field, option)}
-                      className="mr-2 accent-[#C6A56B]"
+                      className="mr-2 accent-[#B87B68]"
                     />
                     <span className="text-page">
                       {option === "yes" ? "Yes" : "No"}

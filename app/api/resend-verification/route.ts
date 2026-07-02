@@ -65,7 +65,7 @@ export async function POST(request: Request) {
         </p>
         <p>If the button does not work, use this link:</p>
         <p>
-          <a href="https://selenitecare.com/verify-email?token=${verificationToken}" style="color: #C6A56B;">
+          <a href="https://selenitecare.com/verify-email?token=${verificationToken}" style="color: #B87B68;">
             https://selenitecare.com/verify-email?token=${verificationToken}
           </a>
         </p>

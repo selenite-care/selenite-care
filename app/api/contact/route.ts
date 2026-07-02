@@ -48,16 +48,16 @@ export async function POST(request: Request) {
       <table style="width: 100%; border-collapse: collapse;">
         <tbody>
           <tr>
-            <td style="padding: 10px; border: 1px solid #D8C7B5; font-weight: bold;">Name</td>
-            <td style="padding: 10px; border: 1px solid #D8C7B5;">${escapeHtml(name)}</td>
+            <td style="padding: 10px; border: 1px solid #EADDCD; font-weight: bold;">Name</td>
+            <td style="padding: 10px; border: 1px solid #EADDCD;">${escapeHtml(name)}</td>
           </tr>
           <tr>
-            <td style="padding: 10px; border: 1px solid #D8C7B5; font-weight: bold;">Email</td>
-            <td style="padding: 10px; border: 1px solid #D8C7B5;">${escapeHtml(email)}</td>
+            <td style="padding: 10px; border: 1px solid #EADDCD; font-weight: bold;">Email</td>
+            <td style="padding: 10px; border: 1px solid #EADDCD;">${escapeHtml(email)}</td>
           </tr>
           <tr>
-            <td style="padding: 10px; border: 1px solid #D8C7B5; font-weight: bold; vertical-align: top;">Message</td>
-            <td style="padding: 10px; border: 1px solid #D8C7B5; white-space: pre-wrap;">${escapeHtml(message)}</td>
+            <td style="padding: 10px; border: 1px solid #EADDCD; font-weight: bold; vertical-align: top;">Message</td>
+            <td style="padding: 10px; border: 1px solid #EADDCD; white-space: pre-wrap;">${escapeHtml(message)}</td>
           </tr>
         </tbody>
       </table>

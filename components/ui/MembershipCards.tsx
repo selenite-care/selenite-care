@@ -4,10 +4,10 @@ const tierConfig = {
   signature: {
     bg: "linear-gradient(145deg, #fdf8f0 0%, #f5ede0 100%)",
     border: "1.5px solid rgba(198,165,107,0.55)",
-    badgeBg: "linear-gradient(135deg, #C6A56B 0%, #a8864d 100%)",
+    badgeBg: "linear-gradient(135deg, #B87B68 0%, #a8864d 100%)",
     badgeText: "#FFF8EE",
     titleColor: "#2B1F0E",
-    validityColor: "#C6A56B",
+    validityColor: "#B87B68",
     costColor: "#2B1F0E",
     descColor: "#7A6040",
     shadow: "0 4px 32px rgba(198,165,107,0.18)",
@@ -77,10 +77,10 @@ const tierConfig = {
     // Deep obsidian black with molten gold accents — maximum premium
     bg: "linear-gradient(145deg, #0d0d0d 0%, #181410 45%, #0f0e0b 100%)",
     border: "1.5px solid rgba(198,165,107,0.45)",
-    badgeBg: "linear-gradient(135deg, #C6A56B 0%, #e8c97a 45%, #a07840 100%)",
+    badgeBg: "linear-gradient(135deg, #B87B68 0%, #e8c97a 45%, #a07840 100%)",
     badgeText: "#0d0d0d",
     titleColor: "#f5e6c8",
-    validityColor: "#C6A56B",
+    validityColor: "#B87B68",
     costColor: "#f5e6c8",
     descColor: "#7a6a50",
     shadow: "0 4px 32px rgba(0,0,0,0.7), 0 0 0 1px rgba(198,165,107,0.08)",
@@ -94,20 +94,20 @@ const tierConfig = {
         style={{ position: "absolute", top: -16, right: -16, opacity: 0.22, pointerEvents: "none" }}
       >
         {/* Outer ring */}
-        <circle cx="65" cy="65" r="62" stroke="#C6A56B" strokeWidth="0.6" />
+        <circle cx="65" cy="65" r="62" stroke="#B87B68" strokeWidth="0.6" />
         {/* Dashed middle ring */}
         <circle cx="65" cy="65" r="48" stroke="#e8c97a" strokeWidth="0.5" strokeDasharray="4 5" />
         {/* Inner solid ring */}
-        <circle cx="65" cy="65" r="34" stroke="#C6A56B" strokeWidth="0.7" />
+        <circle cx="65" cy="65" r="34" stroke="#B87B68" strokeWidth="0.7" />
         {/* Center gem */}
-        <circle cx="65" cy="65" r="7" fill="#C6A56B" opacity="0.35" />
+        <circle cx="65" cy="65" r="7" fill="#B87B68" opacity="0.35" />
         <circle cx="65" cy="65" r="3" fill="#e8c97a" opacity="0.7" />
         {/* Cardinal spokes */}
-        <line x1="3"  y1="65" x2="127" y2="65"  stroke="#C6A56B" strokeWidth="0.4" />
-        <line x1="65" y1="3"  x2="65"  y2="127" stroke="#C6A56B" strokeWidth="0.4" />
+        <line x1="3"  y1="65" x2="127" y2="65"  stroke="#B87B68" strokeWidth="0.4" />
+        <line x1="65" y1="3"  x2="65"  y2="127" stroke="#B87B68" strokeWidth="0.4" />
         {/* Diagonal spokes */}
-        <line x1="20" y1="20" x2="110" y2="110" stroke="#C6A56B" strokeWidth="0.3" opacity="0.5" />
-        <line x1="110" y1="20" x2="20" y2="110" stroke="#C6A56B" strokeWidth="0.3" opacity="0.5" />
+        <line x1="20" y1="20" x2="110" y2="110" stroke="#B87B68" strokeWidth="0.3" opacity="0.5" />
+        <line x1="110" y1="20" x2="20" y2="110" stroke="#B87B68" strokeWidth="0.3" opacity="0.5" />
         {/* Corner diamond ticks */}
         <polygon points="65,4 68,12 65,8 62,12" fill="#e8c97a" opacity="0.6" />
         <polygon points="65,126 68,118 65,122 62,118" fill="#e8c97a" opacity="0.6" />
@@ -335,7 +335,7 @@ export function MembershipCard({
           </span>
           <p
             style={{
-              color: "#C6A56B",
+              color: "#B87B68",
               fontSize: 24,
               fontWeight: 800,
               fontFamily: "Playfair Display, serif",
@@ -372,7 +372,7 @@ export function MembershipCard({
       {footerText ? (
         <p
           style={{
-            color: cfg.dark ? "#C6A56B" : "#8F7A62",
+            color: cfg.dark ? "#B87B68" : "#8F7A62",
             fontSize: 12,
             fontWeight: 600,
             marginTop: 18,
@@ -398,7 +398,7 @@ export function FeatureCard({ feature, index, total }: { feature: Feature; index
         overflow: "hidden",
         transition: "box-shadow 0.3s ease, transform 0.3s ease",
       }}
-      className="feature-card-slide-in group border border-[#D8C7B5] bg-white dark:border-[#3D3530] dark:bg-[#242220]"
+      className="feature-card-slide-in group border border-[#EADDCD] bg-white dark:border-[#3D3530] dark:bg-[#242220]"
       onMouseEnter={(e) => {
         (e.currentTarget as HTMLElement).style.boxShadow = "0 12px 40px rgba(198,165,107,0.18)";
         (e.currentTarget as HTMLElement).style.transform = "translateY(-3px)";
@@ -420,7 +420,7 @@ export function FeatureCard({ feature, index, total }: { feature: Feature; index
       <div
         style={{
           position: "absolute", left: 0, top: "20%", width: 3, height: "60%",
-          background: "linear-gradient(180deg, transparent, #C6A56B, transparent)",
+          background: "linear-gradient(180deg, transparent, #B87B68, transparent)",
           borderRadius: 99, opacity: 0, transition: "opacity 0.3s ease", pointerEvents: "none",
         }}
         className="group-hover:opacity-100"
@@ -430,7 +430,7 @@ export function FeatureCard({ feature, index, total }: { feature: Feature; index
         <div
           style={{
             width: 46, height: 46,
-            background: "linear-gradient(135deg, #C6A56B 0%, #a8864d 100%)",
+            background: "linear-gradient(135deg, #B87B68 0%, #a8864d 100%)",
             borderRadius: 14, display: "flex", alignItems: "center", justifyContent: "center",
             fontSize: 20, color: "#FFF8EE", boxShadow: "0 4px 16px rgba(198,165,107,0.3)",
           }}
@@ -438,7 +438,7 @@ export function FeatureCard({ feature, index, total }: { feature: Feature; index
           {feature.icon}
         </div>
 
-        <span className="rounded-full border border-[#D8C7B5] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#B8A89A] dark:border-[#3D3530] dark:text-[#8A7D75]">
+        <span className="rounded-full border border-[#EADDCD] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#884F38] dark:border-[#3D3530] dark:text-[#8A7D75]">
           0{index + 1}
         </span>
       </div>
@@ -449,11 +449,11 @@ export function FeatureCard({ feature, index, total }: { feature: Feature; index
       >
         {feature.title}
       </h3>
-      <div className="mt-4 h-px w-14 rounded-full bg-gradient-to-r from-[#C6A56B] to-transparent" />
+      <div className="mt-4 h-px w-14 rounded-full bg-gradient-to-r from-[#B87B68] to-transparent" />
       <p className="mt-4 text-[13px] leading-7 text-[#6E6257] dark:text-[#8A7D75]">
         {feature.description}
       </p>
-      <p className="mt-6 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#C6A56B] dark:text-[#D4B47A]">
+      <p className="mt-6 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#B87B68] dark:text-[#D4B47A]">
         Thoughtful care, clearly delivered
       </p>
     </article>

@@ -155,28 +155,28 @@ function buildAppointmentEmailHtml({
       <table style="width:100%; border-collapse:collapse;">
         <tbody>
           <tr>
-            <td style="padding:10px; border:1px solid #D8C7B5; font-weight:bold;">Booking Token</td>
-            <td style="padding:10px; border:1px solid #D8C7B5;">${bookingToken}</td>
+            <td style="padding:10px; border:1px solid #EADDCD; font-weight:bold;">Booking Token</td>
+            <td style="padding:10px; border:1px solid #EADDCD;">${bookingToken}</td>
           </tr>
           <tr>
-            <td style="padding:10px; border:1px solid #D8C7B5; font-weight:bold;">Client Name</td>
-            <td style="padding:10px; border:1px solid #D8C7B5;">${clientName}</td>
+            <td style="padding:10px; border:1px solid #EADDCD; font-weight:bold;">Client Name</td>
+            <td style="padding:10px; border:1px solid #EADDCD;">${clientName}</td>
           </tr>
           <tr>
-            <td style="padding:10px; border:1px solid #D8C7B5; font-weight:bold;">Client Phone</td>
-            <td style="padding:10px; border:1px solid #D8C7B5;">${clientPhone}</td>
+            <td style="padding:10px; border:1px solid #EADDCD; font-weight:bold;">Client Phone</td>
+            <td style="padding:10px; border:1px solid #EADDCD;">${clientPhone}</td>
           </tr>
           <tr>
-            <td style="padding:10px; border:1px solid #D8C7B5; font-weight:bold;">Client Email</td>
-            <td style="padding:10px; border:1px solid #D8C7B5;">${clientEmail}</td>
+            <td style="padding:10px; border:1px solid #EADDCD; font-weight:bold;">Client Email</td>
+            <td style="padding:10px; border:1px solid #EADDCD;">${clientEmail}</td>
           </tr>
           <tr>
-            <td style="padding:10px; border:1px solid #D8C7B5; font-weight:bold;">Selected Doctor</td>
-            <td style="padding:10px; border:1px solid #D8C7B5;">${doctorName}</td>
+            <td style="padding:10px; border:1px solid #EADDCD; font-weight:bold;">Selected Doctor</td>
+            <td style="padding:10px; border:1px solid #EADDCD;">${doctorName}</td>
           </tr>
           <tr>
-            <td style="padding:10px; border:1px solid #D8C7B5; font-weight:bold;">Preferred Date</td>
-            <td style="padding:10px; border:1px solid #D8C7B5;">${preferredDate}</td>
+            <td style="padding:10px; border:1px solid #EADDCD; font-weight:bold;">Preferred Date</td>
+            <td style="padding:10px; border:1px solid #EADDCD;">${preferredDate}</td>
           </tr>
         </tbody>
       </table>

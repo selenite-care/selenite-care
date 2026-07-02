@@ -188,7 +188,7 @@ export default function BookingAnalyticsWidget() {
   ];
 
   return (
-    <section className="rounded-2xl border border-[#D8C7B5] bg-white p-5 shadow-sm dark:border-[#3D3530] dark:bg-[#242220] sm:p-6">
+    <section className="rounded-2xl border border-[#EADDCD] bg-white p-5 shadow-sm dark:border-[#3D3530] dark:bg-[#242220] sm:p-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2
@@ -199,7 +199,7 @@ export default function BookingAnalyticsWidget() {
           </h2>
         </div>
 
-        <div className="inline-flex w-fit rounded-full border border-[#D8C7B5] bg-[#F8F5F0] p-1 dark:border-[#3D3530] dark:bg-[#1A1814]">
+        <div className="inline-flex w-fit rounded-full border border-[#EADDCD] bg-[#F8F5F0] p-1 dark:border-[#3D3530] dark:bg-[#1A1814]">
           {(["bar", "line"] as const).map((type) => {
             const isActive = chartType === type;
 
@@ -210,7 +210,7 @@ export default function BookingAnalyticsWidget() {
                 onClick={() => setChartType(type)}
                 className={`inline-flex h-9 items-center justify-center gap-2 rounded-full px-3 text-sm font-medium transition-colors ${
                   isActive
-                    ? "bg-[#2B2B2B] text-[#F8F5F0] dark:bg-[#C6A56B] dark:text-[#141210]"
+                    ? "bg-[#2B2B2B] text-[#F8F5F0] dark:bg-[#B87B68] dark:text-[#141210]"
                     : "text-[#8C7967] hover:bg-white dark:text-[#8A7D75] dark:hover:bg-[#242220]"
                 }`}
                 aria-label={`Show ${type} chart`}
@@ -236,8 +236,8 @@ export default function BookingAnalyticsWidget() {
                 onClick={() => setActivePeriod(tab.value)}
                 className={`h-10 shrink-0 rounded-full border px-4 text-sm font-medium transition-colors ${
                   isActive
-                    ? "border-[#2B2B2B] bg-[#2B2B2B] text-[#F8F5F0] dark:border-[#C6A56B] dark:bg-[#C6A56B] dark:text-[#141210]"
-                    : "border-[#D8C7B5] bg-[#F8F5F0] text-[#8C7967] hover:border-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#8A7D75]"
+                    ? "border-[#2B2B2B] bg-[#2B2B2B] text-[#F8F5F0] dark:border-[#B87B68] dark:bg-[#B87B68] dark:text-[#141210]"
+                    : "border-[#EADDCD] bg-[#F8F5F0] text-[#8C7967] hover:border-[#B87B68] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#8A7D75]"
                 }`}
               >
                 {tab.label}
@@ -257,7 +257,7 @@ export default function BookingAnalyticsWidget() {
               type="date"
               value={customStart}
               onChange={(event) => setCustomStart(event.target.value)}
-              className="mt-2 h-11 w-full rounded-md border border-[#D8C7B5] bg-[#F8F5F0] px-3 text-sm text-[#2B2B2B] outline-none focus:border-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#F0EDE8]"
+              className="mt-2 h-11 w-full rounded-md border border-[#EADDCD] bg-[#F8F5F0] px-3 text-sm text-[#2B2B2B] outline-none focus:border-[#B87B68] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#F0EDE8]"
             />
           </label>
 
@@ -269,7 +269,7 @@ export default function BookingAnalyticsWidget() {
               type="date"
               value={customEnd}
               onChange={(event) => setCustomEnd(event.target.value)}
-              className="mt-2 h-11 w-full rounded-md border border-[#D8C7B5] bg-[#F8F5F0] px-3 text-sm text-[#2B2B2B] outline-none focus:border-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#F0EDE8]"
+              className="mt-2 h-11 w-full rounded-md border border-[#EADDCD] bg-[#F8F5F0] px-3 text-sm text-[#2B2B2B] outline-none focus:border-[#B87B68] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#F0EDE8]"
             />
           </label>
 
@@ -279,7 +279,7 @@ export default function BookingAnalyticsWidget() {
             className={`inline-flex h-11 items-center justify-center rounded-md px-5 text-sm font-semibold transition-colors ${
               customDatesApplied
                 ? "bg-[#2B2B2B] text-[#F8F5F0] dark:bg-[#3D3530]"
-                : "bg-[#C6A56B] text-[#2B2B2B] hover:bg-[#D4B47A]"
+                : "bg-[#B87B68] text-[#2B2B2B] hover:bg-[#D4B47A]"
             }`}
           >
             {customDatesApplied ? "Applied" : "Apply"}
@@ -288,7 +288,7 @@ export default function BookingAnalyticsWidget() {
       ) : null}
 
       {periodLabel ? (
-        <p className="mt-5 text-sm text-[#B8A89A] dark:text-[#8A7D75]">
+        <p className="mt-5 text-sm text-[#884F38] dark:text-[#8A7D75]">
           {periodLabel}
         </p>
       ) : null}
@@ -298,7 +298,7 @@ export default function BookingAnalyticsWidget() {
           {statCards.map((stat) => (
             <article
               key={stat.label}
-              className="rounded-xl border border-[#D8C7B5] bg-[#F8F5F0] px-4 py-3 dark:border-[#3D3530] dark:bg-[#1A1814]"
+              className="rounded-xl border border-[#EADDCD] bg-[#F8F5F0] px-4 py-3 dark:border-[#3D3530] dark:bg-[#1A1814]"
             >
               <p className={`text-2xl font-bold ${stat.className}`}>{stat.value}</p>
               <p className="mt-1 text-xs font-medium uppercase tracking-[0.12em] text-[#8C7967] dark:text-[#8A7D75]">
@@ -309,12 +309,12 @@ export default function BookingAnalyticsWidget() {
         </div>
       </div>
 
-      <div className="mt-6 rounded-xl border border-[#D8C7B5] bg-[#F8F5F0] p-4 dark:border-[#3D3530] dark:bg-[#1A1814]">
+      <div className="mt-6 rounded-xl border border-[#EADDCD] bg-[#F8F5F0] p-4 dark:border-[#3D3530] dark:bg-[#1A1814]">
         {isLoading ? (
           <div className="flex h-[300px] items-end justify-center gap-5">
-            <div className="h-32 w-12 animate-pulse rounded-t-lg bg-[#D8C7B5] dark:bg-[#3D3530]" />
-            <div className="h-52 w-12 animate-pulse rounded-t-lg bg-[#D8C7B5] dark:bg-[#3D3530]" />
-            <div className="h-40 w-12 animate-pulse rounded-t-lg bg-[#D8C7B5] dark:bg-[#3D3530]" />
+            <div className="h-32 w-12 animate-pulse rounded-t-lg bg-[#EADDCD] dark:bg-[#3D3530]" />
+            <div className="h-52 w-12 animate-pulse rounded-t-lg bg-[#EADDCD] dark:bg-[#3D3530]" />
+            <div className="h-40 w-12 animate-pulse rounded-t-lg bg-[#EADDCD] dark:bg-[#3D3530]" />
           </div>
         ) : error ? (
           <div className="flex h-[300px] items-center justify-center rounded-lg border border-red-200 bg-red-50 px-4 text-center text-sm text-red-600 dark:border-red-900/40 dark:bg-red-950/20 dark:text-red-300">
@@ -324,29 +324,29 @@ export default function BookingAnalyticsWidget() {
           <ResponsiveContainer width="100%" height={300}>
             {chartType === "bar" ? (
               <BarChart data={chartData}>
-                <CartesianGrid stroke="#D8C7B5" strokeDasharray="3 3" />
-                <XAxis dataKey="label" tick={{ fill: "#B8A89A", fontSize: 12 }} />
-                <YAxis tick={{ fill: "#B8A89A", fontSize: 12 }} allowDecimals={false} />
+                <CartesianGrid stroke="#EADDCD" strokeDasharray="3 3" />
+                <XAxis dataKey="label" tick={{ fill: "#884F38", fontSize: 12 }} />
+                <YAxis tick={{ fill: "#884F38", fontSize: 12 }} allowDecimals={false} />
                 <Tooltip
                   contentStyle={{
                     background: "#FFFFFF",
-                    border: "1px solid #D8C7B5",
+                    border: "1px solid #EADDCD",
                     borderRadius: 10,
                     color: "#2B2B2B",
                   }}
                   formatter={(value) => [value, "Bookings"]}
                 />
-                <Bar dataKey="bookings" fill="#C6A56B" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="bookings" fill="#B87B68" radius={[6, 6, 0, 0]} />
               </BarChart>
             ) : (
               <LineChart data={chartData}>
-                <CartesianGrid stroke="#D8C7B5" strokeDasharray="3 3" />
-                <XAxis dataKey="label" tick={{ fill: "#B8A89A", fontSize: 12 }} />
-                <YAxis tick={{ fill: "#B8A89A", fontSize: 12 }} allowDecimals={false} />
+                <CartesianGrid stroke="#EADDCD" strokeDasharray="3 3" />
+                <XAxis dataKey="label" tick={{ fill: "#884F38", fontSize: 12 }} />
+                <YAxis tick={{ fill: "#884F38", fontSize: 12 }} allowDecimals={false} />
                 <Tooltip
                   contentStyle={{
                     background: "#FFFFFF",
-                    border: "1px solid #D8C7B5",
+                    border: "1px solid #EADDCD",
                     borderRadius: 10,
                     color: "#2B2B2B",
                   }}
@@ -355,10 +355,10 @@ export default function BookingAnalyticsWidget() {
                 <Line
                   type="monotone"
                   dataKey="bookings"
-                  stroke="#C6A56B"
+                  stroke="#B87B68"
                   strokeWidth={3}
-                  dot={{ fill: "#C6A56B", strokeWidth: 0, r: 4 }}
-                  activeDot={{ r: 6, fill: "#C6A56B" }}
+                  dot={{ fill: "#B87B68", strokeWidth: 0, r: 4 }}
+                  activeDot={{ r: 6, fill: "#B87B68" }}
                 />
               </LineChart>
             )}

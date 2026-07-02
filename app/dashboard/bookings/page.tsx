@@ -73,7 +73,7 @@ export default function DashboardBookingsPage() {
           }}>
           My Bookings
         </h1>
-        <p className="mt-3 text-sm leading-6 text-[#B8A89A] dark:text-[#8A7D75]">
+        <p className="mt-3 text-sm leading-6 text-[#884F38] dark:text-[#8A7D75]">
           Track your appointment requests and preferred dates.
         </p>
       </div>
@@ -87,7 +87,7 @@ export default function DashboardBookingsPage() {
       {error ? <p className="mt-8 text-sm text-red-600">{error}</p> : null}
 
       {!isLoading && !error && bookings.length === 0 ? (
-        <p className="mt-8 text-sm text-[#B8A89A] dark:text-[#8A7D75]">
+        <p className="mt-8 text-sm text-[#884F38] dark:text-[#8A7D75]">
           You do not have any bookings yet.
         </p>
       ) : null}
@@ -100,7 +100,7 @@ export default function DashboardBookingsPage() {
                 key={booking.id}
                 className="bg-card border-themed rounded-xl border p-5"
               >
-                <p className="font-mono text-sm font-semibold text-[#C6A56B]">
+                <p className="font-mono text-sm font-semibold text-[#B87B68]">
                   {booking.token}
                 </p>
 
@@ -141,7 +141,7 @@ export default function DashboardBookingsPage() {
 
                 <Link
                   href={`/dashboard/bookings/${booking.id}`}
-                  className="mt-5 inline-flex h-12 w-full items-center justify-center rounded-md bg-[#2B2B2B] px-4 text-sm font-medium text-[#F8F5F0] transition-colors hover:bg-[#B8A89A] dark:bg-[#C6A56B] dark:text-[#141210] dark:hover:bg-[#D4B47A]"
+                  className="mt-5 inline-flex h-12 w-full items-center justify-center rounded-md bg-[#2B2B2B] px-4 text-sm font-medium text-[#F8F5F0] transition-colors hover:bg-[#884F38] dark:bg-[#B87B68] dark:text-[#141210] dark:hover:bg-[#D4B47A]"
                 >
                   View Details
                 </Link>

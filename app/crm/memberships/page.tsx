@@ -191,7 +191,7 @@ export default function CrmMembershipsPage() {
       <div className="mx-auto w-full max-w-7xl">
         <div
           className="mb-8 rounded-3xl border bg-white p-8 shadow-sm dark:border-[#3D3530] dark:bg-[#242220]"
-          style={{ borderColor: "#D8C7B5" }}
+          style={{ borderColor: "#EADDCD" }}
         >
           <h1
             className="text-3xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]"
@@ -201,13 +201,13 @@ export default function CrmMembershipsPage() {
           >
             Memberships
           </h1>
-          <p className="mt-2 text-sm text-[#B8A89A] dark:text-[#8A7D75]">
+          <p className="mt-2 text-sm text-[#884F38] dark:text-[#8A7D75]">
             Review membership records, client details, and current activation status.
           </p>
         </div>
 
         {isInitialLoading ? (
-          <p className="text-sm text-[#B8A89A] dark:text-[#8A7D75]">
+          <p className="text-sm text-[#884F38] dark:text-[#8A7D75]">
             Loading memberships...
           </p>
         ) : null}
@@ -216,7 +216,7 @@ export default function CrmMembershipsPage() {
 
         {!isInitialLoading && !error ? (
           <>
-            <div className="mb-6 rounded-3xl border border-[#D8C7B5] bg-white p-5 shadow-sm dark:border-[#3D3530] dark:bg-[#242220]">
+            <div className="mb-6 rounded-3xl border border-[#EADDCD] bg-white p-5 shadow-sm dark:border-[#3D3530] dark:bg-[#242220]">
               <div className="grid gap-4 md:grid-cols-[1fr_220px_auto] md:items-end">
                 <div>
                   <label
@@ -231,7 +231,7 @@ export default function CrmMembershipsPage() {
                     value={searchQuery}
                     onChange={(event) => setSearchQuery(event.target.value)}
                     placeholder="Membership ID, client name, email, phone, or tier"
-                    className="mt-2 h-11 w-full rounded-md border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors placeholder:text-[#B8A89A] focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
+                    className="mt-2 h-11 w-full rounded-md border border-[#EADDCD] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors placeholder:text-[#884F38] focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68]"
                   />
                 </div>
 
@@ -250,7 +250,7 @@ export default function CrmMembershipsPage() {
                         event.target.value as (typeof membershipStatuses)[number],
                       )
                     }
-                    className="mt-2 h-11 w-full rounded-md border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
+                    className="mt-2 h-11 w-full rounded-md border border-[#EADDCD] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68]"
                   >
                     {membershipStatuses.map((status) => (
                       <option key={status} value={status}>
@@ -264,24 +264,24 @@ export default function CrmMembershipsPage() {
                   type="button"
                   onClick={handleExportCsv}
                   disabled={filteredMemberships.length === 0}
-                className="inline-flex h-11 items-center justify-center rounded-md bg-[#2B2B2B] px-5 text-sm font-medium text-[#F8F5F0] transition-colors disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#C6A56B] dark:text-[#141210] dark:hover:bg-[#D4B47A]"
+                className="inline-flex h-11 items-center justify-center rounded-md bg-[#2B2B2B] px-5 text-sm font-medium text-[#F8F5F0] transition-colors disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#B87B68] dark:text-[#141210] dark:hover:bg-[#D4B47A]"
               >
                   Export CSV
                 </button>
               </div>
 
-              <p className="mt-4 text-sm text-[#B8A89A]">
+              <p className="mt-4 text-sm text-[#884F38]">
                 Showing {filteredMemberships.length} of {totalCount} memberships.
               </p>
               {isLoading ? (
-                <p className="mt-2 text-xs text-[#B8A89A] dark:text-[#8A7D75]">
+                <p className="mt-2 text-xs text-[#884F38] dark:text-[#8A7D75]">
                   Updating results...
                 </p>
               ) : null}
             </div>
 
             {filteredMemberships.length === 0 ? (
-              <p className="text-sm text-[#B8A89A] dark:text-[#8A7D75]">
+              <p className="text-sm text-[#884F38] dark:text-[#8A7D75]">
                 {totalCount === 0
                   ? "No memberships found."
                   : "No memberships match your filters."}
@@ -362,7 +362,7 @@ export default function CrmMembershipsPage() {
                                 {formatDateTime(membership.createdAt)}
                               </td>
                               <td className="px-4 py-4">
-                                <span className="text-xs text-[#B8A89A] dark:text-[#8A7D75]">
+                                <span className="text-xs text-[#884F38] dark:text-[#8A7D75]">
                                   -
                                 </span>
                               </td>

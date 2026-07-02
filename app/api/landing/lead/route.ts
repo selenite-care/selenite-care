@@ -80,24 +80,24 @@ export async function POST(request: Request) {
       <table style="width: 100%; border-collapse: collapse;">
         <tbody>
           <tr>
-            <td style="padding: 10px; border: 1px solid #D8C7B5; font-weight: bold;">Name</td>
-            <td style="padding: 10px; border: 1px solid #D8C7B5;">${name ? escapeHtml(name) : "Not provided"}</td>
+            <td style="padding: 10px; border: 1px solid #EADDCD; font-weight: bold;">Name</td>
+            <td style="padding: 10px; border: 1px solid #EADDCD;">${name ? escapeHtml(name) : "Not provided"}</td>
           </tr>
           <tr>
-            <td style="padding: 10px; border: 1px solid #D8C7B5; font-weight: bold;">Phone</td>
-            <td style="padding: 10px; border: 1px solid #D8C7B5;">${phone ? escapeHtml(phone) : "Not provided"}</td>
+            <td style="padding: 10px; border: 1px solid #EADDCD; font-weight: bold;">Phone</td>
+            <td style="padding: 10px; border: 1px solid #EADDCD;">${phone ? escapeHtml(phone) : "Not provided"}</td>
           </tr>
           <tr>
-            <td style="padding: 10px; border: 1px solid #D8C7B5; font-weight: bold;">Email</td>
-            <td style="padding: 10px; border: 1px solid #D8C7B5;">${email ? escapeHtml(email) : "Not provided"}</td>
+            <td style="padding: 10px; border: 1px solid #EADDCD; font-weight: bold;">Email</td>
+            <td style="padding: 10px; border: 1px solid #EADDCD;">${email ? escapeHtml(email) : "Not provided"}</td>
           </tr>
           <tr>
-            <td style="padding: 10px; border: 1px solid #D8C7B5; font-weight: bold;">Interest</td>
-            <td style="padding: 10px; border: 1px solid #D8C7B5;">${interest ? escapeHtml(interest) : "Not specified"}</td>
+            <td style="padding: 10px; border: 1px solid #EADDCD; font-weight: bold;">Interest</td>
+            <td style="padding: 10px; border: 1px solid #EADDCD;">${interest ? escapeHtml(interest) : "Not specified"}</td>
           </tr>
           <tr>
-            <td style="padding: 10px; border: 1px solid #D8C7B5; font-weight: bold;">Submitted At</td>
-            <td style="padding: 10px; border: 1px solid #D8C7B5;">${escapeHtml(submittedAt)}</td>
+            <td style="padding: 10px; border: 1px solid #EADDCD; font-weight: bold;">Submitted At</td>
+            <td style="padding: 10px; border: 1px solid #EADDCD;">${escapeHtml(submittedAt)}</td>
           </tr>
         </tbody>
       </table>

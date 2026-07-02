@@ -63,7 +63,7 @@ export default function DoctorMascot() {
             zIndex: 20,
             width: 210,
             borderRadius: 20,
-            border: "1.5px solid #C6A56B",
+            border: "1.5px solid #B87B68",
             background: "rgba(255,255,255,0.97)",
             boxShadow: "0 8px 40px rgba(198,165,107,0.18), 0 2px 8px rgba(0,0,0,0.06)",
             padding: "14px 16px 12px",
@@ -74,7 +74,7 @@ export default function DoctorMascot() {
             style={{
               height: 3,
               borderRadius: 99,
-              background: "linear-gradient(90deg,#C6A56B,#e8d5a3)",
+              background: "linear-gradient(90deg,#B87B68,#e8d5a3)",
               marginBottom: 10,
             }}
           />
@@ -107,7 +107,7 @@ export default function DoctorMascot() {
           <div
             style={{
               height: 1,
-              background: "linear-gradient(90deg,transparent,#C6A56B55,transparent)",
+              background: "linear-gradient(90deg,transparent,#B87B6855,transparent)",
               margin: "10px 0 8px",
             }}
           />
@@ -116,7 +116,7 @@ export default function DoctorMascot() {
             style={{
               textAlign: "center",
               fontSize: 10,
-              color: "#B8A89A",
+              color: "#884F38",
               letterSpacing: "0.04em",
               textTransform: "uppercase",
             }}
@@ -133,8 +133,8 @@ export default function DoctorMascot() {
               width: 16,
               height: 16,
               transform: "rotate(45deg)",
-              borderRight: "1.5px solid #C6A56B",
-              borderBottom: "1.5px solid #C6A56B",
+              borderRight: "1.5px solid #B87B68",
+              borderBottom: "1.5px solid #B87B68",
               background: "white",
             }}
           />
@@ -201,7 +201,7 @@ export default function DoctorMascot() {
             bottom: 20,
             left: 0,
             background: "white",
-            border: "1px solid #C6A56B",
+            border: "1px solid #B87B68",
             borderRadius: 12,
             padding: "8px 14px",
             boxShadow: "0 4px 20px rgba(198,165,107,0.15)",

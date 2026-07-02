@@ -657,7 +657,7 @@ function ReviewsCarousel({ heading }: { heading: string }) {
   const marqueeImages = [...REVIEW_IMAGES, ...REVIEW_IMAGES];
 
   return (
-    <section className="relative overflow-hidden bg-[#D8C7B5] px-6 py-12 dark:bg-[#221d1a]">
+    <section className="relative overflow-hidden bg-[#EADDCD] px-6 py-12 dark:bg-[#221d1a]">
       <div className="pointer-events-none absolute bottom-[-60px] right-[-60px] h-80 w-80 rounded-full bg-[radial-gradient(circle,rgba(198,165,107,0.16)_0%,transparent_70%)] blur-3xl" />
 
       <div className="relative mx-auto w-full max-w-6xl">
@@ -1034,7 +1034,7 @@ export default function LandingPage() {
         }
       `}</style>
 
-      <header className="sticky top-0 z-50 border-b border-[#D8C7B5] bg-[#F8F5F0] px-4 py-3 dark:border-[#3D3530] dark:bg-[#141210]">
+      <header className="sticky top-0 z-50 border-b border-[#EADDCD] bg-[#F8F5F0] px-4 py-3 dark:border-[#3D3530] dark:bg-[#141210]">
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-2 sm:gap-3">
           <Link
             href="/landing"
@@ -1046,7 +1046,7 @@ export default function LandingPage() {
             >
               Selenite Care
             </p>
-            <p className="mt-1 text-xs text-[#B8A89A] dark:text-[#8A7D75]">
+            <p className="mt-1 text-xs text-[#884F38] dark:text-[#8A7D75]">
               {headerContent.tagline}
             </p>
           </Link>
@@ -1056,7 +1056,7 @@ export default function LandingPage() {
             onClick={() =>
               setLanguage((current) => (current === "en" ? "bn" : "en"))
             }
-            className="inline-flex h-10 shrink-0 items-center justify-center rounded-full border border-[#C6A56B] bg-[#D8C7B5] px-4 text-sm font-medium text-[#2B2B2B] transition-colors hover:bg-[#E3D5C7] dark:bg-[#221d1a] dark:text-[#F0EDE8] dark:hover:bg-[#2A241F]"
+            className="inline-flex h-10 shrink-0 items-center justify-center rounded-full border border-[#B87B68] bg-[#EADDCD] px-4 text-sm font-medium text-[#2B2B2B] transition-colors hover:bg-[#E3D5C7] dark:bg-[#221d1a] dark:text-[#F0EDE8] dark:hover:bg-[#2A241F]"
             aria-label={`Switch language to ${getInactiveLanguageLabel(language)}`}
           >
             {getInactiveLanguageLabel(language)}
@@ -1065,7 +1065,7 @@ export default function LandingPage() {
           <div className="flex shrink-0 items-center gap-2">
             <a
               href="tel:+8801647660300"
-              className="inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-md border border-[#C6A56B] px-3 text-sm font-medium text-[#C6A56B] transition-colors hover:bg-[#C6A56B]/8 dark:text-[#D4B47A] dark:hover:bg-[#D4B47A]/10 sm:px-4"
+              className="inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-md border border-[#B87B68] px-3 text-sm font-medium text-[#B87B68] transition-colors hover:bg-[#B87B68]/8 dark:text-[#D4B47A] dark:hover:bg-[#D4B47A]/10 sm:px-4"
             >
               <Phone className="h-4 w-4" />
               <span className="hidden sm:inline">{headerContent.callButton}</span>
@@ -1073,7 +1073,7 @@ export default function LandingPage() {
 
             <Link
               href="/services"
-              className="inline-flex h-10 shrink-0 items-center justify-center rounded-md bg-[#2B2B2B] px-3 text-sm font-medium text-[#F8F5F0] transition-colors hover:bg-[#3A3734] dark:bg-[#C6A56B] dark:text-[#141210] dark:hover:bg-[#D4B47A] sm:px-4"
+              className="inline-flex h-10 shrink-0 items-center justify-center rounded-md bg-[#2B2B2B] px-3 text-sm font-medium text-[#F8F5F0] transition-colors hover:bg-[#3A3734] dark:bg-[#B87B68] dark:text-[#141210] dark:hover:bg-[#D4B47A] sm:px-4"
             >
               <span className="sm:hidden">{headerContent.joinButtonMobile}</span>
               <span className="hidden sm:inline">{headerContent.joinButton}</span>
@@ -1084,7 +1084,7 @@ export default function LandingPage() {
 
       <main>
         <section className="bg-[#F8F5F0] px-4 py-6 dark:bg-[#141210] sm:px-6 sm:py-8">
-          <div className="mx-auto max-w-7xl rounded-[32px] border border-[#D8C7B5] bg-[radial-gradient(circle_at_top_right,_rgba(198,165,107,0.16),_transparent_35%),linear-gradient(180deg,#F3EEE6_0%,#ECF1E6_100%)] p-4 shadow-[0_24px_70px_rgba(43,43,43,0.10)] dark:border-[#3D3530] dark:bg-[radial-gradient(circle_at_top_right,_rgba(198,165,107,0.12),_transparent_30%),linear-gradient(180deg,#171411_0%,#1C1916_100%)] sm:p-5 lg:p-6">
+          <div className="mx-auto max-w-7xl rounded-[32px] border border-[#EADDCD] bg-[radial-gradient(circle_at_top_right,_rgba(198,165,107,0.16),_transparent_35%),linear-gradient(180deg,#F3EEE6_0%,#ECF1E6_100%)] p-4 shadow-[0_24px_70px_rgba(43,43,43,0.10)] dark:border-[#3D3530] dark:bg-[radial-gradient(circle_at_top_right,_rgba(198,165,107,0.12),_transparent_30%),linear-gradient(180deg,#171411_0%,#1C1916_100%)] sm:p-5 lg:p-6">
             <div className="grid items-center gap-8 lg:grid-cols-[1fr_1fr]">
               <div className="relative h-[280px] overflow-hidden rounded-[24px] border-2 border-white/80 bg-[#E6D8C8] shadow-[0_16px_50px_rgba(43,43,43,0.12)] dark:border-[#F0EDE8]/10 sm:h-[360px] lg:h-[440px] xl:h-auto xl:min-h-[520px]">
                 <Image
@@ -1100,7 +1100,7 @@ export default function LandingPage() {
 
               <div className="flex items-center rounded-[24px] bg-white/55 px-1 py-2 dark:bg-white/[0.03] sm:px-3 lg:px-4">
                 <div className="w-full">
-                  <span className="inline-flex rounded-full bg-[#C6A56B] px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#2B2B2B] dark:bg-[#D4B47A]">
+                  <span className="inline-flex rounded-full bg-[#B87B68] px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#2B2B2B] dark:bg-[#D4B47A]">
                     {heroContent.badge}
                   </span>
 
@@ -1118,7 +1118,7 @@ export default function LandingPage() {
                   <div className="mt-7 flex flex-col gap-3 sm:flex-row">
                     <Link
                       href="/services"
-                      className="inline-flex h-12 items-center justify-center rounded-xl bg-[#2B2B2B] px-6 text-sm font-medium text-[#F8F5F0] transition-colors hover:bg-[#3A3734] dark:bg-[#C6A56B] dark:text-[#141210] dark:hover:bg-[#D4B47A]"
+                      className="inline-flex h-12 items-center justify-center rounded-xl bg-[#2B2B2B] px-6 text-sm font-medium text-[#F8F5F0] transition-colors hover:bg-[#3A3734] dark:bg-[#B87B68] dark:text-[#141210] dark:hover:bg-[#D4B47A]"
                     >
                       {heroContent.primaryButton}
                     </Link>
@@ -1134,9 +1134,9 @@ export default function LandingPage() {
                     {heroContent.trustBadges.map((badge) => (
                       <div
                         key={badge}
-                        className="flex items-start gap-2 text-sm font-medium leading-6 text-[#4D463F] dark:text-[#B8A89A]"
+                        className="flex items-start gap-2 text-sm font-medium leading-6 text-[#4D463F] dark:text-[#884F38]"
                       >
-                        <Check className="mt-1 h-4 w-4 shrink-0 text-[#C6A56B]" />
+                        <Check className="mt-1 h-4 w-4 shrink-0 text-[#B87B68]" />
                         <span>{badge}</span>
                       </div>
                     ))}
@@ -1150,7 +1150,7 @@ export default function LandingPage() {
         <section className="bg-[#F8F5F0] px-6 py-12 dark:bg-[#141210]">
           <div className="mx-auto grid w-full max-w-6xl gap-10 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] lg:items-start">
             <div>
-              <h1 className="mt-4 text-3xl font-semibold uppercase text-[#C6A56B] sm:text-4xl">
+              <h1 className="mt-4 text-3xl font-semibold uppercase text-[#B87B68] sm:text-4xl">
                 {aboutContent.label}
               </h1>
 
@@ -1161,7 +1161,7 @@ export default function LandingPage() {
                 {aboutContent.heading}
               </h2> */}
 
-              <p className="mt-5 max-w-2xl text-base leading-8 text-[#B8A89A] dark:text-[#8A7D75]">
+              <p className="mt-5 max-w-2xl text-base leading-8 text-[#884F38] dark:text-[#8A7D75]">
                 {aboutContent.body}
               </p>
 
@@ -1171,7 +1171,7 @@ export default function LandingPage() {
                     key={bullet}
                     className="flex items-start gap-3 text-sm leading-7 text-[#6E6257] dark:text-[#8A7D75]"
                   >
-                    <Check className="mt-1 h-4 w-4 shrink-0 text-[#C6A56B]" />
+                    <Check className="mt-1 h-4 w-4 shrink-0 text-[#B87B68]" />
                     <span>{bullet}</span>
                   </div>
                 ))}
@@ -1182,10 +1182,10 @@ export default function LandingPage() {
               {aboutContent.stats.map((stat) => (
                 <article
                   key={`${stat.number}-${stat.label}`}
-                  className="rounded-xl border border-[#D8C7B5] bg-white px-5 py-6 text-center dark:border-[#3D3530] dark:bg-[#242220]"
+                  className="rounded-xl border border-[#EADDCD] bg-white px-5 py-6 text-center dark:border-[#3D3530] dark:bg-[#242220]"
                 >
                   <p
-                    className="text-3xl font-semibold text-[#C6A56B] sm:text-4xl"
+                    className="text-3xl font-semibold text-[#B87B68] sm:text-4xl"
                     style={{ fontFamily: "Playfair Display, serif" }}
                   >
                     {stat.number}
@@ -1199,7 +1199,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section className="bg-[#D8C7B5] px-6 py-12 dark:bg-[#221d1a]">
+        <section className="bg-[#EADDCD] px-6 py-12 dark:bg-[#221d1a]">
           <div className="mx-auto w-full max-w-6xl">
             <div className="mx-auto max-w-3xl text-center">
               <h2
@@ -1217,7 +1217,7 @@ export default function LandingPage() {
               {membershipPlans.map((plan) => (
                 <article
                   key={plan.title}
-                  className="flex h-full flex-col rounded-2xl border border-[#D8C7B5] bg-white p-6 shadow-sm dark:border-[#3D3530] dark:bg-[#242220]"
+                  className="flex h-full flex-col rounded-2xl border border-[#EADDCD] bg-white p-6 shadow-sm dark:border-[#3D3530] dark:bg-[#242220]"
                 >
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <h3
@@ -1227,7 +1227,7 @@ export default function LandingPage() {
                       {plan.title}
                     </h3>
 
-                    <span className="rounded-full border border-[#D8C7B5] bg-[#F8F5F0] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#8C7967] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#8A7D75]">
+                    <span className="rounded-full border border-[#EADDCD] bg-[#F8F5F0] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#8C7967] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#8A7D75]">
                       {plan.duration}
                     </span>
                   </div>
@@ -1235,7 +1235,7 @@ export default function LandingPage() {
                   <div className="mt-5 flex flex-wrap items-center gap-3">
                     {"price" in plan ? (
                       <p
-                        className="text-3xl font-bold text-[#C6A56B]"
+                        className="text-3xl font-bold text-[#B87B68]"
                         style={{ fontFamily: "Playfair Display, serif" }}
                       >
                         {plan.price}
@@ -1243,7 +1243,7 @@ export default function LandingPage() {
                     ) : null}
 
                     {"original" in plan && plan.original ? (
-                      <span className="text-sm font-semibold text-[#B8A89A] line-through decoration-[1.5px] dark:text-[#8A7D75]">
+                      <span className="text-sm font-semibold text-[#884F38] line-through decoration-[1.5px] dark:text-[#8A7D75]">
                         {plan.original}
                       </span>
                     ) : null}
@@ -1253,7 +1253,7 @@ export default function LandingPage() {
                         className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] ${
                           plan.title === membershipContent.signature.title
                             ? "bg-red-100 text-red-600 dark:bg-red-950/30 dark:text-red-300"
-                            : "bg-[#2B2B2B] text-[#F8F5F0] dark:bg-[#C6A56B] dark:text-[#141210]"
+                            : "bg-[#2B2B2B] text-[#F8F5F0] dark:bg-[#B87B68] dark:text-[#141210]"
                         }`}
                       >
                         {plan.badge}
@@ -1267,7 +1267,7 @@ export default function LandingPage() {
                         key={benefit}
                         className="flex items-start gap-3 text-sm leading-6 text-[#6E6257] dark:text-[#8A7D75]"
                       >
-                        <Check className="mt-1 h-4 w-4 shrink-0 text-[#C6A56B]" />
+                        <Check className="mt-1 h-4 w-4 shrink-0 text-[#B87B68]" />
                         <span>{benefit}</span>
                       </li>
                     ))}
@@ -1279,14 +1279,14 @@ export default function LandingPage() {
                     <button
                       type="button"
                       disabled
-                      className="inline-flex h-12 w-full cursor-not-allowed items-center justify-center rounded-md border border-[#D8C7B5] bg-[#F4EFE8] px-5 text-sm font-medium text-[#8C7967] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#8A7D75]"
+                      className="inline-flex h-12 w-full cursor-not-allowed items-center justify-center rounded-md border border-[#EADDCD] bg-[#F4EFE8] px-5 text-sm font-medium text-[#8C7967] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#8A7D75]"
                     >
                       {plan.button}
                     </button>
                   ) : "link" in plan ? (
                     <Link
                       href={plan.link}
-                      className="inline-flex h-12 w-full items-center justify-center rounded-md bg-[#2B2B2B] px-5 text-sm font-medium text-[#F8F5F0] transition-colors hover:bg-[#3A3734] dark:bg-[#C6A56B] dark:text-[#141210] dark:hover:bg-[#D4B47A]"
+                      className="inline-flex h-12 w-full items-center justify-center rounded-md bg-[#2B2B2B] px-5 text-sm font-medium text-[#F8F5F0] transition-colors hover:bg-[#3A3734] dark:bg-[#B87B68] dark:text-[#141210] dark:hover:bg-[#D4B47A]"
                     >
                       {plan.button}
                     </Link>
@@ -1316,11 +1316,11 @@ export default function LandingPage() {
                   className="relative flex flex-col pl-8 lg:min-w-0 lg:flex-1 lg:pl-0"
                 >
                   {index < howItWorksContent.steps.length - 1 ? (
-                    <div className="absolute bottom-0 left-[18px] top-12 w-px bg-[#C6A56B] lg:hidden" />
+                    <div className="absolute bottom-0 left-[18px] top-12 w-px bg-[#B87B68] lg:hidden" />
                   ) : null}
 
                   <article className="relative pb-8 lg:pb-0">
-                    <div className="absolute left-0 top-0 flex h-9 w-9 items-center justify-center rounded-full bg-[#C6A56B] text-sm font-semibold text-[#2B2B2B] lg:static lg:mx-auto lg:h-12 lg:w-12 lg:text-base">
+                    <div className="absolute left-0 top-0 flex h-9 w-9 items-center justify-center rounded-full bg-[#B87B68] text-sm font-semibold text-[#2B2B2B] lg:static lg:mx-auto lg:h-12 lg:w-12 lg:text-base">
                       {step.n}
                     </div>
 
@@ -1331,7 +1331,7 @@ export default function LandingPage() {
                       >
                         {step.title}
                       </h3>
-                      <p className="ml-2 mt-3 text-sm leading-7 text-[#B8A89A] dark:text-[#8A7D75] lg:ml-0">
+                      <p className="ml-2 mt-3 text-sm leading-7 text-[#884F38] dark:text-[#8A7D75] lg:ml-0">
                         {step.desc}
                       </p>
                     </div>
@@ -1357,7 +1357,7 @@ export default function LandingPage() {
               >
                 {videoContent.heading}
               </h2>
-              <p className="mt-4 text-base leading-7 text-[#B8A89A] dark:text-[#8A7D75]">
+              <p className="mt-4 text-base leading-7 text-[#884F38] dark:text-[#8A7D75]">
                 {videoContent.subtext}
               </p>
             </div>
@@ -1394,7 +1394,7 @@ export default function LandingPage() {
                 {Array.from({ length: 4 }).map((_, index) => (
                   <div
                     key={index}
-                    className="rounded-2xl border border-[#D8C7B5] bg-white px-4 py-6 text-center dark:border-[#3D3530] dark:bg-[#242220]"
+                    className="rounded-2xl border border-[#EADDCD] bg-white px-4 py-6 text-center dark:border-[#3D3530] dark:bg-[#242220]"
                   >
                     <div className="mx-auto h-[120px] w-[120px] animate-pulse rounded-full bg-[#EFE7DC] dark:bg-[#1A1814]" />
                     <div className="mx-auto mt-4 h-5 w-24 animate-pulse rounded bg-[#EFE7DC] dark:bg-[#1A1814]" />
@@ -1412,10 +1412,10 @@ export default function LandingPage() {
                 {doctors.map((doctor) => (
                   <article
                     key={doctor.id}
-                    className="rounded-2xl border border-[#D8C7B5] bg-white px-4 py-6 text-center dark:border-[#3D3530] dark:bg-[#242220]"
+                    className="rounded-2xl border border-[#EADDCD] bg-white px-4 py-6 text-center dark:border-[#3D3530] dark:bg-[#242220]"
                   >
                     {doctor.image ? (
-                      <div className="relative mx-auto h-[120px] w-[120px] overflow-hidden rounded-full border-2 border-[#C6A56B]">
+                      <div className="relative mx-auto h-[120px] w-[120px] overflow-hidden rounded-full border-2 border-[#B87B68]">
                         <Image
                           src={doctor.image}
                           alt={doctor.name}
@@ -1425,9 +1425,9 @@ export default function LandingPage() {
                         />
                       </div>
                     ) : (
-                      <div className="mx-auto flex h-[120px] w-[120px] items-center justify-center rounded-full border-2 border-[#C6A56B] bg-[#EFE7DC] dark:bg-[#1A1814]">
+                      <div className="mx-auto flex h-[120px] w-[120px] items-center justify-center rounded-full border-2 border-[#B87B68] bg-[#EFE7DC] dark:bg-[#1A1814]">
                         <span
-                          className="text-2xl font-semibold text-[#C6A56B]"
+                          className="text-2xl font-semibold text-[#B87B68]"
                           style={{ fontFamily: "Playfair Display, serif" }}
                         >
                           {getInitials(doctor.name)}
@@ -1438,10 +1438,10 @@ export default function LandingPage() {
                     <h3 className="mt-4 text-base font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]">
                       {doctor.name}
                     </h3>
-                    <p className="mt-2 text-sm text-[#B8A89A] dark:text-[#8A7D75]">
+                    <p className="mt-2 text-sm text-[#884F38] dark:text-[#8A7D75]">
                       {doctor.designation}
                     </p>
-                    <span className="mt-4 inline-flex rounded-full bg-[#C6A56B] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#2B2B2B]">
+                    <span className="mt-4 inline-flex rounded-full bg-[#B87B68] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#2B2B2B]">
                       {getSpecializationLabel(language, doctor.specialization)}
                     </span>
                   </article>
@@ -1473,8 +1473,8 @@ export default function LandingPage() {
                     key={item.id}
                     className={`overflow-hidden rounded-2xl border bg-white transition-colors dark:bg-[#242220] ${
                       isOpen
-                        ? "border-[#C6A56B] dark:border-[#C6A56B]"
-                        : "border-[#D8C7B5] dark:border-[#3D3530]"
+                        ? "border-[#B87B68] dark:border-[#B87B68]"
+                        : "border-[#EADDCD] dark:border-[#3D3530]"
                     }`}
                   >
                     <button
@@ -1489,7 +1489,7 @@ export default function LandingPage() {
                       <div className="flex min-w-0 items-start gap-3">
                         <span
                           className={`mt-1 h-5 w-1 shrink-0 rounded-full ${
-                            isOpen ? "bg-[#C6A56B]" : "bg-transparent"
+                            isOpen ? "bg-[#B87B68]" : "bg-transparent"
                           }`}
                         />
                         <span className="text-sm font-medium leading-7 text-[#2B2B2B] dark:text-[#F0EDE8] sm:text-base">
@@ -1498,14 +1498,14 @@ export default function LandingPage() {
                       </div>
 
                       <ChevronDown
-                        className={`h-5 w-5 shrink-0 text-[#C6A56B] transition-transform duration-200 ${
+                        className={`h-5 w-5 shrink-0 text-[#B87B68] transition-transform duration-200 ${
                           isOpen ? "rotate-180" : ""
                         }`}
                       />
                     </button>
 
                     {isOpen ? (
-                      <div className="border-t border-[#D8C7B5] px-5 py-4 dark:border-[#3D3530] sm:px-6">
+                      <div className="border-t border-[#EADDCD] px-5 py-4 dark:border-[#3D3530] sm:px-6">
                         <p className="text-sm leading-7 text-[#6E6257] dark:text-[#8A7D75]">
                           {item.answer}
                         </p>
@@ -1520,7 +1520,7 @@ export default function LandingPage() {
 
         <section className="bg-[#2B2B2B] px-6 py-12 dark:bg-[#0F0D0C]">
           <div className="mx-auto w-full max-w-3xl text-center">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#C6A56B] sm:text-sm">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#B87B68] sm:text-sm">
               {registrationContent.label}
             </p>
 
@@ -1531,14 +1531,14 @@ export default function LandingPage() {
               {registrationContent.heading}
             </h2>
 
-            <p className="mt-4 text-base leading-7 text-[#B8A89A] dark:text-[#8A7D75]">
+            <p className="mt-4 text-base leading-7 text-[#884F38] dark:text-[#8A7D75]">
               {registrationContent.subtext}
             </p>
 
             <div className="mx-auto mt-8 w-full max-w-md text-left">
               {registeredEmail ? (
-                <div className="rounded-2xl border border-[#D8C7B5] bg-[#F8F5F0] p-6 text-center dark:border-[#3D3530] dark:bg-[#181513]">
-                  <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#C6A56B]/15 text-[#C6A56B]">
+                <div className="rounded-2xl border border-[#EADDCD] bg-[#F8F5F0] p-6 text-center dark:border-[#3D3530] dark:bg-[#181513]">
+                  <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#B87B68]/15 text-[#B87B68]">
                     <Check className="h-7 w-7" />
                   </div>
                   <h3
@@ -1561,8 +1561,8 @@ export default function LandingPage() {
                     disabled={isResending || resendCountdown > 0}
                     className={`mt-5 inline-flex h-11 w-full items-center justify-center rounded-md px-5 text-sm font-medium transition-colors ${
                       isResending || resendCountdown > 0
-                        ? "cursor-not-allowed bg-[#D8C7B5] text-[#6E6257] opacity-80 dark:bg-[#3D3530] dark:text-[#8A7D75]"
-                        : "bg-[#2B2B2B] text-[#F8F5F0] hover:bg-[#3A3734] dark:bg-[#C6A56B] dark:text-[#141210] dark:hover:bg-[#D4B47A]"
+                        ? "cursor-not-allowed bg-[#EADDCD] text-[#6E6257] opacity-80 dark:bg-[#3D3530] dark:text-[#8A7D75]"
+                        : "bg-[#2B2B2B] text-[#F8F5F0] hover:bg-[#3A3734] dark:bg-[#B87B68] dark:text-[#141210] dark:hover:bg-[#D4B47A]"
                     }`}
                   >
                     {isResending
@@ -1587,12 +1587,12 @@ export default function LandingPage() {
               ) : (
                 <form
                   onSubmit={handleRegisterSubmit}
-                  className="space-y-4 rounded-2xl border border-[#D8C7B5] bg-[#F8F5F0] p-6 dark:border-[#3D3530] dark:bg-[#181513]"
+                  className="space-y-4 rounded-2xl border border-[#EADDCD] bg-[#F8F5F0] p-6 dark:border-[#3D3530] dark:bg-[#181513]"
                 >
                   <button
                     type="button"
                     onClick={handleGoogleRegister}
-                    className="flex h-12 w-full items-center justify-center gap-3 rounded-md border border-[#2B2B2B] bg-white px-4 text-sm font-medium text-[#2B2B2B] transition-colors hover:bg-[#F8F5F0] dark:border-[#D8C7B5] dark:bg-[#F0EDE8] dark:text-[#141210] dark:hover:bg-[#D8C7B5]"
+                    className="flex h-12 w-full items-center justify-center gap-3 rounded-md border border-[#2B2B2B] bg-white px-4 text-sm font-medium text-[#2B2B2B] transition-colors hover:bg-[#F8F5F0] dark:border-[#EADDCD] dark:bg-[#F0EDE8] dark:text-[#141210] dark:hover:bg-[#EADDCD]"
                   >
                     <svg
                       viewBox="0 0 24 24"
@@ -1621,11 +1621,11 @@ export default function LandingPage() {
                   </button>
 
                   <div className="flex items-center gap-3">
-                    <div className="h-px flex-1 bg-[#D8C7B5] dark:bg-[#3D3530]" />
-                    <span className="text-xs font-medium uppercase tracking-[0.16em] text-[#B8A89A] dark:text-[#8A7D75]">
+                    <div className="h-px flex-1 bg-[#EADDCD] dark:bg-[#3D3530]" />
+                    <span className="text-xs font-medium uppercase tracking-[0.16em] text-[#884F38] dark:text-[#8A7D75]">
                       or
                     </span>
-                    <div className="h-px flex-1 bg-[#D8C7B5] dark:bg-[#3D3530]" />
+                    <div className="h-px flex-1 bg-[#EADDCD] dark:bg-[#3D3530]" />
                   </div>
 
                   <div>
@@ -1641,7 +1641,7 @@ export default function LandingPage() {
                       type="text"
                       autoComplete="name"
                       required
-                      className="h-12 w-full rounded-md border border-[#D8C7B5] bg-white px-4 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#F0EDE8]"
+                      className="h-12 w-full rounded-md border border-[#EADDCD] bg-white px-4 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#F0EDE8]"
                     />
                   </div>
 
@@ -1681,7 +1681,7 @@ export default function LandingPage() {
                       type="email"
                       autoComplete="email"
                       required
-                      className="h-12 w-full rounded-md border border-[#D8C7B5] bg-white px-4 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#F0EDE8]"
+                      className="h-12 w-full rounded-md border border-[#EADDCD] bg-white px-4 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#F0EDE8]"
                     />
                   </div>
 
@@ -1696,7 +1696,7 @@ export default function LandingPage() {
                       id="landing-register-dob"
                       name="dateOfBirth"
                       type="date"
-                      className="h-12 w-full rounded-md border border-[#D8C7B5] bg-white px-4 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#F0EDE8]"
+                      className="h-12 w-full rounded-md border border-[#EADDCD] bg-white px-4 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#F0EDE8]"
                     />
                   </div>
 
@@ -1713,12 +1713,12 @@ export default function LandingPage() {
                       type="password"
                       autoComplete="new-password"
                       required
-                      className="h-12 w-full rounded-md border border-[#D8C7B5] bg-white px-4 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#F0EDE8]"
+                      className="h-12 w-full rounded-md border border-[#EADDCD] bg-white px-4 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#F0EDE8]"
                     />
                   </div>
 
                   {showExistingAccountNotice ? (
-                    <div className="rounded-xl border border-[#C6A56B] bg-white px-4 py-3 dark:bg-[#242220]">
+                    <div className="rounded-xl border border-[#B87B68] bg-white px-4 py-3 dark:bg-[#242220]">
                       <p className="text-sm leading-7 text-[#6E6257] dark:text-[#8A7D75]">
                         {registrationContent.existingAccount}
                       </p>
@@ -1736,8 +1736,8 @@ export default function LandingPage() {
                     disabled={isSubmittingRegister}
                     className={`inline-flex h-12 w-full items-center justify-center rounded-md px-5 text-sm font-medium transition-colors ${
                       isSubmittingRegister
-                        ? "cursor-not-allowed bg-[#D8C7B5] text-[#6E6257] opacity-80 dark:bg-[#3D3530] dark:text-[#8A7D75]"
-                        : "bg-[#C6A56B] text-[#2B2B2B] hover:bg-[#D4B47A]"
+                        ? "cursor-not-allowed bg-[#EADDCD] text-[#6E6257] opacity-80 dark:bg-[#3D3530] dark:text-[#8A7D75]"
+                        : "bg-[#B87B68] text-[#2B2B2B] hover:bg-[#D4B47A]"
                     }`}
                   >
                     {isSubmittingRegister
@@ -1772,7 +1772,7 @@ export default function LandingPage() {
             </div>
 
             <div className="mt-10 grid gap-6 md:grid-cols-3">
-              <article className="flex flex-col rounded-2xl border border-[#D8C7B5] bg-white p-6 text-center dark:border-[#3D3530] dark:bg-[#242220]">
+              <article className="flex flex-col rounded-2xl border border-[#EADDCD] bg-white p-6 text-center dark:border-[#3D3530] dark:bg-[#242220]">
                 <div className="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-full bg-[#F8F5F0] dark:bg-[#1A1814]">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -1781,7 +1781,7 @@ export default function LandingPage() {
                     viewBox="0 0 24 24"
                     aria-hidden="true"
                   >
-                    <circle cx="12" cy="12" r="10" fill="#C6A56B" />
+                    <circle cx="12" cy="12" r="10" fill="#B87B68" />
                     <path
                       fill="#FFFFFF"
                       d="M16.85 14.58c-.72 0-1.42-.11-2.07-.32a.95.95 0 0 0-.92.2l-1.31 1.01a11.05 11.05 0 0 1-4.02-4.02l1.01-1.31a.95.95 0 0 0 .2-.92 6.72 6.72 0 0 1-.32-2.07c0-.52-.43-.95-.95-.95H6.15c-.52 0-.95.43-.95.95 0 6.43 5.22 11.65 11.65 11.65.52 0 .95-.43.95-.95v-2.32c0-.52-.43-.95-.95-.95Z"
@@ -1792,7 +1792,7 @@ export default function LandingPage() {
                   {contactContent.card1Label}
                 </p>
                 <p
-                  className="mt-3 text-2xl font-semibold text-[#C6A56B]"
+                  className="mt-3 text-2xl font-semibold text-[#B87B68]"
                   style={{ fontFamily: "Playfair Display, serif" }}
                 >
                 </p>
@@ -1804,7 +1804,7 @@ export default function LandingPage() {
                 </a>
               </article>
 
-              <article className="flex flex-col rounded-2xl border border-[#D8C7B5] bg-white p-6 text-center dark:border-[#3D3530] dark:bg-[#242220]">
+              <article className="flex flex-col rounded-2xl border border-[#EADDCD] bg-white p-6 text-center dark:border-[#3D3530] dark:bg-[#242220]">
                 <div className="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-full bg-[#F8F5F0] dark:bg-[#1A1814]">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -1827,7 +1827,7 @@ export default function LandingPage() {
                   {contactContent.card2Label}
                 </p>
                 <p
-                  className="mt-3 text-2xl font-semibold text-[#C6A56B]"
+                  className="mt-3 text-2xl font-semibold text-[#B87B68]"
                   style={{ fontFamily: "Playfair Display, serif" }}
                 >
                 </p>
@@ -1841,7 +1841,7 @@ export default function LandingPage() {
                 </a>
               </article>
 
-              <article className="flex flex-col rounded-2xl border border-[#D8C7B5] bg-white p-6 text-center dark:border-[#3D3530] dark:bg-[#242220]">
+              <article className="flex flex-col rounded-2xl border border-[#EADDCD] bg-white p-6 text-center dark:border-[#3D3530] dark:bg-[#242220]">
                 <div className="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-full bg-[#F8F5F0] dark:bg-[#1A1814]">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -1861,7 +1861,7 @@ export default function LandingPage() {
                   {contactContent.card3Label}
                 </p>
                 <p
-                  className="mt-3 text-2xl font-semibold text-[#C6A56B]"
+                  className="mt-3 text-2xl font-semibold text-[#B87B68]"
                   style={{ fontFamily: "Playfair Display, serif" }}
                 >
                 </p>
@@ -1879,11 +1879,11 @@ export default function LandingPage() {
               <center>
             <Link
               href="/"
-              className="group relative mx-auto mt-8 inline-flex h-14 w-full max-w-sm items-center justify-center gap-3 overflow-hidden rounded-md border border-[#C6A56B]/70 bg-[#F8F5F0] px-6 text-lg font-bold text-[#2B2B2B] transition-transform hover:-translate-y-1 dark:bg-[#1A1814]"
+              className="group relative mx-auto mt-8 inline-flex h-14 w-full max-w-sm items-center justify-center gap-3 overflow-hidden rounded-md border border-[#B87B68]/70 bg-[#F8F5F0] px-6 text-lg font-bold text-[#2B2B2B] transition-transform hover:-translate-y-1 dark:bg-[#1A1814]"
               style={{ animation: "breathe 4s ease-in-out infinite" }}
             >
-              <span className="pointer-events-none absolute inset-1 rounded-[5px] border border-[#C6A56B]/30" />
-              <ExternalLink className="relative h-5 w-5 text-[#C6A56B] transition-transform duration-300 group-hover:rotate-6 group-hover:scale-110" />
+              <span className="pointer-events-none absolute inset-1 rounded-[5px] border border-[#B87B68]/30" />
+              <ExternalLink className="relative h-5 w-5 text-[#B87B68] transition-transform duration-300 group-hover:rotate-6 group-hover:scale-110" />
               <span className="glitter-text relative leading-none">
                 {contactContent.bigButton}
               </span>
@@ -1895,7 +1895,7 @@ export default function LandingPage() {
 
         <footer className="bg-[#2B2B2B] px-6 py-6 pb-20 dark:bg-[#0F0D0C] md:pb-6">
           <div className="mx-auto flex w-full max-w-6xl flex-col items-center justify-between gap-4 text-center md:flex-row md:text-left">
-            <p className="text-sm text-[#B8A89A] dark:text-[#8A7D75]">
+            <p className="text-sm text-[#884F38] dark:text-[#8A7D75]">
               {footerContent.copyright}
             </p>
 
@@ -1905,7 +1905,7 @@ export default function LandingPage() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Facebook"
-                className="text-[#C6A56B] transition-opacity hover:opacity-80"
+                className="text-[#B87B68] transition-opacity hover:opacity-80"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -1924,7 +1924,7 @@ export default function LandingPage() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Instagram"
-                className="text-[#C6A56B] transition-opacity hover:opacity-80"
+                className="text-[#B87B68] transition-opacity hover:opacity-80"
               >
                 <svg
                   width="20"
@@ -1942,7 +1942,7 @@ export default function LandingPage() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="WhatsApp"
-                className="text-[#C6A56B] transition-opacity hover:opacity-80"
+                className="text-[#B87B68] transition-opacity hover:opacity-80"
               >
                 <svg
                   width="20"
@@ -1958,7 +1958,7 @@ export default function LandingPage() {
               <a
                 href="tel:+8801647660300"
                 aria-label="Phone"
-                className="text-[#C6A56B] transition-opacity hover:opacity-80"
+                className="text-[#B87B68] transition-opacity hover:opacity-80"
               >
                 <Phone className="h-5 w-5" />
               </a>
@@ -1969,7 +1969,7 @@ export default function LandingPage() {
         <div className="fixed bottom-0 left-0 right-0 z-50 grid grid-cols-3 border-t border-[#3D3530] bg-[#2B2B2B] md:hidden dark:bg-[#0F0D0C]">
           <a
             href="tel:+8801647660300"
-            className="flex min-h-[60px] flex-col items-center justify-center gap-1 px-2 py-2 text-[#C6A56B]"
+            className="flex min-h-[60px] flex-col items-center justify-center gap-1 px-2 py-2 text-[#B87B68]"
           >
             <Phone className="h-4 w-4" />
             <span className="text-xs font-medium">
@@ -1991,7 +1991,7 @@ export default function LandingPage() {
 
           <Link
             href="/services"
-            className="flex min-h-[60px] flex-col items-center justify-center gap-1 bg-[#C6A56B] px-2 py-2 text-[#2B2B2B]"
+            className="flex min-h-[60px] flex-col items-center justify-center gap-1 bg-[#B87B68] px-2 py-2 text-[#2B2B2B]"
           >
             <Star className="h-4 w-4 fill-current" />
             <span className="text-xs font-semibold">

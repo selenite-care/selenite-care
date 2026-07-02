@@ -158,7 +158,7 @@ function RegisterPageContent() {
               className="border-themed bg-card rounded-xl border px-5 py-7 shadow-[0_16px_34px_rgba(43,43,43,0.06)] dark:shadow-none"
             >
               <div
-                className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[rgba(198,165,107,0.12)] text-[#C6A56B] dark:bg-[rgba(212,180,122,0.16)] dark:text-[#D4B47A]"
+                className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[rgba(198,165,107,0.12)] text-[#B87B68] dark:bg-[rgba(212,180,122,0.16)] dark:text-[#D4B47A]"
               >
                 <svg
                   width="32"
@@ -200,8 +200,8 @@ function RegisterPageContent() {
                   disabled={isResending || resendCountdown > 0}
                   className={`flex h-11 w-full items-center justify-center rounded-lg border-0 px-4 text-sm font-medium text-[#F8F5F0] transition-colors ${
                     isResending || resendCountdown > 0
-                      ? "cursor-not-allowed bg-[#D8C7B5] opacity-80 dark:bg-[#3D3530] dark:text-[#8A7D75]"
-                      : "cursor-pointer bg-[#2B2B2B] hover:bg-[#B8A89A] dark:bg-[#C6A56B] dark:text-[#141210] dark:hover:bg-[#D4B47A]"
+                      ? "cursor-not-allowed bg-[#EADDCD] opacity-80 dark:bg-[#3D3530] dark:text-[#8A7D75]"
+                      : "cursor-pointer bg-[#2B2B2B] hover:bg-[#884F38] dark:bg-[#B87B68] dark:text-[#141210] dark:hover:bg-[#D4B47A]"
                   }`}
                 >
                   {isResending
@@ -247,7 +247,7 @@ function RegisterPageContent() {
             <button
               type="button"
               onClick={handleGoogleRegister}
-              className="flex h-11 w-full items-center justify-center gap-3 rounded-lg border border-[#2B2B2B] bg-white px-4 text-sm font-medium text-[#2B2B2B] transition-colors hover:bg-[#F8F5F0] dark:border-[#D8C7B5] dark:bg-[#F0EDE8] dark:text-[#141210] dark:hover:bg-[#D8C7B5]"
+              className="flex h-11 w-full items-center justify-center gap-3 rounded-lg border border-[#2B2B2B] bg-white px-4 text-sm font-medium text-[#2B2B2B] transition-colors hover:bg-[#F8F5F0] dark:border-[#EADDCD] dark:bg-[#F0EDE8] dark:text-[#141210] dark:hover:bg-[#EADDCD]"
             >
               <svg
                 viewBox="0 0 24 24"
@@ -276,11 +276,11 @@ function RegisterPageContent() {
             </button>
 
             <div className="flex items-center gap-3">
-              <div className="h-px flex-1 bg-[#D8C7B5] dark:bg-[#3D3530]" />
-              <span className="text-xs font-medium uppercase tracking-[0.16em] text-[#B8A89A] dark:text-[#8A7D75]">
+              <div className="h-px flex-1 bg-[#EADDCD] dark:bg-[#3D3530]" />
+              <span className="text-xs font-medium uppercase tracking-[0.16em] text-[#884F38] dark:text-[#8A7D75]">
                 or
               </span>
-              <div className="h-px flex-1 bg-[#D8C7B5] dark:bg-[#3D3530]" />
+              <div className="h-px flex-1 bg-[#EADDCD] dark:bg-[#3D3530]" />
             </div>
 
             <div>
@@ -296,12 +296,12 @@ function RegisterPageContent() {
                 type="text"
                 autoComplete="name"
                 required
-                className="h-11 w-full rounded-lg border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors dark:bg-[#1E1C1A] dark:border-[#3D3530] dark:text-[#F0EDE8] dark:placeholder-[#8A7D75]"
+                className="h-11 w-full rounded-lg border border-[#EADDCD] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors dark:bg-[#1E1C1A] dark:border-[#3D3530] dark:text-[#F0EDE8] dark:placeholder-[#8A7D75]"
                 onFocus={(e) => {
-                  e.currentTarget.style.borderColor = '#C6A56B';
+                  e.currentTarget.style.borderColor = '#B87B68';
                 }}
                 onBlur={(e) => {
-                  e.currentTarget.style.borderColor = '#D8C7B5';
+                  e.currentTarget.style.borderColor = '#EADDCD';
                 }}
               />
             </div>
@@ -343,12 +343,12 @@ function RegisterPageContent() {
                 type="email"
                 autoComplete="email"
                 required
-                className="h-11 w-full rounded-lg border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors dark:bg-[#1E1C1A] dark:border-[#3D3530] dark:text-[#F0EDE8] dark:placeholder-[#8A7D75]"
+                className="h-11 w-full rounded-lg border border-[#EADDCD] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors dark:bg-[#1E1C1A] dark:border-[#3D3530] dark:text-[#F0EDE8] dark:placeholder-[#8A7D75]"
                 onFocus={(e) => {
-                  e.currentTarget.style.borderColor = '#C6A56B';
+                  e.currentTarget.style.borderColor = '#B87B68';
                 }}
                 onBlur={(e) => {
-                  e.currentTarget.style.borderColor = '#D8C7B5';
+                  e.currentTarget.style.borderColor = '#EADDCD';
                 }}
               />
             </div>
@@ -364,12 +364,12 @@ function RegisterPageContent() {
                 id="dateOfBirth"
                 name="dateOfBirth"
                 type="date"
-                className="h-11 w-full rounded-lg border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors dark:bg-[#1E1C1A] dark:border-[#3D3530] dark:text-[#F0EDE8]"
+                className="h-11 w-full rounded-lg border border-[#EADDCD] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors dark:bg-[#1E1C1A] dark:border-[#3D3530] dark:text-[#F0EDE8]"
                 onFocus={(e) => {
-                  e.currentTarget.style.borderColor = '#C6A56B';
+                  e.currentTarget.style.borderColor = '#B87B68';
                 }}
                 onBlur={(e) => {
-                  e.currentTarget.style.borderColor = '#D8C7B5';
+                  e.currentTarget.style.borderColor = '#EADDCD';
                 }}
               />
             </div>
@@ -387,19 +387,19 @@ function RegisterPageContent() {
                 type="password"
                 autoComplete="new-password"
                 required
-                className="h-11 w-full rounded-lg border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors dark:bg-[#1E1C1A] dark:border-[#3D3530] dark:text-[#F0EDE8] dark:placeholder-[#8A7D75]"
+                className="h-11 w-full rounded-lg border border-[#EADDCD] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors dark:bg-[#1E1C1A] dark:border-[#3D3530] dark:text-[#F0EDE8] dark:placeholder-[#8A7D75]"
                 onFocus={(e) => {
-                  e.currentTarget.style.borderColor = '#C6A56B';
+                  e.currentTarget.style.borderColor = '#B87B68';
                 }}
                 onBlur={(e) => {
-                  e.currentTarget.style.borderColor = '#D8C7B5';
+                  e.currentTarget.style.borderColor = '#EADDCD';
                 }}
               />
             </div>
 
             {showExistingAccountNotice ? (
               <div
-                className="rounded-[10px] border border-[#C6A56B] bg-[#F8F5F0] px-4 py-[14px] dark:bg-[#242220]"
+                className="rounded-[10px] border border-[#B87B68] bg-[#F8F5F0] px-4 py-[14px] dark:bg-[#242220]"
               >
                 <p
                   className="m-0 text-sm leading-7 text-[#6E6257] dark:text-[#8A7D75]"
@@ -419,8 +419,8 @@ function RegisterPageContent() {
               disabled={isSubmitting}
               className={`flex h-11 w-full items-center justify-center rounded-lg border-0 px-4 text-sm font-medium text-[#F8F5F0] transition-colors ${
                 isSubmitting
-                  ? "cursor-not-allowed bg-[#D8C7B5] opacity-70 dark:bg-[#3D3530] dark:text-[#8A7D75]"
-                  : "cursor-pointer bg-[#2B2B2B] hover:bg-[#B8A89A] dark:bg-[#C6A56B] dark:text-[#141210] dark:hover:bg-[#D4B47A]"
+                  ? "cursor-not-allowed bg-[#EADDCD] opacity-70 dark:bg-[#3D3530] dark:text-[#8A7D75]"
+                  : "cursor-pointer bg-[#2B2B2B] hover:bg-[#884F38] dark:bg-[#B87B68] dark:text-[#141210] dark:hover:bg-[#D4B47A]"
               }`}
               onMouseEnter={(e) => {
                 void e;

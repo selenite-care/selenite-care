@@ -179,7 +179,7 @@ export default function AdminManualMembershipPage() {
           style={{ backgroundColor: "rgba(43, 43, 43, 0.72)" }}
         >
           <div
-            className="modal-card max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg border border-[#D8C7B5] bg-white p-6 shadow-2xl dark:border-[#3D3530] dark:bg-[#242220]"
+            className="modal-card max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg border border-[#EADDCD] bg-white p-6 shadow-2xl dark:border-[#3D3530] dark:bg-[#242220]"
             style={{
               boxShadow: "0 24px 80px rgba(43, 43, 43, 0.28)",
             }}
@@ -193,16 +193,16 @@ export default function AdminManualMembershipPage() {
             >
               Membership Created Successfully
             </h2>
-            <p className="mt-3 text-sm leading-6 text-[#B8A89A] dark:text-[#8A7D75]">
+            <p className="mt-3 text-sm leading-6 text-[#884F38] dark:text-[#8A7D75]">
               Share these credentials with the customer over phone. This
               password will not be shown again.
             </p>
 
             <div
-              className="mt-5 space-y-4 rounded-lg border border-[#D8C7B5] bg-[#F8F5F0] p-4 dark:border-[#3D3530] dark:bg-[#2A2724]"
+              className="mt-5 space-y-4 rounded-lg border border-[#EADDCD] bg-[#F8F5F0] p-4 dark:border-[#3D3530] dark:bg-[#2A2724]"
             >
               <div>
-                <p className="text-xs font-medium uppercase tracking-wide text-[#B8A89A] dark:text-[#8A7D75]">
+                <p className="text-xs font-medium uppercase tracking-wide text-[#884F38] dark:text-[#8A7D75]">
                   Email
                 </p>
                 <p className="mt-1 break-all font-mono text-sm text-[#2B2B2B] dark:text-[#F0EDE8]">
@@ -211,17 +211,17 @@ export default function AdminManualMembershipPage() {
               </div>
 
               <div>
-                <p className="text-xs font-medium uppercase tracking-wide text-[#B8A89A] dark:text-[#8A7D75]">
+                <p className="text-xs font-medium uppercase tracking-wide text-[#884F38] dark:text-[#8A7D75]">
                   Temporary Password
                 </p>
                 <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-center">
-                  <code className="flex-1 rounded-md border border-[#D8C7B5] bg-white px-3 py-2 text-sm font-semibold text-[#2B2B2B] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]">
+                  <code className="flex-1 rounded-md border border-[#EADDCD] bg-white px-3 py-2 text-sm font-semibold text-[#2B2B2B] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]">
                     {credentialsModal.temporaryPassword}
                   </code>
                   <button
                     type="button"
                     onClick={handleCopyPassword}
-                    className="inline-flex h-10 items-center justify-center rounded-md bg-[#2B2B2B] px-4 text-sm font-medium text-[#F8F5F0] transition-colors hover:opacity-90 dark:bg-[#C6A56B] dark:text-[#141210]"
+                    className="inline-flex h-10 items-center justify-center rounded-md bg-[#2B2B2B] px-4 text-sm font-medium text-[#F8F5F0] transition-colors hover:opacity-90 dark:bg-[#B87B68] dark:text-[#141210]"
                   >
                     {isPasswordCopied ? "Copied" : "Copy Password"}
                   </button>
@@ -233,7 +233,7 @@ export default function AdminManualMembershipPage() {
               <button
                 type="button"
                 onClick={() => setCredentialsModal(null)}
-                className="inline-flex h-10 items-center justify-center rounded-md border border-[#C6A56B] bg-white px-4 text-sm font-medium text-[#2B2B2B] transition-colors hover:bg-[#C6A56B]/10 dark:bg-[#242220] dark:text-[#F0EDE8]"
+                className="inline-flex h-10 items-center justify-center rounded-md border border-[#B87B68] bg-white px-4 text-sm font-medium text-[#2B2B2B] transition-colors hover:bg-[#B87B68]/10 dark:bg-[#242220] dark:text-[#F0EDE8]"
               >
                 Close
               </button>
@@ -251,13 +251,13 @@ export default function AdminManualMembershipPage() {
         >
           Add Membership
         </h1>
-        <p className="mt-3 text-sm leading-6 text-[#B8A89A] dark:text-[#8A7D75]">
+        <p className="mt-3 text-sm leading-6 text-[#884F38] dark:text-[#8A7D75]">
           Add a membership manually for walk-in customers or verified offline
           payments.
         </p>
       </div>
 
-      <div className="rounded-lg border border-[#D8C7B5] bg-white p-6 dark:border-[#3D3530] dark:bg-[#242220]">
+      <div className="rounded-lg border border-[#EADDCD] bg-white p-6 dark:border-[#3D3530] dark:bg-[#242220]">
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
             <div>
@@ -277,7 +277,7 @@ export default function AdminManualMembershipPage() {
                   }))
                 }
                 required
-                className="mt-2 h-11 w-full rounded-md border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
+                className="mt-2 h-11 w-full rounded-md border border-[#EADDCD] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68]"
               />
             </div>
 
@@ -299,7 +299,7 @@ export default function AdminManualMembershipPage() {
                   }))
                 }
                 required
-                className="mt-2 h-11 w-full rounded-md border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
+                className="mt-2 h-11 w-full rounded-md border border-[#EADDCD] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68]"
               />
             </div>
 
@@ -348,7 +348,7 @@ export default function AdminManualMembershipPage() {
                     age: event.target.value,
                   }))
                 }
-                className="mt-2 h-11 w-full rounded-md border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
+                className="mt-2 h-11 w-full rounded-md border border-[#EADDCD] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68]"
               />
             </div>
 
@@ -369,7 +369,7 @@ export default function AdminManualMembershipPage() {
                     dateOfBirth: event.target.value,
                   }))
                 }
-                className="mt-2 h-11 w-full rounded-md border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
+                className="mt-2 h-11 w-full rounded-md border border-[#EADDCD] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68]"
               />
             </div>
 
@@ -389,7 +389,7 @@ export default function AdminManualMembershipPage() {
                     gender: event.target.value,
                   }))
                 }
-                className="mt-2 h-11 w-full rounded-md border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
+                className="mt-2 h-11 w-full rounded-md border border-[#EADDCD] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68]"
               >
                 <option value="Male">Male</option>
                 <option value="Female">Female</option>
@@ -415,7 +415,7 @@ export default function AdminManualMembershipPage() {
                   }))
                 }
                 required
-                className="mt-2 h-11 w-full rounded-md border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
+                className="mt-2 h-11 w-full rounded-md border border-[#EADDCD] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68]"
               />
             </div>
           </div>
@@ -437,7 +437,7 @@ export default function AdminManualMembershipPage() {
                 }))
               }
               rows={4}
-              className="mt-2 w-full resize-none rounded-md border border-[#D8C7B5] bg-white px-3 py-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
+              className="mt-2 w-full resize-none rounded-md border border-[#EADDCD] bg-white px-3 py-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68]"
             />
           </div>
 
@@ -458,7 +458,7 @@ export default function AdminManualMembershipPage() {
                     tier: event.target.value as MembershipTier,
                   }))
                 }
-                className="mt-2 h-11 w-full rounded-md border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
+                className="mt-2 h-11 w-full rounded-md border border-[#EADDCD] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68]"
               >
                 <option value="SIGNATURE">Signature</option>
                 <option value="CRYSTAL">Crystal</option>
@@ -486,9 +486,9 @@ export default function AdminManualMembershipPage() {
                   }))
                 }
                 required
-                className="mt-2 h-11 w-full rounded-md border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
+                className="mt-2 h-11 w-full rounded-md border border-[#EADDCD] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68]"
               />
-              <p className="mt-2 text-xs text-[#B8A89A] dark:text-[#8A7D75]">
+              <p className="mt-2 text-xs text-[#884F38] dark:text-[#8A7D75]">
                 Suggested amount: {suggestedAmount} BDT
               </p>
             </div>
@@ -509,7 +509,7 @@ export default function AdminManualMembershipPage() {
                     paymentMethod: event.target.value as PaymentMethod,
                   }))
                 }
-                className="mt-2 h-11 w-full rounded-md border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
+                className="mt-2 h-11 w-full rounded-md border border-[#EADDCD] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68]"
               >
                 <option value="CASH">Cash</option>
                 <option value="BKASH">bKash</option>
@@ -522,7 +522,7 @@ export default function AdminManualMembershipPage() {
             <div
               className={`rounded-md border px-4 py-3 text-sm leading-6 ${
                 errorVariant === "warning"
-                  ? "border-[#C6A56B] bg-[rgba(198,165,107,0.10)] text-[#2B2B2B] dark:text-[#F0EDE8]"
+                  ? "border-[#B87B68] bg-[rgba(198,165,107,0.10)] text-[#2B2B2B] dark:text-[#F0EDE8]"
                   : "border-red-200 bg-red-50 text-red-600 dark:border-red-900/40 dark:bg-red-950/30 dark:text-red-300"
               }`}
             >
@@ -531,7 +531,7 @@ export default function AdminManualMembershipPage() {
           ) : null}
           {successMessage ? (
             <div
-              className="rounded-md border border-[#C6A56B] bg-[rgba(198,165,107,0.08)] px-4 py-3 text-sm text-[#2B2B2B] dark:text-[#F0EDE8]"
+              className="rounded-md border border-[#B87B68] bg-[rgba(198,165,107,0.08)] px-4 py-3 text-sm text-[#2B2B2B] dark:text-[#F0EDE8]"
             >
               {successMessage}
             </div>
@@ -541,7 +541,7 @@ export default function AdminManualMembershipPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="inline-flex h-11 items-center justify-center rounded-md bg-[#2B2B2B] px-5 text-sm font-medium text-[#F8F5F0] transition-colors disabled:cursor-not-allowed disabled:opacity-70 dark:bg-[#C6A56B] dark:text-[#141210]"
+              className="inline-flex h-11 items-center justify-center rounded-md bg-[#2B2B2B] px-5 text-sm font-medium text-[#F8F5F0] transition-colors disabled:cursor-not-allowed disabled:opacity-70 dark:bg-[#B87B68] dark:text-[#141210]"
             >
               {isSubmitting ? "Saving..." : "Add Membership"}
             </button>

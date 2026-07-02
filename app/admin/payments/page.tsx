@@ -31,7 +31,7 @@ function getTierBadgeClasses(tier: MembershipTier) {
   switch (tier) {
     case "SIGNATURE":
       return {
-        backgroundColor: "#C6A56B",
+        backgroundColor: "#B87B68",
         color: "#F8F5F0",
       };
     case "CRYSTAL":
@@ -174,7 +174,7 @@ export default function AdminPaymentsPage() {
           }}>
           Membership Payments
         </h1>
-        <p className="mt-3 text-sm leading-6 text-[#B8A89A] dark:text-[#8A7D75]">
+        <p className="mt-3 text-sm leading-6 text-[#884F38] dark:text-[#8A7D75]">
           Review membership purchases and their payment status.
         </p>
       </div>
@@ -195,7 +195,7 @@ export default function AdminPaymentsPage() {
 
       {!isLoading && !error && (totalCount > 0 || searchQuery.trim()) ? (
         <>
-          <div className="mt-8 rounded-lg border border-[#D8C7B5] bg-white p-4">
+          <div className="mt-8 rounded-lg border border-[#EADDCD] bg-white p-4">
             <div className="grid gap-4 md:grid-cols-[1fr_auto] md:items-end">
               <div>
                 <label
@@ -210,7 +210,7 @@ export default function AdminPaymentsPage() {
                   value={searchQuery}
                   onChange={(event) => setSearchQuery(event.target.value)}
                   placeholder="Membership ID, client name, email, phone, tier, or payment status"
-                  className="mt-2 h-11 w-full rounded-md border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors placeholder:text-[#B8A89A] focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
+                  className="mt-2 h-11 w-full rounded-md border border-[#EADDCD] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors placeholder:text-[#884F38] focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68]"
                 />
               </div>
 
@@ -228,7 +228,7 @@ export default function AdminPaymentsPage() {
               </button>
             </div>
 
-            <p className="mt-4 text-sm text-[#B8A89A]">
+            <p className="mt-4 text-sm text-[#884F38]">
               Showing {memberships.length} of {totalCount} membership payments.
             </p>
           </div>

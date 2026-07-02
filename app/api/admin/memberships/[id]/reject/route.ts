@@ -72,9 +72,9 @@ export async function PATCH(request: Request, context: RouteContext) {
         subject: "Membership Payment Rejected - Selenite Care",
         html: `
           <div style="margin:0;padding:32px 16px;background-color:#F8F5F0;font-family:Arial,sans-serif;color:#2B2B2B;">
-            <div style="max-width:640px;margin:0 auto;background:#FFFFFF;border:1px solid #D8C7B5;border-radius:18px;overflow:hidden;">
+            <div style="max-width:640px;margin:0 auto;background:#FFFFFF;border:1px solid #EADDCD;border-radius:18px;overflow:hidden;">
               <div style="padding:24px 28px;background:#2B2B2B;color:#F8F5F0;">
-                <div style="font-size:12px;letter-spacing:0.22em;text-transform:uppercase;color:#C6A56B;">Selenite Care</div>
+                <div style="font-size:12px;letter-spacing:0.22em;text-transform:uppercase;color:#B87B68;">Selenite Care</div>
                 <h1 style="margin:12px 0 0;font-size:28px;line-height:1.2;font-family:'Playfair Display',Georgia,serif;">Payment Verification Update</h1>
               </div>
               <div style="padding:28px;">
@@ -84,7 +84,7 @@ export async function PATCH(request: Request, context: RouteContext) {
                 <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#4B4037;">
                   We could not verify your submitted membership payment for <strong>${membership.membershipId}</strong>.
                 </p>
-                <div style="padding:18px 20px;border:1px solid #D8C7B5;border-radius:14px;background:#FCFAF7;">
+                <div style="padding:18px 20px;border:1px solid #EADDCD;border-radius:14px;background:#FCFAF7;">
                   <p style="margin:0 0 8px;font-size:13px;letter-spacing:0.12em;text-transform:uppercase;color:#8C7967;">Reason</p>
                   <p style="margin:0;font-size:14px;line-height:1.7;color:#2B2B2B;">${reason}</p>
                 </div>

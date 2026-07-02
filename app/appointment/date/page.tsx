@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Image from "next/image";
 import { AlertCircle } from "lucide-react";
@@ -24,13 +24,13 @@ const dayOrder = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 function normalizeAvailabilityText(availability: string) {
   return availability
-    .replaceAll("ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œ", "-")
     .replaceAll("ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“", "-")
     .replaceAll("Ã¢â‚¬â€œ", "-")
-    .replaceAll("Ã¢â‚¬â€", "-")
     .replaceAll("â€“", "-")
+    .replaceAll("â€”", "-")
     .replaceAll("–", "-")
-    .replaceAll("—", "-")
+    .replaceAll("�", "-")
+    .replaceAll("�", "-")
     .trim();
 }
 
@@ -316,7 +316,7 @@ function AppointmentDatePageContent() {
         </div>
 
         {isLoading ? (
-          <p className="mt-10 text-sm text-[#B8A89A] dark:text-[#8A7D75]">
+          <p className="mt-10 text-sm text-[#884F38] dark:text-[#8A7D75]">
             Loading doctor details...
           </p>
         ) : null}
@@ -335,7 +335,7 @@ function AppointmentDatePageContent() {
             <section
               className="overflow-hidden rounded-[24px] border bg-white dark:bg-[#242220] dark:border-[#3D3530]"
               style={{
-                borderColor: "#D8C7B5",
+                borderColor: "#EADDCD",
                 boxShadow: "0 18px 48px rgba(43, 43, 43, 0.06)",
               }}
             >
@@ -381,7 +381,7 @@ function AppointmentDatePageContent() {
                 <div
                   className="mt-5 rounded-xl border px-4 py-3 text-sm dark:bg-[#1A1814] dark:border-[#3D3530] dark:text-[#8A7D75]"
                   style={{
-                    borderColor: "#D8C7B5",
+                    borderColor: "#EADDCD",
                     backgroundColor: "#F8F5F0",
                     color: "#6E6257",
                   }}
@@ -397,7 +397,7 @@ function AppointmentDatePageContent() {
             <section
               className="rounded-[24px] border bg-white p-6 dark:bg-[#242220] dark:border-[#3D3530] sm:p-8"
               style={{
-                borderColor: "#D8C7B5",
+                borderColor: "#EADDCD",
                 boxShadow: "0 18px 48px rgba(43, 43, 43, 0.06)",
               }}
             >
@@ -425,8 +425,8 @@ function AppointmentDatePageContent() {
                         key={day}
                         className="rounded-full border px-3 py-1 text-xs font-medium"
                         style={{
-                          borderColor: isEnabled ? "#C6A56B" : "#D8C7B5",
-                          backgroundColor: isEnabled ? "#C6A56B" : "#F8F5F0",
+                          borderColor: isEnabled ? "#B87B68" : "#EADDCD",
+                          backgroundColor: isEnabled ? "#B87B68" : "#F8F5F0",
                           color: isEnabled ? "#F8F5F0" : "#8C7967",
                         }}
                       >
@@ -450,9 +450,9 @@ function AppointmentDatePageContent() {
                       className="min-h-[72px] rounded-xl border px-3 py-4 text-sm font-medium transition-all"
                       style={{
                         borderColor: isSelected
-                          ? "#C6A56B"
+                          ? "#B87B68"
                           : dateOption.isAvailable
-                            ? "#D8C7B5"
+                            ? "#EADDCD"
                             : "#E8DDD3",
                         backgroundColor: isSelected
                           ? "#2B2B2B"
@@ -463,7 +463,7 @@ function AppointmentDatePageContent() {
                           ? "#F8F5F0"
                           : dateOption.isAvailable
                             ? "#2B2B2B"
-                            : "#B8A89A",
+                            : "#884F38",
                         opacity: dateOption.isAvailable ? 1 : 0.55,
                         cursor: dateOption.isAvailable ? "pointer" : "not-allowed",
                       }}
@@ -475,10 +475,10 @@ function AppointmentDatePageContent() {
               </div>
 
               {sameDayCutoff ? (
-                <div className="mt-5 rounded-xl border border-[#D8C7B5] bg-[#F8F5F0] px-4 py-3 dark:border-[#3D3530] dark:bg-[#1A1814]">
+                <div className="mt-5 rounded-xl border border-[#EADDCD] bg-[#F8F5F0] px-4 py-3 dark:border-[#3D3530] dark:bg-[#1A1814]">
                   <div className="flex items-start gap-3">
                     <AlertCircle
-                      className="mt-0.5 h-4 w-4 shrink-0 text-[#C6A56B]"
+                      className="mt-0.5 h-4 w-4 shrink-0 text-[#B87B68]"
                       aria-hidden="true"
                     />
                     <p className="text-sm leading-6 text-[#8C7967] dark:text-[#8A7D75]">
@@ -497,7 +497,7 @@ function AppointmentDatePageContent() {
               <div
                 className="mt-8 rounded-xl border px-4 py-3 text-sm dark:bg-[#1A1814] dark:border-[#3D3530] dark:text-[#8A7D75]"
                 style={{
-                  borderColor: "#D8C7B5",
+                  borderColor: "#EADDCD",
                   backgroundColor: "#F8F5F0",
                   color: "#6E6257",
                 }}
@@ -514,7 +514,7 @@ function AppointmentDatePageContent() {
                 type="button"
                 onClick={handleConfirm}
                 disabled={!selectedDate}
-                className="mt-8 inline-flex h-12 w-full items-center justify-center rounded-md px-5 text-sm font-medium transition-colors hover:bg-[#B8A89A] disabled:cursor-not-allowed disabled:opacity-50"
+                className="mt-8 inline-flex h-12 w-full items-center justify-center rounded-md px-5 text-sm font-medium transition-colors hover:bg-[#884F38] disabled:cursor-not-allowed disabled:opacity-50"
                 style={{
                   backgroundColor: "#2B2B2B",
                   color: "#F8F5F0",
@@ -534,7 +534,7 @@ function AppointmentDateLoadingFallback() {
   return (
     <section className="flex min-h-screen flex-col bg-[#F8F5F0] px-6 py-16 dark:bg-[#1A1814]">
       <div className="mx-auto w-full max-w-6xl">
-        <p className="text-sm text-[#B8A89A] dark:text-[#8A7D75]">
+        <p className="text-sm text-[#884F38] dark:text-[#8A7D75]">
           Loading...
         </p>
       </div>

@@ -70,9 +70,9 @@ function VerifyEmailContent() {
   return (
     <section className="flex min-h-screen items-center justify-center bg-[#F8F5F0] px-6 py-12 dark:bg-[#1A1814]">
       <div
-        className="w-full max-w-xl rounded-2xl border border-[#D8C7B5] bg-white px-6 py-10 text-center shadow-sm dark:border-[#3D3530] dark:bg-[#242220] sm:px-10"
+        className="w-full max-w-xl rounded-2xl border border-[#EADDCD] bg-white px-6 py-10 text-center shadow-sm dark:border-[#3D3530] dark:bg-[#242220] sm:px-10"
       >
-        <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#C6A56B]">
+        <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#B87B68]">
           Selenite Care
         </p>
 
@@ -94,7 +94,7 @@ function VerifyEmailContent() {
           {state === "loading" ? (
             <div
               className="mx-auto h-11 w-40 animate-pulse rounded-md"
-              style={{ backgroundColor: "#D8C7B5" }}
+              style={{ backgroundColor: "#EADDCD" }}
             />
           ) : isSuccess ? (
             <Link
@@ -106,7 +106,7 @@ function VerifyEmailContent() {
           ) : (
             <Link
               href="/register"
-              className="inline-flex h-11 items-center justify-center rounded-md border border-[#C6A56B] px-6 text-sm font-medium text-[#2B2B2B] transition-colors hover:bg-[#F8F5F0] dark:text-[#F0EDE8] dark:hover:bg-[#1A1814]"
+              className="inline-flex h-11 items-center justify-center rounded-md border border-[#B87B68] px-6 text-sm font-medium text-[#2B2B2B] transition-colors hover:bg-[#F8F5F0] dark:text-[#F0EDE8] dark:hover:bg-[#1A1814]"
             >
               Back to Register
             </Link>
@@ -120,7 +120,7 @@ function VerifyEmailContent() {
 function VerifyEmailFallback() {
   return (
     <section className="flex min-h-screen items-center justify-center bg-[#F8F5F0] px-6 py-12 dark:bg-[#1A1814]">
-      <p className="text-[#B8A89A] dark:text-[#8A7D75]">Loading...</p>
+      <p className="text-[#884F38] dark:text-[#8A7D75]">Loading...</p>
     </section>
   );
 }

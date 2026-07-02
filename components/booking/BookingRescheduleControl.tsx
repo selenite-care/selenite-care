@@ -104,11 +104,11 @@ export default function BookingRescheduleControl({
   }
 
   return (
-    <section className="mt-6 rounded-lg border border-[#D8C7B5] bg-background p-6 dark:border-[#3D3530]">
+    <section className="mt-6 rounded-lg border border-[#EADDCD] bg-background p-6 dark:border-[#3D3530]">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <CalendarDays className="h-5 w-5 text-[#C6A56B]" />
+            <CalendarDays className="h-5 w-5 text-[#B87B68]" />
             <h2 className="text-lg font-semibold text-foreground">
               Reschedule Appointment
             </h2>
@@ -132,7 +132,7 @@ export default function BookingRescheduleControl({
               setError("");
             }}
             disabled={disabled}
-            className="mt-2 h-11 w-full rounded-md border border-[#D8C7B5] bg-background px-3 text-sm text-foreground outline-none transition-colors focus:border-[#C6A56B] disabled:cursor-not-allowed disabled:opacity-60 dark:border-[#3D3530]"
+            className="mt-2 h-11 w-full rounded-md border border-[#EADDCD] bg-background px-3 text-sm text-foreground outline-none transition-colors focus:border-[#B87B68] disabled:cursor-not-allowed disabled:opacity-60 dark:border-[#3D3530]"
           />
         </label>
 
@@ -140,7 +140,7 @@ export default function BookingRescheduleControl({
           type="button"
           onClick={handleReschedule}
           disabled={disabled || isSubmitting || !selectedDate || !hasDateChanged}
-          className="inline-flex h-11 items-center justify-center rounded-md bg-[#2B2B2B] px-5 text-sm font-medium text-[#F8F5F0] transition-colors hover:bg-[#3A3734] disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#C6A56B] dark:text-[#141210] dark:hover:bg-[#D4B47A]"
+          className="inline-flex h-11 items-center justify-center rounded-md bg-[#2B2B2B] px-5 text-sm font-medium text-[#F8F5F0] transition-colors hover:bg-[#3A3734] disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#B87B68] dark:text-[#141210] dark:hover:bg-[#D4B47A]"
         >
           {isSubmitting ? "Updating..." : "Update Date"}
         </button>

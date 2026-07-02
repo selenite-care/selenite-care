@@ -112,7 +112,7 @@ export default function Home() {
         <div className="relative mx-auto w-full max-w-6xl">
           <div className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr] lg:items-end">
             <div className="max-w-3xl">
-              <span className="inline-flex rounded-full border border-[#D8C7B5] bg-white/80 px-4 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#C6A56B] dark:border-[#3D3530] dark:bg-[#242220] dark:text-[#D4B47A]">
+              <span className="inline-flex rounded-full border border-[#884F38] bg-white/80 px-4 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#B87B68] dark:border-[#3D3530] dark:bg-[#242220] dark:text-[#D4B47A]">
                 Why Clients Stay With Us
               </span>
               <h2
@@ -121,20 +121,20 @@ export default function Home() {
               >
                 Why Choose Us
               </h2>
-              <p className="text-muted mt-4 max-w-2xl text-base leading-7 sm:text-lg">
+              <p className="text-muted mt-4 max-w-2xl text-base leading-7 sm:text-lg text-[#884F38] dark:text-[#8A7D75]">
                 We&apos;re building a skincare and wellness experience that feels warm, structured, and genuinely supportive from the first click to ongoing care.
               </p>
             </div>
 
             <div className="border-themed bg-page rounded-3xl border p-5 shadow-[0_18px_40px_rgba(43,43,43,0.06)] dark:shadow-none">
-              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#C6A56B] dark:text-[#D4B47A]">
+              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#B87B68] dark:text-[#D4B47A]">
                 What You Can Expect
               </p>
               <ul className="mt-4 space-y-3">
                 {reassurancePoints.map((point) => (
                   <li key={point} className="text-page flex items-start gap-3 text-sm leading-6">
-                    <span className="mt-2 h-2 w-2 rounded-full bg-[#C6A56B] dark:bg-[#D4B47A]" />
-                    <span>{point}</span>
+                    <span className="mt-2 h-2 w-2 rounded-full bg-[#B87B68] dark:bg-[#D4B47A]" />
+                    <span className="text-[#884F38] dark:text-[#8A7D75]">{point}</span>
                   </li>
                 ))}
               </ul>
@@ -147,13 +147,13 @@ export default function Home() {
             ))}
           </ViewportAnimatedSection>
 
-          <div className="mt-8 grid gap-4 rounded-[28px] border border-[#D8C7B5] bg-white/75 p-4 shadow-[0_16px_34px_rgba(43,43,43,0.05)] dark:border-[#3D3530] dark:bg-[#242220]/90 dark:shadow-none md:grid-cols-3 md:p-5">
+          <div className="mt-8 grid gap-4 rounded-[28px] border border-[#EADDCD] bg-white/75 p-4 shadow-[0_16px_34px_rgba(43,43,43,0.05)] dark:border-[#3D3530] dark:bg-[#242220]/90 dark:shadow-none md:grid-cols-3 md:p-5">
             {trustHighlights.map((item) => (
               <div
                 key={item.label}
                 className="border-themed rounded-2xl border bg-[#F8F5F0]/75 px-4 py-4 dark:bg-[#1A1814]/80"
               >
-                <p className="text-muted text-xs font-semibold uppercase tracking-[0.16em]">
+                <p className="text-muted text-xs font-semibold uppercase tracking-[0.16em] text-[#884F38] dark:text-[#8A7D75]">
                   {item.label}
                 </p>
                 <p
@@ -173,7 +173,7 @@ export default function Home() {
       <section className="px-6 py-20 bg-white dark:bg-[#242220]">
       <div className="mx-auto max-w-5xl text-center">
     <span
-      className="text-sm font-medium uppercase tracking-[0.2em] text-[#C6A56B] dark:text-[#D4B47A]"
+      className="text-sm font-medium uppercase tracking-[0.2em] text-[#B87B68] dark:text-[#D4B47A]"
     >
       Client Community
     </span>
@@ -184,7 +184,7 @@ export default function Home() {
       Join Our Private Wellness Community
     </h2>
     <p
-      className="mx-auto mt-6 max-w-2xl text-lg text-[#B8A89A] dark:text-[#8A7D75]"
+      className="mx-auto mt-6 max-w-2xl text-lg text-[#884F38] dark:text-[#8A7D75]"
     >
       Connect with other members, share your skincare journey,
       read real experiences, and receive exclusive wellness updates.
