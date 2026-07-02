@@ -1,10 +1,12 @@
 "use client";
 
 import Papa from "papaparse";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
+import Pagination from "@/components/ui/Pagination";
 import { formatDateTime } from "@/lib/dateUtils";
 
 type MembershipTier = "SIGNATURE" | "CRYSTAL" | "PLATINUM";
+const ITEMS_PER_PAGE = 20;
 
 type AdminMembershipPayment = {
   id: string;
@@ -79,13 +81,34 @@ function getMembershipAmount(tier: MembershipTier) {
 export default function AdminPaymentsPage() {
   const [memberships, setMemberships] = useState<AdminMembershipPayment[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const totalPages = Math.max(1, Math.ceil(totalCount / ITEMS_PER_PAGE));
 
   useEffect(() => {
+    const controller = new AbortController();
+
     async function loadMembershipPayments() {
+      setIsLoading(true);
+      setError("");
+
       try {
-        const response = await fetch("/api/admin/memberships");
+        const params = new URLSearchParams({
+          page: String(currentPage),
+          limit: String(ITEMS_PER_PAGE),
+        });
+        const trimmedSearch = searchQuery.trim();
+
+        if (trimmedSearch) {
+          params.set("search", trimmedSearch);
+        }
+
+        const response = await fetch(`/api/admin/memberships?${params.toString()}`, {
+          cache: "no-store",
+          signal: controller.signal,
+        });
 
         if (!response.ok) {
           throw new Error("Unable to load membership payments.");
@@ -93,9 +116,16 @@ export default function AdminPaymentsPage() {
 
         const data = (await response.json()) as {
           memberships?: AdminMembershipPayment[];
+          totalCount?: number;
         };
+
         setMemberships(data.memberships ?? []);
-      } catch {
+        setTotalCount(data.totalCount ?? 0);
+      } catch (loadError) {
+        if (loadError instanceof DOMException && loadError.name === "AbortError") {
+          return;
+        }
+
         setError("Membership payments are not available right now.");
       } finally {
         setIsLoading(false);
@@ -103,30 +133,16 @@ export default function AdminPaymentsPage() {
     }
 
     loadMembershipPayments();
-  }, []);
+    return () => controller.abort();
+  }, [currentPage, searchQuery]);
 
-  const filteredMemberships = useMemo(() => {
-    const normalizedQuery = searchQuery.trim().toLowerCase();
-
-    return memberships.filter((membership) => {
-      const clientName = membership.user.name ?? membership.user.email;
-      return (
-        !normalizedQuery ||
-        membership.membershipId.toLowerCase().includes(normalizedQuery) ||
-        clientName.toLowerCase().includes(normalizedQuery) ||
-        membership.user.email.toLowerCase().includes(normalizedQuery) ||
-        (membership.user.phone ?? "").toLowerCase().includes(normalizedQuery) ||
-        membership.tier.toLowerCase().includes(normalizedQuery) ||
-        (membership.payment?.status ?? "UNPAID")
-          .toLowerCase()
-          .includes(normalizedQuery)
-      );
-    });
-  }, [memberships, searchQuery]);
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
 
   function handleExportCsv() {
     const csv = Papa.unparse(
-      filteredMemberships.map((membership) => ({
+      memberships.map((membership) => ({
         "Membership ID": membership.membershipId,
         "Client Name": membership.user.name ?? membership.user.email,
         "Client Phone": membership.user.phone ?? "",
@@ -171,13 +187,13 @@ export default function AdminPaymentsPage() {
 
       {error ? <p className="mt-8 text-sm text-red-600">{error}</p> : null}
 
-      {!isLoading && !error && memberships.length === 0 ? (
+      {!isLoading && !error && totalCount === 0 && !searchQuery.trim() ? (
         <p className="mt-8 text-sm text-foreground/70">
           No membership payments found.
         </p>
       ) : null}
 
-      {!isLoading && !error && memberships.length > 0 ? (
+      {!isLoading && !error && (totalCount > 0 || searchQuery.trim()) ? (
         <>
           <div className="mt-8 rounded-lg border border-[#D8C7B5] bg-white p-4">
             <div className="grid gap-4 md:grid-cols-[1fr_auto] md:items-end">
@@ -201,7 +217,7 @@ export default function AdminPaymentsPage() {
               <button
                 type="button"
                 onClick={handleExportCsv}
-                disabled={filteredMemberships.length === 0}
+                disabled={memberships.length === 0}
                 className="inline-flex h-11 items-center justify-center rounded-md px-5 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60"
                 style={{
                   backgroundColor: "#2B2B2B",
@@ -213,7 +229,7 @@ export default function AdminPaymentsPage() {
             </div>
 
             <p className="mt-4 text-sm text-[#B8A89A]">
-              Showing {filteredMemberships.length} of {memberships.length} membership payments.
+              Showing {memberships.length} of {totalCount} membership payments.
             </p>
           </div>
 
@@ -233,14 +249,14 @@ export default function AdminPaymentsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredMemberships.length === 0 ? (
+                  {memberships.length === 0 ? (
                     <tr>
                       <td colSpan={8} className="cell-muted px-4 py-8 text-center text-sm">
                         No membership payments match your search.
                       </td>
                     </tr>
                   ) : (
-                    filteredMemberships.map((membership) => {
+                    memberships.map((membership) => {
                       const tierBadgeStyles = getTierBadgeClasses(membership.tier);
 
                       return (
@@ -284,6 +300,16 @@ export default function AdminPaymentsPage() {
             <p className="px-4 pb-4 text-xs text-muted md:hidden">
               Scroll to see more
             </p>
+          </div>
+
+          <div className="mt-6">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+              totalItems={totalCount}
+              itemsPerPage={ITEMS_PER_PAGE}
+            />
           </div>
         </>
       ) : null}

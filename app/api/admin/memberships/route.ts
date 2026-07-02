@@ -66,7 +66,7 @@ export async function GET(request: Request) {
     ...(membershipStatus ? { status: membershipStatus } : {}),
   };
 
-  const [memberships, totalCount] = await Promise.all([
+  const [memberships, totalCount] = await db.$transaction([
     db.membership.findMany({
       where,
       orderBy: {
@@ -100,6 +100,8 @@ export async function GET(request: Request) {
   return Response.json({
     memberships,
     totalCount,
+    page,
+    totalPages: Math.max(Math.ceil(totalCount / limit), 1),
     pagination: getPaginationMeta({ page, limit, totalCount }),
   });
 }

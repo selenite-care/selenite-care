@@ -4,6 +4,7 @@ import Link from "next/link";
 import Papa from "papaparse";
 import { useEffect, useState } from "react";
 import Pagination from "@/components/ui/Pagination";
+import { SkeletonTable } from "@/components/ui/Skeleton";
 import { formatDateOnly } from "@/lib/dateUtils";
 
 export type CrmBookingListItem = {
@@ -234,88 +235,94 @@ export default function CrmBookingsClient({ bookings }: CrmBookingsClientProps) 
       </div>
 
       {isLoading ? (
-        <p className="mb-4 text-sm text-[#8C7967]">Loading bookings...</p>
+        <div className="mb-4">
+          <SkeletonTable rows={8} cols={7} />
+        </div>
       ) : null}
 
       {error ? <p className="mb-4 text-sm text-red-600">{error}</p> : null}
 
-      <div className="overflow-hidden rounded-3xl border border-themed bg-card shadow-sm">
-        <div className="overflow-x-auto">
-          <table className="table-themed min-w-full text-left text-sm">
-            <thead>
-              <tr>
-                <th className="px-4 py-4">Booking Token</th>
-                <th className="px-4 py-4">Client Name</th>
-                <th className="px-4 py-4">Client Phone</th>
-                <th className="px-4 py-4">Doctor</th>
-                <th className="px-4 py-4">Preferred Date</th>
-                <th className="px-4 py-4">Status</th>
-                <th className="px-4 py-4">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredBookings.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="cell-muted px-4 py-8 text-center text-sm">
-                    No bookings match your filters.
-                  </td>
-                </tr>
-              ) : (
-                filteredBookings.map((booking) => (
-                  <tr key={booking.id}>
-                    <td className="px-4 py-4 font-mono text-xs">
-                      <Link
-                        href={`/crm/bookings/${booking.id}`}
-                        className="transition-colors hover:text-foreground/70"
-                      >
-                        {booking.token ?? booking.id}
-                      </Link>
-                    </td>
-                    <td className="px-4 py-4 font-medium">
-                      {booking.user.name ?? "-"}
-                    </td>
-                    <td className="cell-muted px-4 py-4">
-                      {booking.user.phone ?? "-"}
-                    </td>
-                    <td className="cell-muted px-4 py-4">
-                      {booking.doctor?.name ?? "-"}
-                    </td>
-                    <td className="cell-muted px-4 py-4">
-                      {formatAppointmentTime(booking.appointmentTime)}
-                    </td>
-                    <td className="px-4 py-4">
-                      <span
-                        className={`inline-flex rounded-full border px-3 py-1 text-xs font-medium ${getBookingStatusBadgeClasses(
-                          booking.status,
-                        )}`}
-                      >
-                        {booking.status}
-                      </span>
-                    </td>
-                    <td className="px-4 py-4">
-                      <Link
-                        href={`/crm/bookings/${booking.id}`}
-                        className="inline-flex h-9 items-center justify-center rounded-md border border-themed bg-card px-3 text-xs font-medium text-page transition-colors hover:bg-black/5 dark:hover:bg-white/5"
-                      >
-                        View Details
-                      </Link>
-                    </td>
+      {!isLoading && !error ? (
+        <>
+          <div className="overflow-hidden rounded-3xl border border-themed bg-card shadow-sm">
+            <div className="overflow-x-auto">
+              <table className="table-themed min-w-full text-left text-sm">
+                <thead>
+                  <tr>
+                    <th className="px-4 py-4">Booking Token</th>
+                    <th className="px-4 py-4">Client Name</th>
+                    <th className="px-4 py-4">Client Phone</th>
+                    <th className="px-4 py-4">Doctor</th>
+                    <th className="px-4 py-4">Preferred Date</th>
+                    <th className="px-4 py-4">Status</th>
+                    <th className="px-4 py-4">Action</th>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-        <p className="px-4 pb-4 text-xs text-muted md:hidden">Scroll to see more</p>
-      </div>
+                </thead>
+                <tbody>
+                  {filteredBookings.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className="cell-muted px-4 py-8 text-center text-sm">
+                        No bookings match your filters.
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredBookings.map((booking) => (
+                      <tr key={booking.id}>
+                        <td className="px-4 py-4 font-mono text-xs">
+                          <Link
+                            href={`/crm/bookings/${booking.id}`}
+                            className="transition-colors hover:text-foreground/70"
+                          >
+                            {booking.token ?? booking.id}
+                          </Link>
+                        </td>
+                        <td className="px-4 py-4 font-medium">
+                          {booking.user.name ?? "-"}
+                        </td>
+                        <td className="cell-muted px-4 py-4">
+                          {booking.user.phone ?? "-"}
+                        </td>
+                        <td className="cell-muted px-4 py-4">
+                          {booking.doctor?.name ?? "-"}
+                        </td>
+                        <td className="cell-muted px-4 py-4">
+                          {formatAppointmentTime(booking.appointmentTime)}
+                        </td>
+                        <td className="px-4 py-4">
+                          <span
+                            className={`inline-flex rounded-full border px-3 py-1 text-xs font-medium ${getBookingStatusBadgeClasses(
+                              booking.status,
+                            )}`}
+                          >
+                            {booking.status}
+                          </span>
+                        </td>
+                        <td className="px-4 py-4">
+                          <Link
+                            href={`/crm/bookings/${booking.id}`}
+                            className="inline-flex h-9 items-center justify-center rounded-md border border-themed bg-card px-3 text-xs font-medium text-page transition-colors hover:bg-black/5 dark:hover:bg-white/5"
+                          >
+                            View Details
+                          </Link>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+            <p className="px-4 pb-4 text-xs text-muted md:hidden">Scroll to see more</p>
+          </div>
 
-      <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={setCurrentPage}
-        totalItems={totalCount}
-        itemsPerPage={ITEMS_PER_PAGE}
-      />
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+            totalItems={totalCount}
+            itemsPerPage={ITEMS_PER_PAGE}
+          />
+        </>
+      ) : null}
     </>
   );
 }

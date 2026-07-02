@@ -71,7 +71,7 @@ export async function GET(request: Request) {
     };
   }
 
-  const [users, totalCount] = await Promise.all([
+  const [users, totalCount] = await db.$transaction([
     db.user.findMany({
       where,
       orderBy: {
