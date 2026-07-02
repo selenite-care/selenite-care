@@ -9,31 +9,35 @@ datasource db {
 }
 
 model User {
-  id                  String         @id @default(cuid())
-  name                String?
-  email               String         @unique
-  phone               String?
-  age                 String?
-  gender              String?
-  address             String?
-  password            String?
-  role                Role           @default(CLIENT)
-  isTemporaryPassword Boolean        @default(false)
-  createdAt           DateTime       @default(now())
-  emailVerified       DateTime?
-  verificationToken   String?        @unique
-  resetPasswordToken  String?        @unique
+  id                   String         @id @default(cuid())
+  name                 String?
+  email                String         @unique
+  phone                String?
+  age                  String?
+  gender               String?
+  address              String?
+  password             String?
+  role                 Role           @default(CLIENT)
+  isTemporaryPassword  Boolean        @default(false)
+  createdAt            DateTime       @default(now())
+  emailVerified        DateTime?
+  verificationToken    String?        @unique
+  resetPasswordToken   String?        @unique
   resetPasswordExpires DateTime?
-  bookings            Booking[]
-  doctor              Doctor?
-  memberships         Membership[]
-  surveyProfile       SurveyProfile?
-  dateOfBirth DateTime?
-  isActive Boolean @default(true)
-  orders              Order[]
-  notifications       Notification[]
-  accounts            Account[]
-  image               String?
+  bookings             Booking[]
+  doctor               Doctor?
+  memberships          Membership[]
+  surveyProfile        SurveyProfile?
+  dateOfBirth          DateTime?
+  isActive             Boolean        @default(true)
+  orders               Order[]
+  notifications        Notification[]
+  accounts             Account[]
+  image                String?
+
+  @@index([role])
+  @@index([createdAt(sort: Desc)])
+  @@index([isActive])
 }
 
 model Account {
@@ -80,6 +84,7 @@ model SurveyProfile {
   note                       String?
   updatedAt                  DateTime @updatedAt
   createdAt                  DateTime @default(now())
+
   @@index([userId])
 }
 
@@ -93,23 +98,30 @@ model Membership {
   payment      MembershipPayment?
   createdAt    DateTime           @default(now())
   expiresAt    DateTime?
+
   @@index([userId])
   @@index([status])
+  @@index([createdAt(sort: Desc)])
+  @@index([expiresAt])
+  @@index([tier])
 }
 
 model MembershipPayment {
-  id              String         @id @default(cuid())
-  membershipId    String         @unique
-  membership      Membership     @relation(fields: [membershipId], references: [id])
-  paymentMethod   PaymentMethod  @default(STRIPE)
-  stripePaymentId String?        @unique
-  bkashPaymentId  String?        @unique
-  bkashTrxId      String?
+  id                 String        @id @default(cuid())
+  membershipId       String        @unique
+  membership         Membership    @relation(fields: [membershipId], references: [id])
+  paymentMethod      PaymentMethod @default(STRIPE)
+  stripePaymentId    String?       @unique
+  bkashPaymentId     String?       @unique
+  bkashTrxId         String?
   bankTransactionRef String?
   bankTransferProof  String?
-  amount          Float
-  status          PaymentStatus  @default(UNPAID)
-  createdAt       DateTime       @default(now())
+  amount             Float
+  status             PaymentStatus @default(UNPAID)
+  createdAt          DateTime      @default(now())
+
+  @@index([createdAt(sort: Desc)])
+  @@index([status])
 }
 
 model Service {
@@ -123,40 +135,43 @@ model Service {
 }
 
 model Doctor {
-  id           String    @id @default(cuid())
-  name         String
-  designation  String
-  bio          String?
-  availability String
-  image        String?
+  id             String               @id @default(cuid())
+  name           String
+  designation    String
+  bio            String?
+  availability   String
+  image          String?
   specialization DoctorSpecialization @default(AESTHETICIAN)
-  slotDuration Int       @default(15)
-  userId       String?   @unique
-  user         User?     @relation(fields: [userId], references: [id])
-  bookings     Booking[]
-  isActive Boolean @default(true)
+  slotDuration   Int                  @default(15)
+  userId         String?              @unique
+  user           User?                @relation(fields: [userId], references: [id])
+  bookings       Booking[]
+  isActive       Boolean              @default(true)
 }
 
 model Booking {
-  id              String          @id @default(cuid())
-  token           String          @unique
-  userId          String
-  user            User            @relation(fields: [userId], references: [id])
-  serviceId       String?
-  service         Service?        @relation(fields: [serviceId], references: [id])
-  doctorId        String?
-  doctor          Doctor?         @relation(fields: [doctorId], references: [id])
-  status          BookingStatus   @default(PENDING)
-  appointmentTime DateTime?
-  createdAt       DateTime        @default(now())
-  payment         Payment?
-  surveyResponse  SurveyResponse?
-  diagnosis       Diagnosis?
+  id               String            @id @default(cuid())
+  token            String            @unique
+  userId           String
+  user             User              @relation(fields: [userId], references: [id])
+  serviceId        String?
+  service          Service?          @relation(fields: [serviceId], references: [id])
+  doctorId         String?
+  doctor           Doctor?           @relation(fields: [doctorId], references: [id])
+  status           BookingStatus     @default(PENDING)
+  appointmentTime  DateTime?
+  createdAt        DateTime          @default(now())
+  payment          Payment?
+  surveyResponse   SurveyResponse?
+  diagnosis        Diagnosis?
   routineGuideline RoutineGuideline?
   customerFeedback CustomerFeedback?
+
   @@index([userId])
   @@index([doctorId])
   @@index([status])
+  @@index([createdAt(sort: Desc)])
+  @@index([appointmentTime(sort: Desc)])
 }
 
 model Payment {
@@ -170,9 +185,9 @@ model Payment {
 }
 
 model SurveyResponse {
-  id                         String    @id @default(cuid())
-  booking                    Booking?  @relation(fields: [bookingId], references: [id])
-  bookingId                  String?   @unique
+  id                         String   @id @default(cuid())
+  booking                    Booking? @relation(fields: [bookingId], references: [id])
+  bookingId                  String?  @unique
   name                       String
   age                        String
   phone                      String
@@ -193,7 +208,7 @@ model SurveyResponse {
   usedSteroidBasedNightCream Boolean
   note                       String?
   skinImages                 String[]
-  createdAt                  DateTime  @default(now())
+  createdAt                  DateTime @default(now())
 }
 
 model Product {
@@ -218,18 +233,22 @@ model Product {
 }
 
 model Order {
-  id            String        @id @default(cuid())
-  userId        String
-  user          User          @relation(fields: [userId], references: [id])
-  status        OrderStatus   @default(PENDING)
-  paymentMethod PaymentMethod @default(BKASH)
-  totalAmount   Float
+  id             String        @id @default(cuid())
+  userId         String
+  user           User          @relation(fields: [userId], references: [id])
+  status         OrderStatus   @default(PENDING)
+  paymentMethod  PaymentMethod @default(BKASH)
+  totalAmount    Float
   transactionRef String?
   proofImageUrl  String?
-  note          String?
-  items         OrderItem[]
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  note           String?
+  items          OrderItem[]
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@index([createdAt(sort: Desc)])
+  @@index([status])
+  @@index([userId])
 }
 
 model OrderItem {
@@ -250,6 +269,7 @@ model Diagnosis {
   recommendations       ProductRecommendation[]
   updatedAt             DateTime                @updatedAt
   createdAt             DateTime                @default(now())
+
   @@index([bookingId])
 }
 
@@ -289,6 +309,8 @@ model LeadCapture {
   email     String?
   interest  String?
   createdAt DateTime @default(now())
+
+  @@index([createdAt(sort: Desc)])
 }
 
 model Notification {
@@ -304,6 +326,8 @@ model Notification {
 
   @@index([userId])
   @@index([isRead])
+  @@index([userId, isRead])
+  @@index([createdAt(sort: Desc)])
 }
 
 enum Role {
@@ -312,6 +336,7 @@ enum Role {
   CRM
   ADMIN
 }
+
 enum DoctorSpecialization {
   AESTHETICIAN
   NUTRITIONIST
@@ -343,6 +368,7 @@ enum MembershipStatus {
   EXPIRED
   CANCELLED
 }
+
 enum PaymentMethod {
   STRIPE
   BKASH

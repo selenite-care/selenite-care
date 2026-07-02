@@ -68,7 +68,7 @@ export async function GET(request: Request) {
     };
   }
 
-  const [clients, totalCount] = await Promise.all([
+  const [clients, totalCount] = await db.$transaction([
     db.user.findMany({
       where,
       orderBy: {

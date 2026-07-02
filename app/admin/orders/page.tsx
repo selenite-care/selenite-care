@@ -3,7 +3,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import Papa from "papaparse";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
+import Pagination from "@/components/ui/Pagination";
+import { SkeletonTable } from "@/components/ui/Skeleton";
 import { formatDateTime } from "@/lib/dateUtils";
 
 type AdminOrder = {
@@ -38,6 +40,7 @@ const ORDER_STATUS_OPTIONS: AdminOrder["status"][] = [
   "DELIVERED",
   "CANCELLED",
 ];
+const ITEMS_PER_PAGE = 20;
 
 function formatBdt(amount: number) {
   return `${Math.round(amount)} BDT`;
@@ -96,19 +99,42 @@ export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<AdminOrder[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [updatingOrderId, setUpdatingOrderId] = useState<string | null>(null);
+  const totalPages = Math.max(1, Math.ceil(totalCount / ITEMS_PER_PAGE));
 
   useEffect(() => {
+    const controller = new AbortController();
+
     async function loadOrders() {
+      setIsLoading(true);
+      setError("");
+
       try {
-        const response = await fetch("/api/admin/orders", {
+        const params = new URLSearchParams({
+          page: String(currentPage),
+          limit: String(ITEMS_PER_PAGE),
+        });
+        const trimmedSearch = searchQuery.trim();
+
+        if (trimmedSearch) {
+          params.set("search", trimmedSearch);
+        }
+
+        if (statusFilter !== "ALL") {
+          params.set("statusFilter", statusFilter);
+        }
+
+        const response = await fetch(`/api/admin/orders?${params.toString()}`, {
           cache: "no-store",
+          signal: controller.signal,
         });
 
         const data = (await response.json().catch(() => null)) as
-          | { orders?: AdminOrder[]; error?: string }
+          | { orders?: AdminOrder[]; totalCount?: number; error?: string }
           | null;
 
         if (!response.ok) {
@@ -116,7 +142,12 @@ export default function AdminOrdersPage() {
         }
 
         setOrders(data?.orders ?? []);
+        setTotalCount(data?.totalCount ?? 0);
       } catch (loadError) {
+        if (loadError instanceof DOMException && loadError.name === "AbortError") {
+          return;
+        }
+
         setError(
           loadError instanceof Error ? loadError.message : "Unable to load orders.",
         );
@@ -126,25 +157,13 @@ export default function AdminOrdersPage() {
     }
 
     void loadOrders();
-  }, []);
 
-  const filteredOrders = useMemo(() => {
-    const normalizedQuery = searchQuery.trim().toLowerCase();
+    return () => controller.abort();
+  }, [currentPage, searchQuery, statusFilter]);
 
-    return orders.filter((order) => {
-      const clientName = order.user.name ?? order.user.email;
-      const matchesQuery =
-        !normalizedQuery ||
-        order.id.toLowerCase().includes(normalizedQuery) ||
-        clientName.toLowerCase().includes(normalizedQuery) ||
-        order.user.email.toLowerCase().includes(normalizedQuery) ||
-        (order.user.phone ?? "").toLowerCase().includes(normalizedQuery);
-      const matchesStatus =
-        statusFilter === "ALL" || order.status === statusFilter;
-
-      return matchesQuery && matchesStatus;
-    });
-  }, [orders, searchQuery, statusFilter]);
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, statusFilter]);
 
   async function handleStatusUpdate(orderId: string, status: AdminOrder["status"]) {
     setUpdatingOrderId(orderId);
@@ -185,7 +204,7 @@ export default function AdminOrdersPage() {
 
   function handleExportCsv() {
     const csv = Papa.unparse(
-      filteredOrders.map((order) => ({
+      orders.map((order) => ({
         "Order ID": order.id,
         "Client Name": order.user.name ?? order.user.email,
         "Client Phone": order.user.phone ?? "",
@@ -226,9 +245,9 @@ export default function AdminOrdersPage() {
       </div>
 
       {isLoading ? (
-        <p className="mt-8 text-sm text-[#B8A89A] dark:text-[#8A7D75]">
-          Loading orders...
-        </p>
+        <div className="mt-8">
+          <SkeletonTable rows={8} cols={10} />
+        </div>
       ) : null}
 
       {error ? <p className="mt-8 text-sm text-red-600">{error}</p> : null}
@@ -279,7 +298,7 @@ export default function AdminOrdersPage() {
               <button
                 type="button"
                 onClick={handleExportCsv}
-                disabled={filteredOrders.length === 0}
+                disabled={orders.length === 0}
                 className="inline-flex h-11 items-center justify-center rounded-md bg-[#2B2B2B] px-5 text-sm font-medium text-[#F8F5F0] transition-colors hover:bg-[#B8A89A] disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#C6A56B] dark:text-[#141210] dark:hover:bg-[#D4B47A]"
               >
                 Export CSV
@@ -287,7 +306,7 @@ export default function AdminOrdersPage() {
             </div>
 
             <p className="mt-4 text-sm text-[#B8A89A] dark:text-[#8A7D75]">
-              Showing {filteredOrders.length} of {orders.length} orders.
+              Showing {orders.length} of {totalCount} orders.
             </p>
           </div>
 
@@ -309,14 +328,14 @@ export default function AdminOrdersPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredOrders.length === 0 ? (
+                  {orders.length === 0 ? (
                     <tr>
                       <td colSpan={10} className="cell-muted px-4 py-8 text-center text-sm">
                         No orders match the current filters.
                       </td>
                     </tr>
                   ) : (
-                    filteredOrders.map((order) => (
+                    orders.map((order) => (
                       <tr key={order.id}>
                         <td className="cell-muted px-4 py-4 font-mono text-xs">
                           {order.id}
@@ -412,6 +431,16 @@ export default function AdminOrdersPage() {
             <p className="px-4 pb-4 text-xs text-muted md:hidden">
               Scroll to see more
             </p>
+          </div>
+
+          <div className="mt-6">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+              totalItems={totalCount}
+              itemsPerPage={ITEMS_PER_PAGE}
+            />
           </div>
         </>
       ) : null}

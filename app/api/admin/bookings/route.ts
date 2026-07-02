@@ -44,7 +44,7 @@ export async function GET(request: Request) {
     ...(bookingStatus ? { status: bookingStatus } : {}),
   };
 
-  const [bookings, totalCount] = await Promise.all([
+  const [bookingRows, totalCount] = await db.$transaction([
     db.booking.findMany({
       where,
       orderBy: {
@@ -76,17 +76,23 @@ export async function GET(request: Request) {
         },
         payment: {
           select: {
-            id: true,
-            stripePaymentId: true,
             amount: true,
             status: true,
-            createdAt: true,
+          },
+        },
+        surveyResponse: {
+          select: {
+            id: true,
           },
         },
       },
     }),
     db.booking.count({ where }),
   ]);
+  const bookings = bookingRows.map(({ surveyResponse, ...booking }) => ({
+    ...booking,
+    hasSurvey: Boolean(surveyResponse?.id),
+  }));
 
   return Response.json({
     bookings,

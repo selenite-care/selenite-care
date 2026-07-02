@@ -32,7 +32,7 @@ export async function GET() {
     );
   }
 
-  const bookings = await db.booking.findMany({
+  const bookingRows = await db.booking.findMany({
     where: { doctorId: doctor.id },
     include: {
       user: {
@@ -62,30 +62,15 @@ export async function GET() {
       surveyResponse: {
         select: {
           id: true,
-          name: true,
-          age: true,
-          phone: true,
-          email: true,
-          skinType: true,
-          codeId: true,
-          usesKoreanProducts: true,
-          facingSkinIssues: true,
-          skinIssues: true,
-          skinIssueDuration: true,
-          currentProducts: true,
-          allergicIngredients: true,
-          doubleCleansePreference: true,
-          sleepHours: true,
-          waterIntake: true,
-          appliesSunscreen: true,
-          regularPeriodCycle: true,
-          usedSteroidBasedNightCream: true,
-          note: true,
         },
       },
     },
     orderBy: { appointmentTime: "desc" },
   });
+  const bookings = bookingRows.map(({ surveyResponse, ...booking }) => ({
+    ...booking,
+    hasSurvey: Boolean(surveyResponse?.id),
+  }));
 
   return new Response(
     JSON.stringify({ bookings }),
