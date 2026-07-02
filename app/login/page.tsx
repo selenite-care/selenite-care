@@ -194,7 +194,7 @@ function LoginPageContent() {
           <button
             type="button"
             onClick={handleGoogleLogin}
-            className="flex h-11 w-full items-center justify-center gap-3 rounded-lg border border-[#2B2B2B] bg-white px-4 text-sm font-medium text-[#2B2B2B] transition-colors hover:bg-[#F8F5F0] dark:border-[#D8C7B5] dark:bg-[#F0EDE8] dark:text-[#141210] dark:hover:bg-[#D8C7B5]"
+            className="flex h-11 w-full items-center justify-center gap-3 rounded-lg border border-[#2B2B2B] bg-white px-4 text-sm font-medium text-[#2B2B2B] transition-colors hover:bg-[#F8F5F0] dark:border-[#EADDCD] dark:bg-[#F0EDE8] dark:text-[#141210] dark:hover:bg-[#EADDCD]"
           >
             <svg
               viewBox="0 0 24 24"
@@ -223,11 +223,11 @@ function LoginPageContent() {
           </button>
 
           <div className="flex items-center gap-3">
-            <div className="h-px flex-1 bg-[#D8C7B5] dark:bg-[#3D3530]" />
-            <span className="text-xs font-medium uppercase tracking-[0.16em] text-[#B8A89A] dark:text-[#8A7D75]">
+            <div className="h-px flex-1 bg-[#EADDCD] dark:bg-[#3D3530]" />
+            <span className="text-xs font-medium uppercase tracking-[0.16em] text-[#884F38] dark:text-[#8A7D75]">
               or
             </span>
-            <div className="h-px flex-1 bg-[#D8C7B5] dark:bg-[#3D3530]" />
+            <div className="h-px flex-1 bg-[#EADDCD] dark:bg-[#3D3530]" />
           </div>
 
           <div>
@@ -245,12 +245,12 @@ function LoginPageContent() {
               required
               value={email}
               onChange={(event) => setEmail(event.target.value)}
-              className="h-11 w-full rounded-lg border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors dark:bg-[#1E1C1A] dark:border-[#3D3530] dark:text-[#F0EDE8] dark:placeholder-[#8A7D75]"
+              className="h-11 w-full rounded-lg border border-[#EADDCD] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors dark:bg-[#1E1C1A] dark:border-[#3D3530] dark:text-[#F0EDE8] dark:placeholder-[#8A7D75]"
               onFocus={(e) => {
-                e.currentTarget.style.borderColor = '#C6A56B';
+                e.currentTarget.style.borderColor = '#B87B68';
               }}
               onBlur={(e) => {
-                e.currentTarget.style.borderColor = '#D8C7B5';
+                e.currentTarget.style.borderColor = '#EADDCD';
               }}
             />
           </div>
@@ -268,18 +268,18 @@ function LoginPageContent() {
               type="password"
               autoComplete="current-password"
               required
-              className="h-11 w-full rounded-lg border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors dark:bg-[#1E1C1A] dark:border-[#3D3530] dark:text-[#F0EDE8] dark:placeholder-[#8A7D75]"
+              className="h-11 w-full rounded-lg border border-[#EADDCD] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors dark:bg-[#1E1C1A] dark:border-[#3D3530] dark:text-[#F0EDE8] dark:placeholder-[#8A7D75]"
               onFocus={(e) => {
-                e.currentTarget.style.borderColor = '#C6A56B';
+                e.currentTarget.style.borderColor = '#B87B68';
               }}
               onBlur={(e) => {
-                e.currentTarget.style.borderColor = '#D8C7B5';
+                e.currentTarget.style.borderColor = '#EADDCD';
               }}
             />
             <div style={{ marginTop: '8px', textAlign: 'right' }}>
               <a
                 href="/forgot-password"
-                className="text-[13px] text-[#C6A56B] underline transition-opacity hover:opacity-80 dark:text-[#D4B47A]"
+                className="text-[13px] text-[#B87B68] underline transition-opacity hover:opacity-80 dark:text-[#D4B47A]"
               >
                 Forgot password?
               </a>
@@ -291,7 +291,7 @@ function LoginPageContent() {
               type="checkbox"
               checked={rememberMe}
               onChange={(event) => setRememberMe(event.target.checked)}
-              className="h-4 w-4 rounded border border-[#D8C7B5] accent-[#C6A56B] dark:border-[#3D3530]"
+              className="h-4 w-4 rounded border border-[#EADDCD] accent-[#B87B68] dark:border-[#3D3530]"
             />
             <span className="text-muted">Remember me</span>
           </label>
@@ -308,8 +308,8 @@ function LoginPageContent() {
                 disabled={isResending || resendCountdown > 0 || !email}
                 className={`bg-transparent p-0 text-sm underline transition-opacity ${
                   isResending || resendCountdown > 0 || !email
-                    ? "cursor-not-allowed text-[#B8A89A] dark:text-[#8A7D75]"
-                    : "cursor-pointer text-[#C6A56B] hover:opacity-80 dark:text-[#D4B47A]"
+                    ? "cursor-not-allowed text-[#884F38] dark:text-[#8A7D75]"
+                    : "cursor-pointer text-[#B87B68] hover:opacity-80 dark:text-[#D4B47A]"
                 }`}
               >
                 {isResending
@@ -337,8 +337,8 @@ function LoginPageContent() {
             disabled={isSubmitting}
             className={`flex h-11 w-full items-center justify-center rounded-lg border-0 px-4 text-sm font-medium text-[#F8F5F0] transition-colors ${
               isSubmitting
-                ? "cursor-not-allowed bg-[#D8C7B5] opacity-70 dark:bg-[#3D3530] dark:text-[#8A7D75]"
-                : "cursor-pointer bg-[#2B2B2B] hover:bg-[#B8A89A] dark:bg-[#C6A56B] dark:text-[#141210] dark:hover:bg-[#D4B47A]"
+                ? "cursor-not-allowed bg-[#EADDCD] opacity-70 dark:bg-[#3D3530] dark:text-[#8A7D75]"
+                : "cursor-pointer bg-[#2B2B2B] hover:bg-[#884F38] dark:bg-[#B87B68] dark:text-[#141210] dark:hover:bg-[#D4B47A]"
             }`}
             onMouseEnter={(e) => {
               void e;

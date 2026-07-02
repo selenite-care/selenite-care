@@ -132,7 +132,7 @@ export default function LeadsPageClient({ embedded = false }: { embedded?: boole
               {["No pressure", "Friendly follow-up", "Online & offline support"].map(
                 (item) => (
                   <span key={item} className="inline-flex items-center gap-2">
-                    <Check className="h-4 w-4 text-[#C6A56B] dark:text-[#D4B47A]" />
+                    <Check className="h-4 w-4 text-[#B87B68] dark:text-[#D4B47A]" />
                     {item}
                   </span>
                 ),
@@ -141,7 +141,7 @@ export default function LeadsPageClient({ embedded = false }: { embedded?: boole
           </div>
 
           {/* ── Form card — recolored to use real brand charcoal + established dark tokens ── */}
-          <div className="w-full rounded-[28px] border border-[#D8C7B5] bg-[#2B2B2B] p-6 text-[#F8F5F0] shadow-[0_28px_90px_rgba(43,43,43,0.28)] dark:border-[#3D3530] dark:bg-[#1A1814] sm:p-7 lg:justify-self-end">
+          <div className="w-full rounded-[28px] border border-[#EADDCD] bg-[#2B2B2B] p-6 text-[#F8F5F0] shadow-[0_28px_90px_rgba(43,43,43,0.28)] dark:border-[#3D3530] dark:bg-[#1A1814] sm:p-7 lg:justify-self-end">
             {isSuccess ? (
               <div className="py-8 text-center">
                 <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#EAF7EE] text-[#1F7A3D] dark:bg-green-950/30 dark:text-green-300">
@@ -153,14 +153,14 @@ export default function LeadsPageClient({ embedded = false }: { embedded?: boole
                 >
                   Thank you!
                 </h2>
-                <p className="mt-3 text-sm leading-7 text-[#D8C7B5]">
+                <p className="mt-3 text-sm leading-7 text-[#EADDCD]">
                   We received your details. Our team will contact you soon with
                   the information you need.
                 </p>
                 <button
                   type="button"
                   onClick={() => setIsSuccess(false)}
-                  className="mt-6 inline-flex h-11 items-center justify-center rounded-md border border-[#D8C7B5]/40 px-5 text-sm font-medium text-[#F8F5F0] transition-colors hover:border-[#C6A56B] hover:text-[#C6A56B]"
+                  className="mt-6 inline-flex h-11 items-center justify-center rounded-md border border-[#EADDCD]/40 px-5 text-sm font-medium text-[#F8F5F0] transition-colors hover:border-[#B87B68] hover:text-[#B87B68]"
                 >
                   Submit another response
                 </button>
@@ -168,7 +168,7 @@ export default function LeadsPageClient({ embedded = false }: { embedded?: boole
             ) : (
               <>
                 <div>
-                  <div className="inline-flex items-center gap-3 rounded-full border border-[#D8C7B5]/30 bg-[#3D3530] px-3 py-2">
+                  <div className="inline-flex items-center gap-3 rounded-full border border-[#EADDCD]/30 bg-[#3D3530] px-3 py-2">
                     <Image
                       src="/final_logo.png"
                       alt="Selenite Care logo"
@@ -183,7 +183,7 @@ export default function LeadsPageClient({ embedded = false }: { embedded?: boole
                       >
                         Selenite Care
                       </p>
-                      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#C6A56B]">
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#B87B68]">
                         Quick Contact
                       </p>
                     </div>
@@ -194,7 +194,7 @@ export default function LeadsPageClient({ embedded = false }: { embedded?: boole
                   >
                     Tell us how to reach you
                   </h2>
-                  <p className="mt-2 text-sm leading-6 text-[#D8C7B5]">
+                  <p className="mt-2 text-sm leading-6 text-[#EADDCD]">
                     Phone or email is enough. Add both if you prefer.
                   </p>
                 </div>
@@ -205,14 +205,14 @@ export default function LeadsPageClient({ embedded = false }: { embedded?: boole
                       htmlFor="lead-name"
                       className="block text-sm font-medium text-[#F8F5F0]"
                     >
-                      Name <span className="text-[#B8A89A]">(optional)</span>
+                      Name <span className="text-[#884F38]">(optional)</span>
                     </label>
                     <input
                       id="lead-name"
                       value={name}
                       onChange={(event) => setName(event.target.value)}
                       placeholder="Your name"
-                      className="mt-2 h-12 w-full rounded-md border border-[#D8C7B5]/30 bg-[#1A1814] px-4 text-sm text-[#F8F5F0] outline-none transition-colors placeholder:text-[#8A7D75] focus:border-[#C6A56B]"
+                      className="mt-2 h-12 w-full rounded-md border border-[#EADDCD]/30 bg-[#1A1814] px-4 text-sm text-[#F8F5F0] outline-none transition-colors placeholder:text-[#8A7D75] focus:border-[#B87B68]"
                     />
                   </div>
 
@@ -230,7 +230,7 @@ export default function LeadsPageClient({ embedded = false }: { embedded?: boole
                         value={phone}
                         onChange={(event) => setPhone(event.target.value)}
                         placeholder="+880..."
-                        className="h-12 w-full rounded-md border border-[#D8C7B5]/30 bg-[#1A1814] pl-10 pr-4 text-sm text-[#F8F5F0] outline-none transition-colors placeholder:text-[#8A7D75] focus:border-[#C6A56B]"
+                        className="h-12 w-full rounded-md border border-[#EADDCD]/30 bg-[#1A1814] pl-10 pr-4 text-sm text-[#F8F5F0] outline-none transition-colors placeholder:text-[#8A7D75] focus:border-[#B87B68]"
                       />
                     </div>
                   </div>
@@ -249,7 +249,7 @@ export default function LeadsPageClient({ embedded = false }: { embedded?: boole
                         value={email}
                         onChange={(event) => setEmail(event.target.value)}
                         placeholder="you@example.com"
-                        className="h-12 w-full rounded-md border border-[#D8C7B5]/30 bg-[#1A1814] pl-10 pr-4 text-sm text-[#F8F5F0] outline-none transition-colors placeholder:text-[#8A7D75] focus:border-[#C6A56B]"
+                        className="h-12 w-full rounded-md border border-[#EADDCD]/30 bg-[#1A1814] pl-10 pr-4 text-sm text-[#F8F5F0] outline-none transition-colors placeholder:text-[#8A7D75] focus:border-[#B87B68]"
                       />
                     </div>
                   </div>
@@ -267,7 +267,7 @@ export default function LeadsPageClient({ embedded = false }: { embedded?: boole
                       onChange={(event) =>
                         setInterest(event.target.value as (typeof interestOptions)[number])
                       }
-                      className="mt-2 h-12 w-full rounded-md border border-[#D8C7B5]/30 bg-[#1A1814] px-4 text-sm text-[#F8F5F0] outline-none transition-colors focus:border-[#C6A56B]"
+                      className="mt-2 h-12 w-full rounded-md border border-[#EADDCD]/30 bg-[#1A1814] px-4 text-sm text-[#F8F5F0] outline-none transition-colors focus:border-[#B87B68]"
                     >
                       {interestOptions.map((option) => (
                         <option key={option} value={option} className="bg-[#1A1814] text-[#F8F5F0]">
@@ -282,7 +282,7 @@ export default function LeadsPageClient({ embedded = false }: { embedded?: boole
                       htmlFor="lead-note"
                       className="block text-sm font-medium text-[#F8F5F0]"
                     >
-                      Question or concern <span className="text-[#B8A89A]">(optional)</span>
+                      Question or concern <span className="text-[#884F38]">(optional)</span>
                     </label>
                     <textarea
                       id="lead-note"
@@ -290,7 +290,7 @@ export default function LeadsPageClient({ embedded = false }: { embedded?: boole
                       onChange={(event) => setNote(event.target.value)}
                       rows={4}
                       placeholder="Tell us what you want to know..."
-                      className="mt-2 w-full resize-none rounded-md border border-[#D8C7B5]/30 bg-[#1A1814] px-4 py-3 text-sm text-[#F8F5F0] outline-none transition-colors placeholder:text-[#8A7D75] focus:border-[#C6A56B]"
+                      className="mt-2 w-full resize-none rounded-md border border-[#EADDCD]/30 bg-[#1A1814] px-4 py-3 text-sm text-[#F8F5F0] outline-none transition-colors placeholder:text-[#8A7D75] focus:border-[#B87B68]"
                     />
                   </div>
 
@@ -303,27 +303,27 @@ export default function LeadsPageClient({ embedded = false }: { embedded?: boole
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="inline-flex h-12 w-full items-center justify-center rounded-md bg-[#C6A56B] px-5 text-sm font-semibold text-[#2B2B2B] transition-colors hover:bg-[#D4B47A] disabled:cursor-not-allowed disabled:opacity-70"
+                    className="inline-flex h-12 w-full items-center justify-center rounded-md bg-[#B87B68] px-5 text-sm font-semibold text-[#2B2B2B] transition-colors hover:bg-[#D4B47A] disabled:cursor-not-allowed disabled:opacity-70"
                   >
                     {isSubmitting ? "Sending..." : "Send My Details"}
                   </button>
                 </form>
 
-                <div className="mt-5 flex flex-col gap-2 rounded-xl border border-[#D8C7B5]/30 bg-[#3D3530] p-4 text-sm text-[#D8C7B5]">
+                <div className="mt-5 flex flex-col gap-2 rounded-xl border border-[#EADDCD]/30 bg-[#3D3530] p-4 text-sm text-[#EADDCD]">
                   <a
                     href="tel:+8801647660300"
-                    className="inline-flex items-center gap-2 transition-colors hover:text-[#C6A56B]"
+                    className="inline-flex items-center gap-2 transition-colors hover:text-[#B87B68]"
                   >
-                    <Phone className="h-4 w-4 text-[#C6A56B]" />
+                    <Phone className="h-4 w-4 text-[#B87B68]" />
                     +880 1647-660300
                   </a>
                   <a
                     href="https://wa.me/8801647660300"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 transition-colors hover:text-[#C6A56B]"
+                    className="inline-flex items-center gap-2 transition-colors hover:text-[#B87B68]"
                   >
-                    <MessageCircle className="h-4 w-4 text-[#C6A56B]" />
+                    <MessageCircle className="h-4 w-4 text-[#B87B68]" />
                     Message us on WhatsApp
                   </a>
                 </div>
@@ -335,27 +335,27 @@ export default function LeadsPageClient({ embedded = false }: { embedded?: boole
 
       {!embedded ? (
         <section className="px-6 py-12">
-          <div className="mx-auto flex max-w-4xl flex-col items-center rounded-[28px] border border-[#D8C7B5] bg-[#2B2B2B] px-6 py-10 text-center text-[#F8F5F0] dark:border-[#3D3530] dark:bg-[#1A1814]">
+          <div className="mx-auto flex max-w-4xl flex-col items-center rounded-[28px] border border-[#EADDCD] bg-[#2B2B2B] px-6 py-10 text-center text-[#F8F5F0] dark:border-[#3D3530] dark:bg-[#1A1814]">
             <h2
               className="text-3xl font-semibold"
               style={{ fontFamily: "Playfair Display, serif" }}
             >
               Prefer to explore first?
             </h2>
-            <p className="mt-4 max-w-2xl text-sm leading-7 text-[#D8C7B5]">
+            <p className="mt-4 max-w-2xl text-sm leading-7 text-[#EADDCD]">
               You can still browse our memberships and contact us whenever you are
               ready. We are here to make skincare decisions easier.
             </p>
             <div className="mt-6 flex flex-col gap-3 sm:flex-row">
               <Link
                 href="/services"
-                className="inline-flex h-11 items-center justify-center rounded-md bg-[#C6A56B] px-5 text-sm font-semibold text-[#2B2B2B] transition-colors hover:bg-[#D4B47A]"
+                className="inline-flex h-11 items-center justify-center rounded-md bg-[#B87B68] px-5 text-sm font-semibold text-[#2B2B2B] transition-colors hover:bg-[#D4B47A]"
               >
                 View Memberships
               </Link>
               <Link
                 href="/contact"
-                className="inline-flex h-11 items-center justify-center rounded-md border border-[#C6A56B] px-5 text-sm font-semibold text-[#C6A56B] transition-colors hover:bg-[#C6A56B]/10"
+                className="inline-flex h-11 items-center justify-center rounded-md border border-[#B87B68] px-5 text-sm font-semibold text-[#B87B68] transition-colors hover:bg-[#B87B68]/10"
               >
                 Contact Selenite Care
               </Link>

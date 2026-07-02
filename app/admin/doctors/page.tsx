@@ -84,9 +84,9 @@ const timeOptions = [
 ];
 
 const inputClassName =
-  "mt-2 h-11 w-full rounded-md border bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]";
+  "mt-2 h-11 w-full rounded-md border bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]";
 const textareaClassName =
-  "mt-2 w-full resize-none rounded-md border bg-white px-3 py-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]";
+  "mt-2 w-full resize-none rounded-md border bg-white px-3 py-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]";
 
 function isDayOption(value: string): value is (typeof dayOptions)[number]["value"] {
   return dayOptions.some((day) => day.value === value);
@@ -517,7 +517,7 @@ export default function AdminDoctorsPage() {
           style={{ backgroundColor: "rgba(43, 43, 43, 0.72)" }}
         >
           <div
-            className="modal-card max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-lg border border-[#D8C7B5] bg-white p-6 shadow-2xl dark:border-[#3D3530] dark:bg-[#242220]"
+            className="modal-card max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-lg border border-[#EADDCD] bg-white p-6 shadow-2xl dark:border-[#3D3530] dark:bg-[#242220]"
             style={{
               boxShadow: "0 24px 80px rgba(43, 43, 43, 0.28)",
             }}
@@ -533,7 +533,7 @@ export default function AdminDoctorsPage() {
                 >
                   Edit Doctor
                 </h2>
-                <p className="mt-2 text-sm leading-6 text-[#B8A89A] dark:text-[#8A7D75]">
+                <p className="mt-2 text-sm leading-6 text-[#884F38] dark:text-[#8A7D75]">
                   Update the doctor&apos;s profile, availability, specialization,
                   and image.
                 </p>
@@ -541,7 +541,7 @@ export default function AdminDoctorsPage() {
               <button
                 type="button"
                 onClick={closeEditModal}
-                className="inline-flex h-10 items-center justify-center rounded-md border border-[#D8C7B5] bg-white px-4 text-sm font-medium text-[#2B2B2B] transition-colors hover:bg-[#C6A56B]/10 dark:border-[#3D3530] dark:bg-[#242220] dark:text-[#F0EDE8]"
+                className="inline-flex h-10 items-center justify-center rounded-md border border-[#EADDCD] bg-white px-4 text-sm font-medium text-[#2B2B2B] transition-colors hover:bg-[#B87B68]/10 dark:border-[#3D3530] dark:bg-[#242220] dark:text-[#F0EDE8]"
               >
                 Close
               </button>
@@ -616,9 +616,9 @@ export default function AdminDoctorsPage() {
                   Availability
                 </p>
                 <div
-                  className="mt-2 rounded-lg border border-[#D8C7B5] bg-[#F8F5F0] p-4 dark:border-[#3D3530] dark:bg-[#2A2724]"
+                  className="mt-2 rounded-lg border border-[#EADDCD] bg-[#F8F5F0] p-4 dark:border-[#3D3530] dark:bg-[#2A2724]"
                 >
-                  <p className="text-sm font-medium text-[#B8A89A] dark:text-[#8A7D75]">
+                  <p className="text-sm font-medium text-[#884F38] dark:text-[#8A7D75]">
                     Available Days
                   </p>
                   <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -628,8 +628,8 @@ export default function AdminDoctorsPage() {
                         className="flex min-h-11 cursor-pointer items-center gap-3 rounded-md border px-3 py-2 text-sm transition-colors"
                         style={{
                           borderColor: editForm.selectedDays.includes(day.value)
-                            ? "#C6A56B"
-                            : "#D8C7B5",
+                            ? "#B87B68"
+                            : "#EADDCD",
                           backgroundColor: editForm.selectedDays.includes(day.value)
                             ? "#FFF8EC"
                             : "#FFFFFF",
@@ -648,7 +648,7 @@ export default function AdminDoctorsPage() {
                               ),
                             }))
                           }
-                          className="h-4 w-4 accent-[#C6A56B]"
+                          className="h-4 w-4 accent-[#B87B68]"
                         />
                         <span>{day.label}</span>
                       </label>
@@ -658,7 +658,7 @@ export default function AdminDoctorsPage() {
 
                 <div className="mt-5 grid gap-5 sm:grid-cols-2">
                   <div>
-                    <label htmlFor="edit-startTime" className="block text-sm font-medium text-[#B8A89A] dark:text-[#8A7D75]">
+                    <label htmlFor="edit-startTime" className="block text-sm font-medium text-[#884F38] dark:text-[#8A7D75]">
                       Start Time
                     </label>
                     <select
@@ -682,7 +682,7 @@ export default function AdminDoctorsPage() {
                   </div>
 
                   <div>
-                    <label htmlFor="edit-endTime" className="block text-sm font-medium text-[#B8A89A] dark:text-[#8A7D75]">
+                    <label htmlFor="edit-endTime" className="block text-sm font-medium text-[#884F38] dark:text-[#8A7D75]">
                       End Time
                     </label>
                     <select
@@ -710,7 +710,7 @@ export default function AdminDoctorsPage() {
                     Please select at least one available day.
                   </p>
                 ) : null}
-                <p className="mt-2 text-sm text-[#B8A89A] dark:text-[#8A7D75]">
+                <p className="mt-2 text-sm text-[#884F38] dark:text-[#8A7D75]">
                   Preview: {formatStructuredAvailability(editForm)}
                 </p>
               </div>
@@ -757,14 +757,14 @@ export default function AdminDoctorsPage() {
                 <button
                   type="button"
                   onClick={closeEditModal}
-                  className="inline-flex h-11 items-center justify-center rounded-md border border-[#D8C7B5] bg-white px-5 text-sm font-medium text-[#2B2B2B] transition-colors hover:bg-[#F8F5F0] dark:border-[#3D3530] dark:bg-[#242220] dark:text-[#F0EDE8]"
+                  className="inline-flex h-11 items-center justify-center rounded-md border border-[#EADDCD] bg-white px-5 text-sm font-medium text-[#2B2B2B] transition-colors hover:bg-[#F8F5F0] dark:border-[#3D3530] dark:bg-[#242220] dark:text-[#F0EDE8]"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isEditSubmitting || editForm.selectedDays.length === 0}
-                  className="inline-flex h-11 items-center justify-center rounded-md bg-[#2B2B2B] px-5 text-sm font-medium text-[#F8F5F0] transition-colors hover:bg-[#B8A89A] disabled:cursor-not-allowed disabled:opacity-70 dark:bg-[#C6A56B] dark:text-[#141210]"
+                  className="inline-flex h-11 items-center justify-center rounded-md bg-[#2B2B2B] px-5 text-sm font-medium text-[#F8F5F0] transition-colors hover:bg-[#884F38] disabled:cursor-not-allowed disabled:opacity-70 dark:bg-[#B87B68] dark:text-[#141210]"
                 >
                   {isEditSubmitting ? "Saving..." : "Save Changes"}
                 </button>
@@ -783,7 +783,7 @@ export default function AdminDoctorsPage() {
           style={{ backgroundColor: "rgba(43, 43, 43, 0.72)" }}
         >
           <div
-            className="modal-card max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg border border-[#D8C7B5] bg-white p-6 shadow-2xl dark:border-[#3D3530] dark:bg-[#242220]"
+            className="modal-card max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg border border-[#EADDCD] bg-white p-6 shadow-2xl dark:border-[#3D3530] dark:bg-[#242220]"
             style={{
               boxShadow: "0 24px 80px rgba(43, 43, 43, 0.28)",
             }}
@@ -797,17 +797,17 @@ export default function AdminDoctorsPage() {
             >
               Doctor Added Successfully
             </h2>
-            <p className="mt-3 text-sm leading-6 text-[#B8A89A] dark:text-[#8A7D75]">
+            <p className="mt-3 text-sm leading-6 text-[#884F38] dark:text-[#8A7D75]">
               Share these credentials with the doctor securely. This password will
               not be shown again after closing this dialog.
             </p>
 
             <div
-              className="mt-5 space-y-4 rounded-lg border border-[#D8C7B5] bg-[#F8F5F0] p-4 dark:border-[#3D3530] dark:bg-[#2A2724]"
+              className="mt-5 space-y-4 rounded-lg border border-[#EADDCD] bg-[#F8F5F0] p-4 dark:border-[#3D3530] dark:bg-[#2A2724]"
             >
               <div>
                 <p
-                  className="text-xs font-medium uppercase tracking-wide text-[#B8A89A] dark:text-[#8A7D75]"
+                  className="text-xs font-medium uppercase tracking-wide text-[#884F38] dark:text-[#8A7D75]"
                 >
                   Doctor Name
                 </p>
@@ -820,7 +820,7 @@ export default function AdminDoctorsPage() {
 
               <div>
                 <p
-                  className="text-xs font-medium uppercase tracking-wide text-[#B8A89A] dark:text-[#8A7D75]"
+                  className="text-xs font-medium uppercase tracking-wide text-[#884F38] dark:text-[#8A7D75]"
                 >
                   Email
                 </p>
@@ -833,20 +833,20 @@ export default function AdminDoctorsPage() {
 
               <div>
                 <p
-                  className="text-xs font-medium uppercase tracking-wide text-[#B8A89A] dark:text-[#8A7D75]"
+                  className="text-xs font-medium uppercase tracking-wide text-[#884F38] dark:text-[#8A7D75]"
                 >
                   Temporary Password
                 </p>
                 <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-center">
                   <code
-                    className="flex-1 rounded-md border border-[#D8C7B5] bg-white px-3 py-2 text-sm font-semibold text-[#2B2B2B] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
+                    className="flex-1 rounded-md border border-[#EADDCD] bg-white px-3 py-2 text-sm font-semibold text-[#2B2B2B] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
                   >
                     {doctorCredentials.temporaryPassword}
                   </code>
                   <button
                     type="button"
                     onClick={copyTemporaryPassword}
-                    className="inline-flex h-10 items-center justify-center rounded-md bg-[#2B2B2B] px-4 text-sm font-medium text-[#F8F5F0] transition-colors hover:opacity-90 dark:bg-[#C6A56B] dark:text-[#141210]"
+                    className="inline-flex h-10 items-center justify-center rounded-md bg-[#2B2B2B] px-4 text-sm font-medium text-[#F8F5F0] transition-colors hover:opacity-90 dark:bg-[#B87B68] dark:text-[#141210]"
                   >
                     {isPasswordCopied ? "Copied" : "Copy Password"}
                   </button>
@@ -858,7 +858,7 @@ export default function AdminDoctorsPage() {
               <button
                 type="button"
                 onClick={() => setDoctorCredentials(null)}
-                className="inline-flex h-10 items-center justify-center rounded-md border border-[#C6A56B] bg-white px-4 text-sm font-medium text-[#2B2B2B] transition-colors hover:bg-[#C6A56B]/10 dark:bg-[#242220] dark:text-[#F0EDE8]"
+                className="inline-flex h-10 items-center justify-center rounded-md border border-[#B87B68] bg-white px-4 text-sm font-medium text-[#2B2B2B] transition-colors hover:bg-[#B87B68]/10 dark:bg-[#242220] dark:text-[#F0EDE8]"
               >
                 Close
               </button>
@@ -876,7 +876,7 @@ export default function AdminDoctorsPage() {
         >
           Doctors
         </h1>
-        <p className="mt-3 text-sm leading-6 text-[#B8A89A] dark:text-[#8A7D75]">
+        <p className="mt-3 text-sm leading-6 text-[#884F38] dark:text-[#8A7D75]">
           Manage doctor profiles and keep their availability up to date.
         </p>
         {successMessage ? (
@@ -885,13 +885,13 @@ export default function AdminDoctorsPage() {
       </div>
 
       {isLoading ? (
-        <p className="text-sm text-[#B8A89A] dark:text-[#8A7D75]">
+        <p className="text-sm text-[#884F38] dark:text-[#8A7D75]">
           Loading doctors...
         </p>
       ) : (
         <>
           <div className="rounded-2xl border border-themed bg-card shadow-sm">
-            <div className="border-b border-[#D8C7B5] bg-[#F4ECE3] px-6 py-4 dark:border-[#3D3530] dark:bg-[#2A2724]">
+            <div className="border-b border-[#EADDCD] bg-[#F4ECE3] px-6 py-4 dark:border-[#3D3530] dark:bg-[#2A2724]">
               <h2
                 className="text-lg font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]"
                 style={{ fontFamily: "Playfair Display, serif" }}
@@ -901,7 +901,7 @@ export default function AdminDoctorsPage() {
             </div>
 
             {doctors.length === 0 ? (
-              <p className="px-6 py-6 text-sm text-[#B8A89A] dark:text-[#8A7D75]">
+              <p className="px-6 py-6 text-sm text-[#884F38] dark:text-[#8A7D75]">
                 No doctors added yet.
               </p>
             ) : (
@@ -955,7 +955,7 @@ export default function AdminDoctorsPage() {
                             <button
                               type="button"
                               onClick={() => openEditModal(doctor)}
-                              className="inline-flex h-9 items-center justify-center rounded-md border border-[#D8C7B5] bg-white px-3 text-sm font-medium text-[#2B2B2B] transition-colors hover:bg-[#F8F5F0] dark:border-[#3D3530] dark:bg-[#242220] dark:text-[#F0EDE8]"
+                              className="inline-flex h-9 items-center justify-center rounded-md border border-[#EADDCD] bg-white px-3 text-sm font-medium text-[#2B2B2B] transition-colors hover:bg-[#F8F5F0] dark:border-[#3D3530] dark:bg-[#242220] dark:text-[#F0EDE8]"
                             >
                               Edit
                             </button>
@@ -967,7 +967,7 @@ export default function AdminDoctorsPage() {
                               disabled={updatingDoctorId === doctor.id}
                               className="inline-flex h-9 items-center justify-center rounded-md border px-3 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60"
                               style={{
-                                borderColor: doctor.isActive ? "#E5B4B4" : "#C6A56B",
+                                borderColor: doctor.isActive ? "#E5B4B4" : "#B87B68",
                                 color: doctor.isActive ? "#B91C1C" : "#2B2B2B",
                                 backgroundColor: doctor.isActive ? "#FFF7F7" : "#FFFFFF",
                               }}
@@ -989,7 +989,7 @@ export default function AdminDoctorsPage() {
           </div>
 
           <div
-            className="rounded-2xl border border-[#D8C7B5] bg-white p-6 shadow-sm dark:border-[#3D3530] dark:bg-[#242220]"
+            className="rounded-2xl border border-[#EADDCD] bg-white p-6 shadow-sm dark:border-[#3D3530] dark:bg-[#242220]"
           >
             <h2
               className="text-lg font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]"
@@ -1084,9 +1084,9 @@ export default function AdminDoctorsPage() {
                   Availability
                 </p>
                 <div
-                  className="mt-2 rounded-lg border border-[#D8C7B5] bg-[#F8F5F0] p-4 dark:border-[#3D3530] dark:bg-[#2A2724]"
+                  className="mt-2 rounded-lg border border-[#EADDCD] bg-[#F8F5F0] p-4 dark:border-[#3D3530] dark:bg-[#2A2724]"
                 >
-                  <p className="text-sm font-medium text-[#B8A89A] dark:text-[#8A7D75]">
+                  <p className="text-sm font-medium text-[#884F38] dark:text-[#8A7D75]">
                     Available Days
                   </p>
                   <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -1096,8 +1096,8 @@ export default function AdminDoctorsPage() {
                         className="flex min-h-11 cursor-pointer items-center gap-3 rounded-md border px-3 py-2 text-sm transition-colors"
                         style={{
                           borderColor: form.selectedDays.includes(day.value)
-                            ? "#C6A56B"
-                            : "#D8C7B5",
+                            ? "#B87B68"
+                            : "#EADDCD",
                           backgroundColor: form.selectedDays.includes(day.value)
                             ? "#FFF8EC"
                             : "#FFFFFF",
@@ -1116,7 +1116,7 @@ export default function AdminDoctorsPage() {
                               ),
                             }))
                           }
-                          className="h-4 w-4 accent-[#C6A56B]"
+                          className="h-4 w-4 accent-[#B87B68]"
                         />
                         <span>{day.label}</span>
                       </label>
@@ -1126,7 +1126,7 @@ export default function AdminDoctorsPage() {
 
                 <div className="mt-5 grid gap-5 sm:grid-cols-2">
                   <div>
-                    <label htmlFor="startTime" className="block text-sm font-medium text-[#B8A89A] dark:text-[#8A7D75]">
+                    <label htmlFor="startTime" className="block text-sm font-medium text-[#884F38] dark:text-[#8A7D75]">
                       Start Time
                     </label>
                     <select
@@ -1150,7 +1150,7 @@ export default function AdminDoctorsPage() {
                   </div>
 
                   <div>
-                    <label htmlFor="endTime" className="block text-sm font-medium text-[#B8A89A] dark:text-[#8A7D75]">
+                    <label htmlFor="endTime" className="block text-sm font-medium text-[#884F38] dark:text-[#8A7D75]">
                       End Time
                     </label>
                     <select
@@ -1178,7 +1178,7 @@ export default function AdminDoctorsPage() {
                     Please select at least one available day.
                   </p>
                 ) : null}
-                <p className="mt-2 text-sm text-[#B8A89A] dark:text-[#8A7D75]">
+                <p className="mt-2 text-sm text-[#884F38] dark:text-[#8A7D75]">
                   Preview: {formatStructuredAvailability(form)}
                 </p>
               </div>
@@ -1228,7 +1228,7 @@ export default function AdminDoctorsPage() {
                 <button
                   type="submit"
                   disabled={isSubmitting || form.selectedDays.length === 0}
-                  className="inline-flex h-11 items-center justify-center rounded-md bg-[#2B2B2B] px-5 text-sm font-medium text-[#F8F5F0] transition-colors hover:bg-[#B8A89A] disabled:cursor-not-allowed disabled:opacity-70 dark:bg-[#C6A56B] dark:text-[#141210]"
+                  className="inline-flex h-11 items-center justify-center rounded-md bg-[#2B2B2B] px-5 text-sm font-medium text-[#F8F5F0] transition-colors hover:bg-[#884F38] disabled:cursor-not-allowed disabled:opacity-70 dark:bg-[#B87B68] dark:text-[#141210]"
                 >
                   {isSubmitting ? "Saving..." : "Add Doctor"}
                 </button>

@@ -106,7 +106,7 @@ export default async function AdminOrderDetailsPage(
           >
             Order Details
           </h1>
-          <p className="mt-3 text-sm leading-6 text-[#B8A89A] dark:text-[#8A7D75]">
+          <p className="mt-3 text-sm leading-6 text-[#884F38] dark:text-[#8A7D75]">
             Review the client, payment, and order item information.
           </p>
         </div>
@@ -126,7 +126,7 @@ export default async function AdminOrderDetailsPage(
             {order.items.map((item) => (
               <article
                 key={item.id}
-                className="rounded-lg border border-[#D8C7B5] bg-[#FCFAF7] p-4 dark:border-[#3D3530] dark:bg-[#1A1814]"
+                className="rounded-lg border border-[#EADDCD] bg-[#FCFAF7] p-4 dark:border-[#3D3530] dark:bg-[#1A1814]"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div>
@@ -204,7 +204,7 @@ export default async function AdminOrderDetailsPage(
             ) : null}
             <div className="border-themed border-t pt-4">
               <p className="text-muted font-medium">Total Amount</p>
-              <p className="mt-1 text-xl font-semibold text-[#C6A56B]">
+              <p className="mt-1 text-xl font-semibold text-[#B87B68]">
                 {formatBdt(order.totalAmount)}
               </p>
             </div>
@@ -213,7 +213,7 @@ export default async function AdminOrderDetailsPage(
                 href={order.proofImageUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex text-sm font-medium text-[#C6A56B] underline"
+                className="inline-flex text-sm font-medium text-[#B87B68] underline"
               >
                 View payment proof
               </a>

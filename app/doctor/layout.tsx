@@ -29,7 +29,7 @@ export default async function DoctorLayout({
           <p className="mt-3 text-sm font-bold text-[#2B2B2B] dark:text-[#F0EDE8]">
             {session.user.name ?? "Doctor"}
           </p>
-          <span className="mt-2 inline-flex rounded-full bg-[#C6A56B] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#2B2B2B]">
+          <span className="mt-2 inline-flex rounded-full bg-[#B87B68] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#2B2B2B]">
             {session.user.role}
           </span>
           <p className="mt-6 text-sm font-medium uppercase text-[var(--muted)]">
@@ -57,11 +57,11 @@ export default async function DoctorLayout({
             .portal-main article.rounded-lg,
             .portal-main div.rounded-lg.border {
               background-color: #FFFFFF;
-              border-color: #D8C7B5;
+              border-color: #EADDCD;
             }
 
             .portal-main table thead {
-              background-color: #D8C7B5;
+              background-color: #EADDCD;
               color: #2B2B2B;
             }
 
@@ -89,7 +89,7 @@ export default async function DoctorLayout({
 
             .portal-main button.border-black\\/10,
             .portal-main a.border-black\\/10 {
-              border-color: #C6A56B !important;
+              border-color: #B87B68 !important;
               color: #2B2B2B !important;
             }
 

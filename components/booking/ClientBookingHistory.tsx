@@ -114,7 +114,7 @@ export default function ClientBookingHistory({
   }
 
   return (
-    <section className="mt-6 rounded-lg border border-[#D8C7B5] bg-white p-6 dark:border-[#3D3530] dark:bg-[#242220]">
+    <section className="mt-6 rounded-lg border border-[#EADDCD] bg-white p-6 dark:border-[#3D3530] dark:bg-[#242220]">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <div className="flex items-center gap-3">
@@ -126,7 +126,7 @@ export default function ClientBookingHistory({
               Other Bookings by {clientName}
             </h2>
           </div>
-          <p className="mt-2 text-sm text-[#B8A89A] dark:text-[#8A7D75]">
+          <p className="mt-2 text-sm text-[#884F38] dark:text-[#8A7D75]">
             Click to switch booking view.
           </p>
         </div>
@@ -139,19 +139,19 @@ export default function ClientBookingHistory({
             href={`${basePath}/${booking.id}`}
             className={`rounded-xl border bg-[#F8F5F0] p-4 transition-colors hover:bg-[#F2EADF] dark:border-[#3D3530] dark:bg-[#1A1814] dark:hover:bg-[#221F1C] ${
               index === 0
-                ? "border-[#D8C7B5] border-l-4 border-l-[#C6A56B]"
-                : "border-[#D8C7B5]"
+                ? "border-[#EADDCD] border-l-4 border-l-[#B87B68]"
+                : "border-[#EADDCD]"
             }`}
           >
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div className="min-w-0">
-                <p className="font-mono text-sm font-semibold text-[#C6A56B]">
+                <p className="font-mono text-sm font-semibold text-[#B87B68]">
                   {booking.token}
                 </p>
                 <p className="mt-2 text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
                   {booking.doctorName ?? "Doctor not assigned"}
                 </p>
-                <p className="mt-1 text-sm text-[#B8A89A] dark:text-[#8A7D75]">
+                <p className="mt-1 text-sm text-[#884F38] dark:text-[#8A7D75]">
                   {formatAppointmentDate(booking.appointmentTime)}
                 </p>
               </div>
@@ -165,11 +165,11 @@ export default function ClientBookingHistory({
                   {booking.status}
                 </span>
 
-                <div className="flex items-center gap-1.5 text-[#B8A89A] dark:text-[#8A7D75]">
+                <div className="flex items-center gap-1.5 text-[#884F38] dark:text-[#8A7D75]">
                   <span
                     className={`inline-flex h-8 w-8 items-center justify-center rounded-full border ${
                       booking.hasDiagnosis
-                        ? "border-[#D8C7B5] bg-[#FFF8EE] text-[#C6A56B] dark:border-[#3D3530] dark:bg-[#2A241D] dark:text-[#D4B47A]"
+                        ? "border-[#EADDCD] bg-[#FFF8EE] text-[#B87B68] dark:border-[#3D3530] dark:bg-[#2A241D] dark:text-[#D4B47A]"
                         : "border-[#E7DDD1] bg-white/70 text-[#CFC5BA] dark:border-[#3D3530] dark:bg-[#201D1A] dark:text-[#5E544D]"
                     }`}
                     title={
@@ -183,7 +183,7 @@ export default function ClientBookingHistory({
                   <span
                     className={`inline-flex h-8 w-8 items-center justify-center rounded-full border ${
                       booking.hasRoutine
-                        ? "border-[#D8C7B5] bg-[#FFF8EE] text-[#C6A56B] dark:border-[#3D3530] dark:bg-[#2A241D] dark:text-[#D4B47A]"
+                        ? "border-[#EADDCD] bg-[#FFF8EE] text-[#B87B68] dark:border-[#3D3530] dark:bg-[#2A241D] dark:text-[#D4B47A]"
                         : "border-[#E7DDD1] bg-white/70 text-[#CFC5BA] dark:border-[#3D3530] dark:bg-[#201D1A] dark:text-[#5E544D]"
                     }`}
                     title={
@@ -197,7 +197,7 @@ export default function ClientBookingHistory({
                   <span
                     className={`inline-flex h-8 w-8 items-center justify-center rounded-full border ${
                       booking.hasFeedback
-                        ? "border-[#D8C7B5] bg-[#FFF8EE] text-[#C6A56B] dark:border-[#3D3530] dark:bg-[#2A241D] dark:text-[#D4B47A]"
+                        ? "border-[#EADDCD] bg-[#FFF8EE] text-[#B87B68] dark:border-[#3D3530] dark:bg-[#2A241D] dark:text-[#D4B47A]"
                         : "border-[#E7DDD1] bg-white/70 text-[#CFC5BA] dark:border-[#3D3530] dark:bg-[#201D1A] dark:text-[#5E544D]"
                     }`}
                     title={

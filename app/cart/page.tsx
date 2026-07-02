@@ -182,7 +182,7 @@ export default function CartPage() {
     return (
       <main className="min-h-screen bg-[#F8F5F0] px-6 py-16 dark:bg-[#1A1814]">
         <div className="mx-auto max-w-6xl">
-          <p className="text-sm text-[#B8A89A] dark:text-[#8A7D75]">
+          <p className="text-sm text-[#884F38] dark:text-[#8A7D75]">
             Loading your cart...
           </p>
         </div>
@@ -210,7 +210,7 @@ export default function CartPage() {
         </div>
 
         {items.length === 0 ? (
-          <section className="mt-10 rounded-2xl border border-[#D8C7B5] bg-white p-8 text-center dark:border-[#3D3530] dark:bg-[#242220]">
+          <section className="mt-10 rounded-2xl border border-[#EADDCD] bg-white p-8 text-center dark:border-[#3D3530] dark:bg-[#242220]">
             <h2
               className="text-2xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]"
               style={{ fontFamily: "Playfair Display, serif" }}
@@ -222,7 +222,7 @@ export default function CartPage() {
             </p>
             <Link
               href="/products"
-              className="mt-6 inline-flex h-12 items-center justify-center rounded-md bg-[#2B2B2B] px-6 text-sm font-medium text-[#F8F5F0] transition-colors hover:bg-[#B8A89A] dark:bg-[#C6A56B] dark:text-[#141210] dark:hover:bg-[#D4B47A]"
+              className="mt-6 inline-flex h-12 items-center justify-center rounded-md bg-[#2B2B2B] px-6 text-sm font-medium text-[#F8F5F0] transition-colors hover:bg-[#884F38] dark:bg-[#B87B68] dark:text-[#141210] dark:hover:bg-[#D4B47A]"
             >
               Browse Products
             </Link>
@@ -230,7 +230,7 @@ export default function CartPage() {
         ) : (
           <div className="mt-10 grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
             <div className="space-y-6">
-              <section className="rounded-2xl border border-[#D8C7B5] bg-white p-6 dark:border-[#3D3530] dark:bg-[#242220]">
+              <section className="rounded-2xl border border-[#EADDCD] bg-white p-6 dark:border-[#3D3530] dark:bg-[#242220]">
                 <div className="flex items-center justify-between gap-4">
                   <h2
                     className="text-2xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]"
@@ -247,7 +247,7 @@ export default function CartPage() {
                   {items.map((item) => (
                     <article
                       key={item.productId}
-                      className="rounded-2xl border border-[#D8C7B5] bg-[#FCFAF7] p-4 dark:border-[#3D3530] dark:bg-[#1A1814]"
+                      className="rounded-2xl border border-[#EADDCD] bg-[#FCFAF7] p-4 dark:border-[#3D3530] dark:bg-[#1A1814]"
                     >
                       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                         <div>
@@ -276,7 +276,7 @@ export default function CartPage() {
                                 Math.max(1, Number(event.target.value) || 1),
                               )
                             }
-                            className="h-11 w-24 rounded-md border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
+                            className="h-11 w-24 rounded-md border border-[#EADDCD] bg-white px-3 text-sm text-[#2B2B2B] outline-none focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
                           />
                           <p className="text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
                             Subtotal: {formatBdt(item.price * item.quantity)}
@@ -297,9 +297,9 @@ export default function CartPage() {
 
               <form
                 onSubmit={handleSubmit}
-                className="rounded-2xl border border-[#D8C7B5] bg-white p-6 dark:border-[#3D3530] dark:bg-[#242220]"
+                className="rounded-2xl border border-[#EADDCD] bg-white p-6 dark:border-[#3D3530] dark:bg-[#242220]"
               >
-                <div className="flex flex-wrap gap-2 rounded-2xl border border-[#D8C7B5] bg-[#FCFAF7] p-1 dark:border-[#3D3530] dark:bg-[#1A1814]">
+                <div className="flex flex-wrap gap-2 rounded-2xl border border-[#EADDCD] bg-[#FCFAF7] p-1 dark:border-[#3D3530] dark:bg-[#1A1814]">
                   {[
                     { value: "BKASH" as const, label: "bKash" },
                     { value: "BANK_TRANSFER" as const, label: "Bank Transfer" },
@@ -314,7 +314,7 @@ export default function CartPage() {
                       }}
                       className={`h-11 rounded-xl px-5 text-sm font-medium transition-colors ${
                         paymentMethod === tab.value
-                          ? "bg-[#2B2B2B] text-[#F8F5F0] dark:bg-[#C6A56B] dark:text-[#141210]"
+                          ? "bg-[#2B2B2B] text-[#F8F5F0] dark:bg-[#B87B68] dark:text-[#141210]"
                           : "text-[#8C7967] hover:bg-black/5 dark:text-[#8A7D75] dark:hover:bg-white/5"
                       }`}
                     >
@@ -325,7 +325,7 @@ export default function CartPage() {
 
                 {paymentMethod === "BKASH" ? (
                   <div className="mt-6 space-y-5">
-                    <div className="rounded-2xl border border-[#C6A56B] bg-[rgba(198,165,107,0.08)] px-5 py-5 dark:bg-[rgba(198,165,107,0.12)]">
+                    <div className="rounded-2xl border border-[#B87B68] bg-[rgba(198,165,107,0.08)] px-5 py-5 dark:bg-[rgba(198,165,107,0.12)]">
                       <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#8C7967] dark:text-[#8A7D75]">
                         bKash Merchant Number
                       </p>
@@ -339,7 +339,7 @@ export default function CartPage() {
                         <button
                           type="button"
                           onClick={() => void handleCopy("01810835553", "bkash")}
-                          className="inline-flex h-11 items-center justify-center rounded-md bg-[#2B2B2B] px-5 text-sm font-medium text-[#F8F5F0] transition-colors hover:opacity-90 dark:bg-[#C6A56B] dark:text-[#141210]"
+                          className="inline-flex h-11 items-center justify-center rounded-md bg-[#2B2B2B] px-5 text-sm font-medium text-[#F8F5F0] transition-colors hover:opacity-90 dark:bg-[#B87B68] dark:text-[#141210]"
                         >
                           {copied === "bkash" ? "Copied!" : "Copy Number"}
                         </button>
@@ -354,7 +354,7 @@ export default function CartPage() {
                         type="text"
                         value={transactionRef}
                         onChange={(event) => setTransactionRef(event.target.value)}
-                        className="mt-2 h-11 w-full rounded-md border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
+                        className="mt-2 h-11 w-full rounded-md border border-[#EADDCD] bg-white px-3 text-sm text-[#2B2B2B] outline-none focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
                         placeholder="Enter your TrxID"
                       />
                     </div>
@@ -382,7 +382,7 @@ export default function CartPage() {
 
                 {paymentMethod === "BANK_TRANSFER" ? (
                   <div className="mt-6 space-y-5">
-                    <div className="rounded-2xl border border-[#C6A56B] bg-[rgba(198,165,107,0.08)] px-5 py-5 dark:bg-[rgba(198,165,107,0.12)]">
+                    <div className="rounded-2xl border border-[#B87B68] bg-[rgba(198,165,107,0.08)] px-5 py-5 dark:bg-[rgba(198,165,107,0.12)]">
                       <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#8C7967] dark:text-[#8A7D75]">
                         BRAC Bank Account Details
                       </p>
@@ -419,7 +419,7 @@ export default function CartPage() {
                               onClick={() =>
                                 void handleCopy(BRAC_BANK_DETAILS.accountNumber, "bank")
                               }
-                              className="inline-flex h-11 items-center justify-center rounded-md bg-[#2B2B2B] px-5 text-sm font-medium text-[#F8F5F0] transition-colors hover:opacity-90 dark:bg-[#C6A56B] dark:text-[#141210]"
+                              className="inline-flex h-11 items-center justify-center rounded-md bg-[#2B2B2B] px-5 text-sm font-medium text-[#F8F5F0] transition-colors hover:opacity-90 dark:bg-[#B87B68] dark:text-[#141210]"
                             >
                               {copied === "bank" ? "Copied!" : "Copy Number"}
                             </button>
@@ -444,7 +444,7 @@ export default function CartPage() {
                         type="text"
                         value={transactionRef}
                         onChange={(event) => setTransactionRef(event.target.value)}
-                        className="mt-2 h-11 w-full rounded-md border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
+                        className="mt-2 h-11 w-full rounded-md border border-[#EADDCD] bg-white px-3 text-sm text-[#2B2B2B] outline-none focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
                         placeholder="Enter your transfer reference"
                       />
                     </div>
@@ -453,7 +453,7 @@ export default function CartPage() {
 
                 {paymentMethod === "CASH" ? (
                   <div className="mt-6 space-y-5">
-                    <div className="rounded-2xl border border-[#D8C7B5] bg-[#FCFAF7] px-5 py-5 dark:border-[#3D3530] dark:bg-[#1A1814]">
+                    <div className="rounded-2xl border border-[#EADDCD] bg-[#FCFAF7] px-5 py-5 dark:border-[#3D3530] dark:bg-[#1A1814]">
                       <p className="text-sm leading-7 text-[#6E6257] dark:text-[#8A7D75]">
                         Pay when your order is delivered. Available for Dhaka
                         delivery only.
@@ -468,7 +468,7 @@ export default function CartPage() {
                         value={deliveryAddress}
                         onChange={(event) => setDeliveryAddress(event.target.value)}
                         rows={4}
-                        className="mt-2 w-full rounded-md border border-[#D8C7B5] bg-white px-3 py-3 text-sm text-[#2B2B2B] outline-none focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
+                        className="mt-2 w-full rounded-md border border-[#EADDCD] bg-white px-3 py-3 text-sm text-[#2B2B2B] outline-none focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
                         placeholder="Enter your full delivery address"
                       />
                     </div>
@@ -499,7 +499,7 @@ export default function CartPage() {
                         href={proofImageUrl}
                         target="_blank"
                         rel="noreferrer"
-                        className="mt-2 inline-block text-sm text-[#C6A56B] underline"
+                        className="mt-2 inline-block text-sm text-[#B87B68] underline"
                       >
                         View uploaded screenshot
                       </a>
@@ -518,8 +518,8 @@ export default function CartPage() {
                   disabled={isSubmitting || isUploadingProof}
                   className={`mt-6 inline-flex h-12 w-full items-center justify-center rounded-md px-5 text-sm font-medium transition-colors ${
                     isSubmitting || isUploadingProof
-                      ? "cursor-not-allowed bg-[#D8C7B5] text-[#F8F5F0] dark:bg-[#3D3530] dark:text-[#8A7D75]"
-                      : "bg-[#2B2B2B] text-[#F8F5F0] hover:bg-[#B8A89A] dark:bg-[#C6A56B] dark:text-[#141210] dark:hover:bg-[#D4B47A]"
+                      ? "cursor-not-allowed bg-[#EADDCD] text-[#F8F5F0] dark:bg-[#3D3530] dark:text-[#8A7D75]"
+                      : "bg-[#2B2B2B] text-[#F8F5F0] hover:bg-[#884F38] dark:bg-[#B87B68] dark:text-[#141210] dark:hover:bg-[#D4B47A]"
                   }`}
                 >
                   {isSubmitting ? "Placing Order..." : "Place Order"}
@@ -527,7 +527,7 @@ export default function CartPage() {
               </form>
             </div>
 
-            <aside className="h-fit rounded-2xl border border-[#D8C7B5] bg-white p-6 dark:border-[#3D3530] dark:bg-[#242220]">
+            <aside className="h-fit rounded-2xl border border-[#EADDCD] bg-white p-6 dark:border-[#3D3530] dark:bg-[#242220]">
               <h2
                 className="text-2xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]"
                 style={{ fontFamily: "Playfair Display, serif" }}
@@ -556,12 +556,12 @@ export default function CartPage() {
                 ))}
               </div>
 
-              <div className="mt-6 border-t border-[#D8C7B5] pt-5 dark:border-[#3D3530]">
+              <div className="mt-6 border-t border-[#EADDCD] pt-5 dark:border-[#3D3530]">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-[#8C7967] dark:text-[#8A7D75]">
                     Total
                   </span>
-                  <span className="text-xl font-semibold text-[#C6A56B]">
+                  <span className="text-xl font-semibold text-[#B87B68]">
                     {formatBdt(totalAmount)}
                   </span>
                 </div>

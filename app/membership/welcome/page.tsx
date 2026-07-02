@@ -147,7 +147,7 @@ function MembershipWelcomePageContent() {
             className="mx-auto mb-6 h-1 w-24 rounded-full"
             style={{
               background:
-                "linear-gradient(90deg, transparent 0%, #C6A56B 50%, transparent 100%)",
+                "linear-gradient(90deg, transparent 0%, #B87B68 50%, transparent 100%)",
             }}
           />
 
@@ -163,7 +163,7 @@ function MembershipWelcomePageContent() {
           <div
             className="mx-auto mt-8 max-w-md rounded-2xl border px-5 py-4 dark:border-[#3D3530]"
             style={{
-              borderColor: "#C6A56B",
+              borderColor: "#B87B68",
               backgroundColor: "rgba(198, 165, 107, 0.08)",
             }}
           >
@@ -259,18 +259,18 @@ function MembershipWelcomePageContent() {
           <div className="mt-10 flex flex-col justify-center gap-3 sm:flex-row">
             <Link
               href="/appointment"
-              className="inline-flex h-12 items-center justify-center rounded-md px-6 text-sm font-medium transition-colors hover:bg-[#B8A89A]"
+              className="inline-flex h-12 items-center justify-center rounded-md px-6 text-sm font-medium transition-colors hover:bg-[#884F38]"
               style={{
                 backgroundColor: "#2B2B2B",
                 color: "#F8F5F0",
-                border: "1px solid #D8C7B5",
+                border: "1px solid #EADDCD",
               }}
             >
               Book Appointment
             </Link>
             <Link
               href="/dashboard"
-              className="inline-flex h-12 items-center justify-center rounded-md border border-[#D8C7B5] bg-[#F8F5F0] px-6 text-sm font-medium text-[#2B2B2B] transition-colors dark:bg-[#242220] dark:border-[#3D3530] dark:text-[#F0EDE8]"
+              className="inline-flex h-12 items-center justify-center rounded-md border border-[#EADDCD] bg-[#F8F5F0] px-6 text-sm font-medium text-[#2B2B2B] transition-colors dark:bg-[#242220] dark:border-[#3D3530] dark:text-[#F0EDE8]"
               style={{
               }}
             >
@@ -287,7 +287,7 @@ function MembershipWelcomeLoadingFallback() {
   return (
     <main className="flex min-h-screen items-center bg-[#F8F5F0] px-6 py-16 dark:bg-[#1A1814]">
       <div className="mx-auto w-full max-w-3xl">
-        <p className="text-sm text-[#B8A89A] dark:text-[#8A7D75]">
+        <p className="text-sm text-[#884F38] dark:text-[#8A7D75]">
           Loading...
         </p>
       </div>

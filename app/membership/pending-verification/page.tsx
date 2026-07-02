@@ -16,7 +16,7 @@ function PendingVerificationContent() {
           style={{
             background:
               "linear-gradient(180deg, rgba(255,255,255,0.92) 0%, rgba(248,245,240,1) 100%)",
-            borderColor: "#D8C7B5",
+            borderColor: "#EADDCD",
             boxShadow: "0 24px 60px rgba(43, 43, 43, 0.08)",
           }}
         >
@@ -24,7 +24,7 @@ function PendingVerificationContent() {
             className="mx-auto mb-6 h-1 w-24 rounded-full"
             style={{
               background:
-                "linear-gradient(90deg, transparent 0%, #C6A56B 50%, transparent 100%)",
+                "linear-gradient(90deg, transparent 0%, #B87B68 50%, transparent 100%)",
             }}
           />
 
@@ -51,7 +51,7 @@ function PendingVerificationContent() {
             <div
               className="mx-auto mt-8 max-w-md rounded-2xl border px-5 py-4"
               style={{
-                borderColor: "#C6A56B",
+                borderColor: "#B87B68",
                 backgroundColor: "rgba(198, 165, 107, 0.08)",
               }}
             >
@@ -76,13 +76,13 @@ function PendingVerificationContent() {
           <div className="mt-10 flex flex-col justify-center gap-3 sm:flex-row">
             <Link
               href="/dashboard"
-              className="inline-flex h-12 items-center justify-center rounded-md border border-[#D8C7B5] bg-[#2B2B2B] px-6 text-sm font-medium text-[#F8F5F0] transition-colors hover:bg-[#B8A89A] dark:border-[#3D3530]"
+              className="inline-flex h-12 items-center justify-center rounded-md border border-[#EADDCD] bg-[#2B2B2B] px-6 text-sm font-medium text-[#F8F5F0] transition-colors hover:bg-[#884F38] dark:border-[#3D3530]"
             >
               Go to Dashboard
             </Link>
             <Link
               href="/services"
-              className="inline-flex h-12 items-center justify-center rounded-md border border-[#D8C7B5] bg-[#F8F5F0] px-6 text-sm font-medium text-[#2B2B2B] transition-colors dark:border-[#3D3530] dark:bg-[#242220] dark:text-[#F0EDE8]"
+              className="inline-flex h-12 items-center justify-center rounded-md border border-[#EADDCD] bg-[#F8F5F0] px-6 text-sm font-medium text-[#2B2B2B] transition-colors dark:border-[#3D3530] dark:bg-[#242220] dark:text-[#F0EDE8]"
             >
               Back to Memberships
             </Link>
@@ -97,7 +97,7 @@ function PendingVerificationFallback() {
   return (
     <main className="flex min-h-screen items-center bg-[#F8F5F0] px-6 py-16 dark:bg-[#1A1814]">
       <div className="mx-auto w-full max-w-3xl">
-        <p className="text-sm text-[#B8A89A] dark:text-[#8A7D75]">
+        <p className="text-sm text-[#884F38] dark:text-[#8A7D75]">
           Loading...
         </p>
       </div>

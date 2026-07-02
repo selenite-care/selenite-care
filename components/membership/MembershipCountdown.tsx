@@ -84,10 +84,10 @@ export default function MembershipCountdown({
   const remaining = getTimeRemaining(targetDate, now);
 
   return (
-    <article className="rounded-lg border border-[#D8C7B5] border-l-4 border-l-[#C6A56B] bg-white p-6 dark:border-[#3D3530] dark:bg-[#242220]">
+    <article className="rounded-lg border border-[#EADDCD] border-l-4 border-l-[#B87B68] bg-white p-6 dark:border-[#3D3530] dark:bg-[#242220]">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <p className="text-sm font-medium text-[#B8A89A] dark:text-[#8A7D75]">
+          <p className="text-sm font-medium text-[#884F38] dark:text-[#8A7D75]">
             Active Membership
           </p>
           <p className="mt-3 text-2xl font-semibold tracking-tight text-[#2B2B2B] dark:text-[#F0EDE8]">
@@ -104,7 +104,7 @@ export default function MembershipCountdown({
         </div>
 
         <div className="sm:text-right">
-          <p className="text-sm font-medium text-[#B8A89A] dark:text-[#8A7D75]">
+          <p className="text-sm font-medium text-[#884F38] dark:text-[#8A7D75]">
             Time Remaining
           </p>
 
@@ -122,9 +122,9 @@ export default function MembershipCountdown({
               ].map((item) => (
                 <div
                   key={item.label}
-                  className="min-w-[80px] rounded-md border border-[#D8C7B5] bg-[#F8F5F0] px-4 py-3 text-center dark:border-[#3D3530] dark:bg-[#1A1814]"
+                  className="min-w-[80px] rounded-md border border-[#EADDCD] bg-[#F8F5F0] px-4 py-3 text-center dark:border-[#3D3530] dark:bg-[#1A1814]"
                 >
-                  <p className="text-2xl font-semibold tabular-nums text-[#C6A56B]">
+                  <p className="text-2xl font-semibold tabular-nums text-[#B87B68]">
                     {item.value}
                   </p>
                   <p className="mt-1 text-xs font-medium uppercase tracking-[0.12em] text-[#2B2B2B] dark:text-[#F0EDE8]">

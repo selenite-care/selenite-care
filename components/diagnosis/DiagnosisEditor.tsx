@@ -310,7 +310,7 @@ export default function DiagnosisEditor({
 
   if (isLoading && !hasLoadedOnce) {
     return (
-      <section className="rounded-2xl border border-[#D8C7B5] bg-[#F8F5F0] p-6 dark:border-[#3D3530] dark:bg-[#242220]">
+      <section className="rounded-2xl border border-[#EADDCD] bg-[#F8F5F0] p-6 dark:border-[#3D3530] dark:bg-[#242220]">
         <p className="text-[#6E6257] dark:text-[#8A7D75]">Loading diagnosis...</p>
       </section>
     );
@@ -318,10 +318,10 @@ export default function DiagnosisEditor({
 
   return (
     <section className="space-y-8">
-      <div className="rounded-2xl border border-[#D8C7B5] bg-[#F8F5F0] p-6 dark:border-[#3D3530] dark:bg-[#242220]">
+      <div className="rounded-2xl border border-[#EADDCD] bg-[#F8F5F0] p-6 dark:border-[#3D3530] dark:bg-[#242220]">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[#C6A56B]">
+            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[#B87B68]">
               Section 1
             </p>
             <h2
@@ -356,7 +356,7 @@ export default function DiagnosisEditor({
               onChange={(event) => setProblemIdentification(event.target.value)}
               onBlur={() => void saveDiagnosis()}
               rows={6}
-              className="w-full rounded-xl border bg-white px-4 py-3 text-sm leading-7 text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#F0EDE8] dark:placeholder-[#8A7D75]"
+              className="w-full rounded-xl border bg-white px-4 py-3 text-sm leading-7 text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#F0EDE8] dark:placeholder-[#8A7D75]"
               placeholder="Write the diagnosis or identified concern here..."
             />
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -364,7 +364,7 @@ export default function DiagnosisEditor({
                 type="button"
                 onClick={() => void saveDiagnosis()}
                 disabled={isSaving}
-                className="inline-flex h-11 items-center justify-center rounded-md bg-[#2B2B2B] px-5 text-sm font-medium text-[#F8F5F0] transition-colors hover:bg-[#B8A89A] disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex h-11 items-center justify-center rounded-md bg-[#2B2B2B] px-5 text-sm font-medium text-[#F8F5F0] transition-colors hover:bg-[#884F38] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {isSaving ? "Saving..." : "Save"}
               </button>
@@ -376,15 +376,15 @@ export default function DiagnosisEditor({
             </div>
           </div>
         ) : (
-          <div className="mt-5 rounded-2xl border border-[#D8C7B5] bg-white px-4 py-4 text-sm leading-7 text-[#6E6257] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#8A7D75]">
+          <div className="mt-5 rounded-2xl border border-[#EADDCD] bg-white px-4 py-4 text-sm leading-7 text-[#6E6257] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#8A7D75]">
             {problemIdentification || "No problem identification added yet."}
           </div>
         )}
       </div>
 
-      <div className="rounded-2xl border border-[#D8C7B5] bg-[#F8F5F0] p-6 dark:border-[#3D3530] dark:bg-[#242220]">
+      <div className="rounded-2xl border border-[#EADDCD] bg-[#F8F5F0] p-6 dark:border-[#3D3530] dark:bg-[#242220]">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[#C6A56B]">
+          <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[#B87B68]">
             Section 2
           </p>
           <h2
@@ -416,12 +416,12 @@ export default function DiagnosisEditor({
                   setError("");
                 }}
                 placeholder="Search by name, type, or skin type"
-                className="mt-2 h-11 w-full rounded-xl border bg-white px-4 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#F0EDE8] dark:placeholder-[#8A7D75]"
-                style={{ borderColor: "#D8C7B5" }}
+                className="mt-2 h-11 w-full rounded-xl border bg-white px-4 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#F0EDE8] dark:placeholder-[#8A7D75]"
+                style={{ borderColor: "#EADDCD" }}
               />
 
               {(isSearching || searchResults.length > 0) && searchQuery.trim() ? (
-                <div className="absolute z-20 mt-2 max-h-72 w-full overflow-y-auto rounded-2xl border border-[#D8C7B5] bg-white p-2 shadow-lg dark:border-[#3D3530] dark:bg-[#242220]">
+                <div className="absolute z-20 mt-2 max-h-72 w-full overflow-y-auto rounded-2xl border border-[#EADDCD] bg-white p-2 shadow-lg dark:border-[#3D3530] dark:bg-[#242220]">
                   {isSearching ? (
                     <p className="px-3 py-3 text-sm text-[#6E6257] dark:text-[#8A7D75]">
                       Searching products...
@@ -472,7 +472,7 @@ export default function DiagnosisEditor({
                               ) : null}
                             </div>
                           </div>
-                          <span className="text-sm font-medium text-[#C6A56B]">
+                          <span className="text-sm font-medium text-[#B87B68]">
                             {formatPrice(product.price)}
                           </span>
                         </button>
@@ -525,7 +525,7 @@ export default function DiagnosisEditor({
                             </span>
                           ) : null}
                         </div>
-                        <p className="mt-2 text-sm font-medium text-[#C6A56B]">
+                        <p className="mt-2 text-sm font-medium text-[#B87B68]">
                           {formatPrice(product.price)}
                         </p>
                       </div>
@@ -554,7 +554,7 @@ export default function DiagnosisEditor({
                         }
                         onBlur={handleNoteBlur}
                         rows={3}
-                        className="mt-2 w-full rounded-xl border bg-[#F8F5F0] px-4 py-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#F0EDE8] dark:placeholder-[#8A7D75]"
+                        className="mt-2 w-full rounded-xl border bg-[#F8F5F0] px-4 py-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#F0EDE8] dark:placeholder-[#8A7D75]"
                         placeholder="Add usage notes or context..."
                       />
                     </div>
@@ -613,7 +613,7 @@ export default function DiagnosisEditor({
                         ) : null}
                       </div>
                     </div>
-                    <p className="text-sm font-medium text-[#C6A56B]">
+                    <p className="text-sm font-medium text-[#B87B68]">
                       {formatPrice(product.price)}
                     </p>
                   </div>

@@ -58,7 +58,7 @@ export default function Avatar({ imageUrl, name, size = "md" }: AvatarProps) {
         alt={name ? `${name} avatar` : "User avatar"}
         width={pixelSize}
         height={pixelSize}
-        className="rounded-full border-2 border-[#D8C7B5] object-cover"
+        className="rounded-full border-2 border-[#EADDCD] object-cover"
         style={{
           width: pixelSize,
           height: pixelSize,
@@ -69,7 +69,7 @@ export default function Avatar({ imageUrl, name, size = "md" }: AvatarProps) {
 
   return (
     <div
-      className={`flex shrink-0 items-center justify-center rounded-full border-2 border-[#D8C7B5] bg-[#C6A56B] font-semibold text-[#F8F5F0] ${textSizeClassName[size]}`}
+      className={`flex shrink-0 items-center justify-center rounded-full border-2 border-[#EADDCD] bg-[#B87B68] font-semibold text-[#F8F5F0] ${textSizeClassName[size]}`}
       style={{
         width: pixelSize,
         height: pixelSize,

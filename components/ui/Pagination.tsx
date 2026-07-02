@@ -58,7 +58,7 @@ export default function Pagination({
 
   return (
     <nav
-      className="flex flex-col gap-4 rounded-lg border border-[#D8C7B5] bg-white px-4 py-4 dark:border-[#3D3530] dark:bg-[#242220] sm:flex-row sm:items-center sm:justify-between"
+      className="flex flex-col gap-4 rounded-lg border border-[#EADDCD] bg-white px-4 py-4 dark:border-[#3D3530] dark:bg-[#242220] sm:flex-row sm:items-center sm:justify-between"
       aria-label="Pagination"
     >
       <p className="text-center text-sm text-[#8C7967] dark:text-[#8A7D75] sm:text-left">
@@ -70,7 +70,7 @@ export default function Pagination({
           type="button"
           onClick={() => handlePageChange(normalizedCurrentPage - 1)}
           disabled={normalizedCurrentPage === 1}
-          className="inline-flex h-10 items-center justify-center rounded-md border border-[#D8C7B5] bg-[#D8C7B5] px-3 text-sm font-medium text-[#2B2B2B] transition-colors hover:bg-[#CDB9A5] disabled:cursor-not-allowed disabled:opacity-50 dark:border-[#3D3530] dark:bg-[#3D3530] dark:text-[#F0EDE8] dark:hover:bg-[#4A4038]"
+          className="inline-flex h-10 items-center justify-center rounded-md border border-[#EADDCD] bg-[#EADDCD] px-3 text-sm font-medium text-[#2B2B2B] transition-colors hover:bg-[#CDB9A5] disabled:cursor-not-allowed disabled:opacity-50 dark:border-[#3D3530] dark:bg-[#3D3530] dark:text-[#F0EDE8] dark:hover:bg-[#4A4038]"
         >
           Previous
         </button>
@@ -91,8 +91,8 @@ export default function Pagination({
               aria-current={item === normalizedCurrentPage ? "page" : undefined}
               className={`inline-flex h-10 min-w-10 items-center justify-center rounded-md px-3 text-sm font-semibold transition-colors ${
                 item === normalizedCurrentPage
-                  ? "bg-[#2B2B2B] text-[#F8F5F0] dark:bg-[#C6A56B] dark:text-[#141210]"
-                  : "border border-[#D8C7B5] bg-[#D8C7B5] text-[#2B2B2B] hover:bg-[#CDB9A5] dark:border-[#3D3530] dark:bg-[#3D3530] dark:text-[#F0EDE8] dark:hover:bg-[#4A4038]"
+                  ? "bg-[#2B2B2B] text-[#F8F5F0] dark:bg-[#B87B68] dark:text-[#141210]"
+                  : "border border-[#EADDCD] bg-[#EADDCD] text-[#2B2B2B] hover:bg-[#CDB9A5] dark:border-[#3D3530] dark:bg-[#3D3530] dark:text-[#F0EDE8] dark:hover:bg-[#4A4038]"
               }`}
             >
               {item}
@@ -104,7 +104,7 @@ export default function Pagination({
           type="button"
           onClick={() => handlePageChange(normalizedCurrentPage + 1)}
           disabled={normalizedCurrentPage === totalPages}
-          className="inline-flex h-10 items-center justify-center rounded-md border border-[#D8C7B5] bg-[#D8C7B5] px-3 text-sm font-medium text-[#2B2B2B] transition-colors hover:bg-[#CDB9A5] disabled:cursor-not-allowed disabled:opacity-50 dark:border-[#3D3530] dark:bg-[#3D3530] dark:text-[#F0EDE8] dark:hover:bg-[#4A4038]"
+          className="inline-flex h-10 items-center justify-center rounded-md border border-[#EADDCD] bg-[#EADDCD] px-3 text-sm font-medium text-[#2B2B2B] transition-colors hover:bg-[#CDB9A5] disabled:cursor-not-allowed disabled:opacity-50 dark:border-[#3D3530] dark:bg-[#3D3530] dark:text-[#F0EDE8] dark:hover:bg-[#4A4038]"
         >
           Next
         </button>

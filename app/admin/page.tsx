@@ -69,7 +69,7 @@ export default function AdminPage() {
         >
           Dashboard Overview
         </h1>
-        <p className="mt-3 text-sm leading-6 text-[#B8A89A] dark:text-[#8A7D75]">
+        <p className="mt-3 text-sm leading-6 text-[#884F38] dark:text-[#8A7D75]">
           A quick snapshot of Selenite Care activity.
         </p>
       </div>
@@ -89,12 +89,12 @@ export default function AdminPage() {
           {statLabels.map((stat) => (
             <article
               key={stat.key}
-              className="rounded-lg border border-[#D8C7B5] border-l-4 border-l-[#C6A56B] bg-white p-6 dark:border-[#3D3530] dark:bg-[#242220]"
+              className="rounded-lg border border-[#EADDCD] border-l-4 border-l-[#B87B68] bg-white p-6 dark:border-[#3D3530] dark:bg-[#242220]"
               style={{
                 borderLeftWidth: "4px",
               }}
             >
-              <p className="text-sm font-medium text-[#B8A89A] dark:text-[#8A7D75]">
+              <p className="text-sm font-medium text-[#884F38] dark:text-[#8A7D75]">
                 {stat.label}
               </p>
               <p className="mt-4 text-3xl font-semibold tracking-tight text-[#2B2B2B] dark:text-[#F0EDE8]">

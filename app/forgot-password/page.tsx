@@ -63,7 +63,7 @@ export default function ForgotPasswordPage() {
 
         <form
           onSubmit={handleSubmit}
-          className="rounded-xl border border-[#D8C7B5] bg-white p-6 dark:border-[#3D3530] dark:bg-[#242220]"
+          className="rounded-xl border border-[#EADDCD] bg-white p-6 dark:border-[#3D3530] dark:bg-[#242220]"
         >
           <label
             htmlFor="email"
@@ -77,8 +77,8 @@ export default function ForgotPasswordPage() {
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             required
-            className="mt-2 h-11 w-full rounded-md border bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors placeholder:text-[#B8A89A] focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
-            style={{ borderColor: "#D8C7B5" }}
+            className="mt-2 h-11 w-full rounded-md border bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors placeholder:text-[#884F38] focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68]"
+            style={{ borderColor: "#EADDCD" }}
           />
 
           {error ? (
@@ -101,7 +101,7 @@ export default function ForgotPasswordPage() {
           <div className="mt-5 text-center">
             <Link
               href="/login"
-              className="text-sm underline text-[#C6A56B]"
+              className="text-sm underline text-[#B87B68]"
             >
               Back to Login
             </Link>

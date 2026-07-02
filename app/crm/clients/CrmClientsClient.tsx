@@ -187,7 +187,7 @@ export default function CrmClientsClient({ clients }: CrmClientsClientProps) {
 
   return (
     <>
-      <div className="mb-6 rounded-3xl border border-[#D8C7B5] bg-white p-5 shadow-sm">
+      <div className="mb-6 rounded-3xl border border-[#EADDCD] bg-white p-5 shadow-sm">
         <div className="grid gap-4 md:grid-cols-[1fr_220px_auto] md:items-end">
           <div>
             <label
@@ -202,7 +202,7 @@ export default function CrmClientsClient({ clients }: CrmClientsClientProps) {
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
               placeholder="Name, email, or phone number"
-              className="mt-2 h-11 w-full rounded-md border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors placeholder:text-[#B8A89A] focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
+              className="mt-2 h-11 w-full rounded-md border border-[#EADDCD] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors placeholder:text-[#884F38] focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68]"
             />
           </div>
 
@@ -221,7 +221,7 @@ export default function CrmClientsClient({ clients }: CrmClientsClientProps) {
                   event.target.value as (typeof MEMBERSHIP_FILTERS)[number]["value"],
                 )
               }
-              className="mt-2 h-11 w-full rounded-md border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B]"
+              className="mt-2 h-11 w-full rounded-md border border-[#EADDCD] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68]"
             >
               {MEMBERSHIP_FILTERS.map((filter) => (
                 <option key={filter.value} value={filter.value}>
@@ -245,7 +245,7 @@ export default function CrmClientsClient({ clients }: CrmClientsClientProps) {
           </button>
         </div>
 
-        <p className="mt-4 text-sm text-[#B8A89A]">
+        <p className="mt-4 text-sm text-[#884F38]">
           Showing {filteredClients.length} of {totalCount} clients.
         </p>
       </div>

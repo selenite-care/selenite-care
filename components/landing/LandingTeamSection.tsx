@@ -93,7 +93,7 @@ export default function LandingTeamSection() {
             {Array.from({ length: 4 }).map((_, index) => (
               <div
                 key={index}
-                className="rounded-2xl border border-[#D8C7B5] bg-white px-4 py-6 text-center dark:border-[#3D3530] dark:bg-[#242220]"
+                className="rounded-2xl border border-[#EADDCD] bg-white px-4 py-6 text-center dark:border-[#3D3530] dark:bg-[#242220]"
               >
                 <div className="mx-auto h-[100px] w-[100px] animate-pulse rounded-full bg-[#EFE7DC] dark:bg-[#1A1814]" />
                 <div className="mx-auto mt-4 h-5 w-24 animate-pulse rounded bg-[#EFE7DC] dark:bg-[#1A1814]" />
@@ -111,7 +111,7 @@ export default function LandingTeamSection() {
             {doctors.map((doctor) => (
               <article
                 key={doctor.id}
-                className="rounded-2xl border border-[#D8C7B5] bg-white px-4 py-6 text-center dark:border-[#3D3530] dark:bg-[#242220]"
+                className="rounded-2xl border border-[#EADDCD] bg-white px-4 py-6 text-center dark:border-[#3D3530] dark:bg-[#242220]"
               >
                 {doctor.image ? (
                   <div className="relative mx-auto h-[100px] w-[100px] overflow-hidden rounded-full">
@@ -126,7 +126,7 @@ export default function LandingTeamSection() {
                 ) : (
                   <div className="mx-auto flex h-[100px] w-[100px] items-center justify-center rounded-full bg-[#EFE7DC] dark:bg-[#1A1814]">
                     <span
-                      className="text-2xl font-semibold text-[#C6A56B]"
+                      className="text-2xl font-semibold text-[#B87B68]"
                       style={{ fontFamily: "Playfair Display, serif" }}
                     >
                       {getInitials(doctor.name)}
@@ -137,10 +137,10 @@ export default function LandingTeamSection() {
                 <h3 className="mt-4 text-base font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]">
                   {doctor.name}
                 </h3>
-                <p className="mt-2 text-sm text-[#B8A89A] dark:text-[#8A7D75]">
+                <p className="mt-2 text-sm text-[#884F38] dark:text-[#8A7D75]">
                   {doctor.designation}
                 </p>
-                <span className="mt-4 inline-flex rounded-full bg-[#F8F5F0] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#C6A56B] dark:bg-[#1A1814] dark:text-[#D4B47A]">
+                <span className="mt-4 inline-flex rounded-full bg-[#F8F5F0] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#B87B68] dark:bg-[#1A1814] dark:text-[#D4B47A]">
                   {specializationLabels[doctor.specialization]}
                 </span>
               </article>

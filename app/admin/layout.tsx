@@ -29,7 +29,7 @@ export default async function AdminLayout({
           <p className="mt-3 text-sm font-bold text-[#2B2B2B] dark:text-[#F0EDE8]">
             {session.user.name ?? "Admin"}
           </p>
-          <span className="mt-2 inline-flex rounded-full bg-[#C6A56B] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#2B2B2B]">
+          <span className="mt-2 inline-flex rounded-full bg-[#B87B68] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#2B2B2B]">
             {session.user.role}
           </span>
           <p className="mt-6 text-sm font-medium uppercase text-[var(--muted)]">
@@ -51,10 +51,10 @@ export default async function AdminLayout({
           <AdminMobileNav />
         </div>
 
-        <main className="admin-main bg-page flex-1 px-6 py-8 [&_thead]:bg-[#D8C7B5] [&_thead]:text-[#2B2B2B] [&_thead_th]:text-[#2B2B2B] [&_tbody_tr]:transition-colors [&_tbody_tr:hover]:bg-[#C6A56B]/10">
+        <main className="admin-main bg-page flex-1 px-6 py-8 [&_thead]:bg-[#EADDCD] [&_thead]:text-[#2B2B2B] [&_thead_th]:text-[#2B2B2B] [&_tbody_tr]:transition-colors [&_tbody_tr:hover]:bg-[#B87B68]/10">
           <style>{`
             .admin-main table thead {
-              background-color: #D8C7B5;
+              background-color: #EADDCD;
               color: #2B2B2B;
             }
 
@@ -82,7 +82,7 @@ export default async function AdminLayout({
 
             .admin-main button.border-black\\/10,
             .admin-main a.border-black\\/10 {
-              border-color: #C6A56B !important;
+              border-color: #B87B68 !important;
               color: #2B2B2B !important;
             }
 

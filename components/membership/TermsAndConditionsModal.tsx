@@ -21,18 +21,18 @@ export default function TermsAndConditionsModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="terms-and-conditions-title"
-        className="modal-card relative z-10 flex max-h-[80vh] w-full max-w-2xl flex-col overflow-hidden rounded-[20px] border border-[#D8C7B5] bg-[#F8F5F0] dark:border-[#3D3530] dark:bg-[#242220]"
+        className="modal-card relative z-10 flex max-h-[80vh] w-full max-w-2xl flex-col overflow-hidden rounded-[20px] border border-[#EADDCD] bg-[#F8F5F0] dark:border-[#3D3530] dark:bg-[#242220]"
         style={{
           boxShadow: "0 28px 80px rgba(43, 43, 43, 0.25)",
         }}
       >
         <div
-          className="border-b border-[#D8C7B5] px-6 pb-5 pt-6 dark:border-[#3D3530] sm:px-8"
+          className="border-b border-[#EADDCD] px-6 pb-5 pt-6 dark:border-[#3D3530] sm:px-8"
         >
           <button
             type="button"
             onClick={onClose}
-            className="absolute right-5 top-5 inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#D8C7B5] bg-white/90 text-lg text-[#2B2B2B] transition-colors hover:bg-white dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8] dark:hover:bg-[#2A2724]"
+            className="absolute right-5 top-5 inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#EADDCD] bg-white/90 text-lg text-[#2B2B2B] transition-colors hover:bg-white dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8] dark:hover:bg-[#2A2724]"
             style={{
             }}
           >
@@ -40,7 +40,7 @@ export default function TermsAndConditionsModal({
           </button>
 
           <p
-            className="text-sm font-semibold uppercase tracking-[0.18em] text-[#C6A56B] dark:text-[#D4B47A]"
+            className="text-sm font-semibold uppercase tracking-[0.18em] text-[#B87B68] dark:text-[#D4B47A]"
           >
             Terms & Conditions
           </p>

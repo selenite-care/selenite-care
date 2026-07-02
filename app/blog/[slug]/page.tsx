@@ -61,7 +61,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         }
 
         .blog-prose li::marker {
-          color: #C6A56B;
+          color: #B87B68;
         }
       `}</style>
 
@@ -92,7 +92,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               style={{ color: "#8C7967" }}
             >
               <span>By {post.author}</span>
-              <span className="hidden sm:inline" style={{ color: "#C6A56B" }}>
+              <span className="hidden sm:inline" style={{ color: "#B87B68" }}>
                 •
               </span>
               <span>{formatDate(post.date)}</span>
@@ -102,7 +102,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               className="mt-6 h-px w-full"
               style={{
                 background:
-                  "linear-gradient(90deg, #C6A56B 0%, rgba(198, 165, 107, 0.1) 100%)",
+                  "linear-gradient(90deg, #B87B68 0%, rgba(198, 165, 107, 0.1) 100%)",
               }}
             />
           </div>
@@ -166,7 +166,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                       style={{ color: "#2B2B2B" }}
                     >
                       Continue Reading
-                      <span className="ml-2" style={{ color: "#C6A56B" }}>
+                      <span className="ml-2" style={{ color: "#B87B68" }}>
                         →
                       </span>
                     </Link>

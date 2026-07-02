@@ -67,7 +67,7 @@ export default function TermsAndConditionsPage() {
       <div className="mx-auto w-full max-w-4xl">
         <div
           className="mb-5 h-1 w-20 rounded-full"
-          style={{ backgroundColor: "#C6A56B" }}
+          style={{ backgroundColor: "#B87B68" }}
         />
         <h1
           className="text-4xl font-semibold tracking-tight sm:text-5xl"
@@ -88,7 +88,7 @@ export default function TermsAndConditionsPage() {
             <section
               key={section.title}
               className="rounded-2xl border bg-white p-6"
-              style={{ borderColor: "#D8C7B5" }}
+              style={{ borderColor: "#EADDCD" }}
             >
               <h2
                 className="text-2xl font-semibold"

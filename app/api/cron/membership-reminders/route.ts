@@ -51,9 +51,9 @@ function getMembershipEmailHtml({
 
   return `
     <div style="margin:0;padding:32px 16px;background-color:#F8F5F0;font-family:Arial,sans-serif;color:#2B2B2B;">
-      <div style="max-width:640px;margin:0 auto;background:#FFFFFF;border:1px solid #D8C7B5;border-radius:18px;overflow:hidden;">
+      <div style="max-width:640px;margin:0 auto;background:#FFFFFF;border:1px solid #EADDCD;border-radius:18px;overflow:hidden;">
         <div style="padding:24px 28px;background:#2B2B2B;color:#F8F5F0;">
-          <div style="font-size:12px;letter-spacing:0.22em;text-transform:uppercase;color:#C6A56B;">Selenite Care</div>
+          <div style="font-size:12px;letter-spacing:0.22em;text-transform:uppercase;color:#B87B68;">Selenite Care</div>
           <h1 style="margin:12px 0 0;font-size:28px;line-height:1.2;font-family:'Playfair Display',Georgia,serif;">${title}</h1>
           <p style="margin:10px 0 0;font-size:14px;line-height:1.6;color:#EDE6DA;">${intro}</p>
         </div>
@@ -79,7 +79,7 @@ function getMembershipEmailHtml({
           </table>
 
           <div style="margin-top:28px;text-align:center;">
-            <a href="${servicesUrl}" style="display:inline-block;padding:14px 24px;background:#C6A56B;color:#2B2B2B;text-decoration:none;border-radius:8px;font-weight:700;">
+            <a href="${servicesUrl}" style="display:inline-block;padding:14px 24px;background:#B87B68;color:#2B2B2B;text-decoration:none;border-radius:8px;font-weight:700;">
               ${buttonText}
             </a>
           </div>

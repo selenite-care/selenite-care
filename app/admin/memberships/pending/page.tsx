@@ -265,13 +265,13 @@ export default function AdminPendingMembershipsPage() {
         >
           Pending Membership Verifications
         </h1>
-        <p className="mt-3 text-sm leading-6 text-[#B8A89A] dark:text-[#8A7D75]">
+        <p className="mt-3 text-sm leading-6 text-[#884F38] dark:text-[#8A7D75]">
           Review manually submitted membership payments and either verify or reject them.
         </p>
       </div>
 
       {isLoading ? (
-        <p className="mt-8 text-sm text-[#B8A89A] dark:text-[#8A7D75]">
+        <p className="mt-8 text-sm text-[#884F38] dark:text-[#8A7D75]">
           Loading pending memberships...
         </p>
       ) : null}
@@ -279,7 +279,7 @@ export default function AdminPendingMembershipsPage() {
       {error ? <p className="mt-8 text-sm text-red-600">{error}</p> : null}
 
       {!isLoading && !error && pendingMemberships.length === 0 ? (
-        <p className="mt-8 text-sm text-[#B8A89A] dark:text-[#8A7D75]">
+        <p className="mt-8 text-sm text-[#884F38] dark:text-[#8A7D75]">
           No pending membership verifications found.
         </p>
       ) : null}
@@ -306,7 +306,7 @@ export default function AdminPendingMembershipsPage() {
                 return (
                   <article
                     key={membership.id}
-                    className="rounded-2xl border border-[#D8C7B5] bg-white p-6 shadow-sm dark:border-[#3D3530] dark:bg-[#242220]"
+                    className="rounded-2xl border border-[#EADDCD] bg-white p-6 shadow-sm dark:border-[#3D3530] dark:bg-[#242220]"
                   >
                     <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                       <div>
@@ -344,7 +344,7 @@ export default function AdminPendingMembershipsPage() {
                           href={membership.payment.bankTransferProof}
                           target="_blank"
                           rel="noreferrer"
-                          className="block w-full max-w-[180px] overflow-hidden rounded-2xl border border-[#D8C7B5] bg-[#F8F5F0] p-2 dark:border-[#3D3530] dark:bg-[#2A2724]"
+                          className="block w-full max-w-[180px] overflow-hidden rounded-2xl border border-[#EADDCD] bg-[#F8F5F0] p-2 dark:border-[#3D3530] dark:bg-[#2A2724]"
                         >
                           <img
                             src={membership.payment.bankTransferProof}
@@ -354,7 +354,7 @@ export default function AdminPendingMembershipsPage() {
                         </a>
                       ) : (
                         <div
-                          className="flex h-36 w-full max-w-[180px] items-center justify-center rounded-2xl border border-[#D8C7B5] bg-[#FCFAF7] px-4 text-center text-sm text-[#B8A89A] dark:border-[#3D3530] dark:bg-[#2A2724] dark:text-[#8A7D75]"
+                          className="flex h-36 w-full max-w-[180px] items-center justify-center rounded-2xl border border-[#EADDCD] bg-[#FCFAF7] px-4 text-center text-sm text-[#884F38] dark:border-[#3D3530] dark:bg-[#2A2724] dark:text-[#8A7D75]"
                         >
                           No proof image provided
                         </div>
@@ -414,7 +414,7 @@ export default function AdminPendingMembershipsPage() {
                       </div>
                     </div>
 
-                    <div className="mt-6 rounded-2xl border border-[#D8C7B5] bg-[#FCFAF7] p-4 dark:border-[#3D3530] dark:bg-[#2A2724]">
+                    <div className="mt-6 rounded-2xl border border-[#EADDCD] bg-[#FCFAF7] p-4 dark:border-[#3D3530] dark:bg-[#2A2724]">
                       <label
                         htmlFor={`reject-reason-${membership.id}`}
                         className="text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]"
@@ -432,7 +432,7 @@ export default function AdminPendingMembershipsPage() {
                         }
                         rows={3}
                         placeholder="Explain why this payment is being rejected."
-                        className="mt-3 w-full rounded-xl border border-[#D8C7B5] bg-white px-4 py-3 text-sm text-[#2B2B2B] outline-none transition-colors placeholder:text-[#B8A89A] focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8] dark:placeholder:text-[#8A7D75]"
+                        className="mt-3 w-full rounded-xl border border-[#EADDCD] bg-white px-4 py-3 text-sm text-[#2B2B2B] outline-none transition-colors placeholder:text-[#884F38] focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8] dark:placeholder:text-[#8A7D75]"
                       />
                     </div>
 
@@ -441,7 +441,7 @@ export default function AdminPendingMembershipsPage() {
                         type="button"
                         onClick={() => void handleVerify(membership.id)}
                         disabled={isVerifying || isRejecting}
-                        className="inline-flex h-11 items-center justify-center rounded-md bg-[#2B2B2B] px-5 text-sm font-medium text-[#F8F5F0] transition-colors disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#C6A56B] dark:text-[#141210]"
+                        className="inline-flex h-11 items-center justify-center rounded-md bg-[#2B2B2B] px-5 text-sm font-medium text-[#F8F5F0] transition-colors disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#B87B68] dark:text-[#141210]"
                       >
                         {isVerifying ? "Verifying..." : "Verify & Activate"}
                       </button>

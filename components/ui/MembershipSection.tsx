@@ -95,7 +95,7 @@ const memberships: MembershipTier[] = [
     priceNote: "Offer valid for a limited time and subject to change.",
     description:
       "A perfect starting point for individuals seeking professional skincare guidance and routine development.",
-    accentColor: "#C6A56B",
+    accentColor: "#B87B68",
     benefits: [
       { heading: "60 Days of Unlimited Skincare Support", points: [] },
       {
@@ -165,7 +165,7 @@ const memberships: MembershipTier[] = [
     cost: "9,990 BDT",
     description:
       "Excellence Skin transformation program combining skincare, nutrition, wellness, and continuous progress monitoring.",
-    accentColor: "#C6A56B",
+    accentColor: "#B87B68",
     benefits: [
       { heading: "3 Years Specialist Support on both Online & Offline", points: [] },
       {
@@ -271,7 +271,7 @@ function MembershipModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby={`membership-modal-${membership.key}`}
-        className="modal-card relative z-10 flex h-[80vh] w-full max-w-2xl flex-col overflow-hidden rounded-[20px] border border-[#D8C7B5] bg-[#F8F5F0] dark:border-[#3D3530] dark:bg-[#242220]"
+        className="modal-card relative z-10 flex h-[80vh] w-full max-w-2xl flex-col overflow-hidden rounded-[20px] border border-[#EADDCD] bg-[#F8F5F0] dark:border-[#3D3530] dark:bg-[#242220]"
         style={{
           boxShadow: "0 32px 90px rgba(43, 43, 43, 0.28)",
         }}
@@ -279,7 +279,7 @@ function MembershipModal({
         <div
           className="border-b px-6 pb-5 pt-6 sm:px-8"
           style={{
-            borderColor: "#D8C7B5",
+            borderColor: "#EADDCD",
             background:
               membership.key === "platinum"
                 ? "linear-gradient(135deg, #111111 0%, #1E1A15 100%)"
@@ -293,7 +293,7 @@ function MembershipModal({
             onClick={onClose}
             className="absolute right-5 top-5 inline-flex h-10 w-10 items-center justify-center rounded-full border text-lg transition-colors hover:bg-white/60 dark:border-[#3D3530] dark:hover:bg-[#2A2724]"
             style={{
-              borderColor: "#D8C7B5",
+              borderColor: "#EADDCD",
               color: membership.key === "platinum" ? "#F8F5F0" : "#2B2B2B",
               backgroundColor:
                 membership.key === "platinum"
@@ -310,7 +310,7 @@ function MembershipModal({
               background:
                 membership.key === "crystal"
                   ? "linear-gradient(135deg, #5BB8F5 0%, #2A8FD4 100%)"
-                  : "linear-gradient(135deg, #C6A56B 0%, #A8864D 100%)",
+                  : "linear-gradient(135deg, #B87B68 0%, #A8864D 100%)",
               color: membership.key === "platinum" ? "#111111" : "#FFF8EE",
             }}
           >
@@ -331,7 +331,7 @@ function MembershipModal({
           <p
             className="mt-3 max-w-xl text-sm leading-6 dark:text-[#8A7D75] sm:text-base"
             style={{
-              color: membership.key === "platinum" ? "#D8C7B5" : "#6E6257",
+              color: membership.key === "platinum" ? "#EADDCD" : "#6E6257",
             }}
           >
             {membership.description}
@@ -362,7 +362,7 @@ function MembershipModal({
                 <span
                   className="text-3xl font-semibold"
                   style={{
-                    color: "#C6A56B",
+                    color: "#B87B68",
                     fontFamily: "Playfair Display, serif",
                   }}
                 >
@@ -386,7 +386,7 @@ function MembershipModal({
             <span
               className="text-xs font-semibold uppercase tracking-[0.14em]"
               style={{
-                color: membership.key === "platinum" ? "#D8C7B5" : "#8C7967",
+                color: membership.key === "platinum" ? "#EADDCD" : "#8C7967",
               }}
             >
               {membership.validity}
@@ -410,7 +410,7 @@ function MembershipModal({
                   <div
                     className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold"
                     style={{
-                      background: "linear-gradient(135deg, #C6A56B 0%, #A8864D 100%)",
+                      background: "linear-gradient(135deg, #B87B68 0%, #A8864D 100%)",
                       color: "#FFF8EE",
                     }}
                   >
@@ -429,7 +429,7 @@ function MembershipModal({
                             key={point}
                             className="flex gap-2 text-sm leading-6 text-[#6E6257] dark:text-[#8A7D75]"
                           >
-                            <span className="text-[#C6A56B] dark:text-[#D4B47A]">•</span>
+                            <span className="text-[#B87B68] dark:text-[#D4B47A]">•</span>
                             <span>{point}</span>
                           </li>
                         ))}
@@ -443,7 +443,7 @@ function MembershipModal({
         </div>
 
         <div
-          className="shrink-0 border-t border-[#D8C7B5] bg-[#F8F5F0] px-6 py-5 dark:border-[#3D3530] dark:bg-[#242220] sm:px-8"
+          className="shrink-0 border-t border-[#EADDCD] bg-[#F8F5F0] px-6 py-5 dark:border-[#3D3530] dark:bg-[#242220] sm:px-8"
           style={{
           }}
         >
@@ -454,8 +454,8 @@ function MembershipModal({
                   type="checkbox"
                   checked={hasAcceptedTerms}
                   onChange={(event) => setHasAcceptedTerms(event.target.checked)}
-                  className="mt-1 h-4 w-4 shrink-0 rounded border border-[#D8C7B5] dark:border-[#3D3530]"
-                  style={{ accentColor: "#C6A56B" }}
+                  className="mt-1 h-4 w-4 shrink-0 rounded border border-[#EADDCD] dark:border-[#3D3530]"
+                  style={{ accentColor: "#B87B68" }}
                 />
                 <span>
                   <span style={{ color: "#C84B4B" }}>*</span>{" "}
@@ -484,7 +484,7 @@ function MembershipModal({
             ) : (
               <Link
                 href={actionState.href}
-                className="inline-flex h-12 w-full items-center justify-center rounded-md bg-[#2B2B2B] px-5 text-sm font-medium text-[#F8F5F0] transition-colors hover:bg-[#B8A89A] dark:bg-[#C6A56B] dark:text-[#141210] dark:hover:bg-[#D4B47A] sm:w-auto"
+                className="inline-flex h-12 w-full items-center justify-center rounded-md bg-[#2B2B2B] px-5 text-sm font-medium text-[#F8F5F0] transition-colors hover:bg-[#884F38] dark:bg-[#B87B68] dark:text-[#141210] dark:hover:bg-[#D4B47A] sm:w-auto"
                 style={{
                 }}
               >
@@ -671,7 +671,7 @@ export default function MembershipSection() {
             >
               Our Memberships
             </h2>
-            <p className="text-muted mt-4 text-base leading-7">
+            <p className="text-muted mt-4 text-base leading-7 text-[#884F38] dark:text-[#8A7D75]">
               We have 3 membership plan categories. You can choose your own membership.
             </p>
           </div>

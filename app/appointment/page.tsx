@@ -252,7 +252,7 @@ export default function AppointmentPage() {
             </p>
             <Link
               href="/services"
-              className="mt-6 inline-flex h-12 items-center justify-center rounded-md px-5 text-sm font-medium transition-colors hover:bg-[#B8A89A]"
+              className="mt-6 inline-flex h-12 items-center justify-center rounded-md px-5 text-sm font-medium transition-colors hover:bg-[#884F38]"
               style={{
                 backgroundColor: "#2B2B2B",
                 color: "#F8F5F0",
@@ -274,7 +274,7 @@ export default function AppointmentPage() {
             ) : null}
 
             {!isLoadingDoctors && doctors.length === 0 ? (
-              <p className="mt-10 text-sm text-[#B8A89A] dark:text-[#8A7D75]">
+              <p className="mt-10 text-sm text-[#884F38] dark:text-[#8A7D75]">
                 No doctors are available right now.
               </p>
             ) : null}
@@ -286,7 +286,7 @@ export default function AppointmentPage() {
                     <div className="flex items-center gap-4">
                       <div
                         className="h-px flex-1"
-                        style={{ backgroundColor: "#D8C7B5" }}
+                        style={{ backgroundColor: "#EADDCD" }}
                       />
                       <h2
                         className="text-2xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]"
@@ -298,7 +298,7 @@ export default function AppointmentPage() {
                       </h2>
                       <div
                         className="h-px flex-1"
-                        style={{ backgroundColor: "#D8C7B5" }}
+                        style={{ backgroundColor: "#EADDCD" }}
                       />
                     </div>
 
@@ -374,7 +374,7 @@ export default function AppointmentPage() {
                               <div
                                 className="mt-5 rounded-xl border px-4 py-3 dark:border-[#3D3530] dark:bg-[#1A1814]"
                                 style={{
-                                  borderColor: "#D8C7B5",
+                                  borderColor: "#EADDCD",
                                   backgroundColor: "#F8F5F0",
                                 }}
                               >
@@ -383,12 +383,12 @@ export default function AppointmentPage() {
                                 </p>
                                 <div className="mt-3 flex flex-wrap gap-2">
                                   {availability.daysLabel ? (
-                                    <span className="inline-flex items-center rounded-full border border-[#D8C7B5] bg-white px-3 py-1 text-xs font-medium text-[#6E6257] dark:border-[#3D3530] dark:bg-[#242220] dark:text-[#F0EDE8]">
+                                    <span className="inline-flex items-center rounded-full border border-[#EADDCD] bg-white px-3 py-1 text-xs font-medium text-[#6E6257] dark:border-[#3D3530] dark:bg-[#242220] dark:text-[#F0EDE8]">
                                       {availability.daysLabel}
                                     </span>
                                   ) : null}
                                   {availability.timeLabel ? (
-                                    <span className="inline-flex items-center rounded-full border border-[#C6A56B] bg-[#FFF8EE] px-3 py-1 text-xs font-medium text-[#2B2B2B] dark:border-[#C6A56B] dark:bg-[#2A241D] dark:text-[#F0EDE8]">
+                                    <span className="inline-flex items-center rounded-full border border-[#B87B68] bg-[#FFF8EE] px-3 py-1 text-xs font-medium text-[#2B2B2B] dark:border-[#B87B68] dark:bg-[#2A241D] dark:text-[#F0EDE8]">
                                       {availability.timeLabel}
                                     </span>
                                   ) : null}
@@ -410,7 +410,7 @@ export default function AppointmentPage() {
                                         event.stopPropagation();
                                         setShowMembershipModal(true);
                                       }}
-                                      className="mt-6 inline-flex h-12 w-full items-center justify-center rounded-md px-5 text-sm font-medium transition-colors hover:bg-[#B8A89A]"
+                                      className="mt-6 inline-flex h-12 w-full items-center justify-center rounded-md px-5 text-sm font-medium transition-colors hover:bg-[#884F38]"
                                       style={{
                                         backgroundColor: "#2B2B2B",
                                         color: "#F8F5F0",
@@ -424,7 +424,7 @@ export default function AppointmentPage() {
                                 <Link
                                   href={`/appointment/date?doctorId=${encodeURIComponent(doctor.id)}`}
                                   onClick={(event) => event.stopPropagation()}
-                                  className="mt-6 inline-flex h-12 w-full items-center justify-center rounded-md px-5 text-sm font-medium transition-colors hover:bg-[#B8A89A]"
+                                  className="mt-6 inline-flex h-12 w-full items-center justify-center rounded-md px-5 text-sm font-medium transition-colors hover:bg-[#884F38]"
                                   style={{
                                     backgroundColor: "#2B2B2B",
                                     color: "#F8F5F0",
@@ -453,7 +453,7 @@ export default function AppointmentPage() {
         >
           <div
             className="modal-card w-full max-w-md rounded-[24px] border bg-white p-6 shadow-2xl"
-            style={{ borderColor: "#D8C7B5" }}
+            style={{ borderColor: "#EADDCD" }}
             onClick={(event) => event.stopPropagation()}
           >
             <div className="flex items-start justify-between gap-4">
@@ -476,7 +476,7 @@ export default function AppointmentPage() {
                 onClick={() => setShowMembershipModal(false)}
                 className="inline-flex h-10 w-10 items-center justify-center rounded-full border bg-[#F8F5F0] text-lg text-[#2B2B2B] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#F0EDE8]"
                 style={{
-                  borderColor: "#D8C7B5",
+                  borderColor: "#EADDCD",
                 }}
                 aria-label="Close membership prompt"
               >
@@ -487,7 +487,7 @@ export default function AppointmentPage() {
             <div className="mt-6 flex flex-col gap-3 sm:flex-row">
               <Link
                 href="/services"
-                className="inline-flex h-12 flex-1 items-center justify-center rounded-md px-5 text-sm font-medium transition-colors hover:bg-[#B8A89A]"
+                className="inline-flex h-12 flex-1 items-center justify-center rounded-md px-5 text-sm font-medium transition-colors hover:bg-[#884F38]"
                 style={{
                   backgroundColor: "#2B2B2B",
                   color: "#F8F5F0",
@@ -500,7 +500,7 @@ export default function AppointmentPage() {
                 onClick={() => setShowMembershipModal(false)}
                 className="inline-flex h-12 flex-1 items-center justify-center rounded-md border bg-[#F8F5F0] px-5 text-sm font-medium text-[#2B2B2B] transition-colors dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#F0EDE8]"
                 style={{
-                  borderColor: "#D8C7B5",
+                  borderColor: "#EADDCD",
                 }}
               >
                 Close

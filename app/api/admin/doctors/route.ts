@@ -103,12 +103,12 @@ function getDoctorWelcomeEmailHtml(email: string, temporaryPassword: string) {
       <p>You can log in using the credentials below:</p>
       <table style="border-collapse: collapse; margin-top: 16px;">
         <tr>
-          <td style="padding: 8px 12px; border: 1px solid #D8C7B5; font-weight: bold;">Email</td>
-          <td style="padding: 8px 12px; border: 1px solid #D8C7B5;">${email}</td>
+          <td style="padding: 8px 12px; border: 1px solid #EADDCD; font-weight: bold;">Email</td>
+          <td style="padding: 8px 12px; border: 1px solid #EADDCD;">${email}</td>
         </tr>
         <tr>
-          <td style="padding: 8px 12px; border: 1px solid #D8C7B5; font-weight: bold;">Temporary Password</td>
-          <td style="padding: 8px 12px; border: 1px solid #D8C7B5;">${temporaryPassword}</td>
+          <td style="padding: 8px 12px; border: 1px solid #EADDCD; font-weight: bold;">Temporary Password</td>
+          <td style="padding: 8px 12px; border: 1px solid #EADDCD;">${temporaryPassword}</td>
         </tr>
       </table>
       <p style="margin-top: 16px;">Please change your password after logging in.</p>

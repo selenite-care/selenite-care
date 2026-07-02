@@ -32,7 +32,7 @@ const typeBorderClasses: Record<string, string> = {
   INFO: "border-l-blue-500",
   SUCCESS: "border-l-green-500",
   WARNING: "border-l-amber-500",
-  BOOKING: "border-l-[#C6A56B]",
+  BOOKING: "border-l-[#B87B68]",
   MEMBERSHIP: "border-l-purple-500",
   ORDER: "border-l-orange-500",
   FEEDBACK: "border-l-[#9B59B6]",
@@ -144,7 +144,7 @@ export default function NotificationBell() {
       <button
         type="button"
         onClick={() => setIsOpen((current) => !current)}
-        className="relative inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#D8C7B5] bg-white text-[#2B2B2B] transition-colors hover:border-[#C6A56B] hover:text-[#C6A56B] dark:border-[#3D3530] dark:bg-[#242220] dark:text-[#F0EDE8]"
+        className="relative inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#EADDCD] bg-white text-[#2B2B2B] transition-colors hover:border-[#B87B68] hover:text-[#B87B68] dark:border-[#3D3530] dark:bg-[#242220] dark:text-[#F0EDE8]"
         aria-label="Notifications"
         aria-expanded={isOpen}
       >
@@ -157,8 +157,8 @@ export default function NotificationBell() {
       </button>
 
       {isOpen ? (
-        <div className="absolute right-0 z-50 mt-3 w-[calc(100vw-2rem)] max-w-[380px] overflow-hidden rounded-2xl border border-[#D8C7B5] bg-white shadow-2xl dark:border-[#3D3530] dark:bg-[#242220]">
-          <div className="flex items-center justify-between gap-3 border-b border-[#D8C7B5] px-4 py-3 dark:border-[#3D3530]">
+        <div className="absolute right-0 z-50 mt-3 w-[calc(100vw-2rem)] max-w-[380px] overflow-hidden rounded-2xl border border-[#EADDCD] bg-white shadow-2xl dark:border-[#3D3530] dark:bg-[#242220]">
+          <div className="flex items-center justify-between gap-3 border-b border-[#EADDCD] px-4 py-3 dark:border-[#3D3530]">
             <h2
               className="text-base font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]"
               style={{ fontFamily: "Playfair Display, serif" }}
@@ -169,7 +169,7 @@ export default function NotificationBell() {
               type="button"
               onClick={markAllRead}
               disabled={unreadCount === 0}
-              className="text-xs font-semibold text-[#C6A56B] transition-colors hover:text-[#8A6A2F] disabled:cursor-not-allowed disabled:opacity-50 dark:hover:text-[#D4B47A]"
+              className="text-xs font-semibold text-[#B87B68] transition-colors hover:text-[#8A6A2F] disabled:cursor-not-allowed disabled:opacity-50 dark:hover:text-[#D4B47A]"
             >
               Mark all read
             </button>
@@ -200,13 +200,13 @@ export default function NotificationBell() {
                         {notification.title}
                       </p>
                       {!notification.isRead ? (
-                        <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-[#C6A56B]" />
+                        <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-[#B87B68]" />
                       ) : null}
                     </div>
                     <p className="mt-1 text-sm leading-6 text-[#8C7967] dark:text-[#8A7D75]">
                       {notification.message}
                     </p>
-                    <p className="mt-2 text-xs text-[#B8A89A] dark:text-[#8A7D75]">
+                    <p className="mt-2 text-xs text-[#884F38] dark:text-[#8A7D75]">
                       {formatRelative(notification.createdAt)}
                     </p>
                   </button>

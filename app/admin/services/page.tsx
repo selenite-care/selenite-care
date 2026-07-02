@@ -257,7 +257,7 @@ export default function AdminServicesPage() {
             role="dialog"
             aria-modal="true"
             aria-labelledby="service-modal-title"
-            className="modal-card max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg border border-[#D8C7B5] bg-white p-6 shadow-2xl dark:border-[#3D3530] dark:bg-[#242220]"
+            className="modal-card max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg border border-[#EADDCD] bg-white p-6 shadow-2xl dark:border-[#3D3530] dark:bg-[#242220]"
             style={{
               boxShadow: "0 24px 80px rgba(43, 43, 43, 0.28)",
             }}
@@ -273,7 +273,7 @@ export default function AdminServicesPage() {
                 >
                   {editingService ? "Edit Service" : "Add Service"}
                 </h2>
-                <p className="mt-2 text-sm text-[#B8A89A] dark:text-[#8A7D75]">
+                <p className="mt-2 text-sm text-[#884F38] dark:text-[#8A7D75]">
                   Enter the details clients will see when choosing a service.
                 </p>
               </div>
@@ -304,7 +304,7 @@ export default function AdminServicesPage() {
                     }))
                   }
                   required
-                  className="mt-2 h-11 w-full rounded-md border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
+                  className="mt-2 h-11 w-full rounded-md border border-[#EADDCD] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
                 />
               </div>
 
@@ -325,7 +325,7 @@ export default function AdminServicesPage() {
                     }))
                   }
                   rows={4}
-                  className="mt-2 w-full resize-none rounded-md border border-[#D8C7B5] bg-white px-3 py-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
+                  className="mt-2 w-full resize-none rounded-md border border-[#EADDCD] bg-white px-3 py-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
                 />
               </div>
 
@@ -346,7 +346,7 @@ export default function AdminServicesPage() {
                     }))
                   }
                   rows={5}
-                  className="mt-2 w-full resize-none rounded-md border border-[#D8C7B5] bg-white px-3 py-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
+                  className="mt-2 w-full resize-none rounded-md border border-[#EADDCD] bg-white px-3 py-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
                 />
               </div>
 
@@ -370,7 +370,7 @@ export default function AdminServicesPage() {
                     }))
                   }
                   required
-                  className="mt-2 h-11 w-full rounded-md border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
+                  className="mt-2 h-11 w-full rounded-md border border-[#EADDCD] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
                 />
               </div>
 
@@ -393,7 +393,7 @@ export default function AdminServicesPage() {
                       originalPrice: event.target.value,
                     }))
                   }
-                  className="mt-2 h-11 w-full rounded-md border border-[#D8C7B5] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#C6A56B] focus:ring-1 focus:ring-[#C6A56B] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
+                  className="mt-2 h-11 w-full rounded-md border border-[#EADDCD] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
                 />
               </div>
 
@@ -401,7 +401,7 @@ export default function AdminServicesPage() {
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="inline-flex h-11 items-center justify-center rounded-md border border-[#C6A56B] bg-white px-5 text-sm font-medium text-[#2B2B2B] transition-colors hover:bg-[#C6A56B]/10 dark:bg-[#242220] dark:text-[#F0EDE8]"
+                  className="inline-flex h-11 items-center justify-center rounded-md border border-[#B87B68] bg-white px-5 text-sm font-medium text-[#2B2B2B] transition-colors hover:bg-[#B87B68]/10 dark:bg-[#242220] dark:text-[#F0EDE8]"
                 >
                   Cancel
                 </button>

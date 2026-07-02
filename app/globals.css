@@ -4,10 +4,10 @@
 
 @theme {
   --color-brand-ivory: #F8F5F0;
-  --color-brand-nude: #D8C7B5;
-  --color-brand-taupe: #B8A89A;
+  --color-brand-nude: #EADDCD;
+  --color-brand-taupe: #884F38;
   --color-brand-charcoal: #2B2B2B;
-  --color-brand-gold: #C6A56B;
+  --color-brand-gold: #B87B68;
 
   --font-sans: var(--font-geist-sans), sans-serif;
   --font-mono: var(--font-geist-mono), monospace;
@@ -21,9 +21,9 @@
 
     /* Dark-mode-aware tokens — light values */
     --card: #FFFFFF;
-    --border: #D8C7B5;
-    --muted: #B8A89A;
-    --gold: #C6A56B;
+    --border: #EADDCD;
+    --muted: #884F38;
+    --gold: #B87B68;
     --sidebar: #2B2B2B;
     --sidebar-text: #F8F5F0;
     --input-bg: #FFFFFF;
@@ -135,14 +135,14 @@
         110deg,
         #2B2B2B 0,
         #2B2B2B 72px,
-        #D8C7B5 84px,
+        #EADDCD 84px,
         #FFFFFF 90px,
-        #D8C7B5 96px,
+        #EADDCD 96px,
         #2B2B2B 108px,
         #2B2B2B 180px
       ),
       radial-gradient(circle, #FFFFFF 0 1px, transparent 1.5px),
-      radial-gradient(circle, #D8C7B5 0 1.5px, transparent 2px),
+      radial-gradient(circle, #EADDCD 0 1.5px, transparent 2px),
       radial-gradient(circle, #FFFFFF 0 1px, transparent 1.5px);
     background-size:
       180px 100%,
@@ -434,7 +434,7 @@
 
   .modal-card {
     background-color: #FFFFFF;
-    border-color: #D8C7B5;
+    border-color: #EADDCD;
   }
 
   .dark .modal-card {

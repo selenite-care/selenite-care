@@ -228,9 +228,9 @@ export async function POST(request: Request) {
 
     const adminHtml = `
       <div style="font-family: Arial, sans-serif; color: #2B2B2B; line-height: 1.6; background: #F8F5F0; padding: 24px;">
-        <div style="max-width: 680px; margin: 0 auto; background: #FFFFFF; border: 1px solid #D8C7B5; border-radius: 16px; overflow: hidden;">
+        <div style="max-width: 680px; margin: 0 auto; background: #FFFFFF; border: 1px solid #EADDCD; border-radius: 16px; overflow: hidden;">
           <div style="background: #2B2B2B; padding: 24px 28px;">
-            <div style="font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: #C6A56B;">Selenite Care</div>
+            <div style="font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: #B87B68;">Selenite Care</div>
             <h1 style="margin: 12px 0 0; font-size: 28px; line-height: 1.2; color: #F8F5F0;">New Manual Payment - Pending Verification</h1>
           </div>
           <div style="padding: 28px;">
@@ -283,7 +283,7 @@ export async function POST(request: Request) {
                     ? `
                 <tr>
                   <td style="padding: 10px 0; color: #6E6257;">Proof Image</td>
-                  <td style="padding: 10px 0;"><a href="${proofImageUrl}" style="color: #C6A56B;">View uploaded proof</a></td>
+                  <td style="padding: 10px 0;"><a href="${proofImageUrl}" style="color: #B87B68;">View uploaded proof</a></td>
                 </tr>`
                     : `
                 <tr>
