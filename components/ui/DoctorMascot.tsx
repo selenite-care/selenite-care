@@ -11,6 +11,8 @@ export default function DoctorMascot() {
     const el = wrapperRef.current;
     if (!el) return;
 
+    //horizontal slide closed
+
     // Tiny delay so the browser has painted the page first
     const raf = requestAnimationFrame(() => {
       setTimeout(() => {
