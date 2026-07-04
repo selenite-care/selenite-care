@@ -1,23 +1,6 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-
-/**
- * DoctorMascot — Premium "slide-in on first visit" component
- *
- * IMAGE SWAP GUIDE:
- * Replace DOCTOR_IMAGE_URL with any licensed PNG that has a transparent/white background.
- * Ideal photo: full-body or half-body female doctor in white coat, pointing left/upward,
- * isolated on white or transparent background.
- *
- * Good sources for licensed images:
- *   • Shutterstock — search "female doctor pointing white background PNG"
- *   • Adobe Stock  — search "female doctor isolated pointing"
- *   • iStock       — search "female doctor pointing copy space"
- *
- * The image is masked with mix-blend-mode + a white background so even
- * non-transparent JPEGs blend cleanly into the page.
- */
 const DOCTOR_IMAGE_URL =
   "https://static.vecteezy.com/system/resources/thumbnails/051/966/270/small/asian-female-doctor-pointing-at-something-free-png.png";
 
@@ -41,7 +24,10 @@ export default function DoctorMascot() {
 
   return (
     // Outer anchor — position this wherever you need it on the page
-    <div className="relative flex items-end" style={{ width: 340, minHeight: 520 }}>
+    <div
+      className="relative flex w-full max-w-[340px] items-end overflow-hidden"
+      style={{ minHeight: "min(520px, 145vw)" }}
+    >
 
       {/* ── Slide-in wrapper ── */}
       <div
@@ -213,12 +199,12 @@ export default function DoctorMascot() {
               fontWeight: 700,
               color: "#2B2B2B",
               fontFamily: "Playfair Display, Georgia, serif",
-              whiteSpace: "nowrap",
+              lineHeight: 1.25,
             }}
           >
             Dr. Sara Ahmed
           </p>
-          <p style={{ fontSize: 10, color: "#8C7355", marginTop: 2, whiteSpace: "nowrap" }}>
+          <p style={{ fontSize: 10, color: "#8C7355", lineHeight: 1.35, marginTop: 2 }}>
             Dermatology Consultant · Selenite Care
           </p>
         </div>
