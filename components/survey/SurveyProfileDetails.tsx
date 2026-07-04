@@ -12,6 +12,8 @@ type SurveyProfileDetailsData = {
   skinIssues: string[];
   skinIssueDuration: string | null;
   currentProducts: string[];
+  currentProductsImage?: string | null;
+  previousConsultation?: boolean | null;
   allergicIngredients: string[];
   doubleCleansePreference: string | null;
   sleepHours: string | null;
@@ -52,6 +54,24 @@ function yesNo(value: boolean) {
   return value ? "Yes" : "No";
 }
 
+function PreviousConsultationBadge({ value }: { value?: boolean | null }) {
+  if (value === null || typeof value === "undefined") {
+    return <span className="text-muted">Not answered</span>;
+  }
+
+  return (
+    <span
+      className={`inline-flex rounded-full border px-3 py-1 text-xs font-medium ${
+        value
+          ? "border-green-200 bg-green-50 text-green-700 dark:border-green-900/50 dark:bg-green-950/20 dark:text-green-300"
+          : "border-zinc-200 bg-zinc-50 text-zinc-700 dark:border-zinc-800 dark:bg-zinc-900/40 dark:text-zinc-300"
+      }`}
+    >
+      {value ? "Yes" : "No"}
+    </span>
+  );
+}
+
 export default function SurveyProfileDetails({
   profile,
   emptyMessage = "No survey profile is available for this client.",
@@ -87,6 +107,10 @@ export default function SurveyProfileDetails({
         <DetailItem
           label="Current Products"
           value={joinValues(profile.currentProducts)}
+        />
+        <DetailItem
+          label="Previous Consultation with Us"
+          value={<PreviousConsultationBadge value={profile.previousConsultation} />}
         />
         <DetailItem
           label="Allergic Ingredients"
@@ -133,6 +157,28 @@ export default function SurveyProfileDetails({
           />
         ) : null}
       </div>
+
+      {profile.currentProductsImage ? (
+        <div className="mt-8">
+          <h3 className="text-page text-base font-semibold">
+            Current Products Photo
+          </h3>
+          <a
+            href={profile.currentProductsImage}
+            target="_blank"
+            rel="noreferrer"
+            className="mt-4 inline-block overflow-hidden rounded-lg border border-themed bg-card transition-opacity hover:opacity-90"
+          >
+            <Image
+              src={profile.currentProductsImage}
+              alt="Current skincare products"
+              width={200}
+              height={150}
+              className="h-auto w-[200px] object-cover"
+            />
+          </a>
+        </div>
+      ) : null}
 
       {profile.skinImages.length > 0 ? (
         <div className="mt-8">

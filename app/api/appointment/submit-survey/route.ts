@@ -22,6 +22,8 @@ type SurveyPayload = {
   skinIssues?: unknown;
   skinIssueDuration?: unknown;
   currentProducts?: unknown;
+  currentProductsImage?: unknown;
+  previousConsultation?: unknown;
   allergicIngredients?: unknown;
   doubleCleansePreference?: unknown;
   sleepHours?: unknown;
@@ -121,6 +123,22 @@ function asOptionalString(value: unknown): string | null {
 
   const trimmed = sanitizeText(value);
   return trimmed.length > 0 ? trimmed : null;
+}
+
+function asNullableBoolean(value: unknown) {
+  if (value === null || typeof value === "undefined") {
+    return null;
+  }
+
+  if (value === true || value === "true") {
+    return true;
+  }
+
+  if (value === false || value === "false") {
+    return false;
+  }
+
+  return null;
 }
 
 function formatPreferredDate(date: Date) {
@@ -300,6 +318,8 @@ export async function POST(request: Request) {
   const skinIssues = asStringArray(body.skinIssues);
   const skinIssueDuration = asOptionalString(body.skinIssueDuration);
   const currentProducts = asStringArray(body.currentProducts);
+  const currentProductsImage = asOptionalString(body.currentProductsImage);
+  const previousConsultation = asNullableBoolean(body.previousConsultation);
   const allergicIngredients = asStringArray(body.allergicIngredients);
   const doubleCleansePreference =
     typeof body.doubleCleansePreference === "string"
@@ -360,6 +380,8 @@ export async function POST(request: Request) {
           skinIssues,
           skinIssueDuration,
           currentProducts,
+          currentProductsImage,
+          previousConsultation,
           allergicIngredients,
           doubleCleansePreference,
           sleepHours,
@@ -387,6 +409,8 @@ export async function POST(request: Request) {
           skinIssues,
           skinIssueDuration,
           currentProducts,
+          currentProductsImage,
+          previousConsultation,
           allergicIngredients,
           doubleCleansePreference: doubleCleansePreference || null,
           sleepHours: sleepHours || null,
@@ -409,6 +433,8 @@ export async function POST(request: Request) {
           skinIssues,
           skinIssueDuration,
           currentProducts,
+          currentProductsImage,
+          previousConsultation,
           allergicIngredients,
           doubleCleansePreference: doubleCleansePreference || null,
           sleepHours: sleepHours || null,

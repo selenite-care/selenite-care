@@ -1,7 +1,7 @@
 export const MEMBERSHIP_AVAILABILITY = {
   SIGNATURE: true,
-  CRYSTAL: false,
-  PLATINUM: false,
+  CRYSTAL: true,
+  PLATINUM: true,
 } as const;
 
 export type MembershipAvailabilityTier = keyof typeof MEMBERSHIP_AVAILABILITY;

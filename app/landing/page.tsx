@@ -16,6 +16,10 @@ import {
 import { FormEvent, useEffect, useState } from "react";
 import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
 import { FAQS } from "@/lib/faq";
+import {
+  getMembershipAvailabilityLabel,
+  isMembershipAvailable,
+} from "@/lib/membershipAvailability";
 
 export const dynamic = "force-dynamic";
 
@@ -63,6 +67,7 @@ const CONTENT = {
       heading: "Our Membership Plans",
       subtext: "Choose the plan that fits your skin transformation goals.",
       signature: {
+        tier: "SIGNATURE",
         title: "Signature",
         duration: "2 Months",
         price: "490 BDT",
@@ -78,6 +83,7 @@ const CONTENT = {
         link: "/membership/payment?tier=SIGNATURE",
       },
       crystal: {
+        tier: "CRYSTAL",
         title: "Crystal",
         duration: "12 Months",
         price: "3,990 BDT",
@@ -87,10 +93,11 @@ const CONTENT = {
           "Advanced Skin Assessment",
           "Customized Care Plan",
         ],
-        button: "Coming Soon",
-        disabled: true,
+        button: "Get Crystal Membership",
+        link: "/membership/payment?tier=CRYSTAL",
       },
       platinum: {
+        tier: "PLATINUM",
         title: "Platinum",
         duration: "36 Months",
         price: "9,990 BDT",
@@ -101,8 +108,8 @@ const CONTENT = {
           "Advanced Skin Mapping",
           "Progress Monitoring",
         ],
-        button: "Coming Soon",
-        disabled: true,
+        button: "Get Platinum Membership",
+        link: "/membership/payment?tier=PLATINUM",
       },
     },
     howItWorks: {
@@ -298,6 +305,7 @@ const CONTENT = {
       subtext:
         "\u0986\u09aa\u09a8\u09be\u09b0 \u09a4\u09cd\u09ac\u0995\u09c7\u09b0 \u09b0\u09c2\u09aa\u09be\u09a8\u09cd\u09a4\u09b0\u09c7\u09b0 \u09b2\u0995\u09cd\u09b7\u09cd\u09af \u0985\u09a8\u09c1\u09af\u09be\u09af\u09bc\u09c0 \u09aa\u09cd\u09b2\u09cd\u09af\u09be\u09a8 \u09ac\u09c7\u099b\u09c7 \u09a8\u09bf\u09a8\u0964",
       signature: {
+        tier: "SIGNATURE",
         title:
           "\u09b8\u09bf\u0997\u09a8\u09c7\u099a\u09be\u09b0",
         duration:
@@ -319,6 +327,7 @@ const CONTENT = {
         link: "/membership/payment?tier=SIGNATURE",
       },
       crystal: {
+        tier: "CRYSTAL",
         title:
           "\u0995\u09cd\u09b0\u09bf\u09b8\u09cd\u099f\u09be\u09b2",
         duration:
@@ -330,10 +339,11 @@ const CONTENT = {
           "\u0995\u09be\u09b8\u09cd\u099f\u09ae\u09be\u0987\u099c\u09a1 \u0995\u09c7\u09df\u09be\u09b0 \u09aa\u09cd\u09b2\u09cd\u09af\u09be\u09a8",
         ],
         button:
-          "\u09b6\u09c0\u0998\u09cd\u09b0\u0987 \u0986\u09b8\u099b\u09c7",
-        disabled: true,
+          "\u0995\u09cd\u09b0\u09bf\u09b8\u09cd\u099f\u09be\u09b2 \u09ae\u09c7\u09ae\u09cd\u09ac\u09be\u09b0\u09b6\u09bf\u09aa \u09a8\u09bf\u09a8",
+        link: "/membership/payment?tier=CRYSTAL",
       },
       platinum: {
+        tier: "PLATINUM",
         title:
           "\u09aa\u09cd\u09b2\u09be\u099f\u09bf\u09a8\u09be\u09ae",
         duration:
@@ -345,8 +355,8 @@ const CONTENT = {
           "\u09aa\u09cd\u09b0\u0997\u09cd\u09b0\u09c7\u09b8 \u09ae\u09a8\u09bf\u099f\u09b0\u09bf\u0982",
         ],
         button:
-          "\u09b6\u09c0\u0998\u09cd\u09b0\u0987 \u0986\u09b8\u099b\u09c7",
-        disabled: true,
+          "\u09aa\u09cd\u09b2\u09be\u099f\u09bf\u09a8\u09be\u09ae \u09ae\u09c7\u09ae\u09cd\u09ac\u09be\u09b0\u09b6\u09bf\u09aa \u09a8\u09bf\u09a8",
+        link: "/membership/payment?tier=PLATINUM",
       },
     },
     howItWorks: {
@@ -1214,11 +1224,17 @@ export default function LandingPage() {
             </div>
 
             <div className="mt-10 grid gap-6 md:grid-cols-3">
-              {membershipPlans.map((plan) => (
-                <article
-                  key={plan.title}
-                  className="flex h-full flex-col rounded-2xl border border-[#EADDCD] bg-white p-6 shadow-sm dark:border-[#3D3530] dark:bg-[#242220]"
-                >
+              {membershipPlans.map((plan) => {
+                const isPlanAvailable = isMembershipAvailable(plan.tier);
+                const planButtonLabel = isPlanAvailable
+                  ? plan.button
+                  : getMembershipAvailabilityLabel(plan.tier);
+
+                return (
+                  <article
+                    key={plan.title}
+                    className="flex h-full flex-col rounded-2xl border border-[#EADDCD] bg-white p-6 shadow-sm dark:border-[#3D3530] dark:bg-[#242220]"
+                  >
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <h3
                       className="text-2xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]"
@@ -1275,25 +1291,25 @@ export default function LandingPage() {
 
                   <div className="mt-8 flex-1" />
 
-                  {"disabled" in plan && plan.disabled ? (
+                  {isPlanAvailable ? (
+                    <Link
+                      href={plan.link}
+                      className="inline-flex h-12 w-full items-center justify-center rounded-md bg-[#2B2B2B] px-5 text-sm font-medium text-[#F8F5F0] transition-colors hover:bg-[#3A3734] dark:bg-[#B87B68] dark:text-[#141210] dark:hover:bg-[#D4B47A]"
+                    >
+                      {planButtonLabel}
+                    </Link>
+                  ) : (
                     <button
                       type="button"
                       disabled
                       className="inline-flex h-12 w-full cursor-not-allowed items-center justify-center rounded-md border border-[#EADDCD] bg-[#F4EFE8] px-5 text-sm font-medium text-[#8C7967] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#8A7D75]"
                     >
-                      {plan.button}
+                      {planButtonLabel}
                     </button>
-                  ) : "link" in plan ? (
-                    <Link
-                      href={plan.link}
-                      className="inline-flex h-12 w-full items-center justify-center rounded-md bg-[#2B2B2B] px-5 text-sm font-medium text-[#F8F5F0] transition-colors hover:bg-[#3A3734] dark:bg-[#B87B68] dark:text-[#141210] dark:hover:bg-[#D4B47A]"
-                    >
-                      {plan.button}
-                    </Link>
-                  ) : null
-                  }
-                </article>
-              ))}
+                  )}
+                  </article>
+                );
+              })}
             </div>
           </div>
         </section>
