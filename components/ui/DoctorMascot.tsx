@@ -1,23 +1,6 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-
-/**
- * DoctorMascot — Premium "slide-in on first visit" component
- *
- * IMAGE SWAP GUIDE:
- * Replace DOCTOR_IMAGE_URL with any licensed PNG that has a transparent/white background.
- * Ideal photo: full-body or half-body female doctor in white coat, pointing left/upward,
- * isolated on white or transparent background.
- *
- * Good sources for licensed images:
- *   • Shutterstock — search "female doctor pointing white background PNG"
- *   • Adobe Stock  — search "female doctor isolated pointing"
- *   • iStock       — search "female doctor pointing copy space"
- *
- * The image is masked with mix-blend-mode + a white background so even
- * non-transparent JPEGs blend cleanly into the page.
- */
 const DOCTOR_IMAGE_URL =
   "https://static.vecteezy.com/system/resources/thumbnails/051/966/270/small/asian-female-doctor-pointing-at-something-free-png.png";
 
