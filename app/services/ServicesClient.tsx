@@ -244,7 +244,7 @@ function MembershipModal({
   }, [onClose]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center px-4 py-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center px-3 py-3 sm:px-4 sm:py-6">
       <button
         type="button"
         aria-label="Close membership details"
@@ -257,13 +257,13 @@ function MembershipModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby={`membership-modal-${membership.key}`}
-        className="modal-card relative z-10 flex h-[80vh] w-full max-w-2xl flex-col overflow-hidden rounded-[20px] border border-[#EADDCD] bg-[#F8F5F0] dark:border-[#3D3530] dark:bg-[#242220]"
+        className="modal-card relative z-10 flex h-[calc(100dvh-1.5rem)] max-h-[760px] w-full max-w-2xl flex-col overflow-hidden rounded-[18px] border border-[#EADDCD] bg-[#F8F5F0] dark:border-[#3D3530] dark:bg-[#242220] sm:h-[80vh] sm:rounded-[20px]"
         style={{
           boxShadow: "0 32px 90px rgba(43, 43, 43, 0.28)",
         }}
       >
         <div
-          className="border-b px-6 pb-5 pt-6 sm:px-8"
+          className="border-b px-4 pb-5 pt-5 sm:px-8 sm:pt-6"
           style={{
             borderColor: "#EADDCD",
             background:
@@ -277,7 +277,7 @@ function MembershipModal({
           <button
             type="button"
             onClick={onClose}
-            className="absolute right-5 top-5 inline-flex h-10 w-10 items-center justify-center rounded-full border text-lg transition-colors hover:bg-white/60 dark:border-[#3D3530] dark:hover:bg-[#2A2724]"
+            className="absolute right-3 top-3 inline-flex h-9 w-9 items-center justify-center rounded-full border text-base transition-colors hover:bg-white/60 dark:border-[#3D3530] dark:hover:bg-[#2A2724] sm:right-5 sm:top-5 sm:h-10 sm:w-10 sm:text-lg"
             style={{
               borderColor: "#EADDCD",
               color: membership.key === "platinum" ? "#F8F5F0" : "#2B2B2B",
@@ -287,11 +287,11 @@ function MembershipModal({
                   : "rgba(255,255,255,0.85)",
             }}
           >
-            ×
+            x
           </button>
 
           <div
-            className="inline-flex rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em]"
+            className="inline-flex max-w-[calc(100%-3rem)] rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] sm:tracking-[0.18em]"
             style={{
               background:
                 membership.key === "crystal"
@@ -305,7 +305,7 @@ function MembershipModal({
 
           <h2
             id={`membership-modal-${membership.key}`}
-            className="mt-4 text-2xl font-bold dark:text-[#F0EDE8] sm:text-3xl"
+            className="mt-4 pr-9 text-xl font-bold leading-tight dark:text-[#F0EDE8] sm:pr-0 sm:text-3xl"
             style={{
               color: membership.key === "platinum" ? "#F8F5F0" : "#2B2B2B",
               fontFamily: "Playfair Display, serif",
@@ -323,9 +323,9 @@ function MembershipModal({
             {membership.description}
           </p>
 
-          <div className="mt-5 flex flex-wrap items-center gap-3">
+          <div className="mt-5 flex flex-wrap items-center gap-2.5 sm:gap-3">
             {membership.key === "signature" ? (
-              <div className="flex flex-wrap items-center gap-3">
+              <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
                 <span
                   className="inline-flex rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em]"
                   style={{
@@ -346,7 +346,7 @@ function MembershipModal({
                   {membership.originalCost}
                 </span>
                 <span
-                  className="text-3xl font-semibold"
+                  className="text-2xl font-semibold sm:text-3xl"
                   style={{
                     color: "#B87B68",
                     fontFamily: "Playfair Display, serif",
@@ -388,8 +388,8 @@ function MembershipModal({
           ) : null}
         </div>
 
-        <div className="min-h-0 flex-1 overflow-y-auto px-6 py-6 sm:px-8">
-          <div className="space-y-5 pb-2">
+        <div className="min-h-0 flex-1 overflow-y-auto px-4 py-5 sm:px-8 sm:py-6">
+          <div className="space-y-4 pb-2 sm:space-y-5">
             {membership.benefits.map((benefit, index) => (
               <div key={`${membership.key}-${benefit.heading}`}>
                 <div className="flex gap-3">
@@ -415,7 +415,7 @@ function MembershipModal({
                             key={point}
                             className="flex gap-2 text-sm leading-6 text-[#6E6257] dark:text-[#8A7D75]"
                           >
-                            <span className="text-[#B87B68] dark:text-[#D4B47A]">•</span>
+                            <span className="text-[#B87B68] dark:text-[#D4B47A]">{"\u2022"}</span>
                             <span>{point}</span>
                           </li>
                         ))}
@@ -429,7 +429,7 @@ function MembershipModal({
         </div>
 
         <div
-          className="shrink-0 border-t border-[#EADDCD] bg-[#F8F5F0] px-6 py-5 dark:border-[#3D3530] dark:bg-[#242220] sm:px-8"
+          className="shrink-0 border-t border-[#EADDCD] bg-[#F8F5F0] px-4 py-4 dark:border-[#3D3530] dark:bg-[#242220] sm:px-8 sm:py-5"
           style={{
           }}
         >
@@ -630,9 +630,9 @@ export default function ServicesClient() {
   }
 
   return (
-    <main className="bg-page text-page">
+    <main className="overflow-x-hidden bg-page text-page">
       <section
-        className="relative overflow-hidden px-6 py-24 sm:py-10"
+        className="relative overflow-hidden px-4 py-14 sm:px-6 sm:py-16 lg:py-20"
         style={{
           background:
             "linear-gradient(135deg, rgba(248,245,240,0.98) 0%, rgba(239,228,210,0.94) 42%, rgba(198,165,107,0.32) 100%)",
@@ -645,21 +645,19 @@ export default function ServicesClient() {
               "radial-gradient(circle at top left, rgba(255,255,255,0.75) 0%, transparent 34%), radial-gradient(circle at bottom right, rgba(198,165,107,0.22) 0%, transparent 36%)",
           }}
         />
-        <div className="relative mx-auto max-w-7xl">
-          <center>
-            <h1
-            className="text-page text-4xl font-bold sm:text-5xl lg:text-6xl"
+        <div className="relative mx-auto max-w-7xl text-center">
+          <h1
+            className="text-page text-3xl font-bold leading-tight sm:text-5xl lg:text-6xl"
             style={{ fontFamily: "Playfair Display, serif" }}
           >
             Memberships
           </h1>
-          </center>
         </div>
       </section>
 
-      <section className="px-6 py-12 sm:py-14">
+      <section className="px-4 py-10 sm:px-6 sm:py-14">
         <div
-          className="relative mx-auto max-w-5xl overflow-hidden rounded-[28px] border px-6 py-12 text-center sm:px-10 sm:py-16"
+          className="relative mx-auto max-w-5xl overflow-hidden rounded-[20px] border px-4 py-8 text-center sm:rounded-[28px] sm:px-10 sm:py-16"
           style={{
             borderColor: "#EADDCD",
             backgroundImage:
@@ -678,7 +676,7 @@ export default function ServicesClient() {
             }}
           />
           <p
-            className="relative mx-auto max-w-4xl text-base leading-8 sm:text-lg"
+            className="relative mx-auto max-w-4xl text-sm leading-7 sm:text-lg sm:leading-8"
             style={{ color: "#6E6257" }}
           >
             A complete skin transformation program where individuals committed
@@ -691,23 +689,23 @@ export default function ServicesClient() {
         </div>
       </section>
 
-      <section className="px-6 pb-6">
-        <div className="mx-auto flex max-w-6xl items-center gap-4">
+      <section className="px-4 pb-6 sm:px-6">
+        <div className="mx-auto flex max-w-6xl flex-col items-center gap-3 sm:flex-row sm:gap-4">
           <div
-            className="h-px flex-1"
+            className="h-px w-full flex-1"
             style={{
               background:
                 "linear-gradient(90deg, transparent 0%, #B87B68 50%, transparent 100%)",
             }}
           />
           <p
-            className="shrink-0 px-2 text-center text-xs font-semibold uppercase tracking-[0.16em] sm:text-sm"
+            className="max-w-xs px-1 text-center text-xs font-semibold uppercase leading-5 tracking-[0.12em] sm:max-w-none sm:px-2 sm:text-sm sm:tracking-[0.16em]"
             style={{ color: "#B87B68" }}
           >
             View our Comprehensive Membership Details and Pricing Below
           </p>
           <div
-            className="h-px flex-1"
+            className="h-px w-full flex-1"
             style={{
               background:
                 "linear-gradient(90deg, transparent 0%, #B87B68 50%, transparent 100%)",
@@ -716,8 +714,8 @@ export default function ServicesClient() {
         </div>
       </section>
 
-      <section className="px-6 pb-20 pt-8 sm:pb-24">
-        <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)] lg:items-start">
+      <section className="px-4 pb-16 pt-6 sm:px-6 sm:pb-24 sm:pt-8">
+        <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[minmax(0,1.2fr)_minmax(300px,0.8fr)] lg:items-start">
           <div>
             <div className="grid grid-cols-1 gap-6">
               {memberships.map((membership, index) => (
@@ -752,7 +750,7 @@ export default function ServicesClient() {
 
           <div className="flex justify-center lg:justify-end">
             <div
-              className="w-full max-w-sm rounded-[24px] border px-4 py-6 sm:px-6"
+              className="w-full max-w-full rounded-[20px] border px-4 py-5 sm:max-w-sm sm:rounded-[24px] sm:px-6 sm:py-6"
               style={{
                 background:
                   "linear-gradient(180deg, rgba(255,255,255,0.88) 0%, rgba(248,245,240,0.98) 100%)",
