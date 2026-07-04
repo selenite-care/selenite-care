@@ -84,6 +84,8 @@ model SurveyProfile {
   note                       String?
   updatedAt                  DateTime @updatedAt
   createdAt                  DateTime @default(now())
+  currentProductsImage       String?   // optional photo of current products
+  previousConsultation       Boolean?  // null = not answered, true = yes, false = no
 
   @@index([userId])
 }
@@ -208,6 +210,8 @@ model SurveyResponse {
   usedSteroidBasedNightCream Boolean
   note                       String?
   skinImages                 String[]
+  currentProductsImage       String?
+  previousConsultation       Boolean?
   createdAt                  DateTime @default(now())
 }
 

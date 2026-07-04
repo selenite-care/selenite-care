@@ -64,6 +64,8 @@ type SurveyFormState = {
   usedSteroidBasedNightCream: string;
   note: string;
   skinImages: string[];
+  currentProductsImage: string;
+  previousConsultation: boolean | null;
 };
 
 type SurveyProfileResponse = {
@@ -78,6 +80,8 @@ type SurveyProfileResponse = {
     skinIssues?: string[];
     skinIssueDuration?: string | null;
     currentProducts?: string[];
+    currentProductsImage?: string | null;
+    previousConsultation?: boolean | null;
     allergicIngredients?: string[];
     doubleCleansePreference?: string | null;
     sleepHours?: string | null;
@@ -113,6 +117,8 @@ function buildInitialState(): SurveyFormState {
     usedSteroidBasedNightCream: "no",
     note: "",
     skinImages: [],
+    currentProductsImage: "",
+    previousConsultation: null,
   };
 }
 
@@ -132,6 +138,7 @@ export default function DashboardSurveyPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploadingSkinImage, setIsUploadingSkinImage] = useState(false);
+  const [isUploadingProductImage, setIsUploadingProductImage] = useState(false);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
@@ -160,6 +167,13 @@ export default function DashboardSurveyPage() {
           skinIssues: data.surveyProfile.skinIssues ?? [],
           skinIssueDuration: data.surveyProfile.skinIssueDuration ?? "",
           currentProducts: data.surveyProfile.currentProducts ?? [],
+          currentProductsImage: data.surveyProfile.currentProductsImage ?? "",
+          previousConsultation:
+            data.surveyProfile.previousConsultation === true
+              ? true
+              : data.surveyProfile.previousConsultation === false
+                ? false
+                : null,
           allergicIngredients: allergyData.allergicIngredients,
           allergicIngredientsOther: allergyData.allergicIngredientsOther,
           doubleCleansePreference:
@@ -263,6 +277,50 @@ export default function DashboardSurveyPage() {
     setSuccessMessage("");
   }
 
+  async function handleCurrentProductsImageUpload(file: File) {
+    setError("");
+    setSuccessMessage("");
+    setIsUploadingProductImage(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch("/api/client/upload-product-image", {
+        method: "POST",
+        body: formData,
+      });
+      const data = (await response.json().catch(() => null)) as
+        | { secure_url?: string; error?: string }
+        | null;
+
+      if (!response.ok || !data?.secure_url) {
+        throw new Error(data?.error ?? "Failed to upload product photo.");
+      }
+
+      setFormState((current) => ({
+        ...current,
+        currentProductsImage: data.secure_url as string,
+      }));
+    } catch (uploadError) {
+      setError(
+        uploadError instanceof Error
+          ? uploadError.message
+          : "Failed to upload product photo.",
+      );
+    } finally {
+      setIsUploadingProductImage(false);
+    }
+  }
+
+  function removeCurrentProductsImage() {
+    setFormState((current) => ({
+      ...current,
+      currentProductsImage: "",
+    }));
+    setSuccessMessage("");
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
@@ -292,6 +350,8 @@ export default function DashboardSurveyPage() {
       skinIssues: formState.skinIssues,
       skinIssueDuration: formState.skinIssueDuration,
       currentProducts: formState.currentProducts,
+      currentProductsImage: formState.currentProductsImage || null,
+      previousConsultation: formState.previousConsultation,
       allergicIngredients,
       doubleCleansePreference: formState.doubleCleansePreference,
       sleepHours: formState.sleepHours,
@@ -580,6 +640,83 @@ export default function DashboardSurveyPage() {
                   className="mr-2 accent-[#B87B68]"
                 />
                 <span className="text-page">{option}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+
+        <div className="bg-card border-themed rounded-lg border p-4">
+          <p className="text-page block text-sm font-medium">
+            Photo of Your Current Products (Optional)
+          </p>
+          <p className="text-muted mt-2 text-sm leading-6">
+            Take a photo of all your current skincare products together and upload it here. This helps our doctors understand your routine better.
+          </p>
+
+          <div className="mt-4">
+            <FileUploadButton
+              onFileSelected={(file) => {
+                if (isUploadingProductImage) {
+                  return;
+                }
+
+                void handleCurrentProductsImageUpload(file);
+              }}
+              label={isUploadingProductImage ? "Uploading..." : "Upload Product Photo"}
+              accept="image/*"
+              currentPreviewUrl={formState.currentProductsImage}
+            />
+          </div>
+
+          <div className="mt-3 flex items-center justify-between gap-3 text-sm">
+            <span className="text-muted">
+              {formState.currentProductsImage ? "1/1 image uploaded" : "0/1 image uploaded"}
+            </span>
+            {isUploadingProductImage ? (
+              <span className="text-[var(--gold)]">Uploading...</span>
+            ) : null}
+          </div>
+
+          {formState.currentProductsImage ? (
+            <div className="mt-4 max-w-sm overflow-hidden rounded-lg border border-themed bg-card">
+              <div className="relative h-48 w-full">
+                <Image
+                  src={formState.currentProductsImage}
+                  alt="Uploaded current skincare products"
+                  fill
+                  sizes="(min-width: 640px) 384px, 100vw"
+                  className="object-cover"
+                />
+              </div>
+              <button
+                type="button"
+                onClick={removeCurrentProductsImage}
+                className="text-page w-full px-3 py-2 text-sm font-medium hover:bg-black/5 dark:hover:bg-white/5"
+              >
+                Remove
+              </button>
+            </div>
+          ) : null}
+        </div>
+
+        <div>
+          <p className="text-page block text-sm font-medium">
+            Have you taken consultation from us before?
+          </p>
+          <div className="mt-2 grid gap-2 sm:grid-cols-2">
+            {[
+              { label: "Yes", value: true },
+              { label: "No", value: false },
+            ].map((option) => (
+              <label key={option.label}>
+                <input
+                  type="radio"
+                  name="previousConsultation"
+                  checked={formState.previousConsultation === option.value}
+                  onChange={() => updateField("previousConsultation", option.value)}
+                  className="mr-2 accent-[#B87B68]"
+                />
+                <span className="text-page">{option.label}</span>
               </label>
             ))}
           </div>

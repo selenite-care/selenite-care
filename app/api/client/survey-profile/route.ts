@@ -15,6 +15,8 @@ type SurveyProfilePayload = {
   skinIssues?: unknown;
   skinIssueDuration?: unknown;
   currentProducts?: unknown;
+  currentProductsImage?: unknown;
+  previousConsultation?: unknown;
   allergicIngredients?: unknown;
   doubleCleansePreference?: unknown;
   sleepHours?: unknown;
@@ -49,6 +51,22 @@ function asOptionalString(value: unknown): string | null {
 
 function asBoolean(value: unknown) {
   return value === true || String(value) === "true";
+}
+
+function asNullableBoolean(value: unknown) {
+  if (value === null || typeof value === "undefined") {
+    return null;
+  }
+
+  if (value === true || value === "true") {
+    return true;
+  }
+
+  if (value === false || value === "false") {
+    return false;
+  }
+
+  return null;
 }
 
 async function requireSession() {
@@ -94,6 +112,8 @@ export async function GET() {
           name: surveyProfile.name ?? user.name ?? "",
           email: surveyProfile.email ?? user.email ?? "",
           phone: surveyProfile.phone ?? user.phone ?? "",
+          currentProductsImage: surveyProfile.currentProductsImage ?? "",
+          previousConsultation: surveyProfile.previousConsultation ?? null,
         }
       : {
           name: user.name ?? "",
@@ -106,6 +126,8 @@ export async function GET() {
           skinIssues: [],
           skinIssueDuration: "",
           currentProducts: [],
+          currentProductsImage: "",
+          previousConsultation: null,
           allergicIngredients: [],
           doubleCleansePreference: "No",
           sleepHours: "6-8 Hours",
@@ -127,6 +149,14 @@ export async function PUT(request: Request) {
   }
 
   const body = (await request.json()) as SurveyProfilePayload;
+  const hasCurrentProductsImage = Object.prototype.hasOwnProperty.call(
+    body,
+    "currentProductsImage",
+  );
+  const hasPreviousConsultation = Object.prototype.hasOwnProperty.call(
+    body,
+    "previousConsultation",
+  );
 
   const data = {
     name: asOptionalString(body.name),
@@ -149,13 +179,28 @@ export async function PUT(request: Request) {
     note: asOptionalString(body.note),
     skinImages: asStringArray(body.skinImages).slice(0, 4),
   };
+  const updateData = {
+    ...data,
+    ...(hasCurrentProductsImage
+      ? { currentProductsImage: asOptionalString(body.currentProductsImage) }
+      : {}),
+    ...(hasPreviousConsultation
+      ? { previousConsultation: asNullableBoolean(body.previousConsultation) }
+      : {}),
+  };
 
   const surveyProfile = await db.surveyProfile.upsert({
     where: { userId: session.user.id },
-    update: data,
+    update: updateData,
     create: {
       userId: session.user.id,
       ...data,
+      currentProductsImage: hasCurrentProductsImage
+        ? asOptionalString(body.currentProductsImage)
+        : null,
+      previousConsultation: hasPreviousConsultation
+        ? asNullableBoolean(body.previousConsultation)
+        : null,
     },
   });
 

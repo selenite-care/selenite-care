@@ -65,6 +65,8 @@ type SurveyFormState = {
   usedSteroidBasedNightCream: string;
   note: string;
   skinImages: string[];
+  currentProductsImage: string;
+  previousConsultation: boolean | null;
 };
 
 function AppointmentSurveyPageContent() {
@@ -94,9 +96,12 @@ function AppointmentSurveyPageContent() {
     usedSteroidBasedNightCream: "no",
     note: "",
     skinImages: [],
+    currentProductsImage: "",
+    previousConsultation: null,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploadingSkinImage, setIsUploadingSkinImage] = useState(false);
+  const [isUploadingProductImage, setIsUploadingProductImage] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -197,6 +202,48 @@ function AppointmentSurveyPageContent() {
     }));
   }
 
+  async function handleCurrentProductsImageUpload(file: File) {
+    setError("");
+    setIsUploadingProductImage(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch("/api/client/upload-product-image", {
+        method: "POST",
+        body: formData,
+      });
+      const data = (await response.json().catch(() => null)) as
+        | { secure_url?: string; error?: string }
+        | null;
+
+      if (!response.ok || !data?.secure_url) {
+        throw new Error(data?.error ?? "Failed to upload product photo.");
+      }
+
+      setFormState((current) => ({
+        ...current,
+        currentProductsImage: data.secure_url as string,
+      }));
+    } catch (uploadError) {
+      setError(
+        uploadError instanceof Error
+          ? uploadError.message
+          : "Failed to upload product photo.",
+      );
+    } finally {
+      setIsUploadingProductImage(false);
+    }
+  }
+
+  function removeCurrentProductsImage() {
+    setFormState((current) => ({
+      ...current,
+      currentProductsImage: "",
+    }));
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
@@ -230,6 +277,8 @@ function AppointmentSurveyPageContent() {
       skinIssues: formState.skinIssues,
       skinIssueDuration: formState.skinIssueDuration,
       currentProducts: formState.currentProducts,
+      currentProductsImage: formState.currentProductsImage || null,
+      previousConsultation: formState.previousConsultation,
       allergicIngredients,
       doubleCleansePreference: formState.doubleCleansePreference,
       sleepHours: formState.sleepHours,
@@ -511,6 +560,84 @@ function AppointmentSurveyPageContent() {
                     className="mr-2"
                   />
                   <span className="text-[#2B2B2B] dark:text-[#F0EDE8]">{option}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-lg border border-[#EADDCD] bg-[#F8F5F0] p-4 dark:border-[#3D3530] dark:bg-[#1A1814]">
+            <p className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
+              Photo of Your Current Products (Optional)
+            </p>
+            <p className="mt-2 text-sm leading-6 text-[#884F38] dark:text-[#8A7D75]">
+              Take a photo of all your current skincare products together and upload it here. This helps our doctors understand your routine better.
+            </p>
+
+            <div className="mt-4">
+              <FileUploadButton
+                onFileSelected={(file) => {
+                  if (isUploadingProductImage) {
+                    return;
+                  }
+
+                  void handleCurrentProductsImageUpload(file);
+                }}
+                label={isUploadingProductImage ? "Uploading..." : "Upload Product Photo"}
+                accept="image/*"
+                currentPreviewUrl={formState.currentProductsImage}
+              />
+            </div>
+
+            <div className="mt-3 flex items-center justify-between gap-3 text-sm">
+              <span className="text-[#884F38] dark:text-[#8A7D75]">
+                {formState.currentProductsImage ? "1/1 image uploaded" : "0/1 image uploaded"}
+              </span>
+              {isUploadingProductImage ? (
+                <span style={{ color: "#B87B68" }}>Uploading...</span>
+              ) : null}
+            </div>
+
+            {formState.currentProductsImage ? (
+              <div className="mt-4 max-w-sm overflow-hidden rounded-lg border border-[#EADDCD] bg-white dark:border-[#3D3530] dark:bg-[#242220]">
+                <div className="relative h-48 w-full">
+                  <Image
+                    src={formState.currentProductsImage}
+                    alt="Uploaded current skincare products"
+                    fill
+                    sizes="(min-width: 640px) 384px, 100vw"
+                    className="object-cover"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={removeCurrentProductsImage}
+                  className="w-full px-3 py-2 text-sm font-medium text-[#2B2B2B] hover:bg-[#F8F5F0] dark:text-[#F0EDE8] dark:hover:bg-[#1A1814]"
+                >
+                  Remove
+                </button>
+              </div>
+            ) : null}
+          </div>
+
+          <div>
+            <p className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
+              Have you taken consultation from us before?
+            </p>
+            <div className="mt-2 grid gap-2 sm:grid-cols-2">
+              {[
+                { label: "Yes", value: true },
+                { label: "No", value: false },
+              ].map((option) => (
+                <label key={option.label}>
+                  <input
+                    type="radio"
+                    name="previousConsultation"
+                    checked={formState.previousConsultation === option.value}
+                    onChange={() => updateField("previousConsultation", option.value)}
+                    style={{ accentColor: "#B87B68" }}
+                    className="mr-2"
+                  />
+                  <span className="text-[#2B2B2B] dark:text-[#F0EDE8]">{option.label}</span>
                 </label>
               ))}
             </div>
