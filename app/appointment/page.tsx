@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { CalendarDays } from "lucide-react";
 import { SkeletonCard } from "@/components/ui/Skeleton";
 
 export const dynamic = "force-dynamic";
@@ -30,6 +31,17 @@ type MembershipResponse = {
     status: "PENDING" | "ACTIVE" | "EXPIRED" | "CANCELLED";
     expiresAt: string | null;
   } | null;
+  error?: string;
+};
+
+type ClientBooking = {
+  id: string;
+  token: string;
+  status: string;
+};
+
+type ClientBookingsResponse = {
+  bookings?: ClientBooking[];
   error?: string;
 };
 
@@ -96,19 +108,35 @@ export default function AppointmentPage() {
   const [isLoadingDoctors, setIsLoadingDoctors] = useState(false);
   const [error, setError] = useState("");
   const [showMembershipModal, setShowMembershipModal] = useState(false);
+  const [activeBooking, setActiveBooking] = useState<ClientBooking | null>(null);
 
   useEffect(() => {
     let isMounted = true;
 
     async function loadPageData() {
       try {
-        const membershipResponse = await fetch("/api/client/membership");
+        const [membershipResponse, bookingsResponse] = await Promise.all([
+          fetch("/api/client/membership"),
+          fetch("/api/client/bookings"),
+        ]);
         const membershipData =
           (await membershipResponse.json().catch(() => null)) as
             | MembershipResponse
             | null;
+        const bookingsData =
+          (await bookingsResponse.json().catch(() => null)) as
+            | ClientBookingsResponse
+            | null;
 
         const membership = membershipData?.membership;
+        const activeClientBooking =
+          bookingsResponse.ok
+            ? (bookingsData?.bookings ?? []).find(
+                (booking) =>
+                  booking.status !== "COMPLETED" &&
+                  booking.status !== "CANCELLED",
+              ) ?? null
+            : null;
         const hasActiveMembership =
           membershipResponse.ok &&
           membership?.status === "ACTIVE" &&
@@ -118,6 +146,8 @@ export default function AppointmentPage() {
         if (!isMounted) {
           return;
         }
+
+        setActiveBooking(activeClientBooking);
 
         if (hasActiveMembership) {
           setMembershipStatus("active");
@@ -132,6 +162,11 @@ export default function AppointmentPage() {
           setMembershipStatus("expired");
         } else {
           setMembershipStatus("inactive");
+        }
+
+        if (activeClientBooking) {
+          setDoctors([]);
+          return;
         }
 
         setIsLoadingDoctors(true);
@@ -212,7 +247,9 @@ export default function AppointmentPage() {
           <p
             className="mt-5 text-base leading-8 text-[#6E6257] dark:text-[#8A7D75] sm:text-lg"
           >
-            Select your preferred doctor to begin your consultation journey.
+            {activeBooking
+              ? "Your appointment request is already in progress."
+              : "Select your preferred doctor to begin your consultation journey."}
           </p>
         </div>
 
@@ -222,7 +259,7 @@ export default function AppointmentPage() {
           </div>
         ) : null}
 
-        {membershipStatus === "loading" ? (
+        {membershipStatus === "loading" && !activeBooking ? (
           <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-3">
             {Array.from({ length: 6 }).map((_, index) => (
               <SkeletonCard key={index} className="min-h-[420px]" />
@@ -230,7 +267,51 @@ export default function AppointmentPage() {
           </div>
         ) : null}
 
-        {membershipStatus === "inactive" || membershipStatus === "expired" ? (
+        {activeBooking ? (
+          <section
+            className="mt-10 rounded-[24px] border bg-white px-6 py-8 text-center dark:border-[#3D3530] dark:bg-[#242220] sm:px-8"
+            style={{
+              borderColor: "#EADDCD",
+              boxShadow: "0 18px 48px rgba(43, 43, 43, 0.06)",
+            }}
+          >
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#B87B68]/12 text-[#B87B68]">
+              <CalendarDays className="h-7 w-7" />
+            </div>
+            <h2
+              className="mt-5 text-2xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8] sm:text-3xl"
+              style={{
+                fontFamily: "Playfair Display, serif",
+              }}
+            >
+              You Have an Active Appointment
+            </h2>
+            <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-[#6E6257] dark:text-[#8A7D75]">
+              You already have a pending or confirmed appointment. Our team will
+              contact you to confirm your appointment time. You can book a new
+              appointment once your current one is completed.
+            </p>
+            <p className="mt-5 text-sm font-medium text-[#6E6257] dark:text-[#8A7D75]">
+              Booking Token
+            </p>
+            <p className="mt-2 font-mono text-2xl font-semibold text-[#B87B68]">
+              {activeBooking.token}
+            </p>
+            <Link
+              href="/dashboard/bookings"
+              className="mt-6 inline-flex h-12 items-center justify-center rounded-md px-5 text-sm font-medium transition-colors hover:bg-[#884F38]"
+              style={{
+                backgroundColor: "#2B2B2B",
+                color: "#F8F5F0",
+              }}
+            >
+              View My Bookings
+            </Link>
+          </section>
+        ) : null}
+
+        {!activeBooking &&
+        (membershipStatus === "inactive" || membershipStatus === "expired") ? (
           <section
             className="mt-10 rounded-[24px] border bg-white px-6 py-8 text-center dark:bg-[#242220] dark:border-[#3D3530]"
             style={{
@@ -263,7 +344,7 @@ export default function AppointmentPage() {
           </section>
         ) : null}
 
-        {membershipStatus !== "loading" ? (
+        {membershipStatus !== "loading" && !activeBooking ? (
           <>
             {isLoadingDoctors ? (
               <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-3">

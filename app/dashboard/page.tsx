@@ -108,6 +108,10 @@ export default async function DashboardPage() {
     membership?.tier && membership.status === "ACTIVE"
       ? getUpgradeOptions(membership.tier)
       : [];
+  const appointmentCtaHref = hasActiveMembership ? "/appointment" : "/services";
+  const appointmentCtaSubtext = hasActiveMembership
+    ? "Your membership is active — book now"
+    : "Get a membership to book appointments";
 
   return (
     <section>
@@ -124,12 +128,17 @@ export default async function DashboardPage() {
           </p>
         </div>
 
-        <Link
-          href="/services"
-          className="inline-flex h-11 items-center justify-center rounded-md bg-[var(--sidebar)] px-5 text-sm font-medium text-[var(--sidebar-text)] transition-colors hover:opacity-90 dark:bg-[#EADDCD] dark:text-[#2B2B2B]"
-        >
-          Book New Appointment
-        </Link>
+        <div className="sm:text-right">
+          <Link
+            href={appointmentCtaHref}
+            className="inline-flex h-11 items-center justify-center rounded-md bg-[var(--sidebar)] px-5 text-sm font-medium text-[var(--sidebar-text)] transition-colors hover:opacity-90 dark:bg-[#EADDCD] dark:text-[#2B2B2B]"
+          >
+            Book New Appointment
+          </Link>
+          <p className="text-muted mt-2 text-xs">
+            {appointmentCtaSubtext}
+          </p>
+        </div>
       </div>
 
       <div className="mt-8 grid gap-5 md:grid-cols-3">
