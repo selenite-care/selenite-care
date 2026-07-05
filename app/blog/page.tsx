@@ -1,9 +1,32 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
-import { getAllPosts } from "@/lib/blog";
+import { useEffect, useMemo, useState } from "react";
+import Pagination from "@/components/ui/Pagination";
 import { formatDateOnly } from "@/lib/dateUtils";
 
-export const revalidate = 3600;
+const POSTS_PER_PAGE = 12;
+
+type BlogPost = {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string | null;
+  coverImage: string | null;
+  category: string | null;
+  tags: string[];
+  publishedAt: string | null;
+  views: number;
+  author: {
+    name: string | null;
+  };
+};
+
+type BlogPostsResponse = {
+  posts?: BlogPost[];
+  error?: string;
+};
 
 function formatDateParts(iso: string) {
   const [month = "", dayWithComma = ""] = formatDateOnly(iso).split(" ");
@@ -14,8 +37,102 @@ function formatDateParts(iso: string) {
   };
 }
 
+function formatViews(views: number) {
+  if (views >= 1_000_000) {
+    return `${(views / 1_000_000).toFixed(views >= 10_000_000 ? 0 : 1)}m`;
+  }
+
+  if (views >= 1_000) {
+    return `${(views / 1_000).toFixed(views >= 10_000 ? 0 : 1)}k`;
+  }
+
+  return String(views);
+}
+
 export default function BlogPage() {
-  const posts = getAllPosts();
+  const [posts, setPosts] = useState<BlogPost[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadPosts() {
+      setIsLoading(true);
+      setError("");
+
+      try {
+        const response = await fetch("/api/blog", {
+          cache: "no-store",
+        });
+        const data = (await response.json().catch(() => null)) as
+          | BlogPostsResponse
+          | null;
+
+        if (!response.ok) {
+          throw new Error(data?.error ?? "Unable to load blog posts.");
+        }
+
+        if (!isMounted) {
+          return;
+        }
+
+        setPosts(data?.posts ?? []);
+      } catch (loadError) {
+        if (!isMounted) {
+          return;
+        }
+
+        setError(
+          loadError instanceof Error
+            ? loadError.message
+            : "Unable to load blog posts.",
+        );
+        setPosts([]);
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    void loadPosts();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const categories = useMemo(() => {
+    const uniqueCategories = new Set(
+      posts
+        .map((post) => post.category?.trim())
+        .filter((category): category is string => Boolean(category)),
+    );
+
+    return ["All", ...Array.from(uniqueCategories).sort()];
+  }, [posts]);
+
+  const filteredPosts = useMemo(() => {
+    if (selectedCategory === "All") {
+      return posts;
+    }
+
+    return posts.filter((post) => post.category === selectedCategory);
+  }, [posts, selectedCategory]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredPosts.length / POSTS_PER_PAGE));
+  const paginatedPosts = filteredPosts.slice(
+    (currentPage - 1) * POSTS_PER_PAGE,
+    currentPage * POSTS_PER_PAGE,
+  );
+
+  function handleCategoryChange(category: string) {
+    setSelectedCategory(category);
+    setCurrentPage(1);
+  }
 
   return (
     <main className="bg-page text-page min-h-screen px-6 py-12 sm:py-16">
@@ -29,9 +146,49 @@ export default function BlogPage() {
           </p>
         </section>
 
+        <section className="mt-8 flex flex-wrap gap-2">
+          {categories.map((category) => {
+            const isActive = selectedCategory === category;
+
+            return (
+              <button
+                key={category}
+                type="button"
+                onClick={() => handleCategoryChange(category)}
+                className={`rounded-full border px-4 py-2 text-sm font-semibold transition-colors ${
+                  isActive
+                    ? "border-[#B87B68] bg-[#B87B68] text-[#F8F5F0]"
+                    : "border-[#EADDCD] bg-card text-[#2B2B2B] hover:border-[#B87B68] hover:bg-[#B87B68]/10 dark:border-[#3D3530] dark:bg-[#242220] dark:text-[#F0EDE8]"
+                }`}
+              >
+                {category}
+              </button>
+            );
+          })}
+        </section>
+
+        {error ? (
+          <div className="mt-8 rounded-xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-700 dark:border-red-900/50 dark:bg-red-950/20 dark:text-red-300">
+            {error}
+          </div>
+        ) : null}
+
+        {isLoading ? (
+          <section className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, index) => (
+              <div
+                key={index}
+                className="bg-card border-themed h-[460px] animate-pulse rounded-2xl border dark:bg-[#242220] dark:border-[#3D3530]"
+              />
+            ))}
+          </section>
+        ) : null}
+
         <section className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-          {posts.map((post) => {
-            const { day, month } = formatDateParts(post.date);
+          {!isLoading && paginatedPosts.map((post) => {
+            const { day, month } = formatDateParts(
+              post.publishedAt ?? new Date().toISOString(),
+            );
 
             return (
               <article
@@ -40,7 +197,7 @@ export default function BlogPage() {
               >
                 <div className="relative flex-shrink-0">
                   <Image
-                    src={post.image}
+                    src={post.coverImage ?? "/hero/blog1.png"}
                     alt={post.title}
                     width={800}
                     height={440}
@@ -60,7 +217,7 @@ export default function BlogPage() {
                     className="absolute bottom-0 left-1/2 -translate-x-1/2 whitespace-nowrap px-4 py-[5px] text-[10px] font-bold uppercase tracking-[0.12em]"
                     style={{ backgroundColor: "var(--sidebar)", color: "var(--sidebar-text)" }}
                   >
-                    {post.category}
+                    {post.category ?? "Skin Care"}
                   </div>
                 </div>
 
@@ -72,8 +229,12 @@ export default function BlogPage() {
                   <p className="text-muted mb-3 mt-3 text-[11px]">
                     Posted by{" "}
                     <span className="font-semibold text-[var(--gold)]">
-                      {post.author}
+                      {post.author.name ?? "Selenite Care"}
                     </span>
+                  </p>
+
+                  <p className="mb-3 text-[11px] text-[#8C7967] dark:text-[#8A7D75]">
+                    👁 {formatViews(post.views)} views
                   </p>
 
                   <p
@@ -86,7 +247,7 @@ export default function BlogPage() {
                       overflow: "hidden",
                     }}
                   >
-                    {post.excerpt}
+                    {post.excerpt ?? ""}
                   </p>
 
                   <div
@@ -112,6 +273,26 @@ export default function BlogPage() {
             );
           })}
         </section>
+
+        {!isLoading && filteredPosts.length === 0 ? (
+          <div className="mt-10 rounded-xl border border-[#EADDCD] bg-card px-6 py-12 text-center dark:border-[#3D3530] dark:bg-[#242220]">
+            <p className="text-page text-base font-semibold">
+              No blog posts found
+            </p>
+          </div>
+        ) : null}
+
+        {!isLoading && filteredPosts.length > POSTS_PER_PAGE ? (
+          <div className="mt-10">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+              totalItems={filteredPosts.length}
+              itemsPerPage={POSTS_PER_PAGE}
+            />
+          </div>
+        ) : null}
       </div>
     </main>
   );
