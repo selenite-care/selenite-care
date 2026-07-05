@@ -141,6 +141,10 @@ function asNullableBoolean(value: unknown) {
   return null;
 }
 
+function asBoolean(value: unknown) {
+  return value === true || value === "true";
+}
+
 function formatPreferredDate(date: Date) {
   return date.toLocaleDateString("en-US", {
     weekday: "long",
@@ -210,86 +214,56 @@ export async function POST(request: Request) {
     return Response.json({ error: "Unauthorized." }, { status: 401 });
   }
 
-  const membership = await db.membership.findFirst({
-    where: {
-      userId: session.user.id,
-      status: "ACTIVE",
-      expiresAt: {
-        gt: new Date(),
-      },
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-    select: {
-      status: true,
-      tier: true,
-      createdAt: true,
-      expiresAt: true,
-    },
-  });
-
-  if (membership?.status !== "ACTIVE") {
-    return Response.json(
-      { error: "An active membership is required to submit this survey." },
-      { status: 403 },
-    );
-  }
-
   const body = (await request.json()) as SurveyPayload;
 
-  const doctorId =
-    typeof body.doctorId === "string" ? body.doctorId.trim() : "";
+  const doctorId = asOptionalString(body.doctorId);
   const preferredDateInput =
     typeof body.preferredDate === "string"
       ? body.preferredDate.trim()
       : typeof body.date === "string"
         ? body.date.trim()
         : "";
-  const name = typeof body.name === "string" ? sanitizeText(body.name) : "";
-  const age = typeof body.age === "string" ? sanitizeText(body.age) : "";
-  const phone = typeof body.phone === "string" ? sanitizeText(body.phone) : "";
-  const email = typeof body.email === "string" ? sanitizeText(body.email) : "";
-  const skinType = typeof body.skinType === "string" ? sanitizeText(body.skinType) : "";
+  const name = asOptionalString(body.name);
+  const age = asOptionalString(body.age);
+  const phone = asOptionalString(body.phone);
+  const email = asOptionalString(body.email);
+  const skinType = asOptionalString(body.skinType);
+  let preferredDate: Date | null = null;
 
-  if (!doctorId || !preferredDateInput || !name || !phone || !email || !skinType) {
-    return Response.json(
-      {
-        error:
-          "doctorId, preferredDate, name, phone, email, and skinType are required.",
-      },
-      { status: 400 },
-    );
+  if (preferredDateInput) {
+    const parsedPreferredDate = new Date(preferredDateInput);
+
+    if (Number.isNaN(parsedPreferredDate.getTime())) {
+      return Response.json({ error: "Preferred date is invalid." }, { status: 400 });
+    }
+
+    preferredDate = parsedPreferredDate;
   }
 
-  const preferredDate = new Date(preferredDateInput);
-
-  if (Number.isNaN(preferredDate.getTime())) {
-    return Response.json({ error: "Preferred date is invalid." }, { status: 400 });
-  }
-
-  const doctor = await db.doctor.findUnique({
-    where: { id: doctorId },
-    select: {
-      id: true,
-      name: true,
-      designation: true,
-      specialization: true,
-      availability: true,
-      user: {
+  const doctor = doctorId
+    ? await db.doctor.findUnique({
+        where: { id: doctorId },
         select: {
           id: true,
-          email: true,
+          name: true,
+          designation: true,
+          specialization: true,
+          availability: true,
+          user: {
+            select: {
+              id: true,
+              email: true,
+            },
+          },
         },
-      },
-    },
-  });
+      })
+    : null;
 
-  if (!doctor) {
+  if (doctorId && !doctor) {
     return Response.json({ error: "Doctor not found." }, { status: 404 });
   }
 
-  if (preferredDateInput === toDateInputValue(new Date())) {
+  if (doctor && preferredDateInput === toDateInputValue(new Date())) {
     const endTime = parseAvailabilityEndTime(doctor.availability);
 
     if (endTime) {
@@ -309,35 +283,25 @@ export async function POST(request: Request) {
     }
   }
 
-  const usesKoreanProducts =
-    body.usesKoreanProducts === true ||
-    String(body.usesKoreanProducts) === "true";
-  const facingSkinIssues =
-    body.facingSkinIssues === true ||
-    String(body.facingSkinIssues) === "true";
+  const usesKoreanProducts = asBoolean(body.usesKoreanProducts);
+  const facingSkinIssues = asBoolean(body.facingSkinIssues);
   const skinIssues = asStringArray(body.skinIssues);
   const skinIssueDuration = asOptionalString(body.skinIssueDuration);
   const currentProducts = asStringArray(body.currentProducts);
   const currentProductsImage = asOptionalString(body.currentProductsImage);
   const previousConsultation = asNullableBoolean(body.previousConsultation);
   const allergicIngredients = asStringArray(body.allergicIngredients);
-  const doubleCleansePreference =
-    typeof body.doubleCleansePreference === "string"
-      ? sanitizeText(body.doubleCleansePreference)
-      : "";
-  const sleepHours = typeof body.sleepHours === "string" ? sanitizeText(body.sleepHours) : "";
-  const appliesSunscreen =
-    body.appliesSunscreen === true || String(body.appliesSunscreen) === "true";
-  const regularPeriodCycle =
-    body.regularPeriodCycle === true ||
-    String(body.regularPeriodCycle) === "true";
-  const usedSteroidBasedNightCream =
-    body.usedSteroidBasedNightCream === true ||
-    String(body.usedSteroidBasedNightCream) === "true";
+  const doubleCleansePreference = asOptionalString(body.doubleCleansePreference);
+  const sleepHours = asOptionalString(body.sleepHours);
+  const appliesSunscreen = asBoolean(body.appliesSunscreen);
+  const regularPeriodCycle = asBoolean(body.regularPeriodCycle);
+  const usedSteroidBasedNightCream = asBoolean(body.usedSteroidBasedNightCream);
   const note = asOptionalString(body.note);
-  const waterIntake = asOptionalString(body.waterIntake) ?? "";
+  const waterIntake = asOptionalString(body.waterIntake);
   const skinImages = asStringArray(body.skinImages).slice(0, 4);
-  const preferredDateLabel = formatPreferredDate(preferredDate);
+  const preferredDateLabel = preferredDate
+    ? formatPreferredDate(preferredDate)
+    : "Not selected";
 
   try {
     const { booking, survey } = await db.$transaction(async (tx) => {
@@ -361,7 +325,7 @@ export async function POST(request: Request) {
         data: {
           token: bookingToken,
           userId: session.user.id,
-          doctorId: doctor.id,
+          doctorId: doctor?.id ?? null,
           appointmentTime: preferredDate,
         },
       });
@@ -370,6 +334,59 @@ export async function POST(request: Request) {
         data: {
           bookingId: booking.id,
           codeId: doctorId,
+          name: name ?? "",
+          age: age ?? "",
+          phone: phone ?? "",
+          email: email ?? "",
+          skinType: skinType ?? "",
+          usesKoreanProducts,
+          facingSkinIssues,
+          skinIssues,
+          skinIssueDuration,
+          currentProducts,
+          currentProductsImage,
+          previousConsultation,
+          allergicIngredients,
+          doubleCleansePreference: doubleCleansePreference ?? "",
+          sleepHours: sleepHours ?? "",
+          waterIntake: waterIntake ?? "",
+          appliesSunscreen,
+          regularPeriodCycle,
+          usedSteroidBasedNightCream,
+          note,
+          skinImages,
+        },
+      });
+
+      await tx.surveyProfile.upsert({
+        where: {
+          userId: session.user.id,
+        },
+        update: {
+          name,
+          age,
+          phone,
+          email,
+          skinType,
+          usesKoreanProducts,
+          facingSkinIssues,
+          skinIssues,
+          skinIssueDuration,
+          currentProducts,
+          currentProductsImage,
+          previousConsultation,
+          allergicIngredients,
+          doubleCleansePreference,
+          sleepHours,
+          waterIntake,
+          appliesSunscreen,
+          regularPeriodCycle,
+          usedSteroidBasedNightCream,
+          note,
+          skinImages,
+        },
+        create: {
+          userId: session.user.id,
           name,
           age,
           phone,
@@ -394,68 +411,22 @@ export async function POST(request: Request) {
         },
       });
 
-      await tx.surveyProfile.upsert({
-        where: {
-          userId: session.user.id,
-        },
-        update: {
-          name,
-          age: age || null,
-          phone,
-          email,
-          skinType,
-          usesKoreanProducts,
-          facingSkinIssues,
-          skinIssues,
-          skinIssueDuration,
-          currentProducts,
-          currentProductsImage,
-          previousConsultation,
-          allergicIngredients,
-          doubleCleansePreference: doubleCleansePreference || null,
-          sleepHours: sleepHours || null,
-          waterIntake: waterIntake || null,
-          appliesSunscreen,
-          regularPeriodCycle,
-          usedSteroidBasedNightCream,
-          note,
-          skinImages,
-        },
-        create: {
-          userId: session.user.id,
-          name,
-          age: age || null,
-          phone,
-          email,
-          skinType,
-          usesKoreanProducts,
-          facingSkinIssues,
-          skinIssues,
-          skinIssueDuration,
-          currentProducts,
-          currentProductsImage,
-          previousConsultation,
-          allergicIngredients,
-          doubleCleansePreference: doubleCleansePreference || null,
-          sleepHours: sleepHours || null,
-          waterIntake: waterIntake || null,
-          appliesSunscreen,
-          regularPeriodCycle,
-          usedSteroidBasedNightCream,
-          note,
-          skinImages,
-        },
-      });
-
       return { booking, survey };
     });
 
+    const clientName = name ?? "Not provided";
+    const clientPhone = phone ?? "Not provided";
+    const clientEmail = email ?? "Not provided";
+    const doctorName = doctor
+      ? `${doctor.name} (${doctor.designation})`
+      : "Not selected";
+
     const adminEmailHtml = buildAppointmentEmailHtml({
       bookingToken: booking.token,
-      clientName: name,
-      clientPhone: phone,
-      clientEmail: email,
-      doctorName: `${doctor.name} (${doctor.designation})`,
+      clientName,
+      clientPhone,
+      clientEmail,
+      doctorName,
       preferredDate: preferredDateLabel,
       footerMessage:
         "A new appointment request has been submitted and is awaiting follow-up.",
@@ -463,10 +434,10 @@ export async function POST(request: Request) {
 
     const doctorEmailHtml = buildAppointmentEmailHtml({
       bookingToken: booking.token,
-      clientName: name,
-      clientPhone: phone,
-      clientEmail: email,
-      doctorName: `${doctor.name} (${doctor.designation})`,
+      clientName,
+      clientPhone,
+      clientEmail,
+      doctorName,
       preferredDate: preferredDateLabel,
       footerMessage:
         "Please review this assigned appointment request and await CRM confirmation.",
@@ -474,10 +445,10 @@ export async function POST(request: Request) {
 
     const clientEmailHtml = buildAppointmentEmailHtml({
       bookingToken: booking.token,
-      clientName: name,
-      clientPhone: phone,
-      clientEmail: email,
-      doctorName: `${doctor.name} (${doctor.designation})`,
+      clientName,
+      clientPhone,
+      clientEmail,
+      doctorName,
       preferredDate: preferredDateLabel,
       footerMessage:
         "Our CRM team will contact you shortly to confirm your appointment time.",
@@ -495,7 +466,7 @@ export async function POST(request: Request) {
       );
     }
 
-    if (doctor.user?.email) {
+    if (doctor?.user?.email) {
       emailPromises.push(
         sendEmail({
           to: doctor.user.email,
@@ -505,15 +476,17 @@ export async function POST(request: Request) {
       );
     }
 
-    emailPromises.push(
-      sendEmail({
-        to: email,
-        subject: "Appointment Request Confirmed - Selenite Care",
-        html: clientEmailHtml,
-      }),
-    );
+    if (email) {
+      emailPromises.push(
+        sendEmail({
+          to: email,
+          subject: "Appointment Request Confirmed - Selenite Care",
+          html: clientEmailHtml,
+        }),
+      );
+    }
 
-    if (doctor.user?.id) {
+    if (doctor?.user?.id) {
       try {
         await createNotification(
           doctor.user.id,
