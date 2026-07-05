@@ -10,6 +10,7 @@ type BlogPostPayload = {
   coverImage?: unknown;
   category?: unknown;
   tags?: unknown;
+  status?: unknown;
 };
 
 const VALID_STATUSES = new Set<BlogPostStatus>([
@@ -42,6 +43,15 @@ function normalizeTags(value: unknown) {
   }
 
   return [];
+}
+
+function normalizeCreateStatus(value: unknown) {
+  if (typeof value !== "string") {
+    return "DRAFT";
+  }
+
+  const status = value.trim().toUpperCase() as BlogPostStatus;
+  return status === "DRAFT" || status === "PUBLISHED" ? status : null;
 }
 
 export async function GET(request: Request) {
@@ -127,12 +137,17 @@ export async function POST(request: Request) {
   const coverImage = normalizeOptionalString(body.coverImage);
   const category = normalizeOptionalString(body.category);
   const tags = normalizeTags(body.tags);
+  const status = normalizeCreateStatus(body.status);
 
   if (!title || !content) {
     return Response.json(
       { error: "Title and content are required." },
       { status: 400 },
     );
+  }
+
+  if (status === null) {
+    return Response.json({ error: "Invalid blog post status." }, { status: 400 });
   }
 
   const existingSlugs = await db.blogPost.findMany({
@@ -154,7 +169,8 @@ export async function POST(request: Request) {
       coverImage: coverImage || null,
       category: category || null,
       tags,
-      status: "DRAFT",
+      status,
+      publishedAt: status === "PUBLISHED" ? new Date() : null,
       authorId: session.user.id,
     },
     select: {

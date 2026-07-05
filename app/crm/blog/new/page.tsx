@@ -1,0 +1,449 @@
+"use client";
+
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import {
+  ChangeEvent,
+  DragEvent,
+  KeyboardEvent,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { ImagePlus, Loader2, X } from "lucide-react";
+import BlogEditor from "@/components/blog/BlogEditor";
+import { slugify } from "@/lib/slugify";
+
+type SaveMode = "DRAFT" | "PUBLISHED";
+type SaveStatus = "idle" | "saving" | "saved" | "error";
+
+type BlogPostSaveResponse = {
+  post?: {
+    id: string;
+    slug: string;
+  };
+  error?: string;
+};
+
+const AUTOSAVE_INTERVAL_MS = 60_000;
+
+export default function NewCrmBlogPostPage() {
+  const router = useRouter();
+  const coverInputRef = useRef<HTMLInputElement | null>(null);
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [coverImage, setCoverImage] = useState("");
+  const [category, setCategory] = useState("");
+  const [tagInput, setTagInput] = useState("");
+  const [tags, setTags] = useState<string[]>([]);
+  const [excerpt, setExcerpt] = useState("");
+  const [savedPostId, setSavedPostId] = useState<string | null>(null);
+  const [savedSlug, setSavedSlug] = useState<string | null>(null);
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
+  const [saveMessage, setSaveMessage] = useState("");
+  const [isUploadingCover, setIsUploadingCover] = useState(false);
+  const [isDraggingCover, setIsDraggingCover] = useState(false);
+
+  const slugPreview = useMemo(
+    () => savedSlug ?? (slugify(title) || "post-title"),
+    [savedSlug, title],
+  );
+  const canSave = title.trim().length > 0 && content.trim().length > 0;
+
+  useEffect(() => {
+    const intervalId = window.setInterval(() => {
+      if (!canSave || saveStatus === "saving") {
+        return;
+      }
+
+      void savePost("DRAFT", { isAutoSave: true });
+    }, AUTOSAVE_INTERVAL_MS);
+
+    return () => window.clearInterval(intervalId);
+  }, [
+    canSave,
+    saveStatus,
+    title,
+    content,
+    coverImage,
+    category,
+    tags,
+    excerpt,
+    savedPostId,
+  ]);
+
+  async function uploadCoverImage(file: File) {
+    if (!file.type.startsWith("image/")) {
+      setSaveStatus("error");
+      setSaveMessage("Please upload an image file.");
+      return;
+    }
+
+    setIsUploadingCover(true);
+    setSaveMessage("");
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch("/api/admin/upload", {
+        method: "POST",
+        body: formData,
+      });
+      const data = (await response.json().catch(() => null)) as
+        | { secure_url?: string; url?: string; error?: string }
+        | null;
+      const imageUrl = data?.secure_url ?? data?.url ?? "";
+
+      if (!response.ok || !imageUrl) {
+        throw new Error(data?.error ?? "Unable to upload cover image.");
+      }
+
+      setCoverImage(imageUrl);
+      setSaveStatus("idle");
+    } catch (error) {
+      setSaveStatus("error");
+      setSaveMessage(
+        error instanceof Error ? error.message : "Unable to upload cover image.",
+      );
+    } finally {
+      setIsUploadingCover(false);
+    }
+  }
+
+  function handleCoverInputChange(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+
+    if (file) {
+      void uploadCoverImage(file);
+    }
+  }
+
+  function handleCoverDrop(event: DragEvent<HTMLButtonElement>) {
+    event.preventDefault();
+    setIsDraggingCover(false);
+
+    const file = event.dataTransfer.files?.[0];
+
+    if (file) {
+      void uploadCoverImage(file);
+    }
+  }
+
+  function addTag(rawTag: string) {
+    const nextTag = rawTag.trim();
+
+    if (!nextTag) {
+      return;
+    }
+
+    setTags((currentTags) =>
+      currentTags.some((tag) => tag.toLowerCase() === nextTag.toLowerCase())
+        ? currentTags
+        : [...currentTags, nextTag],
+    );
+    setTagInput("");
+  }
+
+  function handleTagKeyDown(event: KeyboardEvent<HTMLInputElement>) {
+    if (event.key !== "Enter") {
+      return;
+    }
+
+    event.preventDefault();
+    addTag(tagInput);
+  }
+
+  async function savePost(
+    mode: SaveMode,
+    options: { isAutoSave?: boolean } = {},
+  ) {
+    if (!canSave) {
+      setSaveStatus("error");
+      setSaveMessage("Title and body are required before saving.");
+      return null;
+    }
+
+    setSaveStatus("saving");
+    setSaveMessage(options.isAutoSave ? "Auto-saving..." : "Saving...");
+
+    const payload = {
+      title: title.trim(),
+      content,
+      excerpt: excerpt.trim(),
+      coverImage,
+      category: category.trim(),
+      tags,
+      status: mode,
+    };
+
+    try {
+      const response = await fetch(
+        savedPostId ? `/api/crm/blog/${savedPostId}` : "/api/crm/blog",
+        {
+          method: savedPostId ? "PATCH" : "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        },
+      );
+      const data = (await response.json().catch(() => null)) as
+        | BlogPostSaveResponse
+        | null;
+
+      if (!response.ok || !data?.post) {
+        throw new Error(data?.error ?? "Unable to save blog post.");
+      }
+
+      setSavedPostId(data.post.id);
+      setSavedSlug(data.post.slug);
+      setSaveStatus("saved");
+      setSaveMessage(
+        options.isAutoSave
+          ? `Auto-saved at ${new Date().toLocaleTimeString([], {
+              hour: "numeric",
+              minute: "2-digit",
+            })}`
+          : mode === "PUBLISHED"
+            ? "Published."
+            : "Draft saved.",
+      );
+
+      return data.post;
+    } catch (error) {
+      setSaveStatus("error");
+      setSaveMessage(
+        error instanceof Error ? error.message : "Unable to save blog post.",
+      );
+      return null;
+    }
+  }
+
+  async function handleSaveDraft() {
+    const post = await savePost("DRAFT");
+
+    if (post?.id) {
+      router.push(`/crm/blog/${post.id}/edit`);
+    }
+  }
+
+  async function handlePublish() {
+    const post = await savePost("PUBLISHED");
+
+    if (post?.id) {
+      router.push("/crm/blog");
+    }
+  }
+
+  return (
+    <div className="mx-auto max-w-5xl space-y-6">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+          <p className="text-sm font-medium text-[#8C7967] dark:text-[#8A7D75]">
+            <Link href="/crm/blog" className="hover:text-[#B87B68]">
+              Blog Posts
+            </Link>{" "}
+            / New Post
+          </p>
+          <h1
+            className="mt-2 text-3xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]"
+            style={{ fontFamily: "Playfair Display, serif" }}
+          >
+            Write New Post
+          </h1>
+        </div>
+
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="min-h-5 text-sm text-[#8C7967] dark:text-[#8A7D75]">
+            {saveStatus === "saving" ? (
+              <span className="inline-flex items-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                {saveMessage}
+              </span>
+            ) : saveMessage ? (
+              <span
+                className={
+                  saveStatus === "error"
+                    ? "text-red-600 dark:text-red-300"
+                    : "text-[#6E6257] dark:text-[#D8C7B5]"
+                }
+              >
+                {saveMessage}
+              </span>
+            ) : (
+              <span>Auto-save every 60 seconds</span>
+            )}
+          </div>
+
+          <button
+            type="button"
+            onClick={() => void handleSaveDraft()}
+            disabled={saveStatus === "saving"}
+            className="inline-flex h-11 items-center justify-center rounded-md border border-[#2B2B2B] px-5 text-sm font-semibold text-[#2B2B2B] transition-colors hover:bg-[#2B2B2B] hover:text-[#F8F5F0] disabled:cursor-not-allowed disabled:opacity-60 dark:border-[#F0EDE8] dark:text-[#F0EDE8] dark:hover:bg-[#F0EDE8] dark:hover:text-[#141210]"
+          >
+            Save Draft
+          </button>
+          <button
+            type="button"
+            onClick={() => void handlePublish()}
+            disabled={saveStatus === "saving"}
+            className="inline-flex h-11 items-center justify-center rounded-md bg-[#B87B68] px-5 text-sm font-semibold text-[#141210] transition-colors hover:bg-[#C98B78] disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            Publish
+          </button>
+        </div>
+      </div>
+
+      <section className="rounded-xl border border-[#EADDCD] bg-white p-5 dark:border-[#3D3530] dark:bg-[#242220]">
+        {coverImage ? (
+          <div className="relative overflow-hidden rounded-xl border border-[#EADDCD] bg-[#F8F5F0] dark:border-[#3D3530] dark:bg-[#1A1814]">
+            <div className="relative aspect-[21/9] w-full">
+              <Image
+                src={coverImage}
+                alt="Blog cover preview"
+                fill
+                priority
+                sizes="(max-width: 1024px) 100vw, 1024px"
+                className="object-cover"
+              />
+            </div>
+            <button
+              type="button"
+              onClick={() => setCoverImage("")}
+              className="absolute right-3 top-3 inline-flex h-9 items-center justify-center gap-2 rounded-md bg-[#2B2B2B]/90 px-3 text-sm font-semibold text-[#F8F5F0] transition-colors hover:bg-[#2B2B2B]"
+            >
+              <X className="h-4 w-4" />
+              Remove
+            </button>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => coverInputRef.current?.click()}
+            onDragOver={(event) => {
+              event.preventDefault();
+              setIsDraggingCover(true);
+            }}
+            onDragLeave={() => setIsDraggingCover(false)}
+            onDrop={handleCoverDrop}
+            className={`flex min-h-[240px] w-full flex-col items-center justify-center rounded-xl border-2 border-dashed px-6 text-center transition-colors ${
+              isDraggingCover
+                ? "border-[#B87B68] bg-[#B87B68]/10"
+                : "border-[#EADDCD] bg-[#F8F5F0] hover:border-[#B87B68] hover:bg-[#B87B68]/10 dark:border-[#3D3530] dark:bg-[#1A1814]"
+            }`}
+          >
+            {isUploadingCover ? (
+              <Loader2 className="h-8 w-8 animate-spin text-[#B87B68]" />
+            ) : (
+              <ImagePlus className="h-9 w-9 text-[#B87B68]" />
+            )}
+            <span className="mt-4 text-sm font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]">
+              Drag and drop a cover image, or click to upload
+            </span>
+            <span className="mt-2 text-sm text-[#8C7967] dark:text-[#8A7D75]">
+              Recommended wide image for blog cards and social previews.
+            </span>
+          </button>
+        )}
+        <input
+          ref={coverInputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handleCoverInputChange}
+        />
+      </section>
+
+      <section className="rounded-xl border border-[#EADDCD] bg-white p-5 dark:border-[#3D3530] dark:bg-[#242220]">
+        <input
+          type="text"
+          value={title}
+          onChange={(event) => setTitle(event.target.value)}
+          placeholder="Post Title..."
+          className="w-full border-0 bg-transparent px-0 text-3xl font-semibold text-[#2B2B2B] outline-none placeholder:text-[#8C7967]/70 dark:text-[#F0EDE8] dark:placeholder:text-[#8A7D75]"
+          style={{ fontFamily: "Playfair Display, serif" }}
+        />
+        <p className="mt-3 text-sm text-[#8C7967] dark:text-[#8A7D75]">
+          URL: selenitecare.com/blog/{slugPreview}
+        </p>
+
+        <div className="mt-6 grid gap-4 md:grid-cols-2">
+          <label className="block">
+            <span className="mb-2 block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
+              Category
+            </span>
+            <input
+              type="text"
+              value={category}
+              onChange={(event) => setCategory(event.target.value)}
+              placeholder="Skincare"
+              className="h-11 w-full rounded-md border border-[#EADDCD] bg-[#F8F5F0] px-4 text-sm text-[#2B2B2B] outline-none focus:border-[#B87B68] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#F0EDE8]"
+            />
+          </label>
+
+          <label className="block">
+            <span className="mb-2 block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
+              Tags
+            </span>
+            <div className="flex min-h-11 flex-wrap items-center gap-2 rounded-md border border-[#EADDCD] bg-[#F8F5F0] px-3 py-2 focus-within:border-[#B87B68] dark:border-[#3D3530] dark:bg-[#1A1814]">
+              {tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="inline-flex items-center gap-1 rounded-full bg-[#B87B68]/15 px-3 py-1 text-xs font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]"
+                >
+                  {tag}
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setTags((currentTags) =>
+                        currentTags.filter((currentTag) => currentTag !== tag),
+                      )
+                    }
+                    aria-label={`Remove ${tag}`}
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
+              ))}
+              <input
+                type="text"
+                value={tagInput}
+                onChange={(event) => setTagInput(event.target.value)}
+                onKeyDown={handleTagKeyDown}
+                onBlur={() => addTag(tagInput)}
+                placeholder={tags.length ? "Add tag" : "Type tag and press Enter"}
+                className="h-7 min-w-[160px] flex-1 border-0 bg-transparent text-sm text-[#2B2B2B] outline-none placeholder:text-[#8C7967] dark:text-[#F0EDE8] dark:placeholder:text-[#8A7D75]"
+              />
+            </div>
+          </label>
+        </div>
+
+        <label className="mt-6 block">
+          <div className="mb-2 flex items-center justify-between gap-3">
+            <span className="text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
+              Meta description (shown in Google search results and blog cards)
+            </span>
+            <span className="text-xs text-[#8C7967] dark:text-[#8A7D75]">
+              {excerpt.length}/160
+            </span>
+          </div>
+          <textarea
+            value={excerpt}
+            maxLength={160}
+            onChange={(event) => setExcerpt(event.target.value)}
+            rows={3}
+            className="w-full rounded-md border border-[#EADDCD] bg-[#F8F5F0] px-4 py-3 text-sm leading-6 text-[#2B2B2B] outline-none focus:border-[#B87B68] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#F0EDE8]"
+          />
+        </label>
+      </section>
+
+      <section>
+        <BlogEditor value={content} onChange={setContent} />
+      </section>
+    </div>
+  );
+}

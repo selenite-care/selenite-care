@@ -304,6 +304,28 @@ export async function POST(request: Request) {
     : "Not selected";
 
   try {
+    const activeBooking = await db.booking.findFirst({
+      where: {
+        userId: session.user.id,
+        status: {
+          notIn: ["COMPLETED", "CANCELLED"],
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (activeBooking) {
+      return Response.json(
+        {
+          error:
+            "You already have an active appointment. Please wait for your current appointment to be completed before booking a new one.",
+        },
+        { status: 409 },
+      );
+    }
+
     const { booking, survey } = await db.$transaction(async (tx) => {
       const existingTokens = await tx.booking.findMany({
         select: { token: true },
