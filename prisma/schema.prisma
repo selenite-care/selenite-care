@@ -34,6 +34,7 @@ model User {
   notifications        Notification[]
   accounts             Account[]
   image                String?
+  blogPosts            BlogPost[]
 
   @@index([role])
   @@index([createdAt(sort: Desc)])
@@ -334,6 +335,29 @@ model Notification {
   @@index([createdAt(sort: Desc)])
 }
 
+model BlogPost {
+  id          String         @id @default(cuid())
+  title       String
+  slug        String         @unique
+  excerpt     String?
+  content     String         @db.Text
+  coverImage  String?
+  category    String?
+  tags        String[]
+  status      BlogPostStatus @default(DRAFT)
+  authorId    String
+  author      User           @relation(fields: [authorId], references: [id])
+  publishedAt DateTime?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  views       Int            @default(0)
+
+  @@index([slug])
+  @@index([status])
+  @@index([authorId])
+  @@index([publishedAt(sort: Desc)])
+}
+
 enum Role {
   CLIENT
   DOCTOR
@@ -393,4 +417,10 @@ enum OrderStatus {
   SHIPPED
   DELIVERED
   CANCELLED
+}
+
+enum BlogPostStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
 }

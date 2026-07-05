@@ -24,7 +24,10 @@ const adminSections = [
   },
   {
     heading: "Marketing",
-    links: [{ href: "/admin/leads", label: "Leads" }],
+    links: [
+      { href: "/admin/leads", label: "Leads" },
+      { href: "/admin/blog", label: "Blog Posts" },
+    ],
   },
 ] as const;
 
