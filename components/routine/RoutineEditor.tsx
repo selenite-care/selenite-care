@@ -181,7 +181,7 @@ export default function RoutineEditor({
         </div>
       ) : (
         <div
-          className="mt-5 rounded-2xl border border-[#EADDCD] bg-white px-4 py-4 text-sm leading-7 text-[#6E6257] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#8A7D75]"
+          className="mt-5 whitespace-pre-wrap break-words rounded-2xl border border-[#EADDCD] bg-white px-4 py-4 text-sm leading-7 text-[#6E6257] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#8A7D75]"
         >
           {content || "No routine has been set yet"}
         </div>
