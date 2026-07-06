@@ -185,6 +185,7 @@ export const config = {
     "/register",
     "/dashboard/:path*",
     "/payment/:path*",
+    "/appointment/:path*",
     "/admin/:path*",
     "/doctor/:path*",
     "/crm/:path*",
