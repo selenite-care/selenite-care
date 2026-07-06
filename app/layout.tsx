@@ -4,9 +4,10 @@ import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { CartProvider } from "@/components/cart/CartProvider";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
-import { SessionProvider } from "next-auth/react"
+import SessionGuard from "@/components/auth/SessionGuard";
+import { SessionProvider } from "next-auth/react";
 import AppChrome from "@/components/layout/AppChrome";
-import Script from "next/script"
+import Script from "next/script";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -70,10 +71,16 @@ export default function RootLayout({
         </noscript>
       </head>
       <body className="flex min-h-full flex-col bg-brand-ivory text-brand-charcoal">
-        <SessionProvider>
+        <SessionProvider
+          refetchInterval={30}
+          refetchOnWindowFocus
+          refetchWhenOffline={false}
+        >
           <CartProvider>
             <ThemeProvider>
-              <AppChrome>{children}</AppChrome>
+              <SessionGuard>
+                <AppChrome>{children}</AppChrome>
+              </SessionGuard>
             </ThemeProvider>
           </CartProvider>
         </SessionProvider>
