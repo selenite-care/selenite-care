@@ -81,11 +81,11 @@ export default function FileUploadButton({
         {label}
       </label>
 
-      <div className="flex min-h-[48px] items-center gap-3">
+      <div className="flex min-h-[60px] items-center gap-3">
         {activePreviewUrl && isImagePreview ? (
           <>
             <div
-              className="h-12 w-12 overflow-hidden rounded-md border"
+              className="h-[60px] w-[60px] overflow-hidden rounded-md border"
               style={{
                 borderColor: "#EADDCD",
                 backgroundColor: "#F8F5F0",

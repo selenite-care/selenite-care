@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
+import { Package } from "lucide-react";
 import { formatDateTime } from "@/lib/dateUtils";
 
 type DiagnosisEditorProps = {
@@ -14,6 +16,7 @@ type ProductSearchResult = {
   type: string;
   price: number;
   skinType: string | null;
+  image: string | null;
   stockStatus: "AVAILABLE" | "LIMITED" | "OUT_OF_STOCK";
   stockNote: string | null;
 };
@@ -58,8 +61,9 @@ function mapDiagnosisProducts(diagnosis: DiagnosisResponse["diagnosis"]) {
 }
 
 function formatPrice(price: number) {
-  const normalized = Number.isInteger(price) ? price.toString() : price.toFixed(2);
-  return `${normalized} BDT`;
+  return `${new Intl.NumberFormat("en-BD", {
+    maximumFractionDigits: Number.isInteger(price) ? 0 : 2,
+  }).format(price)} BDT`;
 }
 
 function formatTimestamp(value: string | null) {
@@ -82,14 +86,44 @@ function getStockBadgeClasses(stockStatus: ProductSearchResult["stockStatus"]) {
 function getStockLabel(stockStatus: ProductSearchResult["stockStatus"]) {
   switch (stockStatus) {
     case "AVAILABLE":
-      return "In Stock";
+      return "Available";
     case "LIMITED":
-      return "Limited Stock";
+      return "Limited";
     case "OUT_OF_STOCK":
       return "Out of Stock";
     default:
       return stockStatus;
   }
+}
+
+function ProductThumbnail({
+  image,
+  name,
+  size,
+}: {
+  image: string | null;
+  name: string;
+  size: 40 | 60;
+}) {
+  const sizeClass = size === 40 ? "h-10 w-10" : "h-[60px] w-[60px]";
+
+  if (image) {
+    return (
+      <img
+        src={image}
+        alt={name}
+        className={`${sizeClass} shrink-0 rounded-md border border-[#EADDCD] object-cover dark:border-[#3D3530]`}
+      />
+    );
+  }
+
+  return (
+    <div
+      className={`${sizeClass} flex shrink-0 items-center justify-center rounded-md border border-[#EADDCD] bg-zinc-100 dark:border-[#3D3530] dark:bg-[#1A1814]`}
+    >
+      <Package className="h-5 w-5 text-[#884F38] dark:text-[#8A7D75]" />
+    </div>
+  );
 }
 
 export default function DiagnosisEditor({
@@ -438,41 +472,48 @@ export default function DiagnosisEditor({
                           disabled={
                             recommendedProductIds.has(product.id) || isOutOfStock
                           }
-                          className={`flex w-full items-start justify-between rounded-xl px-3 py-3 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
+                          className={`flex w-full items-start justify-between gap-3 rounded-xl px-3 py-3 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
                             isOutOfStock
                               ? "bg-black/5 dark:bg-white/5"
                               : "hover:bg-[#F8F5F0] dark:hover:bg-[#1A1814]"
                           }`}
                         >
-                          <div className="pr-4">
-                            <p className="text-sm font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]">
-                              {product.name}
-                            </p>
-                            <p className="mt-1 text-xs text-[#6E6257] dark:text-[#8A7D75]">
-                              {product.type}
-                              {product.skinType ? ` - ${product.skinType}` : ""}
-                            </p>
-                            <div className="mt-2 flex flex-wrap items-center gap-2">
-                              <span
-                                className={`inline-flex rounded-full border px-2.5 py-1 text-[11px] font-medium ${getStockBadgeClasses(
-                                  product.stockStatus,
-                                )}`}
-                              >
-                                {getStockLabel(product.stockStatus)}
-                              </span>
-                              {isOutOfStock ? (
-                                <span className="text-xs font-medium text-red-600 dark:text-red-300">
-                                  Currently unavailable
+                          <div className="flex min-w-0 gap-3">
+                            <ProductThumbnail
+                              image={product.image}
+                              name={product.name}
+                              size={40}
+                            />
+                            <div className="min-w-0 pr-2">
+                              <p className="text-sm font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]">
+                                {product.name}
+                              </p>
+                              <p className="mt-1 text-xs text-[#6E6257] dark:text-[#8A7D75]">
+                                {product.type}
+                                {product.skinType ? ` - ${product.skinType}` : ""}
+                              </p>
+                              <div className="mt-2 flex flex-wrap items-center gap-2">
+                                <span
+                                  className={`inline-flex rounded-full border px-2.5 py-1 text-[11px] font-medium ${getStockBadgeClasses(
+                                    product.stockStatus,
+                                  )}`}
+                                >
+                                  {getStockLabel(product.stockStatus)}
                                 </span>
-                              ) : null}
-                              {product.stockStatus === "LIMITED" && product.stockNote ? (
-                                <span className="text-xs text-amber-700 dark:text-amber-300">
-                                  {product.stockNote}
-                                </span>
-                              ) : null}
+                                {isOutOfStock ? (
+                                  <span className="text-xs font-medium text-red-600 dark:text-red-300">
+                                    Currently unavailable
+                                  </span>
+                                ) : null}
+                                {product.stockStatus === "LIMITED" && product.stockNote ? (
+                                  <span className="text-xs text-amber-700 dark:text-amber-300">
+                                    {product.stockNote}
+                                  </span>
+                                ) : null}
+                              </div>
                             </div>
                           </div>
-                          <span className="text-sm font-medium text-[#B87B68]">
+                          <span className="shrink-0 text-sm font-medium text-[#B87B68]">
                             {formatPrice(product.price)}
                           </span>
                         </button>
@@ -492,25 +533,36 @@ export default function DiagnosisEditor({
                 recommendedProducts.map((product) => (
                   <article
                     key={product.id}
-                    className="rounded-2xl border bg-white p-4 dark:border-[#3D3530] dark:bg-[#242220]"
+                    className="rounded-2xl border border-[#EADDCD] bg-white p-4 dark:border-[#3D3530] dark:bg-[#242220]"
                   >
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                      <div>
-                        <h3
-                          className="text-lg font-semibold"
-                          style={{
-                            color: "#2B2B2B",
-                            fontFamily: "Playfair Display, serif",
-                          }}
-                        >
-                          {product.name}
-                        </h3>
-                        <p className="mt-1 text-sm text-[#6E6257] dark:text-[#8A7D75]">
-                          {product.type}
-                          {product.skinType ? ` - ${product.skinType}` : ""}
-                        </p>
-                        <div className="mt-2 flex flex-wrap items-center gap-2">
-                          {product.stockStatus !== "AVAILABLE" ? (
+                      <div className="flex min-w-0 gap-3">
+                        <ProductThumbnail
+                          image={product.image}
+                          name={product.name}
+                          size={60}
+                        />
+                        <div className="min-w-0">
+                          <Link
+                            href={`/products?search=${encodeURIComponent(product.name)}`}
+                            className="text-base font-bold text-[#2B2B2B] underline-offset-4 transition-opacity hover:opacity-80 hover:underline dark:text-[#F0EDE8]"
+                          >
+                            {product.name}
+                          </Link>
+                          <div className="mt-2 flex flex-wrap items-center gap-2">
+                            <span className="inline-flex rounded-full bg-[#EADDCD] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#884F38] dark:bg-[#3D3530] dark:text-[#F0EDE8]">
+                              {product.type}
+                            </span>
+                            {product.skinType ? (
+                              <span className="text-xs text-[#6E6257] dark:text-[#8A7D75]">
+                                {product.skinType}
+                              </span>
+                            ) : null}
+                          </div>
+                          <p className="mt-2 text-base font-bold text-[#B87B68]">
+                            {formatPrice(product.price)}
+                          </p>
+                          <div className="mt-2 flex flex-wrap items-center gap-2">
                             <span
                               className={`inline-flex rounded-full border px-2.5 py-1 text-[11px] font-medium ${getStockBadgeClasses(
                                 product.stockStatus,
@@ -518,16 +570,13 @@ export default function DiagnosisEditor({
                             >
                               {getStockLabel(product.stockStatus)}
                             </span>
-                          ) : null}
-                          {product.stockStatus === "LIMITED" && product.stockNote ? (
-                            <span className="text-xs text-amber-700 dark:text-amber-300">
-                              {product.stockNote}
-                            </span>
-                          ) : null}
+                            {product.stockStatus === "LIMITED" && product.stockNote ? (
+                              <span className="text-xs text-amber-700 dark:text-amber-300">
+                                {product.stockNote}
+                              </span>
+                            ) : null}
+                          </div>
                         </div>
-                        <p className="mt-2 text-sm font-medium text-[#B87B68]">
-                          {formatPrice(product.price)}
-                        </p>
                       </div>
 
                       <button
@@ -579,25 +628,36 @@ export default function DiagnosisEditor({
               recommendedProducts.map((product) => (
                 <article
                   key={product.id}
-                  className="rounded-2xl border bg-white p-4 dark:border-[#3D3530] dark:bg-[#242220]"
+                  className="rounded-2xl border border-[#EADDCD] bg-white p-4 dark:border-[#3D3530] dark:bg-[#242220]"
                 >
-                  <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                    <div>
-                      <h3
-                        className="text-lg font-semibold"
-                        style={{
-                          color: "#2B2B2B",
-                          fontFamily: "Playfair Display, serif",
-                        }}
-                      >
-                        {product.name}
-                      </h3>
-                      <p className="mt-1 text-sm text-[#6E6257] dark:text-[#8A7D75]">
-                        {product.type}
-                        {product.skinType ? ` - ${product.skinType}` : ""}
-                      </p>
-                      <div className="mt-2 flex flex-wrap items-center gap-2">
-                        {product.stockStatus !== "AVAILABLE" ? (
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="flex min-w-0 gap-3">
+                      <ProductThumbnail
+                        image={product.image}
+                        name={product.name}
+                        size={60}
+                      />
+                      <div className="min-w-0">
+                        <Link
+                          href={`/products?search=${encodeURIComponent(product.name)}`}
+                          className="text-base font-bold text-[#2B2B2B] underline-offset-4 transition-opacity hover:opacity-80 hover:underline dark:text-[#F0EDE8]"
+                        >
+                          {product.name}
+                        </Link>
+                        <div className="mt-2 flex flex-wrap items-center gap-2">
+                          <span className="inline-flex rounded-full bg-[#EADDCD] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#884F38] dark:bg-[#3D3530] dark:text-[#F0EDE8]">
+                            {product.type}
+                          </span>
+                          {product.skinType ? (
+                            <span className="text-xs text-[#6E6257] dark:text-[#8A7D75]">
+                              {product.skinType}
+                            </span>
+                          ) : null}
+                        </div>
+                        <p className="mt-2 text-base font-bold text-[#B87B68]">
+                          {formatPrice(product.price)}
+                        </p>
+                        <div className="mt-2 flex flex-wrap items-center gap-2">
                           <span
                             className={`inline-flex rounded-full border px-2.5 py-1 text-[11px] font-medium ${getStockBadgeClasses(
                               product.stockStatus,
@@ -605,20 +665,17 @@ export default function DiagnosisEditor({
                           >
                             {getStockLabel(product.stockStatus)}
                           </span>
-                        ) : null}
-                        {product.stockStatus === "LIMITED" && product.stockNote ? (
-                          <span className="text-xs text-amber-700 dark:text-amber-300">
-                            {product.stockNote}
-                          </span>
-                        ) : null}
+                          {product.stockStatus === "LIMITED" && product.stockNote ? (
+                            <span className="text-xs text-amber-700 dark:text-amber-300">
+                              {product.stockNote}
+                            </span>
+                          ) : null}
+                        </div>
                       </div>
                     </div>
-                    <p className="text-sm font-medium text-[#B87B68]">
-                      {formatPrice(product.price)}
-                    </p>
                   </div>
                   {product.note ? (
-                    <div className="mt-4 rounded-xl border bg-[#F8F5F0] px-4 py-3 text-sm leading-7 text-[#6E6257] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#8A7D75]">
+                    <div className="mt-4 rounded-xl border border-[#EADDCD] bg-[#F8F5F0] px-4 py-3 text-sm italic leading-7 text-[#884F38] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#8A7D75]">
                       {product.note}
                     </div>
                   ) : null}
