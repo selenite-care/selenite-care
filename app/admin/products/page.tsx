@@ -309,9 +309,32 @@ export default function AdminProductsPage() {
         throw new Error(data?.error ?? "Unable to upload product image.");
       }
 
+      const updateResponse = await fetch(`/api/admin/products/${editForm.id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          image: data.secure_url,
+        }),
+      });
+      const updateData = (await updateResponse.json().catch(() => null)) as
+        | { error?: string; product?: Product }
+        | null;
+
+      if (!updateResponse.ok || !updateData?.product) {
+        throw new Error(updateData?.error ?? "Unable to save product image.");
+      }
+
       setEditForm((current) =>
         current ? { ...current, image: data.secure_url ?? "" } : current,
       );
+      setProducts((current) =>
+        current.map((product) =>
+          product.id === updateData.product!.id ? updateData.product! : product,
+        ),
+      );
+      setSuccessMessage("Product image updated successfully.");
     } catch (uploadError) {
       setError(
         uploadError instanceof Error

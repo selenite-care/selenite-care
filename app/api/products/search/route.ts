@@ -35,6 +35,7 @@ export async function GET(request: Request) {
       type: true,
       price: true,
       skinType: true,
+      image: true,
       stockStatus: true,
       stockNote: true,
     },
