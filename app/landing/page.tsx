@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { FormEvent, useEffect, useState } from "react";
 import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
+import InAppBrowserWarning from "@/components/ui/InAppBrowserWarning";
 import { FAQS } from "@/lib/faq";
 import {
   getMembershipAvailabilityLabel,
@@ -933,6 +934,7 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-[#F8F5F0] font-sans text-[#2B2B2B] dark:bg-[#141210] dark:text-[#F0EDE8]">
+      <InAppBrowserWarning />
       <style>{`
         html {
           scroll-behavior: smooth;
@@ -1139,6 +1141,12 @@ export default function LandingPage() {
                       {heroContent.secondaryButton}
                     </a>
                   </div>
+
+                  <p className="mt-4 text-xs leading-6 text-[#884F38] md:hidden dark:text-[#8A7D75]">
+                    {language === "en"
+                      ? '📱 Opening from Facebook or Instagram? Tap the ··· menu and select "Open in Browser" for Google Sign-In.'
+                      : 'ফেসবুক বা ইনস্টাগ্রাম থেকে খুলছেন? Google Sign-In এর জন্য ··· মেনু থেকে "Open in Browser" বেছে নিন।'}
+                  </p>
 
                   <div className="mt-8 grid grid-cols-2 gap-x-5 gap-y-4 lg:grid-cols-4 xl:grid-cols-2">
                     {heroContent.trustBadges.map((badge) => (
