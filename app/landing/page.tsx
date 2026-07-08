@@ -34,9 +34,9 @@ const CONTENT = {
     },
     hero: {
       badge: "PROFESSIONAL SKINCARE CONSULTATION",
-      heading: "Expert Skincare Guidance, Tailored For You",
+      heading: "51% OFF on Signature Membership",
       subtext:
-        "Certified aestheticians who analyze your skin and create your personalized care plan.",
+        "Skin Problems - Acne, Pigmentation, Dehydration, Sensitivity, Dullness. Get doctor consultation and customized skincare Day-Night routines.",
       primaryButton: "Get Membership Now",
       secondaryButton: "Call Us Now",
       trustBadges: [
@@ -250,9 +250,9 @@ const CONTENT = {
       badge:
         "\u09aa\u09c7\u09b6\u09be\u09a6\u09be\u09b0 \u09b8\u09cd\u0995\u09bf\u09a8\u0995\u09c7\u09df\u09be\u09b0 \u0995\u09a8\u09b8\u09be\u09b2\u099f\u09c7\u09b6\u09a8",
       heading:
-        "\u09ac\u09bf\u09b6\u09c7\u09b7\u099c\u09cd\u099e \u09aa\u09b0\u09be\u09ae\u09b0\u09cd\u09b6, \u0986\u09aa\u09a8\u09be\u09b0 \u09a4\u09cd\u09ac\u0995\u09c7\u09b0 \u099c\u09a8\u09cd\u09af",
+        "\u09b8\u09bf\u0997\u09a8\u09c7\u099a\u09be\u09b0 \u09ae\u09c7\u09ae\u09cd\u09ac\u09be\u09b0\u09b6\u09bf\u09aa\u09c7 \u09eb\u09e7% \u099b\u09be\u09dc",
       subtext:
-        "\u09b8\u09be\u09b0\u09cd\u099f\u09bf\u09ab\u09be\u0987\u09a1 \u098f\u09b8\u09cd\u09a5\u09c7\u099f\u09bf\u09b6\u09bf\u09df\u09be\u09a8 \u09af\u09be\u09b0\u09be \u0986\u09aa\u09a8\u09be\u09b0 \u09a4\u09cd\u09ac\u0995 \u09ac\u09bf\u09b6\u09cd\u09b2\u09c7\u09b7\u09a3 \u0995\u09b0\u09c7 \u09ac\u09cd\u09af\u0995\u09cd\u09a4\u09bf\u0997\u09a4 \u0995\u09c7\u09df\u09be\u09b0 \u09aa\u09cd\u09b2\u09cd\u09af\u09be\u09a8 \u09a4\u09c8\u09b0\u09bf \u0995\u09b0\u09c7\u09a8\u0964",
+        "ত্বকের সমস্যা - ব্রণ, পিগমেন্টেশন (দাগ বা ছোপ), আর্দ্রতার অভাব, সংবেদনশীলতা ও উজ্জ্বলতা হারানো। চিকিৎসকের পরামর্শ এবং আপনার ত্বকের ধরন অনুযায়ী বিশেষ স্কিনকেয়ার রুটিন (দিন ও রাতের জন্য) জেনে নিন।",
       primaryButton:
         "\u09ae\u09c7\u09ae\u09cd\u09ac\u09be\u09b0\u09b6\u09bf\u09aa \u09a8\u09bf\u09a8",
       secondaryButton:
@@ -537,7 +537,7 @@ const CONTENT = {
 } as const;
 
 const LANDING_VIDEO_URL =
-  "https://res.cloudinary.com/dwokjn6zk/video/upload/v1782807261/VID_20260630_140605_e6fx9c.mp4"; // PLACEHOLDER - replace with real video URL
+  "https://res.cloudinary.com/dwokjn6zk/video/upload/v1783502224/Untitled_design_6_cjca8z.mp4"; // PLACEHOLDER - replace with real video URL
 
 const LANDING_FAQ_TRANSLATIONS: Record<
   string,
@@ -763,6 +763,32 @@ export default function LandingPage() {
             "\u09aa\u09c7\u099c \u09a6\u09c7\u0996\u09c1\u09a8",
           mobileCall: "\u0995\u09b2",
           mobileWhatsApp: "WhatsApp",
+        };
+  const heroOfferLabels =
+    language === "en"
+      ? {
+          regular: "Regular price",
+          offered: "Offered price",
+        }
+      : {
+          regular:
+            "\u09b0\u09c7\u0997\u09c1\u09b2\u09be\u09b0 \u09aa\u09cd\u09b0\u09be\u0987\u09b8",
+          offered:
+            "\u0985\u09ab\u09be\u09b0 \u09aa\u09cd\u09b0\u09be\u0987\u09b8",
+        };
+  const heroCommunityContent =
+    language === "en"
+      ? {
+          label: "Client Community",
+          text: "Join our Facebook community",
+          button: "Join",
+        }
+      : {
+          label:
+            "\u0995\u09cd\u09b2\u09be\u09df\u09c7\u09a8\u09cd\u099f \u0995\u09ae\u09bf\u0989\u09a8\u09bf\u099f\u09bf",
+          text:
+            "\u0986\u09ae\u09be\u09a6\u09c7\u09b0 Facebook \u0995\u09ae\u09bf\u0989\u09a8\u09bf\u099f\u09bf\u09a4\u09c7 \u09af\u09cb\u0997 \u09a6\u09bf\u09a8",
+          button: "\u09af\u09cb\u0997 \u09a6\u09bf\u09a8",
         };
 
   useEffect(() => {
@@ -1098,16 +1124,46 @@ export default function LandingPage() {
         <section className="bg-[#F8F5F0] px-4 py-6 dark:bg-[#141210] sm:px-6 sm:py-8">
           <div className="mx-auto max-w-7xl rounded-[32px] border border-[#EADDCD] bg-[radial-gradient(circle_at_top_right,_rgba(198,165,107,0.16),_transparent_35%),linear-gradient(180deg,#F3EEE6_0%,#ECF1E6_100%)] p-4 shadow-[0_24px_70px_rgba(43,43,43,0.10)] dark:border-[#3D3530] dark:bg-[radial-gradient(circle_at_top_right,_rgba(198,165,107,0.12),_transparent_30%),linear-gradient(180deg,#171411_0%,#1C1916_100%)] sm:p-5 lg:p-6">
             <div className="grid items-center gap-8 lg:grid-cols-[1fr_1fr]">
-              <div className="relative h-[280px] overflow-hidden rounded-[24px] border-2 border-white/80 bg-[#E6D8C8] shadow-[0_16px_50px_rgba(43,43,43,0.12)] dark:border-[#F0EDE8]/10 sm:h-[360px] lg:h-[440px] xl:h-auto xl:min-h-[520px]">
-                <Image
-                  src="https://res.cloudinary.com/dwokjn6zk/image/upload/v1782471237/WhatsApp_Image_2026-06-26_at_4.52.20_PM_paxatd.jpg"
-                  alt="Selenite Care online skincare consultation"
-                  fill
-                  priority
-                  className="object-cover"
-                  sizes="(max-width: 1280px) 100vw, 55vw"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[rgba(43,43,43,0.10)] to-transparent" />
+              <div className="space-y-3">
+                <div className="relative h-[280px] overflow-hidden rounded-[24px] border-2 border-white/80 bg-[#E6D8C8] shadow-[0_16px_50px_rgba(43,43,43,0.12)] dark:border-[#F0EDE8]/10 sm:h-[360px] lg:h-[440px] xl:h-auto xl:min-h-[520px]">
+                  <Image
+                    src="https://res.cloudinary.com/dwokjn6zk/image/upload/v1782471237/WhatsApp_Image_2026-06-26_at_4.52.20_PM_paxatd.jpg"
+                    alt="Selenite Care online skincare consultation"
+                    fill
+                    priority
+                    className="object-cover"
+                    sizes="(max-width: 1280px) 100vw, 55vw"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[rgba(43,43,43,0.10)] to-transparent" />
+                </div>
+
+                <a
+                  href="https://www.facebook.com/groups/1487525968606577/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-between gap-3 rounded-2xl border border-[#EADDCD] bg-white/70 px-4 py-3 shadow-[0_10px_28px_rgba(43,43,43,0.08)] transition-colors hover:bg-white dark:border-[#3D3530] dark:bg-white/[0.05] dark:hover:bg-white/[0.08]"
+                >
+                  <span className="min-w-0">
+                    <span className="block text-[10px] font-semibold uppercase tracking-[0.18em] text-[#B87B68] dark:text-[#D4B47A]">
+                      {heroCommunityContent.label}
+                    </span>
+                    <span className="mt-1 block truncate text-sm font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]">
+                      {heroCommunityContent.text}
+                    </span>
+                  </span>
+                  <span className="inline-flex h-9 shrink-0 items-center justify-center gap-2 rounded-md bg-[#1877F2] px-3 text-xs font-semibold text-white transition-colors hover:bg-[#1666D8]">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      className="h-4 w-4"
+                      fill="currentColor"
+                      aria-hidden="true"
+                    >
+                      <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+                    </svg>
+                    {heroCommunityContent.button}
+                  </span>
+                </a>
               </div>
 
               <div className="flex items-center rounded-[24px] bg-white/55 px-1 py-2 dark:bg-white/[0.03] sm:px-3 lg:px-4">
@@ -1117,11 +1173,28 @@ export default function LandingPage() {
                   </span>
 
                   <h1
-                    className="mt-4 max-w-xl text-3xl font-semibold leading-[1.08] text-[#2B2B2B] dark:text-[#F0EDE8] sm:text-4xl lg:text-5xl"
+                    className="mt-4 max-w-2xl text-3xl font-semibold leading-[1.08] text-[#2B2B2B] dark:text-[#F0EDE8] sm:text-4xl lg:text-5xl"
                     style={{ fontFamily: "Playfair Display, serif" }}
                   >
-                    {heroContent.heading}
+                    <span className="block">{heroContent.heading}</span>
+                    <span className="mt-5 flex flex-wrap items-center gap-x-3 gap-y-2 text-lg font-semibold leading-tight sm:text-2xl">
+                      <span className="text-sm uppercase tracking-[0.12em] text-[#884F38] dark:text-[#8A7D75] sm:text-base">
+                        {heroOfferLabels.regular}
+                      </span>
+                      <span className="text-2xl font-bold text-red-600 line-through decoration-red-600 decoration-2 dark:text-red-400 sm:text-3xl">
+                        990/-
+                      </span>
+                    </span>
+                    <span className="mt-3 inline-flex max-w-full flex-wrap items-center gap-x-3 gap-y-2 rounded-2xl border border-[#B87B68]/40 bg-[#B87B68]/12 px-4 py-3 shadow-[0_14px_32px_rgba(184,123,104,0.14)] dark:bg-[#B87B68]/15">
+                      <span className="text-sm font-bold uppercase tracking-[0.12em] text-[#884F38] dark:text-[#D4B47A] sm:text-base">
+                        {heroOfferLabels.offered}
+                      </span>
+                      <span className="text-4xl font-black leading-none text-[#B87B68] sm:text-5xl lg:text-6xl">
+                        490/-
+                      </span>
+                    </span>
                   </h1>
+                  <p className="mt-5 max-w-lg leading-8 text-[red] dark:text-[#9B8E84]">valid till 20-July-2026</p>
 
                   <p className="mt-5 max-w-lg text-base leading-8 text-[#7D7066] dark:text-[#9B8E84]">
                     {heroContent.subtext}
@@ -1462,6 +1535,12 @@ export default function LandingPage() {
                     <h3 className="mt-4 text-base font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]">
                       {doctor.name}
                     </h3>
+                    {doctor.name.toLowerCase().includes("safna mehreen") ? (
+                      <p className="mx-auto mt-2 max-w-[220px] text-xs leading-5 text-[#6E6257] dark:text-[#8A7D75]">
+                        MBBS (USTC) . BMSC - A122320 . Aesthetic Experience 1
+                        yrs . Aesthetic Ltd, Dhanmondi
+                      </p>
+                    ) : null}
                     <p className="mt-2 text-sm text-[#884F38] dark:text-[#8A7D75]">
                       {doctor.designation}
                     </p>
