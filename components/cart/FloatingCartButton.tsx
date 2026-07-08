@@ -156,18 +156,12 @@ export default function FloatingCartButton() {
                   {formatBdt(totalAmount)}
                 </span>
               </div>
-              <div className="mt-4 grid grid-cols-2 gap-3">
-                <Link
-                  href="/cart"
-                  className="inline-flex h-11 items-center justify-center rounded-md border border-[#EADDCD] bg-white px-4 text-sm font-semibold text-[#2B2B2B] transition-colors hover:bg-[#F8F5F0] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#F0EDE8]"
-                >
-                  View Cart
-                </Link>
+              <div className="mt-4 grid grid-cols-1 gap-3">
                 <Link
                   href="/cart"
                   className="inline-flex h-11 items-center justify-center rounded-md bg-[#2B2B2B] px-4 text-sm font-semibold text-[#F8F5F0] transition-colors hover:bg-[#884F38] dark:bg-[#B87B68] dark:text-[#141210]"
                 >
-                  Checkout
+                  View Cart in Details
                 </Link>
               </div>
             </div>
