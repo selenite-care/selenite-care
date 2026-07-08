@@ -12,6 +12,17 @@ import { useCart } from "@/components/cart/CartProvider";
 import FileUploadButton from "@/components/ui/FileUploadButton";
 
 type PaymentTab = "BKASH" | "BANK_TRANSFER" | "CASH";
+type DeliveryArea = "INSIDE_DHAKA" | "SUB_DHAKA" | "OUTSIDE_DHAKA";
+
+const DELIVERY_OPTIONS: Array<{
+  value: DeliveryArea;
+  label: string;
+  charge: number;
+}> = [
+  { value: "INSIDE_DHAKA", label: "Inside Dhaka", charge: 80 },
+  { value: "SUB_DHAKA", label: "Sub Dhaka", charge: 100 },
+  { value: "OUTSIDE_DHAKA", label: "Outside Dhaka", charge: 150 },
+];
 
 type CreateOrderResponse = {
   orderId?: string;
@@ -33,6 +44,7 @@ export default function CartPage() {
   const [transactionRef, setTransactionRef] = useState("");
   const [senderNumber, setSenderNumber] = useState("");
   const [proofImageUrl, setProofImageUrl] = useState("");
+  const [deliveryArea, setDeliveryArea] = useState<DeliveryArea>("INSIDE_DHAKA");
   const [deliveryAddress, setDeliveryAddress] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploadingProof, setIsUploadingProof] = useState(false);
@@ -43,6 +55,13 @@ export default function CartPage() {
     () => paymentMethod === "BKASH" || paymentMethod === "BANK_TRANSFER",
     [paymentMethod],
   );
+  const deliveryCharge = useMemo(
+    () =>
+      DELIVERY_OPTIONS.find((option) => option.value === deliveryArea)?.charge ??
+      80,
+    [deliveryArea],
+  );
+  const orderTotal = totalAmount + deliveryCharge;
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -131,7 +150,7 @@ export default function CartPage() {
       return;
     }
 
-    if (paymentMethod === "CASH" && !deliveryAddress.trim()) {
+    if (!deliveryAddress.trim()) {
       setError("Please enter your delivery address.");
       return;
     }
@@ -153,7 +172,9 @@ export default function CartPage() {
           transactionRef: transactionRef.trim(),
           senderNumber: paymentMethod === "BKASH" ? senderNumber : "",
           proofImageUrl: proofImageUrl.trim(),
-          deliveryAddress: paymentMethod === "CASH" ? deliveryAddress.trim() : "",
+          deliveryArea,
+          deliveryCharge,
+          deliveryAddress: deliveryAddress.trim(),
         }),
       });
 
@@ -299,6 +320,90 @@ export default function CartPage() {
                 onSubmit={handleSubmit}
                 className="rounded-2xl border border-[#EADDCD] bg-white p-6 dark:border-[#3D3530] dark:bg-[#242220]"
               >
+                <section className="mb-6 rounded-2xl border border-[#EADDCD] bg-[#FCFAF7] p-5 dark:border-[#3D3530] dark:bg-[#1A1814]">
+                  <h2
+                    className="text-2xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]"
+                    style={{ fontFamily: "Playfair Display, serif" }}
+                  >
+                    Delivery Information
+                  </h2>
+
+                  <div className="mt-5 grid gap-3 sm:grid-cols-3">
+                    {DELIVERY_OPTIONS.map((option) => (
+                      <label
+                        key={option.value}
+                        className={`flex cursor-pointer items-start gap-3 rounded-xl border bg-white p-4 transition-colors dark:bg-[#242220] ${
+                          deliveryArea === option.value
+                            ? "border-[#B87B68] ring-1 ring-[#B87B68]"
+                            : "border-[#EADDCD] hover:border-[#B87B68]/70 dark:border-[#3D3530]"
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="deliveryArea"
+                          value={option.value}
+                          checked={deliveryArea === option.value}
+                          onChange={() => setDeliveryArea(option.value)}
+                          className="mt-1 h-4 w-4 accent-[#B87B68]"
+                        />
+                        <span>
+                          <span className="block text-sm font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]">
+                            {option.label}
+                          </span>
+                          <span className="mt-1 block text-sm font-medium text-[#B87B68]">
+                            {formatBdt(option.charge)}
+                          </span>
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+
+                  <div className="mt-5">
+                    <label className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
+                      Delivery Address
+                    </label>
+                    <textarea
+                      value={deliveryAddress}
+                      onChange={(event) => setDeliveryAddress(event.target.value)}
+                      rows={4}
+                      required
+                      className="mt-2 w-full rounded-md border border-[#EADDCD] bg-white px-3 py-3 text-sm text-[#2B2B2B] outline-none focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
+                      placeholder="Enter your full delivery address"
+                    />
+                  </div>
+
+                  <div className="mt-5 rounded-xl border border-[#B87B68] bg-white p-4 dark:bg-[#242220]">
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between gap-4">
+                        <span className="text-sm text-[#6E6257] dark:text-[#8A7D75]">
+                          Subtotal
+                        </span>
+                        <span className="text-sm font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]">
+                          {formatBdt(totalAmount)}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between gap-4">
+                        <span className="text-sm text-[#6E6257] dark:text-[#8A7D75]">
+                          Delivery Charge
+                        </span>
+                        <span className="text-sm font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]">
+                          {formatBdt(deliveryCharge)}
+                        </span>
+                      </div>
+                      <div className="border-t border-[#EADDCD] pt-3 dark:border-[#3D3530]">
+                        <div className="flex items-center justify-between gap-4">
+                          <span className="text-base font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]">
+                            Total
+                          </span>
+                          <span className="text-xl font-bold text-[#B87B68]">
+                            {formatBdt(orderTotal)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+
                 <div className="flex flex-wrap gap-2 rounded-2xl border border-[#EADDCD] bg-[#FCFAF7] p-1 dark:border-[#3D3530] dark:bg-[#1A1814]">
                   {[
                     { value: "BKASH" as const, label: "bKash" },
@@ -455,22 +560,9 @@ export default function CartPage() {
                   <div className="mt-6 space-y-5">
                     <div className="rounded-2xl border border-[#EADDCD] bg-[#FCFAF7] px-5 py-5 dark:border-[#3D3530] dark:bg-[#1A1814]">
                       <p className="text-sm leading-7 text-[#6E6257] dark:text-[#8A7D75]">
-                        Pay when your order is delivered. Available for Dhaka
-                        delivery only.
+                        Pay when your order is delivered. Delivery charge is based
+                        on the area selected above.
                       </p>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
-                        Delivery Address
-                      </label>
-                      <textarea
-                        value={deliveryAddress}
-                        onChange={(event) => setDeliveryAddress(event.target.value)}
-                        rows={4}
-                        className="mt-2 w-full rounded-md border border-[#EADDCD] bg-white px-3 py-3 text-sm text-[#2B2B2B] outline-none focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
-                        placeholder="Enter your full delivery address"
-                      />
                     </div>
                   </div>
                 ) : null}
@@ -557,12 +649,31 @@ export default function CartPage() {
               </div>
 
               <div className="mt-6 border-t border-[#EADDCD] pt-5 dark:border-[#3D3530]">
-                <div className="flex items-center justify-between">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-[#8C7967] dark:text-[#8A7D75]">
+                      Subtotal
+                    </span>
+                    <span className="text-sm font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]">
+                      {formatBdt(totalAmount)}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-[#8C7967] dark:text-[#8A7D75]">
+                      Delivery Charge
+                    </span>
+                    <span className="text-sm font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]">
+                      {formatBdt(deliveryCharge)}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="mt-4 flex items-center justify-between border-t border-[#EADDCD] pt-4 dark:border-[#3D3530]">
                   <span className="text-sm text-[#8C7967] dark:text-[#8A7D75]">
                     Total
                   </span>
                   <span className="text-xl font-semibold text-[#B87B68]">
-                    {formatBdt(totalAmount)}
+                    {formatBdt(orderTotal)}
                   </span>
                 </div>
               </div>

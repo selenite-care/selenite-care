@@ -250,6 +250,10 @@ model Order {
   items          OrderItem[]
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
+  deliveryArea      DeliveryArea @default(INSIDE_DHAKA)
+  deliveryCharge    Float        @default(80)
+  deliveryAddress   String?
+  estimatedDelivery String?
 
   @@index([createdAt(sort: Desc)])
   @@index([status])
@@ -417,6 +421,12 @@ enum OrderStatus {
   SHIPPED
   DELIVERED
   CANCELLED
+}
+
+enum DeliveryArea {
+  INSIDE_DHAKA
+  SUB_DHAKA
+  OUTSIDE_DHAKA
 }
 
 enum BlogPostStatus {

@@ -35,11 +35,23 @@ function parsePositiveInt(value: string | null, fallback: number) {
   return parsed;
 }
 
+function parseIdList(value: string | null) {
+  if (!value) {
+    return [];
+  }
+
+  return value
+    .split(",")
+    .map((id) => id.trim())
+    .filter(Boolean);
+}
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const query = searchParams.get("q")?.trim() ?? "";
   const type = searchParams.get("type")?.trim() ?? "";
   const stockStatus = parseStockStatus(searchParams.get("stockStatus"));
+  const recommendedIds = parseIdList(searchParams.get("recommendedIds"));
   const page = parsePositiveInt(
     searchParams.get("page"),
     DEFAULT_PAGE,
@@ -77,6 +89,12 @@ export async function GET(request: Request) {
 
   if (stockStatus) {
     where.stockStatus = stockStatus;
+  }
+
+  if (recommendedIds.length > 0) {
+    where.id = {
+      in: recommendedIds,
+    };
   }
 
   const [totalCount, types] = await Promise.all([

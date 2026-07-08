@@ -15,8 +15,8 @@ const dashboardLinks = [
   { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
   { href: "/dashboard/bookings", label: "Bookings", icon: CalendarCheck },
   { href: "/dashboard/payments", label: "Payments", icon: CreditCard },
-  { href: "/dashboard/orders", label: "My Orders", icon: Package },
-  { href: "/dashboard/survey", label: "My Skin Profile", icon: ScanFace },
+  { href: "/dashboard/orders", label: "Orders", icon: Package },
+  { href: "/dashboard/survey", label: "Skin Profile", icon: ScanFace },
   { href: "/dashboard/profile", label: "Profile", icon: UserRound },
 ];
 

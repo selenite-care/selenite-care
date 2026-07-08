@@ -15,6 +15,7 @@ type RouteContext = {
 
 type OrderPatchPayload = {
   status?: unknown;
+  estimatedDelivery?: unknown;
 };
 
 const ORDER_STATUSES: OrderStatus[] = [
@@ -96,6 +97,10 @@ export async function GET(_request: Request, context: RouteContext) {
       totalAmount: true,
       paymentMethod: true,
       status: true,
+      deliveryArea: true,
+      deliveryCharge: true,
+      deliveryAddress: true,
+      estimatedDelivery: true,
       transactionRef: true,
       proofImageUrl: true,
       note: true,
@@ -148,19 +153,40 @@ export async function PATCH(request: Request, context: RouteContext) {
   const body = (await request.json().catch(() => ({}))) as OrderPatchPayload;
   const rawStatus =
     typeof body.status === "string" ? body.status.trim().toUpperCase() : "";
+  const hasStatusUpdate = typeof body.status === "string";
+  const hasEstimatedDeliveryUpdate =
+    typeof body.estimatedDelivery === "string";
+  const estimatedDelivery = hasEstimatedDeliveryUpdate
+    ? String(body.estimatedDelivery).trim()
+    : undefined;
 
-  if (!ORDER_STATUSES.includes(rawStatus as OrderStatus)) {
+  if (
+    hasStatusUpdate &&
+    !ORDER_STATUSES.includes(rawStatus as OrderStatus)
+  ) {
     return Response.json({ error: "Invalid order status." }, { status: 400 });
+  }
+
+  if (!hasStatusUpdate && !hasEstimatedDeliveryUpdate) {
+    return Response.json(
+      { error: "No valid order update was provided." },
+      { status: 400 },
+    );
   }
 
   const order = await db.order.update({
     where: { id },
     data: {
-      status: rawStatus as OrderStatus,
+      ...(hasStatusUpdate ? { status: rawStatus as OrderStatus } : {}),
+      ...(hasEstimatedDeliveryUpdate
+        ? { estimatedDelivery: estimatedDelivery || null }
+        : {}),
     },
     select: {
       id: true,
       status: true,
+      estimatedDelivery: true,
+      deliveryAddress: true,
       user: {
         select: {
           id: true,
@@ -171,7 +197,25 @@ export async function PATCH(request: Request, context: RouteContext) {
     },
   });
 
-  const notificationCopy = ORDER_NOTIFICATION_COPY[order.status];
+  if (hasEstimatedDeliveryUpdate && estimatedDelivery) {
+    try {
+      await createNotification(
+        order.user.id,
+        "Delivery Update",
+        `Your order will be delivered in ${estimatedDelivery}. Delivery address: ${
+          order.deliveryAddress || "Not provided"
+        }.`,
+        NOTIFICATION_TYPES.ORDER,
+        `/dashboard/orders/${order.id}`,
+      );
+    } catch (notificationError) {
+      console.error("Failed to create delivery update notification", notificationError);
+    }
+  }
+
+  const notificationCopy = hasStatusUpdate
+    ? ORDER_NOTIFICATION_COPY[order.status]
+    : undefined;
 
   if (notificationCopy) {
     try {
@@ -187,7 +231,10 @@ export async function PATCH(request: Request, context: RouteContext) {
     }
   }
 
-  if (order.status === "SHIPPED" || order.status === "DELIVERED") {
+  if (
+    hasStatusUpdate &&
+    (order.status === "SHIPPED" || order.status === "DELIVERED")
+  ) {
     try {
       const title =
         order.status === "SHIPPED" ? "Your Order Has Shipped" : "Your Order Was Delivered";
