@@ -356,7 +356,7 @@ function NavbarContent() {
             className="h-4 w-px"
           />
 
-          {/* <CartIcon className="inline-flex items-center justify-center text-[#B87B68] transition-opacity duration-200 hover:opacity-80" /> */}
+          <CartIcon className="inline-flex items-center justify-center text-[#B87B68] transition-opacity duration-200 hover:opacity-80" />
 
           {renderThemeToggle("inline-flex items-center justify-center")}
 

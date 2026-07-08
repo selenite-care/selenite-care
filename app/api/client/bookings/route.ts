@@ -26,6 +26,15 @@ export async function GET() {
           designation: true,
         },
       },
+      diagnosis: {
+        select: {
+          recommendations: {
+            select: {
+              productId: true,
+            },
+          },
+        },
+      },
     },
   });
 

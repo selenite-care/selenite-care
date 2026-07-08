@@ -2,7 +2,7 @@ import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
 import { createNotification, NOTIFICATION_TYPES } from "@/lib/notifications";
-import type { PaymentMethod, StockStatus } from "@prisma/client";
+import type { DeliveryArea, PaymentMethod, StockStatus } from "@prisma/client";
 
 export const runtime = "nodejs";
 
@@ -18,7 +18,15 @@ type CreateOrderPayload = {
   senderNumber?: unknown;
   proofImageUrl?: unknown;
   note?: unknown;
+  deliveryArea?: unknown;
+  deliveryCharge?: unknown;
   deliveryAddress?: unknown;
+};
+
+const DELIVERY_CHARGES: Record<DeliveryArea, number> = {
+  INSIDE_DHAKA: 80,
+  SUB_DHAKA: 100,
+  OUTSIDE_DHAKA: 150,
 };
 
 function parsePaymentMethod(value: unknown): PaymentMethod | null {
@@ -64,15 +72,48 @@ function normalizeItems(value: unknown): Array<{ productId: string; quantity: nu
     .filter((item) => item.productId && Number.isFinite(item.quantity));
 }
 
+function parseDeliveryArea(value: unknown): DeliveryArea {
+  if (typeof value !== "string") {
+    return "INSIDE_DHAKA";
+  }
+
+  const normalized = value.trim().toUpperCase();
+
+  if (
+    normalized === "INSIDE_DHAKA" ||
+    normalized === "SUB_DHAKA" ||
+    normalized === "OUTSIDE_DHAKA"
+  ) {
+    return normalized;
+  }
+
+  return "INSIDE_DHAKA";
+}
+
+function getDeliveryAreaLabel(deliveryArea: DeliveryArea) {
+  switch (deliveryArea) {
+    case "INSIDE_DHAKA":
+      return "Inside Dhaka";
+    case "SUB_DHAKA":
+      return "Sub Dhaka";
+    case "OUTSIDE_DHAKA":
+      return "Outside Dhaka";
+    default:
+      return deliveryArea;
+  }
+}
+
 function buildOrderNote({
   customNote,
   paymentMethod,
   senderNumber,
+  deliveryArea,
   deliveryAddress,
 }: {
   customNote: string;
   paymentMethod: PaymentMethod;
   senderNumber: string;
+  deliveryArea: DeliveryArea;
   deliveryAddress: string;
 }) {
   const parts: string[] = [];
@@ -85,7 +126,8 @@ function buildOrderNote({
     parts.push(`Sender: ${senderNumber}`);
   }
 
-  if (paymentMethod === "CASH" && deliveryAddress) {
+  if (deliveryAddress) {
+    parts.push(`Delivery Area: ${getDeliveryAreaLabel(deliveryArea)}`);
     parts.push(`Delivery Address: ${deliveryAddress}`);
   }
 
@@ -109,6 +151,8 @@ export async function POST(request: Request) {
   const proofImageUrl =
     typeof body.proofImageUrl === "string" ? body.proofImageUrl.trim() : "";
   const customNote = typeof body.note === "string" ? body.note.trim() : "";
+  const deliveryArea = parseDeliveryArea(body.deliveryArea);
+  const deliveryCharge = DELIVERY_CHARGES[deliveryArea];
   const deliveryAddress =
     typeof body.deliveryAddress === "string" ? body.deliveryAddress.trim() : "";
 
@@ -155,9 +199,9 @@ export async function POST(request: Request) {
     );
   }
 
-  if (paymentMethod === "CASH" && !deliveryAddress) {
+  if (!deliveryAddress) {
     return Response.json(
-      { error: "Please enter your delivery address for cash on delivery." },
+      { error: "Please enter your delivery address." },
       { status: 400 },
     );
   }
@@ -198,15 +242,17 @@ export async function POST(request: Request) {
     );
   }
 
-  const totalAmount = items.reduce((sum, item) => {
+  const subtotalAmount = items.reduce((sum, item) => {
     const product = productMap.get(item.productId);
     return sum + (product?.price ?? 0) * item.quantity;
   }, 0);
+  const totalAmount = subtotalAmount + deliveryCharge;
 
   const note = buildOrderNote({
     customNote,
     paymentMethod,
     senderNumber,
+    deliveryArea,
     deliveryAddress,
   });
 
@@ -234,6 +280,9 @@ export async function POST(request: Request) {
       transactionRef: transactionRef || null,
       proofImageUrl: proofImageUrl || null,
       note,
+      deliveryArea,
+      deliveryCharge,
+      deliveryAddress,
       items: {
         create: items.map((item) => {
           const product = productMap.get(item.productId)!;
@@ -314,6 +363,22 @@ export async function POST(request: Request) {
                 <tr>
                   <td style="padding: 10px 0; border-bottom: 1px solid #EEE0D0; color: #6E6257;">Transaction Reference</td>
                   <td style="padding: 10px 0; border-bottom: 1px solid #EEE0D0;">${transactionRef || "Not provided"}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 10px 0; border-bottom: 1px solid #EEE0D0; color: #6E6257;">Delivery Area</td>
+                  <td style="padding: 10px 0; border-bottom: 1px solid #EEE0D0;">${getDeliveryAreaLabel(deliveryArea)}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 10px 0; border-bottom: 1px solid #EEE0D0; color: #6E6257;">Delivery Address</td>
+                  <td style="padding: 10px 0; border-bottom: 1px solid #EEE0D0;">${deliveryAddress}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 10px 0; border-bottom: 1px solid #EEE0D0; color: #6E6257;">Products Subtotal</td>
+                  <td style="padding: 10px 0; border-bottom: 1px solid #EEE0D0;">${Math.round(subtotalAmount)} BDT</td>
+                </tr>
+                <tr>
+                  <td style="padding: 10px 0; border-bottom: 1px solid #EEE0D0; color: #6E6257;">Delivery Charge</td>
+                  <td style="padding: 10px 0; border-bottom: 1px solid #EEE0D0;">${Math.round(deliveryCharge)} BDT</td>
                 </tr>
                 <tr>
                   <td style="padding: 10px 0; border-bottom: 1px solid #EEE0D0; color: #6E6257;">Total Amount</td>

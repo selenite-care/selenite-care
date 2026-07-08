@@ -13,6 +13,10 @@ type AdminOrder = {
   createdAt: string;
   totalAmount: number;
   paymentMethod: "BKASH" | "BANK_TRANSFER" | "CASH" | "STRIPE";
+  deliveryArea: "INSIDE_DHAKA" | "SUB_DHAKA" | "OUTSIDE_DHAKA";
+  deliveryAddress: string | null;
+  deliveryCharge: number;
+  estimatedDelivery: string | null;
   status:
     | "PENDING"
     | "VERIFIED"
@@ -92,6 +96,32 @@ function getPaymentMethodLabel(paymentMethod: AdminOrder["paymentMethod"]) {
       return "Card";
     default:
       return paymentMethod;
+  }
+}
+
+function getDeliveryAreaLabel(deliveryArea: AdminOrder["deliveryArea"]) {
+  switch (deliveryArea) {
+    case "INSIDE_DHAKA":
+      return "Inside Dhaka";
+    case "SUB_DHAKA":
+      return "Sub Dhaka";
+    case "OUTSIDE_DHAKA":
+      return "Outside Dhaka";
+    default:
+      return deliveryArea;
+  }
+}
+
+function getDeliveryAreaBadgeClasses(deliveryArea: AdminOrder["deliveryArea"]) {
+  switch (deliveryArea) {
+    case "INSIDE_DHAKA":
+      return "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-900/50 dark:bg-blue-950/20 dark:text-blue-300";
+    case "SUB_DHAKA":
+      return "border-green-200 bg-green-50 text-green-700 dark:border-green-900/50 dark:bg-green-950/20 dark:text-green-300";
+    case "OUTSIDE_DHAKA":
+      return "border-orange-200 bg-orange-50 text-orange-700 dark:border-orange-900/50 dark:bg-orange-950/20 dark:text-orange-300";
+    default:
+      return "border-black/10 bg-zinc-50 text-foreground/70 dark:border-white/10 dark:bg-white/5";
   }
 }
 
@@ -210,6 +240,9 @@ export default function AdminOrdersPage() {
         "Client Phone": order.user.phone ?? "",
         "Client Email": order.user.email,
         "Items Count": order._count.items,
+        "Delivery Area": getDeliveryAreaLabel(order.deliveryArea),
+        "Delivery Address": order.deliveryAddress ?? "",
+        "Estimated Delivery": order.estimatedDelivery ?? "",
         "Total Amount": formatBdt(order.totalAmount),
         "Payment Method": getPaymentMethodLabel(order.paymentMethod),
         "Transaction Reference": order.transactionRef ?? "",
@@ -246,7 +279,7 @@ export default function AdminOrdersPage() {
 
       {isLoading ? (
         <div className="mt-8">
-          <SkeletonTable rows={8} cols={10} />
+          <SkeletonTable rows={8} cols={11} />
         </div>
       ) : null}
 
@@ -312,13 +345,14 @@ export default function AdminOrdersPage() {
 
           <div className="mt-6 overflow-hidden rounded-lg border border-themed bg-card">
             <div className="overflow-x-auto">
-              <table className="table-themed w-full min-w-[1320px] text-left text-sm">
+              <table className="table-themed w-full min-w-[1460px] text-left text-sm">
                 <thead>
                   <tr>
                     <th className="px-4 py-3 font-medium">Order ID</th>
                     <th className="px-4 py-3 font-medium">Client Name</th>
                     <th className="px-4 py-3 font-medium">Client Phone</th>
                     <th className="px-4 py-3 font-medium">Items</th>
+                    <th className="px-4 py-3 font-medium">Delivery Area</th>
                     <th className="px-4 py-3 font-medium">Total Amount</th>
                     <th className="px-4 py-3 font-medium">Payment Method</th>
                     <th className="px-4 py-3 font-medium">Proof</th>
@@ -330,7 +364,7 @@ export default function AdminOrdersPage() {
                 <tbody>
                   {orders.length === 0 ? (
                     <tr>
-                      <td colSpan={10} className="cell-muted px-4 py-8 text-center text-sm">
+                      <td colSpan={11} className="cell-muted px-4 py-8 text-center text-sm">
                         No orders match the current filters.
                       </td>
                     </tr>
@@ -348,6 +382,15 @@ export default function AdminOrdersPage() {
                         </td>
                         <td className="cell-muted px-4 py-4">
                           {order._count.items}
+                        </td>
+                        <td className="px-4 py-4">
+                          <span
+                            className={`inline-flex rounded-full border px-3 py-1 text-xs font-medium ${getDeliveryAreaBadgeClasses(
+                              order.deliveryArea,
+                            )}`}
+                          >
+                            {getDeliveryAreaLabel(order.deliveryArea)}
+                          </span>
                         </td>
                         <td className="cell-muted px-4 py-4">
                           {formatBdt(order.totalAmount)}

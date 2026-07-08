@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
+import EstimatedDeliveryForm from "./EstimatedDeliveryForm";
 
 type AdminOrderDetailsPageProps = {
   params: Promise<{
@@ -47,6 +48,19 @@ function getPaymentMethodLabel(paymentMethod: string) {
   }
 }
 
+function getDeliveryAreaLabel(deliveryArea: string) {
+  switch (deliveryArea) {
+    case "INSIDE_DHAKA":
+      return "Inside Dhaka";
+    case "SUB_DHAKA":
+      return "Sub Dhaka";
+    case "OUTSIDE_DHAKA":
+      return "Outside Dhaka";
+    default:
+      return deliveryArea;
+  }
+}
+
 export default async function AdminOrderDetailsPage(
   props: AdminOrderDetailsPageProps,
 ) {
@@ -66,6 +80,10 @@ export default async function AdminOrderDetailsPage(
       totalAmount: true,
       paymentMethod: true,
       status: true,
+      deliveryArea: true,
+      deliveryCharge: true,
+      deliveryAddress: true,
+      estimatedDelivery: true,
       transactionRef: true,
       proofImageUrl: true,
       note: true,
@@ -180,6 +198,27 @@ export default async function AdminOrderDetailsPage(
               <p className="text-muted font-medium">Payment Method</p>
               <p className="text-page mt-1">{getPaymentMethodLabel(order.paymentMethod)}</p>
             </div>
+            <div className="rounded-lg border border-[#EADDCD] bg-[#FCFAF7] p-4 dark:border-[#3D3530] dark:bg-[#1A1814]">
+              <p className="text-page font-semibold">Delivery Info</p>
+              <div className="mt-3 space-y-3">
+                <div>
+                  <p className="text-muted font-medium">Delivery Area</p>
+                  <p className="text-page mt-1">
+                    {getDeliveryAreaLabel(order.deliveryArea)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-muted font-medium">Delivery Address</p>
+                  <p className="text-page mt-1 whitespace-pre-wrap">
+                    {order.deliveryAddress || "Not provided"}
+                  </p>
+                </div>
+                <EstimatedDeliveryForm
+                  orderId={order.id}
+                  initialValue={order.estimatedDelivery}
+                />
+              </div>
+            </div>
             <div>
               <p className="text-muted font-medium">Status</p>
               <span
@@ -202,6 +241,12 @@ export default async function AdminOrderDetailsPage(
                 <p className="text-page mt-1 whitespace-pre-wrap">{order.note}</p>
               </div>
             ) : null}
+            <div className="border-themed border-t pt-4">
+              <p className="text-muted font-medium">Delivery Charge</p>
+              <p className="text-page mt-1 font-semibold">
+                {formatBdt(order.deliveryCharge)}
+              </p>
+            </div>
             <div className="border-themed border-t pt-4">
               <p className="text-muted font-medium">Total Amount</p>
               <p className="mt-1 text-xl font-semibold text-[#B87B68]">

@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { MessageCircle } from "lucide-react";
+import { MessageCircle, Package } from "lucide-react";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { formatDateTime } from "@/lib/dateUtils";
@@ -32,6 +32,47 @@ function getPaymentMethodLabel(paymentMethod: string) {
     default:
       return paymentMethod;
   }
+}
+
+function getDeliveryAreaLabel(deliveryArea: string) {
+  switch (deliveryArea) {
+    case "INSIDE_DHAKA":
+      return "Inside Dhaka";
+    case "SUB_DHAKA":
+      return "Sub Dhaka";
+    case "OUTSIDE_DHAKA":
+      return "Outside Dhaka";
+    default:
+      return deliveryArea;
+  }
+}
+
+function ProductImage({
+  image,
+  name,
+}: {
+  image: string | null;
+  name: string;
+}) {
+  if (image) {
+    return (
+      <div className="relative h-[50px] w-[50px] shrink-0 overflow-hidden rounded-md border border-[#EADDCD] bg-[#F8F5F0] dark:border-[#3D3530] dark:bg-[#1A1814]">
+        <Image
+          src={image}
+          alt={name}
+          fill
+          sizes="50px"
+          className="object-cover"
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex h-[50px] w-[50px] shrink-0 items-center justify-center rounded-md border border-[#EADDCD] bg-[#F8F5F0] dark:border-[#3D3530] dark:bg-[#1A1814]">
+      <Package className="h-5 w-5 text-[#884F38] dark:text-[#8A7D75]" />
+    </div>
+  );
 }
 
 function getStepClasses(status: string, step: string) {
@@ -77,6 +118,10 @@ export default async function DashboardOrderDetailsPage(
       totalAmount: true,
       paymentMethod: true,
       status: true,
+      deliveryArea: true,
+      deliveryCharge: true,
+      deliveryAddress: true,
+      estimatedDelivery: true,
       transactionRef: true,
       proofImageUrl: true,
       note: true,
@@ -91,6 +136,7 @@ export default async function DashboardOrderDetailsPage(
               name: true,
               type: true,
               image: true,
+              stockStatus: true,
             },
           },
         },
@@ -112,6 +158,7 @@ export default async function DashboardOrderDetailsPage(
     type: item.product.type,
     price: item.price,
     quantity: item.quantity,
+    stockStatus: item.product.stockStatus,
   }));
 
   return (
@@ -140,13 +187,19 @@ export default async function DashboardOrderDetailsPage(
 
       <section className="mt-8 rounded-2xl border border-[#EADDCD] bg-white p-5 dark:border-[#3D3530] dark:bg-[#242220]">
         <h2 className="text-lg font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]">
-          Order Status
+          Order Status Timeline
         </h2>
-        <div className="mt-5 grid gap-4 md:grid-cols-5">
+        <div className="mt-6 flex flex-col md:grid md:grid-cols-5">
           {ORDER_STEPS.map((step, index) => (
-            <div key={step} className="relative">
+            <div key={step} className="relative pb-8 last:pb-0 md:pb-0">
               {index < ORDER_STEPS.length - 1 ? (
-                <div className="absolute left-6 top-6 hidden h-px w-full bg-[#EADDCD] md:block dark:bg-[#3D3530]" />
+                <>
+                  <div className="absolute bottom-0 left-6 top-12 w-px bg-[#EADDCD] md:hidden dark:bg-[#3D3530]" />
+                  <div className="absolute left-[calc(50%+24px)] right-0 top-6 hidden h-px bg-[#EADDCD] md:block dark:bg-[#3D3530]" />
+                </>
+              ) : null}
+              {index > 0 ? (
+                <div className="absolute left-0 right-[calc(50%+24px)] top-6 hidden h-px bg-[#EADDCD] md:block dark:bg-[#3D3530]" />
               ) : null}
               <div className="relative flex items-center gap-3 md:flex-col md:text-center">
                 <span
@@ -167,102 +220,166 @@ export default async function DashboardOrderDetailsPage(
       </section>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
-        <section className="bg-card border-themed rounded-2xl border p-6">
-          <h2 className="text-page text-lg font-semibold">Items</h2>
-          <div className="mt-4 overflow-hidden rounded-xl border border-[#EADDCD] dark:border-[#3D3530]">
-            <div className="overflow-x-auto">
-              <table className="table-themed w-full min-w-[820px] text-left text-sm">
-                <thead>
-                  <tr>
-                    <th className="px-4 py-3 font-medium">Product</th>
-                    <th className="px-4 py-3 font-medium">Type</th>
-                    <th className="px-4 py-3 font-medium">Quantity</th>
-                    <th className="px-4 py-3 font-medium">Unit Price</th>
-                    <th className="px-4 py-3 font-medium">Subtotal</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {order.items.map((item) => (
-                    <tr key={item.id}>
-                      <td className="px-4 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className="relative h-14 w-14 overflow-hidden rounded-lg border border-[#EADDCD] bg-[#F8F5F0] dark:border-[#3D3530] dark:bg-[#1A1814]">
-                            {item.product.image ? (
-                              <Image
-                                src={item.product.image}
-                                alt={item.product.name}
-                                fill
-                                sizes="56px"
-                                className="object-cover"
-                              />
-                            ) : null}
-                          </div>
-                          <span className="font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
-                            {item.product.name}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="cell-muted px-4 py-4">{item.product.type}</td>
-                      <td className="cell-muted px-4 py-4">{item.quantity}</td>
-                      <td className="cell-muted px-4 py-4">{formatBdt(item.price)}</td>
-                      <td className="cell-muted px-4 py-4">
-                        {formatBdt(item.quantity * item.price)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </section>
-
-        <aside className="bg-card border-themed h-fit rounded-2xl border p-6">
-          <h2 className="text-page text-lg font-semibold">Order Summary</h2>
-          <div className="mt-4 space-y-4 text-sm">
-            <div className="flex items-center justify-between gap-4">
-              <span className="text-muted font-medium">Subtotal</span>
-              <span className="text-page font-semibold">{formatBdt(subtotal)}</span>
-            </div>
-            <div className="flex items-center justify-between gap-4 border-t border-[#EADDCD] pt-4 dark:border-[#3D3530]">
-              <span className="text-muted font-medium">Total</span>
-              <span className="text-xl font-semibold text-[#B87B68]">
-                {formatBdt(order.totalAmount)}
-              </span>
-            </div>
-            <div>
-              <p className="text-muted font-medium">Payment Method</p>
-              <p className="text-page mt-1">{getPaymentMethodLabel(order.paymentMethod)}</p>
-            </div>
-            <div>
-              <p className="text-muted font-medium">Transaction Reference</p>
-              <p className="text-page mt-1 break-words">
-                {order.transactionRef || "Not provided"}
-              </p>
-            </div>
-            <div>
-              <p className="text-muted font-medium">Order Date</p>
-              <p className="text-page mt-1">{formatDateTime(order.createdAt)}</p>
-            </div>
-            {order.note ? (
+        <div className="space-y-6">
+          <section className="rounded-2xl border border-[#EADDCD] bg-white p-6 dark:border-[#3D3530] dark:bg-[#242220]">
+            <h2 className="text-lg font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]">
+              Delivery Info
+            </h2>
+            <div className="mt-4 grid gap-4 sm:grid-cols-3">
               <div>
-                <p className="text-muted font-medium">Note</p>
-                <p className="text-page mt-1 whitespace-pre-wrap">{order.note}</p>
+                <p className="text-sm font-medium text-[#884F38] dark:text-[#8A7D75]">
+                  Delivery Area
+                </p>
+                <p className="mt-1 text-sm font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]">
+                  {getDeliveryAreaLabel(order.deliveryArea)}
+                </p>
               </div>
-            ) : null}
-            {order.proofImageUrl ? (
-              <a
-                href={order.proofImageUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex text-sm font-medium text-[#B87B68] underline"
-              >
-                View payment proof
-              </a>
-            ) : null}
-            {order.status === "DELIVERED" ? (
-              <BuyAgainButton items={buyAgainItems} />
-            ) : null}
-          </div>
+              <div className="sm:col-span-2">
+                <p className="text-sm font-medium text-[#884F38] dark:text-[#8A7D75]">
+                  Delivery Address
+                </p>
+                <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-[#2B2B2B] dark:text-[#F0EDE8]">
+                  {order.deliveryAddress || "Not provided"}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-[#884F38] dark:text-[#8A7D75]">
+                  Estimated Delivery
+                </p>
+                <p className="mt-1 text-sm font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]">
+                  {order.estimatedDelivery || "Not set yet"}
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <section className="rounded-2xl border border-[#EADDCD] bg-white p-6 dark:border-[#3D3530] dark:bg-[#242220]">
+            <h2 className="text-lg font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]">
+              Items
+            </h2>
+            <div className="mt-4 overflow-hidden rounded-xl border border-[#EADDCD] dark:border-[#3D3530]">
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[820px] text-left text-sm">
+                  <thead className="bg-[#F8F5F0] text-[#2B2B2B] dark:bg-[#1A1814] dark:text-[#F0EDE8]">
+                    <tr>
+                      <th className="px-4 py-3 font-medium">Product</th>
+                      <th className="px-4 py-3 font-medium">Type</th>
+                      <th className="px-4 py-3 font-medium">Quantity</th>
+                      <th className="px-4 py-3 font-medium">Unit Price</th>
+                      <th className="px-4 py-3 font-medium">Subtotal</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {order.items.map((item) => (
+                      <tr
+                        key={item.id}
+                        className="border-t border-[#EADDCD] dark:border-[#3D3530]"
+                      >
+                        <td className="px-4 py-4">
+                          <div className="flex items-center gap-3">
+                            <ProductImage
+                              image={item.product.image}
+                              name={item.product.name}
+                            />
+                            <Link
+                              href={`/products?search=${encodeURIComponent(item.product.name)}`}
+                              className="font-semibold text-[#2B2B2B] underline-offset-4 transition-opacity hover:opacity-80 hover:underline dark:text-[#F0EDE8]"
+                            >
+                              {item.product.name}
+                            </Link>
+                          </div>
+                        </td>
+                        <td className="px-4 py-4 text-[#6E6257] dark:text-[#8A7D75]">
+                          {item.product.type}
+                        </td>
+                        <td className="px-4 py-4 text-[#6E6257] dark:text-[#8A7D75]">
+                          {item.quantity}
+                        </td>
+                        <td className="px-4 py-4 text-[#6E6257] dark:text-[#8A7D75]">
+                          {formatBdt(item.price)}
+                        </td>
+                        <td className="px-4 py-4 font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]">
+                          {formatBdt(item.quantity * item.price)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <aside className="space-y-6">
+          <section className="rounded-2xl border border-[#EADDCD] bg-white p-6 dark:border-[#3D3530] dark:bg-[#242220]">
+            <h2 className="text-lg font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]">
+              Order Summary
+            </h2>
+            <div className="mt-4 space-y-4 text-sm">
+              <div className="flex items-center justify-between gap-4">
+                <span className="font-medium text-[#884F38] dark:text-[#8A7D75]">
+                  Items Subtotal
+                </span>
+                <span className="font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]">
+                  {formatBdt(subtotal)}
+                </span>
+              </div>
+              <div className="flex items-center justify-between gap-4">
+                <span className="font-medium text-[#884F38] dark:text-[#8A7D75]">
+                  Delivery Charge
+                </span>
+                <span className="font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]">
+                  {formatBdt(order.deliveryCharge)}
+                </span>
+              </div>
+              <div className="flex items-center justify-between gap-4 border-t border-[#EADDCD] pt-4 dark:border-[#3D3530]">
+                <span className="font-medium text-[#884F38] dark:text-[#8A7D75]">
+                  Total
+                </span>
+                <span className="text-xl font-bold text-[#B87B68]">
+                  {formatBdt(order.totalAmount)}
+                </span>
+              </div>
+            </div>
+          </section>
+
+          <section className="rounded-2xl border border-[#EADDCD] bg-white p-6 dark:border-[#3D3530] dark:bg-[#242220]">
+            <h2 className="text-lg font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]">
+              Payment Info
+            </h2>
+            <div className="mt-4 space-y-4 text-sm">
+              <div>
+                <p className="font-medium text-[#884F38] dark:text-[#8A7D75]">
+                  Method
+                </p>
+                <p className="mt-1 text-[#2B2B2B] dark:text-[#F0EDE8]">
+                  {getPaymentMethodLabel(order.paymentMethod)}
+                </p>
+              </div>
+              {order.transactionRef ? (
+                <div>
+                  <p className="font-medium text-[#884F38] dark:text-[#8A7D75]">
+                    Transaction Reference
+                  </p>
+                  <p className="mt-1 break-words font-mono text-[#2B2B2B] dark:text-[#F0EDE8]">
+                    {order.transactionRef}
+                  </p>
+                </div>
+              ) : null}
+              {order.proofImageUrl ? (
+                <a
+                  href={order.proofImageUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex text-sm font-medium text-[#B87B68] underline"
+                >
+                  View payment proof
+                </a>
+              ) : null}
+            </div>
+          </section>
+
+          <BuyAgainButton items={buyAgainItems} />
         </aside>
       </div>
 
@@ -273,18 +390,20 @@ export default async function DashboardOrderDetailsPage(
               className="text-2xl font-semibold"
               style={{ fontFamily: "Playfair Display, serif" }}
             >
-              Have an issue with your order?
+              Need help with your order?
             </h2>
-            <p className="mt-2 text-sm text-[#EADDCD]">Contact us for support.</p>
+            <p className="mt-2 text-sm text-[#EADDCD]">
+              Contact us on WhatsApp and our team will help you.
+            </p>
           </div>
           <a
             href="https://wa.me/8801647660300"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-[#25D366] px-5 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-[#25D366] px-5 py-3 text-center text-sm font-semibold leading-5 text-white transition-opacity hover:opacity-90"
           >
             <MessageCircle className="h-4 w-4" />
-            WhatsApp
+            Need help with your order? Contact us on WhatsApp
           </a>
         </div>
       </section>

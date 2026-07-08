@@ -1,0 +1,22 @@
+DO $$ BEGIN
+    CREATE TYPE "DeliveryArea" AS ENUM (
+        'INSIDE_DHAKA',
+        'SUB_DHAKA',
+        'OUTSIDE_DHAKA'
+    );
+EXCEPTION WHEN duplicate_object THEN null;
+END $$;
+
+ALTER TABLE "Order"
+ADD COLUMN IF NOT EXISTS "deliveryArea" "DeliveryArea"
+NOT NULL DEFAULT 'INSIDE_DHAKA';
+
+ALTER TABLE "Order"
+ADD COLUMN IF NOT EXISTS "deliveryCharge"
+DOUBLE PRECISION NOT NULL DEFAULT 80;
+
+ALTER TABLE "Order"
+ADD COLUMN IF NOT EXISTS "deliveryAddress" TEXT;
+
+ALTER TABLE "Order"
+ADD COLUMN IF NOT EXISTS "estimatedDelivery" TEXT;

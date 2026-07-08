@@ -34,6 +34,16 @@ type ProductsResponse = {
   };
 };
 
+type ClientBooking = {
+  id: string;
+  status: "PENDING" | "CONFIRMED" | "CANCELLED" | "COMPLETED";
+  diagnosis?: {
+    recommendations?: Array<{
+      productId: string;
+    }>;
+  } | null;
+};
+
 const PAGE_SIZE = 12;
 
 const STOCK_STATUS_LABELS: Record<StockStatus, string> = {
@@ -84,6 +94,10 @@ export default function ProductsPage() {
   const [searchInput, setSearchInput] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [selectedType, setSelectedType] = useState("");
+  const [showDoctorRecommended, setShowDoctorRecommended] = useState(false);
+  const [recommendedProductIds, setRecommendedProductIds] = useState<Set<string>>(
+    () => new Set(),
+  );
   const [page, setPage] = useState(1);
   const [products, setProducts] = useState<Product[]>([]);
   const [types, setTypes] = useState<string[]>([]);
@@ -103,7 +117,56 @@ export default function ProductsPage() {
 
   useEffect(() => {
     setPage(1);
-  }, [debouncedSearch, selectedType]);
+  }, [debouncedSearch, selectedType, showDoctorRecommended]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadDoctorRecommendations() {
+      try {
+        const response = await fetch("/api/client/bookings", {
+          cache: "no-store",
+        });
+
+        if (!response.ok) {
+          return;
+        }
+
+        const data = (await response.json().catch(() => null)) as
+          | { bookings?: ClientBooking[] }
+          | null;
+        const latestRelevantBooking = (data?.bookings ?? []).find((booking) =>
+          booking.status === "COMPLETED" || booking.status === "CONFIRMED",
+        );
+        const ids = new Set(
+          latestRelevantBooking?.diagnosis?.recommendations
+            ?.map((recommendation) => recommendation.productId)
+            .filter(Boolean) ?? [],
+        );
+
+        if (!isMounted) {
+          return;
+        }
+
+        setRecommendedProductIds(ids);
+
+        if (ids.size === 0) {
+          setShowDoctorRecommended(false);
+        }
+      } catch {
+        if (isMounted) {
+          setRecommendedProductIds(new Set());
+          setShowDoctorRecommended(false);
+        }
+      }
+    }
+
+    void loadDoctorRecommendations();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
@@ -121,6 +184,10 @@ export default function ProductsPage() {
 
         if (selectedType) {
           params.set("type", selectedType);
+        }
+
+        if (showDoctorRecommended && recommendedProductIds.size > 0) {
+          params.set("recommendedIds", Array.from(recommendedProductIds).join(","));
         }
 
         params.set("page", String(page));
@@ -166,7 +233,7 @@ export default function ProductsPage() {
     return () => {
       isMounted = false;
     };
-  }, [debouncedSearch, selectedType, page]);
+  }, [debouncedSearch, selectedType, page, showDoctorRecommended, recommendedProductIds]);
 
   useEffect(() => {
     if (!recentlyAddedId) {
@@ -306,7 +373,7 @@ export default function ProductsPage() {
           }}
           className="dark:border-[#3D3530] dark:bg-[#242220]"
         >
-          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_260px_auto] lg:items-end">
+          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_260px_auto_auto] lg:items-end">
             <div>
               <label
                 htmlFor="product-search"
@@ -404,6 +471,32 @@ export default function ProductsPage() {
               </select>
             </div>
 
+            {recommendedProductIds.size > 0 ? (
+              <button
+                type="button"
+                onClick={() =>
+                  setShowDoctorRecommended((current) => !current)
+                }
+                style={{
+                  height: 46,
+                  borderRadius: 12,
+                  border: showDoctorRecommended
+                    ? "1px solid #B87B68"
+                    : "1px solid #E8DDD0",
+                  background: showDoctorRecommended ? "#B87B68" : "#FBF9F6",
+                  padding: "0 16px",
+                  fontSize: 13,
+                  fontWeight: 700,
+                  color: showDoctorRecommended ? "#F8F5F0" : "#8C7355",
+                  whiteSpace: "nowrap",
+                  transition: "all 0.2s ease",
+                }}
+                className="dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#F0EDE8]"
+              >
+                Doctor Recommended
+              </button>
+            ) : null}
+
             <div
               style={{
                 borderRadius: 99,
@@ -445,9 +538,9 @@ export default function ProductsPage() {
         ) : null}
 
         {isLoading ? (
-          <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
+          <div className="mt-8 grid grid-cols-3 gap-2 sm:gap-4 md:grid-cols-2 xl:grid-cols-4">
             {Array.from({ length: 8 }).map((_, index) => (
-              <SkeletonCard key={index} className="min-h-[420px]" />
+              <SkeletonCard key={index} className="min-h-[180px] sm:min-h-[420px]" />
             ))}
           </div>
         ) : products.length === 0 ? (
@@ -483,11 +576,12 @@ export default function ProductsPage() {
           </div>
         ) : (
           <>
-            <section className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
+            <section className="mt-8 grid grid-cols-3 gap-2 sm:gap-4 md:grid-cols-2 xl:grid-cols-4">
               {products.map((product) => {
                 const isOutOfStock = product.stockStatus === "OUT_OF_STOCK";
                 const isLimited = product.stockStatus === "LIMITED";
                 const statusColor = STOCK_STATUS_COLORS[product.stockStatus];
+                const isDoctorRecommended = recommendedProductIds.has(product.id);
 
                 return (
                   <article
@@ -505,7 +599,7 @@ export default function ProductsPage() {
                       opacity: isOutOfStock ? 0.85 : 1,
                       transition: "transform 0.25s ease, box-shadow 0.25s ease",
                     }}
-                    className="dark:border-[#3D3530] dark:bg-[#242220]"
+                    className="product-card dark:border-[#3D3530] dark:bg-[#242220]"
                     onMouseEnter={(event) => {
                       if (isOutOfStock) return;
                       event.currentTarget.style.transform = "translateY(-6px)";
@@ -539,11 +633,34 @@ export default function ProductsPage() {
                             fontWeight: 700,
                             color: "#2B2B2B",
                           }}
-                          className="dark:bg-[#1A1814] dark:text-[#F0EDE8]"
+                          className="product-sold-out-badge dark:bg-[#1A1814] dark:text-[#F0EDE8]"
                         >
                           Out of Stock
                         </span>
                       </div>
+                    ) : null}
+
+                    {isDoctorRecommended ? (
+                      <span
+                        style={{
+                          position: "absolute",
+                          top: 12,
+                          left: 12,
+                          zIndex: 12,
+                          borderRadius: 99,
+                          background: "#B87B68",
+                          padding: "5px 11px",
+                          fontSize: 10,
+                          fontWeight: 800,
+                          letterSpacing: "0.08em",
+                          textTransform: "uppercase",
+                          color: "#F8F5F0",
+                          boxShadow: "0 4px 12px rgba(0,0,0,0.14)",
+                        }}
+                        className="product-doctor-badge"
+                      >
+                        Recommended by Your Doctor
+                      </span>
                     ) : null}
 
                     <div
@@ -554,7 +671,7 @@ export default function ProductsPage() {
                         flexShrink: 0,
                         background: "#F2EBDF",
                       }}
-                      className="dark:bg-[#1A1814]"
+                      className="product-card-media dark:bg-[#1A1814]"
                     >
                       {product.image ? (
                         <Image
@@ -590,7 +707,8 @@ export default function ProductsPage() {
                         style={{
                           position: "absolute",
                           top: 12,
-                          left: 12,
+                          left: isDoctorRecommended ? "auto" : 12,
+                          right: isDoctorRecommended ? 12 : "auto",
                           borderRadius: 99,
                           background: "rgba(255,255,255,0.95)",
                           padding: "4px 11px",
@@ -601,6 +719,7 @@ export default function ProductsPage() {
                           color: "#8C7355",
                           boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
                         }}
+                        className="product-type-badge"
                       >
                         {product.type}
                       </span>
@@ -613,6 +732,7 @@ export default function ProductsPage() {
                         flexDirection: "column",
                         flex: 1,
                       }}
+                      className="product-card-body"
                     >
                       <div style={{ marginBottom: 10 }}>
                         <span
@@ -630,6 +750,7 @@ export default function ProductsPage() {
                             textTransform: "uppercase",
                             color: statusColor.text,
                           }}
+                          className="product-stock-badge"
                         >
                           <span
                             style={{
@@ -658,12 +779,15 @@ export default function ProductsPage() {
                           WebkitBoxOrient: "vertical",
                           overflow: "hidden",
                         }}
-                        className="dark:text-[#F0EDE8]"
+                        className="product-card-title dark:text-[#F0EDE8]"
                       >
                         {product.name}
                       </h2>
 
-                      <div style={{ minHeight: 20, marginBottom: 8 }}>
+                      <div
+                        style={{ minHeight: 20, marginBottom: 8 }}
+                        className="product-skin-type-row"
+                      >
                         {product.skinType ? (
                           <span
                             style={{
@@ -673,6 +797,7 @@ export default function ProductsPage() {
                               textTransform: "uppercase",
                               color: "#A8916F",
                             }}
+                            className="product-skin-type"
                           >
                             For {product.skinType} Skin
                           </span>
@@ -687,7 +812,8 @@ export default function ProductsPage() {
                           background:
                             "linear-gradient(90deg, #E8DDD0, transparent)",
                           margin: "4px 0 14px",
-                        }}
+                          }}
+                          className="product-card-divider"
                       />
 
                       <div
@@ -706,12 +832,16 @@ export default function ProductsPage() {
                             fontFamily: "Playfair Display, serif",
                             margin: 0,
                           }}
+                          className="product-card-price"
                         >
                           {formatBdt(product.price)}
                         </p>
                       </div>
 
-                      <div style={{ minHeight: 18, marginBottom: 10 }}>
+                      <div
+                        style={{ minHeight: 18, marginBottom: 10 }}
+                        className="product-stock-note-row"
+                      >
                         {product.stockNote ? (
                           <p
                             style={{
@@ -755,6 +885,7 @@ export default function ProductsPage() {
                               ? "#2B2B2B"
                               : "#F8F5F0",
                         }}
+                        className="product-add-button"
                         onMouseEnter={(event) => {
                           if (isOutOfStock || recentlyAddedId === product.id) {
                             return;
@@ -831,6 +962,95 @@ export default function ProductsPage() {
       </div>
 
       <style>{`
+        @media (max-width: 639px) {
+          .product-card {
+            border-radius: 14px !important;
+          }
+
+          .product-card-media {
+            height: 92px !important;
+          }
+
+          .product-card-body {
+            padding: 8px !important;
+          }
+
+          .product-doctor-badge {
+            top: 6px !important;
+            left: 6px !important;
+            max-width: calc(100% - 12px);
+            padding: 3px 6px !important;
+            font-size: 7px !important;
+            line-height: 1.1 !important;
+            letter-spacing: 0.04em !important;
+            white-space: normal;
+          }
+
+          .product-type-badge {
+            top: 6px !important;
+            left: 6px !important;
+            right: auto !important;
+            max-width: calc(100% - 12px);
+            padding: 2px 5px !important;
+            font-size: 7px !important;
+            line-height: 1.1 !important;
+            letter-spacing: 0.04em !important;
+          }
+
+          .product-doctor-badge + .product-card-media .product-type-badge {
+            display: none;
+          }
+
+          .product-stock-badge {
+            gap: 3px !important;
+            padding: 2px 5px !important;
+            font-size: 7px !important;
+            line-height: 1 !important;
+            letter-spacing: 0.03em !important;
+          }
+
+          .product-card-title {
+            font-size: 11px !important;
+            line-height: 1.2 !important;
+            min-height: calc(1.2em * 2) !important;
+            margin-bottom: 5px !important;
+          }
+
+          .product-skin-type-row {
+            min-height: 0 !important;
+            margin-bottom: 4px !important;
+          }
+
+          .product-skin-type {
+            font-size: 7px !important;
+            letter-spacing: 0.03em !important;
+          }
+
+          .product-card-divider {
+            margin: 2px 0 7px !important;
+          }
+
+          .product-card-price {
+            font-size: 13px !important;
+            line-height: 1.1 !important;
+          }
+
+          .product-stock-note-row {
+            display: none;
+          }
+
+          .product-add-button {
+            height: 32px !important;
+            border-radius: 8px !important;
+            font-size: 10px !important;
+          }
+
+          .product-sold-out-badge {
+            padding: 5px 8px !important;
+            font-size: 9px !important;
+          }
+        }
+
         @keyframes shimmerLoad {
           0% {
             background-position: 200% 0;

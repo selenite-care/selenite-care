@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import Pagination from "@/components/ui/Pagination";
 import { SkeletonTable } from "@/components/ui/Skeleton";
 import { formatDateTime } from "@/lib/dateUtils";
@@ -11,6 +11,9 @@ type ClientOrder = {
   createdAt: string;
   totalAmount: number;
   paymentMethod: "BKASH" | "BANK_TRANSFER" | "CASH" | "STRIPE";
+  deliveryArea: "INSIDE_DHAKA" | "SUB_DHAKA" | "OUTSIDE_DHAKA";
+  deliveryCharge: number;
+  deliveryAddress: string | null;
   status:
     | "PENDING"
     | "VERIFIED"
@@ -24,6 +27,14 @@ type ClientOrder = {
       name: string;
     };
   }>;
+};
+
+type ClientOrdersResponse = {
+  orders?: ClientOrder[];
+  totalCount?: number;
+  page?: number;
+  totalPages?: number;
+  error?: string;
 };
 
 const ORDER_STATUSES = [
@@ -90,6 +101,32 @@ function getPaymentMethodLabel(paymentMethod: ClientOrder["paymentMethod"]) {
   }
 }
 
+function getDeliveryAreaLabel(deliveryArea: ClientOrder["deliveryArea"]) {
+  switch (deliveryArea) {
+    case "INSIDE_DHAKA":
+      return "Inside Dhaka";
+    case "SUB_DHAKA":
+      return "Sub Dhaka";
+    case "OUTSIDE_DHAKA":
+      return "Outside Dhaka";
+    default:
+      return deliveryArea;
+  }
+}
+
+function getDeliveryAreaBadgeClasses(deliveryArea: ClientOrder["deliveryArea"]) {
+  switch (deliveryArea) {
+    case "INSIDE_DHAKA":
+      return "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-900/50 dark:bg-blue-950/20 dark:text-blue-300";
+    case "SUB_DHAKA":
+      return "border-green-200 bg-green-50 text-green-700 dark:border-green-900/50 dark:bg-green-950/20 dark:text-green-300";
+    case "OUTSIDE_DHAKA":
+      return "border-orange-200 bg-orange-50 text-orange-700 dark:border-orange-900/50 dark:bg-orange-950/20 dark:text-orange-300";
+    default:
+      return "border-black/10 bg-zinc-50 text-foreground/70 dark:border-white/10 dark:bg-white/5";
+  }
+}
+
 export default function DashboardOrdersPage() {
   const [orders, setOrders] = useState<ClientOrder[]>([]);
   const [error, setError] = useState("");
@@ -97,27 +134,54 @@ export default function DashboardOrdersPage() {
   const [statusFilter, setStatusFilter] =
     useState<(typeof ORDER_STATUSES)[number]>("All");
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
     async function loadOrders() {
+      setIsLoading(true);
+      setError("");
+
       try {
-        const response = await fetch("/api/client/orders");
+        const params = new URLSearchParams({
+          page: String(currentPage),
+          limit: String(ITEMS_PER_PAGE),
+        });
+
+        if (statusFilter !== "All") {
+          params.set("status", statusFilter);
+        }
+
+        const response = await fetch(`/api/client/orders?${params.toString()}`, {
+          cache: "no-store",
+        });
+        const data = (await response.json().catch(() => null)) as
+          | ClientOrdersResponse
+          | null;
 
         if (!response.ok) {
+          throw new Error(data?.error ?? "Unable to load your orders.");
+        }
+
+        if (!data) {
           throw new Error("Unable to load your orders.");
         }
 
-        const data = (await response.json()) as { orders?: ClientOrder[] };
         setOrders(data.orders ?? []);
+        setTotalCount(data.totalCount ?? 0);
+        setTotalPages(Math.max(1, data.totalPages ?? 1));
       } catch {
         setError("Your orders are not available right now.");
+        setOrders([]);
+        setTotalCount(0);
+        setTotalPages(1);
       } finally {
         setIsLoading(false);
       }
     }
 
     void loadOrders();
-  }, []);
+  }, [currentPage, statusFilter]);
 
   function formatOrderDate(value: string) {
     return formatDateTime(value);
@@ -137,23 +201,6 @@ export default function DashboardOrdersPage() {
       : visibleNames;
   }
 
-  const filteredOrders = useMemo(
-    () =>
-      statusFilter === "All"
-        ? orders
-        : orders.filter((order) => order.status === statusFilter),
-    [orders, statusFilter],
-  );
-  const totalPages = Math.max(1, Math.ceil(filteredOrders.length / ITEMS_PER_PAGE));
-  const paginatedOrders = filteredOrders.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE,
-  );
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [statusFilter]);
-
   return (
     <section className="min-h-screen bg-[#F8F5F0] px-6 py-10 dark:bg-[#1A1814]">
       <div>
@@ -170,19 +217,19 @@ export default function DashboardOrdersPage() {
 
       {isLoading ? (
         <div className="mt-8">
-          <SkeletonTable rows={6} cols={7} />
+          <SkeletonTable rows={6} cols={8} />
         </div>
       ) : null}
 
       {error ? <p className="mt-8 text-sm text-red-600">{error}</p> : null}
 
-      {!isLoading && !error && orders.length === 0 ? (
+      {!isLoading && !error && statusFilter === "All" && totalCount === 0 ? (
         <p className="mt-8 text-sm text-[#884F38] dark:text-[#8A7D75]">
           You do not have any orders yet.
         </p>
       ) : null}
 
-      {!isLoading && !error && orders.length > 0 ? (
+      {!isLoading && !error && (orders.length > 0 || statusFilter !== "All") ? (
         <>
           <div className="mt-8 rounded-lg border border-[#EADDCD] bg-white p-4 dark:border-[#3D3530] dark:bg-[#242220]">
             <div className="max-w-xs">
@@ -195,11 +242,12 @@ export default function DashboardOrdersPage() {
               <select
                 id="order-status-filter"
                 value={statusFilter}
-                onChange={(event) =>
+                onChange={(event) => {
+                  setCurrentPage(1);
                   setStatusFilter(
                     event.target.value as (typeof ORDER_STATUSES)[number],
-                  )
-                }
+                  );
+                }}
                 className="mt-2 h-11 w-full rounded-md border border-[#EADDCD] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#F0EDE8]"
               >
                 {ORDER_STATUSES.map((status) => (
@@ -211,14 +259,14 @@ export default function DashboardOrdersPage() {
             </div>
           </div>
 
-          {filteredOrders.length === 0 ? (
+          {totalCount === 0 ? (
             <p className="mt-8 text-sm text-[#884F38] dark:text-[#8A7D75]">
               No orders match your selected status.
             </p>
           ) : (
             <>
               <div className="mt-6 grid gap-4 md:hidden">
-                {paginatedOrders.map((order) => (
+                {orders.map((order) => (
                   <article
                     key={order.id}
                     className="rounded-2xl border border-[#EADDCD] bg-white p-5 shadow-sm dark:border-[#3D3530] dark:bg-[#242220]"
@@ -253,6 +301,18 @@ export default function DashboardOrdersPage() {
                           {getProductSummary(order)}
                         </p>
                       </div>
+                      <div>
+                        <p className="text-xs font-medium uppercase tracking-[0.14em] text-[#884F38]">
+                          Delivery Area
+                        </p>
+                        <span
+                          className={`mt-2 inline-flex rounded-full border px-3 py-1 text-xs font-medium ${getDeliveryAreaBadgeClasses(
+                            order.deliveryArea,
+                          )}`}
+                        >
+                          {getDeliveryAreaLabel(order.deliveryArea)}
+                        </span>
+                      </div>
                     </div>
 
                     <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
@@ -286,6 +346,7 @@ export default function DashboardOrdersPage() {
                         <th className="px-4 py-3 font-medium">Order ID</th>
                         <th className="px-4 py-3 font-medium">Date</th>
                         <th className="px-4 py-3 font-medium">Products</th>
+                        <th className="px-4 py-3 font-medium">Delivery Area</th>
                         <th className="px-4 py-3 font-medium">Total Amount</th>
                         <th className="px-4 py-3 font-medium">Payment Method</th>
                         <th className="px-4 py-3 font-medium">Order Status</th>
@@ -293,7 +354,7 @@ export default function DashboardOrdersPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {paginatedOrders.map((order) => (
+                      {orders.map((order) => (
                         <tr key={order.id}>
                           <td className="px-4 py-4 font-mono text-xs text-[#B87B68]">
                             {order.id}
@@ -303,6 +364,15 @@ export default function DashboardOrdersPage() {
                           </td>
                           <td className="px-4 py-4 text-foreground/70">
                             {getProductSummary(order)}
+                          </td>
+                          <td className="px-4 py-4">
+                            <span
+                              className={`inline-flex rounded-full border px-3 py-1 text-xs font-medium ${getDeliveryAreaBadgeClasses(
+                                order.deliveryArea,
+                              )}`}
+                            >
+                              {getDeliveryAreaLabel(order.deliveryArea)}
+                            </span>
                           </td>
                           <td className="px-4 py-4 text-foreground/70">
                             {formatBdt(order.totalAmount)}
@@ -344,7 +414,7 @@ export default function DashboardOrdersPage() {
                 currentPage={currentPage}
                 totalPages={totalPages}
                 onPageChange={setCurrentPage}
-                totalItems={filteredOrders.length}
+                totalItems={totalCount}
                 itemsPerPage={ITEMS_PER_PAGE}
               />
             </>
