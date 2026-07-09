@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
@@ -86,7 +86,7 @@ function PaymentErrorNotice({
 
 export const dynamic = "force-dynamic";
 
-export default function CartPage() {
+function CartPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { data: session, status } = useSession();
@@ -583,5 +583,25 @@ export default function CartPage() {
         )}
       </div>
     </main>
+  );
+}
+
+function CartPageFallback() {
+  return (
+    <main className="min-h-screen bg-[#F8F5F0] px-6 py-16 dark:bg-[#1A1814]">
+      <div className="mx-auto max-w-6xl">
+        <p className="text-sm text-[#884F38] dark:text-[#8A7D75]">
+          Loading your cart...
+        </p>
+      </div>
+    </main>
+  );
+}
+
+export default function CartPage() {
+  return (
+    <Suspense fallback={<CartPageFallback />}>
+      <CartPageContent />
+    </Suspense>
   );
 }
