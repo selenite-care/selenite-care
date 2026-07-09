@@ -121,6 +121,10 @@ model MembershipPayment {
   bankTransferProof  String?
   amount             Float
   status             PaymentStatus @default(UNPAID)
+  epsTransactionId   String?
+  epsMerchantTxnId   String? @unique
+  epsPaymentMethod   String?
+  epsStatus          String?
   createdAt          DateTime      @default(now())
 
   @@index([createdAt(sort: Desc)])
@@ -254,6 +258,9 @@ model Order {
   deliveryCharge    Float        @default(80)
   deliveryAddress   String?
   estimatedDelivery String?
+  epsTransactionId  String?
+  epsMerchantTxnId  String? @unique
+  epsPaymentMethod  String?
 
   @@index([createdAt(sort: Desc)])
   @@index([status])

@@ -5,22 +5,10 @@ import "react-phone-number-input/style.css";
 import Image from "next/image";
 import { FormEvent, Suspense, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import {
-  CardElement,
-  Elements,
-  useElements,
-  useStripe,
-} from "@stripe/react-stripe-js";
-import { loadStripe } from "@stripe/stripe-js";
 import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
 import { isMembershipAvailable } from "@/lib/membershipAvailability";
 import { BRAC_BANK_DETAILS } from "@/lib/bankDetails";
 import FileUploadButton from "@/components/ui/FileUploadButton";
-
-const stripePublishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
-const stripePromise = stripePublishableKey
-  ? loadStripe(stripePublishableKey)
-  : null;
 
 type MembershipTier = "SIGNATURE" | "CRYSTAL" | "PLATINUM";
 
@@ -31,14 +19,8 @@ type MembershipTierDetails = {
   benefits: string[];
 };
 
-type CreateIntentResponse = {
-  clientSecret?: string;
-  amount?: number;
-  error?: string;
-};
-
-type CreateMembershipResponse = {
-  membershipId?: string;
+type EpsInitiateResponse = {
+  redirectUrl?: string;
   error?: string;
 };
 
@@ -105,6 +87,58 @@ function formatBdt(amount: number) {
   return `${Math.round(amount)} BDT`;
 }
 
+function getPaymentErrorMessage(error: string | null, message: string | null) {
+  if (!error) {
+    return "";
+  }
+
+  if (error === "payment_failed") {
+    return "Payment was unsuccessful. Please try again.";
+  }
+
+  if (error === "payment_cancelled") {
+    return "Payment was cancelled. Your order has not been placed.";
+  }
+
+  return message || "Payment could not be completed. Please try again.";
+}
+
+function PaymentErrorNotice({
+  message,
+  onDismiss,
+}: {
+  message: string;
+  onDismiss: () => void;
+}) {
+  return (
+    <div className="mt-4 flex items-start gap-3 rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700 shadow-sm dark:border-red-900/60 dark:bg-red-950/25 dark:text-red-300">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="mt-0.5 h-5 w-5 shrink-0"
+        aria-hidden="true"
+      >
+        <path d="m21.73 18-8-14a2 2 0 0 0-3.46 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
+        <path d="M12 9v4" />
+        <path d="M12 17h.01" />
+      </svg>
+      <p className="min-w-0 flex-1 leading-6">{message}</p>
+      <button
+        type="button"
+        onClick={onDismiss}
+        className="shrink-0 rounded-md px-2 py-1 text-xs font-semibold text-red-700 transition-colors hover:bg-red-100 dark:text-red-300 dark:hover:bg-red-900/30"
+      >
+        Dismiss
+      </button>
+    </div>
+  );
+}
+
 function trackMetaPixelEvent(
   eventName: string,
   parameters?: Record<string, unknown>,
@@ -136,22 +170,17 @@ function parseTier(value: string | null): MembershipTier | null {
   return null;
 }
 
-function MembershipPaymentForm({
+function EpsPaymentSection({
   tier,
   membership,
 }: {
   tier: MembershipTier;
   membership: MembershipTierDetails;
 }) {
-  const router = useRouter();
-  const stripe = useStripe();
-  const elements = useElements();
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
+  async function handleEpsPayment() {
     if (isSubmitting) {
       return;
     }
@@ -159,113 +188,65 @@ function MembershipPaymentForm({
     setError("");
     setIsSubmitting(true);
 
-    if (!stripe || !elements) {
-      setError("Payment form is still loading.");
-      setIsSubmitting(false);
-      return;
-    }
-
-    const card = elements.getElement(CardElement);
-
-    if (!card) {
-      setError("Card details are required.");
-      setIsSubmitting(false);
-      return;
-    }
-
-    const intentResponse = await fetch("/api/membership/create-intent", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ tier }),
-    });
-
-    const intentData = (await intentResponse.json()) as CreateIntentResponse;
-
-    if (!intentResponse.ok || !intentData.clientSecret) {
-      setError(intentData.error ?? "Unable to start payment.");
-      setIsSubmitting(false);
-      return;
-    }
-
-    const { error: paymentError, paymentIntent } =
-      await stripe.confirmCardPayment(intentData.clientSecret, {
-        payment_method: {
-          card,
+    try {
+      const response = await fetch("/api/eps/membership/initiate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
+        body: JSON.stringify({ tier }),
       });
 
-    if (paymentError || paymentIntent?.status !== "succeeded") {
-      setError(paymentError?.message ?? "Payment was not completed.");
-      setIsSubmitting(false);
-      return;
-    }
-
-    const membershipResponse = await fetch("/api/membership/create", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        tier,
-        stripePaymentId: paymentIntent.id,
-      }),
-    });
-
-    const membershipData =
-      (await membershipResponse.json().catch(() => null)) as
-        | CreateMembershipResponse
+      const data = (await response.json().catch(() => null)) as
+        | EpsInitiateResponse
         | null;
 
-    if (!membershipResponse.ok || !membershipData?.membershipId) {
+      if (!response.ok || !data?.redirectUrl) {
+        throw new Error(data?.error ?? "Unable to start EPS payment.");
+      }
+
+      window.location.href = data.redirectUrl;
+    } catch (paymentError) {
       setError(
-        membershipData?.error ??
-          "Payment succeeded, but membership creation failed.",
+        paymentError instanceof Error
+          ? paymentError.message
+          : "Unable to start EPS payment.",
       );
       setIsSubmitting(false);
-      return;
     }
-
-    router.push(
-      `/membership/welcome?id=${encodeURIComponent(membershipData.membershipId)}`,
-    );
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="rounded-2xl border bg-white p-6 dark:bg-[#242220] dark:border-[#3D3530]"
-      style={{ borderColor: "#EADDCD" }}
-    >
+    <section className="rounded-2xl border border-[#EADDCD] bg-white p-6 shadow-sm dark:border-[#3D3530] dark:bg-[#242220]">
       <h2
         className="text-xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]"
         style={{
           fontFamily: "Playfair Display, serif",
         }}
       >
-        Card Payment
+        Secure Online Payment
       </h2>
+      <p className="mt-3 text-sm leading-7 text-[#6E6257] dark:text-[#8A7D75]">
+        Pay securely through EPS using your preferred payment method.
+      </p>
 
-      <div
-        className="mt-5 rounded-xl border-2 p-4"
-        style={{ borderColor: "#EADDCD" }}
-      >
-        <CardElement
-          options={{
-            hidePostalCode: true,
-            style: {
-              base: {
-                color: "#2B2B2B",
-                fontFamily: "Arial, Helvetica, sans-serif",
-                fontSize: "16px",
-                "::placeholder": {
-                  color: "#884F38",
-                },
-              },
-            },
-          }}
-        />
+      <div className="mt-5 rounded-2xl border border-[#B87B68] bg-[rgba(184,123,104,0.08)] px-5 py-5 dark:bg-[rgba(184,123,104,0.12)]">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#8C7967] dark:text-[#8A7D75]">
+              Amount
+            </p>
+            <p
+              className="mt-2 text-3xl font-semibold text-[#B87B68] sm:text-4xl"
+              style={{ fontFamily: "Playfair Display, serif" }}
+            >
+              {formatBdt(membership.price)}
+            </p>
+          </div>
+          <p className="text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
+            {membership.name}
+          </p>
+        </div>
       </div>
 
       {error ? (
@@ -273,18 +254,33 @@ function MembershipPaymentForm({
       ) : null}
 
       <button
-        type="submit"
-        disabled={!stripe || isSubmitting}
-        className="mt-6 inline-flex h-12 w-full items-center justify-center rounded-md px-5 text-sm font-medium transition-colors"
-        style={{
-          backgroundColor: !stripe || isSubmitting ? "#EADDCD" : "#2B2B2B",
-          color: "#F8F5F0",
-          cursor: !stripe || isSubmitting ? "not-allowed" : "pointer",
-        }}
+        type="button"
+        onClick={handleEpsPayment}
+        disabled={isSubmitting}
+        className={`mt-6 inline-flex h-14 w-full items-center justify-center rounded-xl px-5 text-base font-semibold transition-colors ${
+          isSubmitting
+            ? "cursor-not-allowed bg-[#EADDCD] text-[#6E6257] dark:bg-[#3D3530] dark:text-[#8A7D75]"
+            : "bg-[#B87B68] text-[#141210] hover:bg-[#D4B47A]"
+        }`}
       >
-        {isSubmitting ? "Submitting..." : `Pay ${formatBdt(membership.price)}`}
+        {isSubmitting ? "Redirecting to payment..." : "Pay with EPS - Secure Payment"}
       </button>
-    </form>
+
+      <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
+        {["bKash", "Nagad", "Card", "Bank", "Wallet"].map((label) => (
+          <span
+            key={label}
+            className="rounded-full border border-[#EADDCD] bg-[#F8F5F0] px-3 py-1 text-xs font-semibold text-[#884F38] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#8A7D75]"
+          >
+            {label}
+          </span>
+        ))}
+      </div>
+
+      <p className="mt-4 text-center text-sm leading-6 text-[#6E6257] dark:text-[#8A7D75]">
+        Secured by EPS Payment Gateway - supports bKash, Nagad, Card & more.
+      </p>
+    </section>
   );
 }
 
@@ -931,11 +927,14 @@ function MembershipPaymentPageContent() {
     () => parseTier(searchParams.get("tier")),
     [searchParams],
   );
-  const [paymentMethod, setPaymentMethod] = useState<"card" | "bkash" | "bank">(
+  const [paymentMethod, setPaymentMethod] = useState<"bkash" | "bank">(
     "bkash",
   );
+  const [dismissedPaymentError, setDismissedPaymentError] = useState(false);
   const [isCheckingPendingMembership, setIsCheckingPendingMembership] =
     useState(true);
+  const paymentError = searchParams.get("error");
+  const paymentMessage = searchParams.get("message");
 
   useEffect(() => {
     let isMounted = true;
@@ -991,6 +990,10 @@ function MembershipPaymentPageContent() {
     });
   }, [tier]);
 
+  useEffect(() => {
+    setDismissedPaymentError(false);
+  }, [paymentError, paymentMessage]);
+
   if (isCheckingPendingMembership) {
     return <MembershipPaymentLoadingFallback />;
   }
@@ -1019,8 +1022,9 @@ function MembershipPaymentPageContent() {
 
   const membership = MEMBERSHIPS[tier];
   const isTierAvailable = isMembershipAvailable(tier);
-
-  const cardPaymentsAvailable = Boolean(stripePublishableKey && stripePromise);
+  const paymentErrorMessage = dismissedPaymentError
+    ? ""
+    : getPaymentErrorMessage(paymentError, paymentMessage);
 
   if (!isTierAvailable) {
     return (
@@ -1079,30 +1083,32 @@ function MembershipPaymentPageContent() {
           <p className="mt-4 text-base leading-7 text-[#884F38] dark:text-[#8A7D75]">
             Complete your payment to secure your Selenite Care membership.
           </p>
+          {paymentErrorMessage ? (
+            <PaymentErrorNotice
+              message={paymentErrorMessage}
+              onDismiss={() => setDismissedPaymentError(true)}
+            />
+          ) : null}
         </div>
 
         <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-8">
           <div className="order-2 flex flex-col gap-6 lg:order-1">
-            <div className="flex flex-wrap gap-2 rounded-2xl border border-[#EADDCD] bg-white p-1 dark:border-[#3D3530] dark:bg-[#242220]">
-              {/*
-                Card payments are temporarily unavailable.
-                Re-enable this tab button when Stripe card checkout is ready again.
-              <button
-                type="button"
-                onClick={() => setPaymentMethod("card")}
-                disabled={!cardPaymentsAvailable}
-                className="h-11 rounded-xl px-5 text-sm font-medium transition-colors"
-                style={{
-                  backgroundColor:
-                    paymentMethod === "card" ? "#2B2B2B" : "transparent",
-                  color: paymentMethod === "card" ? "#F8F5F0" : "#884F38",
-                  cursor: !cardPaymentsAvailable ? "not-allowed" : "pointer",
-                  opacity: !cardPaymentsAvailable ? 0.5 : 1,
-                }}
+            <EpsPaymentSection tier={tier} membership={membership} />
+
+            <div>
+              <h2
+                className="text-xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]"
+                style={{ fontFamily: "Playfair Display, serif" }}
               >
-                Pay with Card
-              </button>
-              */}
+                Or pay manually:
+              </h2>
+              <p className="mt-2 text-sm leading-6 text-[#6E6257] dark:text-[#8A7D75]">
+                Use this option if EPS is unavailable or you prefer manual
+                verification.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap gap-2 rounded-2xl border border-[#EADDCD] bg-white p-1 dark:border-[#3D3530] dark:bg-[#242220]">
               <button
                 type="button"
                 onClick={() => setPaymentMethod("bkash")}
@@ -1112,7 +1118,7 @@ function MembershipPaymentPageContent() {
                     : "text-[#884F38] hover:bg-black/5 dark:text-[#8A7D75] dark:hover:bg-white/5"
                 }`}
               >
-                bKash
+                bKash Manual
               </button>
               <button
                 type="button"
@@ -1126,42 +1132,6 @@ function MembershipPaymentPageContent() {
                 Bank Transfer
               </button>
             </div>
-
-            {/*
-              Card payments are temporarily unavailable.
-              Re-enable this content block when Stripe card checkout is ready again.
-            {paymentMethod === "card" ? (
-              cardPaymentsAvailable ? (
-                <MembershipPaymentForm tier={tier} membership={membership} />
-              ) : (
-                <section
-                  className="rounded-2xl border bg-white p-6"
-                  style={{ borderColor: "#EADDCD" }}
-                >
-                  <h2
-                    className="text-xl font-semibold"
-                    style={{
-                      color: "#2B2B2B",
-                      fontFamily: "Playfair Display, serif",
-                    }}
-                  >
-                    Card Payment
-                  </h2>
-                  <p
-                    className="mt-4 text-sm leading-6"
-                    style={{ color: "#884F38" }}
-                  >
-                    Card payment is currently unavailable. Please use the bKash
-                    option below.
-                  </p>
-                </section>
-              )
-            ) : paymentMethod === "bkash" ? (
-              <BkashManualPaymentForm tier={tier} membership={membership} />
-            ) : (
-              <BankTransferManualPaymentForm tier={tier} membership={membership} />
-            )}
-            */}
 
             {paymentMethod === "bkash" ? (
               <BkashManualPaymentForm tier={tier} membership={membership} />
@@ -1254,15 +1224,9 @@ function MembershipPaymentLoadingFallback() {
 }
 
 export default function MembershipPaymentPage() {
-  const content = (
+  return (
     <Suspense fallback={<MembershipPaymentLoadingFallback />}>
       <MembershipPaymentPageContent />
     </Suspense>
   );
-
-  if (!stripePublishableKey || !stripePromise) {
-    return content;
-  }
-
-  return <Elements stripe={stripePromise}>{content}</Elements>;
 }
