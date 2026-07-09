@@ -1,8 +1,8 @@
 import { auth } from "@/auth";
 import {
   generateTransactionId,
-  getEPSClient,
   getEPSCallbackUrls,
+  initializeEPSPayment,
 } from "@/lib/eps";
 import { db } from "@/lib/db";
 import type { MembershipTier } from "@prisma/client";
@@ -108,6 +108,31 @@ export async function POST(request: Request) {
     const membershipId = await generateMembershipId();
     const merchantTransactionId = generateTransactionId();
 
+    const { successUrl, failUrl, cancelUrl } = getEPSCallbackUrls(
+      "membership",
+      membershipId,
+    );
+
+    const payment = await initializeEPSPayment({
+      customerOrderId: membershipId,
+      merchantTransactionId,
+      totalAmount: amount,
+      successUrl,
+      failUrl,
+      cancelUrl,
+      customerName: user.name || "Selenite Care Client",
+      customerEmail: user.email,
+      customerPhone: normalizeCustomerPhone(user.phone),
+      customerAddress: user.address || "Dhaka",
+      productName: `${tier} Membership - Selenite Care`,
+      valueA: membershipId,
+      valueB: session.user.id,
+    });
+
+    if (!payment.redirectUrl) {
+      throw new Error("EPS did not return a payment redirect URL.");
+    }
+
     await db.$transaction(async (tx) => {
       const membership = await tx.membership.create({
         data: {
@@ -132,32 +157,8 @@ export async function POST(request: Request) {
       });
     });
 
-    const { successUrl, failUrl, cancelUrl } = getEPSCallbackUrls(
-      "membership",
-      membershipId,
-    );
-
-    const payment = await getEPSClient().initializePayment({
-      customerOrderId: membershipId,
-      merchantTransactionId,
-      totalAmount: amount,
-      successUrl,
-      failUrl,
-      cancelUrl,
-      customerName: user.name || "Selenite Care Client",
-      customerEmail: user.email,
-      customerPhone: normalizeCustomerPhone(user.phone),
-      customerAddress: user.address || "Dhaka",
-      customerCity: "Dhaka",
-      customerState: "Dhaka",
-      customerPostcode: "1200",
-      productName: `${tier} Membership - Selenite Care`,
-      valueA: membershipId,
-      valueB: session.user.id,
-    });
-
     return Response.json({
-      redirectUrl: payment.RedirectURL,
+      redirectUrl: payment.redirectUrl,
       membershipId,
     });
   } catch (error) {

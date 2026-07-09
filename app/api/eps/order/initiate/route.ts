@@ -1,8 +1,8 @@
 import { auth } from "@/auth";
 import {
   generateTransactionId,
-  getEPSClient,
   getEPSCallbackUrls,
+  initializeEPSPayment,
 } from "@/lib/eps";
 import { db } from "@/lib/db";
 
@@ -105,7 +105,7 @@ export async function POST(request: Request) {
       order.id,
     );
 
-    const payment = await getEPSClient().initializePayment({
+    const payment = await initializeEPSPayment({
       customerOrderId: order.id,
       merchantTransactionId,
       totalAmount: order.totalAmount,
@@ -116,14 +116,11 @@ export async function POST(request: Request) {
       customerEmail: user.email,
       customerPhone: normalizeCustomerPhone(user.phone),
       customerAddress: order.deliveryAddress || "Dhaka",
-      customerCity: "Dhaka",
-      customerState: "Dhaka",
-      customerPostcode: "1200",
       productName: buildProductName(order.items),
       productList: order.items.map((item) => ({
         ProductName: item.product.name,
-        NoOfItem: item.quantity,
-        ProductPrice: item.price,
+        NoOfItem: item.quantity.toString(),
+        ProductPrice: item.price.toString(),
         ProductProfile: item.product.type,
         ProductCategory: item.product.type,
       })),
@@ -132,7 +129,7 @@ export async function POST(request: Request) {
     });
 
     return Response.json({
-      redirectUrl: payment.RedirectURL,
+      redirectUrl: payment.redirectUrl,
     });
   } catch (error) {
     console.error("EPS order initiate failed:", error);

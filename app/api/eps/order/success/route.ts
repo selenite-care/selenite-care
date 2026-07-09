@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getEPSClient } from "@/lib/eps";
+import { verifyEPSPayment } from "@/lib/eps";
 import { db } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
 import {
@@ -22,6 +22,35 @@ function getMerchantTransactionId(request: Request) {
     searchParams.get("merchant_transaction_id") ||
     ""
   ).trim();
+}
+
+function readEPSField(data: Record<string, unknown>, keys: string[]) {
+  for (const key of keys) {
+    const value = data[key];
+
+    if (value !== undefined && value !== null) {
+      return {
+        key,
+        value: String(value),
+      };
+    }
+  }
+
+  return {
+    key: "",
+    value: "",
+  };
+}
+
+function isEPSSuccess(data: Record<string, unknown>) {
+  return (
+    data.status === "Success" ||
+    data.Status === "Success" ||
+    data.transactionStatus === "Success" ||
+    data.TransactionStatus === "Success" ||
+    data.statusCode === "200" ||
+    data.isSuccess === true
+  );
 }
 
 function formatBdt(amount: number) {
@@ -123,11 +152,46 @@ export async function GET(request: Request) {
   }
 
   try {
-    const verification = await getEPSClient().verifyPayment({
+    const verification = (await verifyEPSPayment(
       merchantTransactionId,
+    )) as Record<string, unknown>;
+    console.log("EPS order verify full response:", JSON.stringify(verification));
+
+    const statusField = readEPSField(verification, [
+      "status",
+      "Status",
+      "transactionStatus",
+      "TransactionStatus",
+      "statusCode",
+    ]);
+    const epsTransactionField = readEPSField(verification, [
+      "epsTransactionId",
+      "EpsTransactionId",
+      "transactionId",
+      "TransactionId",
+    ]);
+    const paymentMethodField = readEPSField(verification, [
+      "financialEntity",
+      "FinancialEntity",
+      "paymentMethod",
+    ]);
+    const verificationStatus =
+      statusField.value || (isEPSSuccess(verification) ? "Success" : "");
+    const epsTransactionId = epsTransactionField.value;
+    const financialEntity = paymentMethodField.value;
+
+    console.log("EPS order verify fields found:", {
+      statusField: statusField.key || "none",
+      statusValue: statusField.value || null,
+      statusCode: verification.statusCode ?? null,
+      isSuccess: verification.isSuccess ?? null,
+      epsTransactionIdField: epsTransactionField.key || "none",
+      epsTransactionId: epsTransactionId || null,
+      paymentMethodField: paymentMethodField.key || "none",
+      paymentMethod: financialEntity || null,
     });
 
-    if (verification.Status?.toLowerCase() !== "success") {
+    if (!isEPSSuccess(verification)) {
       return buildRedirect(request, "/cart?error=payment_failed");
     }
 
@@ -166,8 +230,8 @@ export async function GET(request: Request) {
       },
       data: {
         status: "VERIFIED",
-        epsTransactionId: verification.EpsTransactionId,
-        epsPaymentMethod: verification.FinancialEntity,
+        epsTransactionId,
+        epsPaymentMethod: financialEntity,
       },
       include: {
         user: {
@@ -206,8 +270,8 @@ export async function GET(request: Request) {
               deliveryArea: order.deliveryArea,
               deliveryCharge: order.deliveryCharge,
               deliveryAddress: order.deliveryAddress,
-              epsTransactionId: verification.EpsTransactionId,
-              financialEntity: verification.FinancialEntity,
+              epsTransactionId,
+              financialEntity,
               items: order.items,
             }),
           })
