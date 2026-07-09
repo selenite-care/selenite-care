@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import epsClient from "@/lib/eps";
+import { getEPSClient } from "@/lib/eps";
 import { db } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
 import {
@@ -120,7 +120,7 @@ export async function GET(request: Request) {
   }
 
   try {
-    const verification = await epsClient.verifyPayment({
+    const verification = await getEPSClient().verifyPayment({
       merchantTransactionId,
     });
 

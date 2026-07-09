@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
-import epsClient, {
+import {
   generateTransactionId,
+  getEPSClient,
   getEPSCallbackUrls,
 } from "@/lib/eps";
 import { db } from "@/lib/db";
@@ -136,7 +137,7 @@ export async function POST(request: Request) {
       membershipId,
     );
 
-    const payment = await epsClient.initializePayment({
+    const payment = await getEPSClient().initializePayment({
       customerOrderId: membershipId,
       merchantTransactionId,
       totalAmount: amount,
