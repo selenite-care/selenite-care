@@ -14,13 +14,16 @@ function getMerchantTransactionId(request: Request) {
   ).trim();
 }
 
-function redirectToPayment(request: Request) {
-  return NextResponse.redirect(
-    new URL(
-      "/membership/payment?error=payment_cancelled&message=Payment+was+cancelled",
-      request.url,
-    ),
-  );
+function redirectToPayment(request: Request, tier?: string) {
+  const url = new URL("/membership/payment", request.url);
+  url.searchParams.set("error", "payment_cancelled");
+  url.searchParams.set("message", "Payment was cancelled");
+
+  if (tier) {
+    url.searchParams.set("tier", tier);
+  }
+
+  return NextResponse.redirect(url);
 }
 
 export async function GET(request: Request) {
@@ -38,6 +41,11 @@ export async function GET(request: Request) {
       select: {
         id: true,
         membershipId: true,
+        membership: {
+          select: {
+            tier: true,
+          },
+        },
       },
     });
 
@@ -60,6 +68,7 @@ export async function GET(request: Request) {
           },
         }),
       ]);
+      return redirectToPayment(request, payment.membership.tier);
     }
   } catch (error) {
     console.error("EPS membership cancel handling failed:", error);

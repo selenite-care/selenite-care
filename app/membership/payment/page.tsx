@@ -935,6 +935,9 @@ function MembershipPaymentPageContent() {
     useState(true);
   const paymentError = searchParams.get("error");
   const paymentMessage = searchParams.get("message");
+  const paymentErrorMessage = dismissedPaymentError
+    ? ""
+    : getPaymentErrorMessage(paymentError, paymentMessage);
 
   useEffect(() => {
     let isMounted = true;
@@ -1012,9 +1015,32 @@ function MembershipPaymentPageContent() {
           >
             Membership Payment
           </h1>
-          <p className="mt-4 text-sm text-[#884F38] dark:text-[#8A7D75]">
-            A valid membership tier is required to continue.
-          </p>
+          {paymentErrorMessage ? (
+            <div className="mt-6 max-w-2xl">
+              <PaymentErrorNotice
+                message={paymentErrorMessage}
+                onDismiss={() => setDismissedPaymentError(true)}
+              />
+              <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+                <a
+                  href="/services"
+                  className="inline-flex h-12 items-center justify-center rounded-md bg-[#2B2B2B] px-5 text-sm font-medium text-[#F8F5F0] transition-colors hover:bg-[#884F38] dark:bg-[#B87B68] dark:text-[#141210]"
+                >
+                  Choose Membership Again
+                </a>
+                <a
+                  href="/dashboard"
+                  className="inline-flex h-12 items-center justify-center rounded-md border border-[#EADDCD] bg-white px-5 text-sm font-medium text-[#2B2B2B] transition-colors hover:bg-[#F8F5F0] dark:border-[#3D3530] dark:bg-[#242220] dark:text-[#F0EDE8]"
+                >
+                  Go to Dashboard
+                </a>
+              </div>
+            </div>
+          ) : (
+            <p className="mt-4 text-sm text-[#884F38] dark:text-[#8A7D75]">
+              A valid membership tier is required to continue.
+            </p>
+          )}
         </div>
       </section>
     );
@@ -1022,9 +1048,6 @@ function MembershipPaymentPageContent() {
 
   const membership = MEMBERSHIPS[tier];
   const isTierAvailable = isMembershipAvailable(tier);
-  const paymentErrorMessage = dismissedPaymentError
-    ? ""
-    : getPaymentErrorMessage(paymentError, paymentMessage);
 
   if (!isTierAvailable) {
     return (
