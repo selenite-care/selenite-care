@@ -8,7 +8,10 @@ function getBaseUrl(): string {
 }
 
 function generateHash(data: string, hashKey: string): string {
-  return crypto.createHmac("sha512", hashKey).update(data).digest("base64");
+  return crypto
+    .createHmac("sha512", Buffer.from(hashKey.trim(), "utf8"))
+    .update(data, "utf8")
+    .digest("base64");
 }
 
 export function generateTransactionId(): string {
@@ -34,8 +37,7 @@ async function getEPSToken(): Promise<string> {
   const userName = process.env.EPS_USERNAME!;
   const password = process.env.EPS_PASSWORD!;
 
-  const hashData = `${userName}${password}`;
-  const xHash = generateHash(hashData, hashKey);
+  const xHash = generateHash(userName, hashKey);
 
   const response = await fetch(`${getBaseUrl()}/v1/Auth/GetToken`, {
     method: "POST",
@@ -86,8 +88,7 @@ export async function initializeEPSPayment(params: {
   const hashKey = process.env.EPS_HASH_KEY!;
   const storeId = process.env.EPS_STORE_ID!;
 
-  const hashData = `${storeId}${params.merchantTransactionId}${params.totalAmount}`;
-  const xHash = generateHash(hashData, hashKey);
+  const xHash = generateHash(params.merchantTransactionId, hashKey);
 
   const body = {
     storeId,
@@ -177,8 +178,7 @@ export async function verifyEPSPayment(merchantTransactionId: string) {
   const hashKey = process.env.EPS_HASH_KEY!;
   const storeId = process.env.EPS_STORE_ID!;
 
-  const hashData = `${storeId}${merchantTransactionId}`;
-  const xHash = generateHash(hashData, hashKey);
+  const xHash = generateHash(merchantTransactionId, hashKey);
 
   const url = `${getBaseUrl()}/v1/EPSEngine/CheckMerchantTransactionStatus?merchantTransactionId=${encodeURIComponent(
     merchantTransactionId,
