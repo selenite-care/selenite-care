@@ -76,6 +76,14 @@ function MembershipWelcomePageContent() {
   const [hasTrackedPurchase, setHasTrackedPurchase] = useState(false);
 
   useEffect(() => {
+    if (typeof window !== "undefined" && typeof gtag !== "undefined") {
+      gtag("event", "conversion", {
+        send_to: "AW-18307861593/membership_purchase",
+      });
+    }
+  }, []);
+
+  useEffect(() => {
     let isMounted = true;
 
     async function loadMembership() {

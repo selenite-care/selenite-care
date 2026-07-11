@@ -1,12 +1,26 @@
 "use client";
 
 import Link from "next/link";
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
+import { useCart } from "@/components/cart/CartProvider";
 
 function OrdersConfirmationContent() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get("orderId") ?? searchParams.get("id") ?? "";
+  const { clearCart } = useCart();
+
+  useEffect(() => {
+    if (orderId) {
+      clearCart();
+
+      if (typeof window !== "undefined" && typeof gtag !== "undefined") {
+        gtag("event", "conversion", {
+          send_to: "AW-18307861593/order_purchase",
+        });
+      }
+    }
+  }, [clearCart, orderId]);
 
   return (
     <main className="flex min-h-screen items-center bg-[#F8F5F0] px-6 py-16 dark:bg-[#1A1814]">

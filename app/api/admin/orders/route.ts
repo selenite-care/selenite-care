@@ -45,6 +45,14 @@ export async function GET(request: Request) {
         }
       : {}),
     ...(orderStatus ? { status: orderStatus } : {}),
+    ...(!orderStatus || orderStatus === "PENDING"
+      ? {
+          NOT: {
+            status: "PENDING",
+            transactionRef: "EPS_PENDING",
+          },
+        }
+      : {}),
   };
 
   const [orders, totalCount] = await db.$transaction([

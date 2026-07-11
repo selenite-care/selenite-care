@@ -286,6 +286,16 @@ export async function GET(request: Request) {
         gte: start,
         lte: end,
       },
+      NOT: {
+        status: "PENDING",
+        payment: {
+          is: {
+            epsMerchantTxnId: {
+              not: null,
+            },
+          },
+        },
+      },
     },
     select: {
       createdAt: true,

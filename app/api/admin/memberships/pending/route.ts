@@ -18,6 +18,13 @@ export async function GET() {
   const memberships = await db.membership.findMany({
     where: {
       status: "PENDING",
+      payment: {
+        is: {
+          paymentMethod: {
+            in: ["BKASH", "BANK_TRANSFER"],
+          },
+        },
+      },
     },
     orderBy: {
       createdAt: "desc",

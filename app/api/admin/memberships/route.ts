@@ -64,6 +64,19 @@ export async function GET(request: Request) {
   const where: Prisma.MembershipWhereInput = {
     ...(searchFilters.length > 0 ? { OR: searchFilters } : {}),
     ...(membershipStatus ? { status: membershipStatus } : {}),
+    ...(membershipStatus === "PENDING"
+      ? {
+          NOT: {
+            payment: {
+              is: {
+                epsMerchantTxnId: {
+                  not: null,
+                },
+              },
+            },
+          },
+        }
+      : {}),
   };
 
   const [memberships, totalCount] = await db.$transaction([
