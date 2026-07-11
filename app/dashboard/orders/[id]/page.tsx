@@ -116,6 +116,9 @@ export default async function DashboardOrderDetailsPage(
       id: true,
       createdAt: true,
       totalAmount: true,
+      subtotalAmount: true,
+      discountPercent: true,
+      discountAmount: true,
       paymentMethod: true,
       status: true,
       deliveryArea: true,
@@ -152,6 +155,10 @@ export default async function DashboardOrderDetailsPage(
     (sum, item) => sum + item.quantity * item.price,
     0,
   );
+  const summarySubtotal =
+    order.subtotalAmount > 0 ? order.subtotalAmount : subtotal;
+  const hasMembershipDiscount =
+    order.discountPercent > 0 && order.discountAmount > 0;
   const buyAgainItems = order.items.map((item) => ({
     productId: item.product.id,
     name: item.product.name,
@@ -321,9 +328,19 @@ export default async function DashboardOrderDetailsPage(
                   Items Subtotal
                 </span>
                 <span className="font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]">
-                  {formatBdt(subtotal)}
+                  {formatBdt(summarySubtotal)}
                 </span>
               </div>
+              {hasMembershipDiscount ? (
+                <div className="flex items-center justify-between gap-4 text-green-700 dark:text-green-400">
+                  <span className="font-medium">
+                    Membership Discount ({order.discountPercent}%)
+                  </span>
+                  <span className="font-semibold">
+                    -{formatBdt(order.discountAmount)}
+                  </span>
+                </div>
+              ) : null}
               <div className="flex items-center justify-between gap-4">
                 <span className="font-medium text-[#884F38] dark:text-[#8A7D75]">
                   Delivery Charge
@@ -334,7 +351,7 @@ export default async function DashboardOrderDetailsPage(
               </div>
               <div className="flex items-center justify-between gap-4 border-t border-[#EADDCD] pt-4 dark:border-[#3D3530]">
                 <span className="font-medium text-[#884F38] dark:text-[#8A7D75]">
-                  Total
+                  Total Paid
                 </span>
                 <span className="text-xl font-bold text-[#B87B68]">
                   {formatBdt(order.totalAmount)}

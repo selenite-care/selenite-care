@@ -4,6 +4,7 @@ import "react-phone-number-input/style.css";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
+import { MEMBERSHIP_PRICES } from "@/lib/membershipDiscounts";
 
 type MembershipTier = "SIGNATURE" | "CRYSTAL" | "PLATINUM";
 type PaymentMethod = "CASH" | "BKASH" | "BANK_TRANSFER";
@@ -41,9 +42,9 @@ type ManualMembershipResponse = {
 };
 
 const TIER_PRICES: Record<MembershipTier, number> = {
-  SIGNATURE: 490,
-  CRYSTAL: 3990,
-  PLATINUM: 9990,
+  SIGNATURE: MEMBERSHIP_PRICES.SIGNATURE.price,
+  CRYSTAL: MEMBERSHIP_PRICES.CRYSTAL.price,
+  PLATINUM: MEMBERSHIP_PRICES.PLATINUM.price,
 };
 
 const initialFormState: ManualMembershipFormState = {

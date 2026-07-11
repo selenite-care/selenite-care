@@ -2,8 +2,10 @@
 
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
+import { ShoppingBag } from "lucide-react";
 import { useCart } from "@/components/cart/CartProvider";
 import { Skeleton, SkeletonCard } from "@/components/ui/Skeleton";
+import { getProductDiscount } from "@/lib/membershipDiscounts";
 
 export const dynamic = "force-dynamic";
 
@@ -42,6 +44,12 @@ type ClientBooking = {
       productId: string;
     }>;
   } | null;
+};
+
+type ClientMembership = {
+  tier: "SIGNATURE" | "CRYSTAL" | "PLATINUM";
+  status: "PENDING" | "ACTIVE" | "EXPIRED" | "CANCELLED";
+  expiresAt: string | null;
 };
 
 const PAGE_SIZE = 12;
@@ -98,6 +106,8 @@ export default function ProductsPage() {
   const [recommendedProductIds, setRecommendedProductIds] = useState<Set<string>>(
     () => new Set(),
   );
+  const [discountMembership, setDiscountMembership] =
+    useState<ClientMembership | null>(null);
   const [page, setPage] = useState(1);
   const [products, setProducts] = useState<Product[]>([]);
   const [types, setTypes] = useState<string[]>([]);
@@ -106,6 +116,11 @@ export default function ProductsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [recentlyAddedId, setRecentlyAddedId] = useState<string | null>(null);
+  const productDiscountPercent = getProductDiscount(discountMembership?.tier);
+  const hasProductDiscount =
+    !!discountMembership &&
+    discountMembership.status === "ACTIVE" &&
+    productDiscountPercent > 0;
 
   useEffect(() => {
     const timeout = window.setTimeout(() => {
@@ -118,6 +133,46 @@ export default function ProductsPage() {
   useEffect(() => {
     setPage(1);
   }, [debouncedSearch, selectedType, showDoctorRecommended]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadMembershipDiscount() {
+      try {
+        const response = await fetch("/api/client/membership", {
+          cache: "no-store",
+        });
+
+        if (!response.ok) {
+          return;
+        }
+
+        const data = (await response.json().catch(() => null)) as
+          | { membership?: ClientMembership | null }
+          | null;
+        const membership = data?.membership ?? null;
+        const isActiveDiscountMembership =
+          membership?.status === "ACTIVE" &&
+          !!membership.expiresAt &&
+          new Date(membership.expiresAt).getTime() > Date.now() &&
+          getProductDiscount(membership.tier) > 0;
+
+        if (isMounted) {
+          setDiscountMembership(isActiveDiscountMembership ? membership : null);
+        }
+      } catch {
+        if (isMounted) {
+          setDiscountMembership(null);
+        }
+      }
+    }
+
+    void loadMembershipDiscount();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
@@ -520,6 +575,21 @@ export default function ProductsPage() {
           </div>
         </section>
 
+        {hasProductDiscount ? (
+          <div className="mt-6 rounded-2xl border border-[#E8DDD0] border-l-4 border-l-[#B87B68] bg-[#FFF8EE] px-5 py-4 shadow-sm dark:border-[#3D3530] dark:border-l-[#D4B47A] dark:bg-[#242220]">
+            <div className="flex items-start gap-3">
+              <span className="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#B87B68]/15 text-[#B87B68] dark:bg-[#D4B47A]/15 dark:text-[#D4B47A]">
+                <ShoppingBag className="h-5 w-5" />
+              </span>
+              <p className="text-sm font-medium leading-6 text-[#2B2B2B] dark:text-[#F0EDE8]">
+                You have {productDiscountPercent}% off on all products with your{" "}
+                {discountMembership.tier} Membership! Discount applied
+                automatically at checkout.
+              </p>
+            </div>
+          </div>
+        ) : null}
+
         {error ? (
           <div
             style={{
@@ -663,6 +733,30 @@ export default function ProductsPage() {
                       </span>
                     ) : null}
 
+                    {hasProductDiscount ? (
+                      <span
+                        style={{
+                          position: "absolute",
+                          top: 12,
+                          right: 12,
+                          zIndex: 13,
+                          borderRadius: 99,
+                          background: "#DCFCE7",
+                          border: "1px solid #BBF7D0",
+                          padding: "5px 11px",
+                          fontSize: 10,
+                          fontWeight: 800,
+                          letterSpacing: "0.08em",
+                          textTransform: "uppercase",
+                          color: "#15803D",
+                          boxShadow: "0 4px 12px rgba(0,0,0,0.12)",
+                        }}
+                        className="product-discount-badge"
+                      >
+                        {productDiscountPercent}% OFF
+                      </span>
+                    ) : null}
+
                     <div
                       style={{
                         position: "relative",
@@ -709,6 +803,10 @@ export default function ProductsPage() {
                           top: 12,
                           left: isDoctorRecommended ? "auto" : 12,
                           right: isDoctorRecommended ? 12 : "auto",
+                          transform:
+                            hasProductDiscount && isDoctorRecommended
+                              ? "translateY(34px)"
+                              : "none",
                           borderRadius: 99,
                           background: "rgba(255,255,255,0.95)",
                           padding: "4px 11px",
@@ -999,6 +1097,15 @@ export default function ProductsPage() {
 
           .product-doctor-badge + .product-card-media .product-type-badge {
             display: none;
+          }
+
+          .product-discount-badge {
+            top: 6px !important;
+            right: 6px !important;
+            padding: 3px 6px !important;
+            font-size: 7px !important;
+            line-height: 1.1 !important;
+            letter-spacing: 0.04em !important;
           }
 
           .product-stock-badge {

@@ -4,6 +4,7 @@ import Papa from "papaparse";
 import { useEffect, useState } from "react";
 import Pagination from "@/components/ui/Pagination";
 import { formatDateTime } from "@/lib/dateUtils";
+import { getProductDiscount } from "@/lib/membershipDiscounts";
 
 type CrmMembership = {
   id: string;
@@ -77,6 +78,24 @@ function getStatusBadgeStyles(status: CrmMembership["status"]) {
         color: "#B91C1C",
       };
   }
+}
+
+function ProductDiscountCell({ tier }: { tier: CrmMembership["tier"] }) {
+  const discount = getProductDiscount(tier);
+
+  if (discount <= 0) {
+    return (
+      <span className="text-sm font-medium text-[#884F38] dark:text-[#8A7D75]">
+        —
+      </span>
+    );
+  }
+
+  return (
+    <span className="inline-flex rounded-full bg-green-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-green-700 dark:bg-green-950/30 dark:text-green-300">
+      {discount}% OFF
+    </span>
+  );
 }
 
 function getDaysRemaining(expiresAt: string | null) {
@@ -289,13 +308,14 @@ export default function CrmMembershipsPage() {
             ) : (
               <div className="overflow-hidden rounded-2xl border border-themed bg-card shadow-sm">
                 <div className="overflow-x-auto">
-                  <table className="table-themed w-full min-w-[1100px] text-left text-sm">
+                  <table className="table-themed w-full min-w-[1200px] text-left text-sm">
                     <thead>
                       <tr>
                         <th className="px-4 py-3 font-medium">Membership ID</th>
                         <th className="px-4 py-3 font-medium">Client Name</th>
                         <th className="px-4 py-3 font-medium">Client Phone</th>
                         <th className="px-4 py-3 font-medium">Tier</th>
+                        <th className="px-4 py-3 font-medium">Product Discount</th>
                         <th className="px-4 py-3 font-medium">Status</th>
                         <th className="px-4 py-3 font-medium">Days Remaining</th>
                         <th className="px-4 py-3 font-medium">Purchase Date</th>
@@ -324,6 +344,9 @@ export default function CrmMembershipsPage() {
                                 >
                                   {membership.tier}
                                 </span>
+                              </td>
+                              <td className="px-4 py-4">
+                                <ProductDiscountCell tier={membership.tier} />
                               </td>
                               <td className="px-4 py-4">
                                 <span

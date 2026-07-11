@@ -2,6 +2,7 @@ import { randomBytes } from "node:crypto";
 import bcrypt from "bcryptjs";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
+import { calculateExpiresAt } from "@/lib/membershipDiscounts";
 import { sanitizeEmail, sanitizeName, sanitizePhone, sanitizeText } from "@/lib/sanitize";
 import type { MembershipStatus, MembershipTier, PaymentMethod } from "@prisma/client";
 
@@ -64,17 +65,6 @@ function parsePaymentMethod(value: unknown): PaymentMethod | null {
 
   const normalized = value.trim().toUpperCase() as PaymentMethod;
   return ALLOWED_PAYMENT_METHODS.includes(normalized) ? normalized : null;
-}
-
-function getMembershipDurationDays(tier: MembershipTier) {
-  switch (tier) {
-    case "SIGNATURE":
-      return 60;
-    case "CRYSTAL":
-      return 365;
-    case "PLATINUM":
-      return 1095;
-  }
 }
 
 function buildSurveyNote({
@@ -184,8 +174,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const expiresAt = new Date(purchaseDate);
-  expiresAt.setDate(expiresAt.getDate() + getMembershipDurationDays(tier));
+  const expiresAt = calculateExpiresAt(tier, purchaseDate);
 
   const status: MembershipStatus =
     expiresAt.getTime() < Date.now() ? "EXPIRED" : "ACTIVE";

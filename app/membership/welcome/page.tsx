@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { formatDateOnly } from "@/lib/dateUtils";
+import { MEMBERSHIP_PRICES } from "@/lib/membershipDiscounts";
 
 type MembershipResponse = {
   membership?: {
@@ -18,9 +19,9 @@ type MembershipResponse = {
 };
 
 const MEMBERSHIP_AMOUNTS: Record<"SIGNATURE" | "CRYSTAL" | "PLATINUM", number> = {
-  SIGNATURE: 490,
-  CRYSTAL: 3990,
-  PLATINUM: 9990,
+  SIGNATURE: MEMBERSHIP_PRICES.SIGNATURE.price,
+  CRYSTAL: MEMBERSHIP_PRICES.CRYSTAL.price,
+  PLATINUM: MEMBERSHIP_PRICES.PLATINUM.price,
 };
 
 function trackMetaPixelEvent(
@@ -61,7 +62,7 @@ function getTierSummary(tier: "SIGNATURE" | "CRYSTAL" | "PLATINUM") {
       return "3 Years of Premium Specialist Support including skin transformation program and progress monitoring.";
     case "SIGNATURE":
     default:
-      return "60 Days of Unlimited Skincare Support with personalized consultation and routine development.";
+      return "90 Days of Unlimited Skincare Support with personalized consultation and routine development.";
   }
 }
 

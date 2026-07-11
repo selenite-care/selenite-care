@@ -261,6 +261,9 @@ model Order {
   epsTransactionId  String?
   epsMerchantTxnId  String? @unique
   epsPaymentMethod  String?
+  discountPercent   Float @default(0)
+  discountAmount    Float @default(0)
+  subtotalAmount    Float @default(0)
 
   @@index([createdAt(sort: Desc)])
   @@index([status])

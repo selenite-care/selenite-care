@@ -5,18 +5,13 @@ import {
   initializeEPSPayment,
 } from "@/lib/eps";
 import { db } from "@/lib/db";
+import { getMembershipPrice } from "@/lib/membershipDiscounts";
 import type { MembershipTier } from "@prisma/client";
 
 export const runtime = "nodejs";
 
 type InitiateMembershipPayload = {
   tier?: unknown;
-};
-
-const MEMBERSHIP_AMOUNTS: Record<MembershipTier, number> = {
-  SIGNATURE: 490,
-  CRYSTAL: 3990,
-  PLATINUM: 9990,
 };
 
 function parseTier(value: unknown): MembershipTier | null {
@@ -104,7 +99,7 @@ export async function POST(request: Request) {
       return Response.json({ error: "User not found." }, { status: 404 });
     }
 
-    const amount = MEMBERSHIP_AMOUNTS[tier];
+    const amount = getMembershipPrice(tier);
     const membershipId = await generateMembershipId();
     const merchantTransactionId = generateTransactionId();
 

@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
+import { calculateOrderTotal } from "@/lib/membershipDiscounts";
 import { createNotification, NOTIFICATION_TYPES } from "@/lib/notifications";
 import type { DeliveryArea, PaymentMethod, StockStatus } from "@prisma/client";
 
@@ -21,6 +22,9 @@ type CreateOrderPayload = {
   deliveryArea?: unknown;
   deliveryCharge?: unknown;
   deliveryAddress?: unknown;
+  discountPercent?: unknown;
+  discountAmount?: unknown;
+  subtotalAmount?: unknown;
 };
 
 const DELIVERY_CHARGES: Record<DeliveryArea, number> = {
@@ -142,6 +146,8 @@ export async function POST(request: Request) {
   }
 
   const body = (await request.json().catch(() => ({}))) as CreateOrderPayload;
+  // Client-sent subtotal/discount values are accepted for UI compatibility,
+  // but never trusted. Prices, membership discount, and total are recalculated below.
   const items = normalizeItems(body.items);
   const paymentMethod = parsePaymentMethod(body.paymentMethod);
   const transactionRef =
@@ -246,11 +252,35 @@ export async function POST(request: Request) {
     );
   }
 
-  const subtotalAmount = items.reduce((sum, item) => {
+  const serverSubtotalAmount = items.reduce((sum, item) => {
     const product = productMap.get(item.productId);
     return sum + (product?.price ?? 0) * item.quantity;
   }, 0);
-  const totalAmount = subtotalAmount + deliveryCharge;
+
+  const activeMembership = await db.membership.findFirst({
+    where: {
+      userId: session.user.id,
+      status: "ACTIVE",
+      expiresAt: {
+        gt: new Date(),
+      },
+      tier: {
+        in: ["CRYSTAL", "PLATINUM"],
+      },
+    },
+    select: {
+      tier: true,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+  const orderBreakdown = calculateOrderTotal(
+    serverSubtotalAmount,
+    deliveryCharge,
+    activeMembership?.tier ?? null,
+  );
+  const totalAmount = orderBreakdown.total;
 
   const note = buildOrderNote({
     customNote,
@@ -287,6 +317,9 @@ export async function POST(request: Request) {
       deliveryArea,
       deliveryCharge,
       deliveryAddress,
+      discountPercent: orderBreakdown.discountPercent,
+      discountAmount: orderBreakdown.discountAmount,
+      subtotalAmount: orderBreakdown.subtotal,
       items: {
         create: items.map((item) => {
           const product = productMap.get(item.productId)!;
@@ -334,6 +367,15 @@ export async function POST(request: Request) {
           ? "Bank Transfer"
           : "Cash on Delivery";
 
+    const discountHtml =
+      orderBreakdown.discountAmount > 0 && activeMembership
+        ? `
+                <tr>
+                  <td style="padding: 10px 0; border-bottom: 1px solid #EEE0D0; color: #6E6257;">Membership Discount (${activeMembership.tier} - ${orderBreakdown.discountPercent}%)</td>
+                  <td style="padding: 10px 0; border-bottom: 1px solid #EEE0D0; color: #15803D;">-${Math.round(orderBreakdown.discountAmount)} BDT</td>
+                </tr>`
+        : "";
+
     const adminHtml = `
       <div style="font-family: Arial, sans-serif; color: #2B2B2B; line-height: 1.6; background: #F8F5F0; padding: 24px;">
         <div style="max-width: 760px; margin: 0 auto; background: #FFFFFF; border: 1px solid #EADDCD; border-radius: 16px; overflow: hidden;">
@@ -378,11 +420,12 @@ export async function POST(request: Request) {
                 </tr>
                 <tr>
                   <td style="padding: 10px 0; border-bottom: 1px solid #EEE0D0; color: #6E6257;">Products Subtotal</td>
-                  <td style="padding: 10px 0; border-bottom: 1px solid #EEE0D0;">${Math.round(subtotalAmount)} BDT</td>
+                  <td style="padding: 10px 0; border-bottom: 1px solid #EEE0D0;">${Math.round(orderBreakdown.subtotal)} BDT</td>
                 </tr>
+                ${discountHtml}
                 <tr>
                   <td style="padding: 10px 0; border-bottom: 1px solid #EEE0D0; color: #6E6257;">Delivery Charge</td>
-                  <td style="padding: 10px 0; border-bottom: 1px solid #EEE0D0;">${Math.round(deliveryCharge)} BDT</td>
+                  <td style="padding: 10px 0; border-bottom: 1px solid #EEE0D0;">${Math.round(orderBreakdown.deliveryCharge)} BDT</td>
                 </tr>
                 <tr>
                   <td style="padding: 10px 0; border-bottom: 1px solid #EEE0D0; color: #6E6257;">Total Amount</td>

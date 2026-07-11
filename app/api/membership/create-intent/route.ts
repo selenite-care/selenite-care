@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { isMembershipAvailable } from "@/lib/membershipAvailability";
+import { getMembershipPrice } from "@/lib/membershipDiscounts";
 import { stripe } from "@/lib/stripe";
 
 export const runtime = "nodejs";
@@ -11,12 +12,6 @@ type CreateMembershipIntentPayload = {
 };
 
 const BDT_PER_USD = 122;
-
-const MEMBERSHIP_AMOUNTS: Record<MembershipTier, number> = {
-  SIGNATURE: 490,
-  CRYSTAL: 3990,
-  PLATINUM: 9990,
-};
 
 async function requireSession() {
   const session = await auth();
@@ -70,7 +65,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const amountInBdt = MEMBERSHIP_AMOUNTS[tier];
+  const amountInBdt = getMembershipPrice(tier);
   const amountInUsdCents = Math.round((amountInBdt / BDT_PER_USD) * 100);
 
   const paymentIntent = await stripe.paymentIntents.create({

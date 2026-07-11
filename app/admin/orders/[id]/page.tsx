@@ -78,6 +78,9 @@ export default async function AdminOrderDetailsPage(
       id: true,
       createdAt: true,
       totalAmount: true,
+      subtotalAmount: true,
+      discountPercent: true,
+      discountAmount: true,
       paymentMethod: true,
       status: true,
       deliveryArea: true,
@@ -113,6 +116,15 @@ export default async function AdminOrderDetailsPage(
   if (!order) {
     notFound();
   }
+
+  const itemsSubtotal = order.items.reduce(
+    (sum, item) => sum + item.quantity * item.price,
+    0,
+  );
+  const summarySubtotal =
+    order.subtotalAmount > 0 ? order.subtotalAmount : itemsSubtotal;
+  const hasMembershipDiscount =
+    order.discountPercent > 0 && order.discountAmount > 0;
 
   return (
     <section className="min-h-screen bg-[#F8F5F0] px-6 py-10 dark:bg-[#1A1814]">
@@ -241,17 +253,35 @@ export default async function AdminOrderDetailsPage(
                 <p className="text-page mt-1 whitespace-pre-wrap">{order.note}</p>
               </div>
             ) : null}
-            <div className="border-themed border-t pt-4">
-              <p className="text-muted font-medium">Delivery Charge</p>
-              <p className="text-page mt-1 font-semibold">
-                {formatBdt(order.deliveryCharge)}
-              </p>
-            </div>
-            <div className="border-themed border-t pt-4">
-              <p className="text-muted font-medium">Total Amount</p>
-              <p className="mt-1 text-xl font-semibold text-[#B87B68]">
-                {formatBdt(order.totalAmount)}
-              </p>
+            <div className="border-themed space-y-3 border-t pt-4">
+              <div className="flex items-center justify-between gap-4">
+                <p className="text-muted font-medium">Items Subtotal</p>
+                <p className="text-page font-semibold">
+                  {formatBdt(summarySubtotal)}
+                </p>
+              </div>
+              {hasMembershipDiscount ? (
+                <div className="flex items-center justify-between gap-4 text-green-700 dark:text-green-400">
+                  <p className="font-medium">
+                    Membership Discount ({order.discountPercent}%)
+                  </p>
+                  <p className="font-semibold">
+                    -{formatBdt(order.discountAmount)}
+                  </p>
+                </div>
+              ) : null}
+              <div className="flex items-center justify-between gap-4">
+                <p className="text-muted font-medium">Delivery Charge</p>
+                <p className="text-page font-semibold">
+                  {formatBdt(order.deliveryCharge)}
+                </p>
+              </div>
+              <div className="flex items-center justify-between gap-4 border-t border-[#EADDCD] pt-3 dark:border-[#3D3530]">
+                <p className="text-muted font-medium">Total Paid</p>
+                <p className="text-xl font-bold text-[#B87B68]">
+                  {formatBdt(order.totalAmount)}
+                </p>
+              </div>
             </div>
             {order.proofImageUrl ? (
               <a

@@ -5,14 +5,19 @@ import MembershipCountdown from "@/components/membership/MembershipCountdown";
 import { authConfig } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { isMembershipAvailable } from "@/lib/membershipAvailability";
+import { MEMBERSHIP_PRICES } from "@/lib/membershipDiscounts";
 
 const { auth } = NextAuth(authConfig);
 
 const MEMBERSHIP_AMOUNTS = {
-  SIGNATURE: 490,
-  CRYSTAL: 3990,
-  PLATINUM: 9990,
+  SIGNATURE: MEMBERSHIP_PRICES.SIGNATURE.price,
+  CRYSTAL: MEMBERSHIP_PRICES.CRYSTAL.price,
+  PLATINUM: MEMBERSHIP_PRICES.PLATINUM.price,
 } as const;
+
+function formatBdt(amount: number) {
+  return `${amount.toLocaleString("en-US")} BDT`;
+}
 
 function getTierClasses(tier: "SIGNATURE" | "CRYSTAL" | "PLATINUM" | string) {
   switch (tier) {
@@ -31,11 +36,11 @@ function getUpgradeOptions(tier: "SIGNATURE" | "CRYSTAL" | "PLATINUM") {
     return [
       {
         tier: "CRYSTAL" as const,
-        label: `Upgrade to Crystal - ${MEMBERSHIP_AMOUNTS.CRYSTAL} BDT`,
+        label: `Upgrade to Crystal - ${formatBdt(MEMBERSHIP_AMOUNTS.CRYSTAL)}`,
       },
       {
         tier: "PLATINUM" as const,
-        label: `Upgrade to Platinum - ${MEMBERSHIP_AMOUNTS.PLATINUM} BDT`,
+        label: `Upgrade to Platinum - ${formatBdt(MEMBERSHIP_AMOUNTS.PLATINUM)}`,
       },
     ].filter((option) => isMembershipAvailable(option.tier));
   }
@@ -44,7 +49,7 @@ function getUpgradeOptions(tier: "SIGNATURE" | "CRYSTAL" | "PLATINUM") {
     return [
       {
         tier: "PLATINUM" as const,
-        label: `Upgrade to Platinum - ${MEMBERSHIP_AMOUNTS.PLATINUM} BDT`,
+        label: `Upgrade to Platinum - ${formatBdt(MEMBERSHIP_AMOUNTS.PLATINUM)}`,
       },
     ].filter((option) => isMembershipAvailable(option.tier));
   }

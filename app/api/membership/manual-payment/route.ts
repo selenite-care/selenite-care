@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
 import { isMembershipAvailable } from "@/lib/membershipAvailability";
+import { getMembershipPrice } from "@/lib/membershipDiscounts";
 import { createNotification, NOTIFICATION_TYPES } from "@/lib/notifications";
 import type { MembershipTier, PaymentMethod } from "@prisma/client";
 
@@ -13,12 +14,6 @@ type ManualPaymentPayload = {
   transactionRef?: unknown;
   senderNumber?: unknown;
   proofImageUrl?: unknown;
-};
-
-const MEMBERSHIP_AMOUNTS: Record<MembershipTier, number> = {
-  SIGNATURE: 490,
-  CRYSTAL: 3990,
-  PLATINUM: 9990,
 };
 
 function parseTier(value: unknown): MembershipTier | null {
@@ -79,7 +74,7 @@ async function generateMembershipId() {
 }
 
 function resolveMembershipAmount(tier: MembershipTier) {
-  return MEMBERSHIP_AMOUNTS[tier];
+  return getMembershipPrice(tier);
 }
 
 function formatTierLabel(tier: MembershipTier) {

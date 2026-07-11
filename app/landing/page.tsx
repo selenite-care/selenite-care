@@ -21,8 +21,21 @@ import {
   getMembershipAvailabilityLabel,
   isMembershipAvailable,
 } from "@/lib/membershipAvailability";
+import {
+  getProductDiscount,
+  isSignatureOfferValid,
+  MEMBERSHIP_PRICES,
+} from "@/lib/membershipDiscounts";
 
 export const dynamic = "force-dynamic";
+
+const signatureOfferIsActive = isSignatureOfferValid();
+const signatureCurrentPrice = signatureOfferIsActive
+  ? MEMBERSHIP_PRICES.SIGNATURE.price
+  : (MEMBERSHIP_PRICES.SIGNATURE.originalPrice ?? MEMBERSHIP_PRICES.SIGNATURE.price);
+const signatureOriginalPrice = signatureOfferIsActive
+  ? MEMBERSHIP_PRICES.SIGNATURE.originalPrice
+  : null;
 
 const CONTENT = {
   en: {
@@ -34,7 +47,7 @@ const CONTENT = {
     },
     hero: {
       badge: "PROFESSIONAL SKINCARE CONSULTATION",
-      heading: "51% OFF on Signature Membership",
+      heading: "Limited-time offer on Signature Membership",
       subtext:
         "Skin Problems - Acne, Pigmentation, Dehydration, Sensitivity, Dullness. Get doctor consultation and customized skincare Day-Night routines.",
       primaryButton: "Get Membership Now",
@@ -70,12 +83,17 @@ const CONTENT = {
       signature: {
         tier: "SIGNATURE",
         title: "Signature",
-        duration: "2 Months",
-        price: "490 BDT",
-        original: "990 BDT",
-        badge: "51% OFF",
+        duration: "3 Months",
+        price: `${signatureCurrentPrice.toLocaleString("en-US")} BDT`,
+        original: signatureOriginalPrice
+          ? `${signatureOriginalPrice.toLocaleString("en-US")} BDT`
+          : undefined,
+        badge: signatureOfferIsActive ? "LIMITED TIME OFFER" : undefined,
+        priceNote: signatureOfferIsActive
+          ? "Offer valid till July 30, 2026"
+          : undefined,
         benefits: [
-          "60 Days Skincare Support",
+          "90 Days Skincare Support",
           "Skin, Body & Hair Analysis",
           "Expert Consultation",
           "Personalized Routine",
@@ -87,7 +105,9 @@ const CONTENT = {
         tier: "CRYSTAL",
         title: "Crystal",
         duration: "12 Months",
-        price: "3,990 BDT",
+        price: `${MEMBERSHIP_PRICES.CRYSTAL.price.toLocaleString("en-US")} BDT`,
+        badge: `${getProductDiscount("CRYSTAL")}% OFF on All Products`,
+        priceNote: "Product discount valid throughout membership",
         benefits: [
           "1 Year Specialist Support",
           "Aesthetician, Nutritionist & Psychiatrist",
@@ -101,8 +121,9 @@ const CONTENT = {
         tier: "PLATINUM",
         title: "Platinum",
         duration: "36 Months",
-        price: "9,990 BDT",
-        badge: "PREMIUM",
+        price: `${MEMBERSHIP_PRICES.PLATINUM.price.toLocaleString("en-US")} BDT`,
+        badge: `${getProductDiscount("PLATINUM")}% OFF on All Products`,
+        priceNote: "Product discount valid throughout membership",
         benefits: [
           "3 Years Specialist Support",
           "5% Off Product Purchases",
@@ -310,15 +331,21 @@ const CONTENT = {
         title:
           "\u09b8\u09bf\u0997\u09a8\u09c7\u099a\u09be\u09b0",
         duration:
-          "\u09e8 \u09ae\u09be\u09b8",
+          "\u09e9 \u09ae\u09be\u09b8",
         price:
-          "\u09ea\u09ef\u09e6 \u099f\u09be\u0995\u09be",
-        original:
-          "\u09ef\u09ef\u09e6 \u099f\u09be\u0995\u09be",
+          `${signatureCurrentPrice.toLocaleString("en-US")} \u099f\u09be\u0995\u09be`,
+        original: signatureOriginalPrice
+          ? `${signatureOriginalPrice.toLocaleString("en-US")} \u099f\u09be\u0995\u09be`
+          : undefined,
         badge:
-          "\u09eb\u09e7% \u099b\u09be\u09dc",
+          signatureOfferIsActive
+            ? "\u09ac\u09bf\u09b6\u09c7\u09b7 \u0985\u09ab\u09be\u09b0"
+            : undefined,
+        priceNote: signatureOfferIsActive
+          ? "Offer valid till July 30, 2026"
+          : undefined,
         benefits: [
-          "\u09ec\u09e6 \u09a6\u09bf\u09a8 \u09b8\u09cd\u0995\u09bf\u09a8\u0995\u09c7\u09df\u09be\u09b0 \u09b8\u09be\u09aa\u09cb\u09b0\u09cd\u099f",
+          "\u09ef\u09e6 \u09a6\u09bf\u09a8 \u09b8\u09cd\u0995\u09bf\u09a8\u0995\u09c7\u09df\u09be\u09b0 \u09b8\u09be\u09aa\u09cb\u09b0\u09cd\u099f",
           "\u09a4\u09cd\u09ac\u0995, \u099a\u09c1\u09b2 \u0993 \u09b6\u09b0\u09c0\u09b0 \u09ac\u09bf\u09b6\u09cd\u09b2\u09c7\u09b7\u09a3",
           "\u09ac\u09bf\u09b6\u09c7\u09b7\u099c\u09cd\u099e \u0995\u09a8\u09b8\u09be\u09b2\u099f\u09c7\u09b6\u09a8",
           "\u09ac\u09cd\u09af\u0995\u09cd\u09a4\u09bf\u0997\u09a4\u0995\u09c3\u09a4 \u09b0\u09c1\u099f\u09bf\u09a8",
@@ -333,6 +360,10 @@ const CONTENT = {
           "\u0995\u09cd\u09b0\u09bf\u09b8\u09cd\u099f\u09be\u09b2",
         duration:
           "\u09e7\u09e8 \u09ae\u09be\u09b8",
+        price:
+          `${MEMBERSHIP_PRICES.CRYSTAL.price.toLocaleString("en-US")} \u099f\u09be\u0995\u09be`,
+        badge: `${getProductDiscount("CRYSTAL")}% OFF on All Products`,
+        priceNote: "Product discount valid throughout membership",
         benefits: [
           "\u09e7 \u09ac\u099b\u09b0 \u09ac\u09bf\u09b6\u09c7\u09b7\u099c\u09cd\u099e \u09b8\u09be\u09aa\u09cb\u09b0\u09cd\u099f",
           "\u098f\u09b8\u09cd\u09a5\u09c7\u099f\u09bf\u09b6\u09bf\u09df\u09be\u09a8, \u09a8\u09bf\u0989\u099f\u09cd\u09b0\u09bf\u09b6\u09a8\u09bf\u09b8\u09cd\u099f \u0993 \u09b8\u09be\u0987\u0995\u09bf\u09df\u09be\u099f\u09cd\u09b0\u09bf\u09b8\u09cd\u099f",
@@ -349,6 +380,10 @@ const CONTENT = {
           "\u09aa\u09cd\u09b2\u09be\u099f\u09bf\u09a8\u09be\u09ae",
         duration:
           "\u09e9\u09ec \u09ae\u09be\u09b8",
+        price:
+          `${MEMBERSHIP_PRICES.PLATINUM.price.toLocaleString("en-US")} \u099f\u09be\u0995\u09be`,
+        badge: `${getProductDiscount("PLATINUM")}% OFF on All Products`,
+        priceNote: "Product discount valid throughout membership",
         benefits: [
           "\u09e9 \u09ac\u099b\u09b0 \u09ac\u09bf\u09b6\u09c7\u09b7\u099c\u09cd\u099e \u09b8\u09be\u09aa\u09cb\u09b0\u09cd\u099f",
           "\u09aa\u09a3\u09cd\u09af \u0995\u09c7\u09a8\u09be\u09df \u09eb% \u099b\u09be\u09dc",
@@ -1182,7 +1217,7 @@ export default function LandingPage() {
                         {heroOfferLabels.regular}
                       </span>
                       <span className="text-2xl font-bold text-red-600 line-through decoration-red-600 decoration-2 dark:text-red-400 sm:text-3xl">
-                        990/-
+                        {MEMBERSHIP_PRICES.SIGNATURE.originalPrice}/-
                       </span>
                     </span>
                     <span className="mt-3 inline-flex max-w-full flex-wrap items-center gap-x-3 gap-y-2 rounded-2xl border border-[#B87B68]/40 bg-[#B87B68]/12 px-4 py-3 shadow-[0_14px_32px_rgba(184,123,104,0.14)] dark:bg-[#B87B68]/15">
@@ -1190,11 +1225,11 @@ export default function LandingPage() {
                         {heroOfferLabels.offered}
                       </span>
                       <span className="text-4xl font-black leading-none text-[#B87B68] sm:text-5xl lg:text-6xl">
-                        490/-
+                        {MEMBERSHIP_PRICES.SIGNATURE.price}/-
                       </span>
                     </span>
                   </h1>
-                  <p className="mt-5 max-w-lg leading-8 text-[red] dark:text-[#9B8E84]">valid till 20-July-2026</p>
+                  <p className="mt-5 max-w-lg leading-8 text-[red] dark:text-[#9B8E84]">valid till 30-July-2026</p>
 
                   <p className="mt-5 max-w-lg text-base leading-8 text-[#7D7066] dark:text-[#9B8E84]">
                     {heroContent.subtext}
@@ -1329,7 +1364,7 @@ export default function LandingPage() {
                     </span>
                   </div>
 
-                  <div className="mt-5 flex flex-wrap items-center gap-3">
+                  <div className="mt-5 flex flex-wrap items-baseline gap-3">
                     {"price" in plan ? (
                       <p
                         className="text-3xl font-bold text-[#B87B68]"
@@ -1344,17 +1379,24 @@ export default function LandingPage() {
                         {plan.original}
                       </span>
                     ) : null}
+                  </div>
 
+                  <div className="mt-3 space-y-2">
                     {"badge" in plan && plan.badge ? (
                       <span
-                        className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] ${
-                          plan.title === membershipContent.signature.title
-                            ? "bg-red-100 text-red-600 dark:bg-red-950/30 dark:text-red-300"
-                            : "bg-[#2B2B2B] text-[#F8F5F0] dark:bg-[#B87B68] dark:text-[#141210]"
+                        className={`inline-flex rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] ${
+                          String(plan.badge).includes("OFF on All Products")
+                            ? "bg-green-100 text-green-700 dark:bg-green-950/30 dark:text-green-300"
+                            : "bg-red-100 text-red-600 dark:bg-red-950/30 dark:text-red-300"
                         }`}
                       >
                         {plan.badge}
                       </span>
+                    ) : null}
+                    {"priceNote" in plan && plan.priceNote ? (
+                      <p className="text-xs leading-6 text-[#884F38] dark:text-[#8A7D75]">
+                        {plan.priceNote}
+                      </p>
                     ) : null}
                   </div>
 

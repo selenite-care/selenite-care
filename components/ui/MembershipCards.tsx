@@ -130,6 +130,15 @@ type Step = {
   tier: string;
 };
 
+function getDiscountBadgeStyles(discountBadge: string) {
+  const isProductDiscount = discountBadge.includes("OFF on All Products");
+
+  return {
+    backgroundColor: isProductDiscount ? "#DCFCE7" : "#FEE2E2",
+    color: isProductDiscount ? "#15803D" : "#B91C1C",
+  };
+}
+
 export function MembershipCard({
   step,
   index,
@@ -300,39 +309,8 @@ export function MembershipCard({
 
       <div style={{ height: 1.5, width: 40, background: cfg.badgeBg, borderRadius: 99, margin: "12px 0" }} />
 
-      {step.discountBadge ? (
-        <div
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            borderRadius: 999,
-            backgroundColor: "#2B2B2B",
-            color: "#F8F5F0",
-            fontSize: 10,
-            fontWeight: 700,
-            letterSpacing: "0.08em",
-            textTransform: "uppercase",
-            padding: "5px 10px",
-            marginBottom: 10,
-          }}
-        >
-          {step.discountBadge}
-        </div>
-      ) : null}
-
       {step.originalCost ? (
         <div style={{ display: "flex", flexWrap: "wrap", alignItems: "baseline", gap: 10 }}>
-          <span
-            style={{
-              color: "#8C7967",
-              fontSize: 14,
-              fontWeight: 600,
-              textDecoration: "line-through",
-              textDecorationThickness: "1.5px",
-            }}
-          >
-            {step.originalCost}
-          </span>
           <p
             style={{
               color: "#B87B68",
@@ -344,12 +322,41 @@ export function MembershipCard({
           >
             {step.cost}
           </p>
+          <span
+            style={{
+              color: "#8C7967",
+              fontSize: 14,
+              fontWeight: 600,
+              textDecoration: "line-through",
+              textDecorationThickness: "1.5px",
+            }}
+          >
+            {step.originalCost}
+          </span>
         </div>
       ) : (
-        <p style={{ color: cfg.costColor, fontSize: 22, fontWeight: 800, fontFamily: "Playfair Display, serif", letterSpacing: "-0.01em" }}>
+        <p style={{ color: step.tier === "signature" ? "#B87B68" : cfg.costColor, fontSize: 22, fontWeight: 800, fontFamily: "Playfair Display, serif", letterSpacing: "-0.01em" }}>
           {step.cost}
         </p>
       )}
+      {step.discountBadge ? (
+        <div
+          style={{
+            ...getDiscountBadgeStyles(step.discountBadge),
+            display: "inline-flex",
+            alignItems: "center",
+            borderRadius: 999,
+            fontSize: 10,
+            fontWeight: 700,
+            letterSpacing: "0.08em",
+            textTransform: "uppercase",
+            padding: "5px 10px",
+            marginTop: 10,
+          }}
+        >
+          {step.discountBadge}
+        </div>
+      ) : null}
       <p style={{ color: cfg.validityColor, fontSize: 12, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase", marginTop: 4 }}>
         {step.validity}
       </p>

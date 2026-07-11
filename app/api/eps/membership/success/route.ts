@@ -3,6 +3,11 @@ import { verifyEPSPayment } from "@/lib/eps";
 import { db } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
 import {
+  calculateExpiresAt,
+  getProductDiscount,
+  MEMBERSHIP_PRICES,
+} from "@/lib/membershipDiscounts";
+import {
   createNotification,
   NOTIFICATION_TYPES,
 } from "@/lib/notifications";
@@ -10,27 +15,64 @@ import type { MembershipTier } from "@prisma/client";
 
 export const runtime = "nodejs";
 
-function getMembershipDurationDays(tier: MembershipTier) {
+function formatBdt(amount: number) {
+  return `${Math.round(amount)} BDT`;
+}
+
+function formatBdtWithCommas(amount: number) {
+  return `${Math.round(amount).toLocaleString("en-US")} BDT`;
+}
+
+function formatReadableDate(date: Date) {
+  return new Intl.DateTimeFormat("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  }).format(date);
+}
+
+function formatTierLabel(tier: MembershipTier) {
   switch (tier) {
     case "SIGNATURE":
-      return 60;
+      return "Signature";
     case "CRYSTAL":
-      return 365;
+      return "Crystal";
     case "PLATINUM":
-      return 1095;
+      return "Platinum";
     default:
-      return 0;
+      return tier;
   }
 }
 
-function calculateExpiresAt(tier: MembershipTier) {
-  const expiresAt = new Date();
-  expiresAt.setDate(expiresAt.getDate() + getMembershipDurationDays(tier));
-  return expiresAt;
-}
+function buildMembershipBenefitParagraph(
+  tier: MembershipTier,
+  expiresAt: Date,
+) {
+  if (tier === "SIGNATURE") {
+    const price = formatBdtWithCommas(MEMBERSHIP_PRICES.SIGNATURE.price);
+    const regularPrice = formatBdtWithCommas(
+      MEMBERSHIP_PRICES.SIGNATURE.originalPrice ??
+        MEMBERSHIP_PRICES.SIGNATURE.price,
+    );
 
-function formatBdt(amount: number) {
-  return `${Math.round(amount)} BDT`;
+    return `
+      <p style="margin:20px 0 0;font-size:14px;line-height:1.7;color:#4B4037;">
+        Your Signature Membership offer price was ${price} (regular price ${regularPrice}). Offer valid till July 30, 2026.
+      </p>
+    `;
+  }
+
+  const discount = getProductDiscount(tier);
+
+  if (discount <= 0) {
+    return "";
+  }
+
+  return `
+    <p style="margin:20px 0 0;font-size:14px;line-height:1.7;color:#4B4037;">
+      As a ${formatTierLabel(tier)} member, you enjoy ${discount}% discount on all product purchases until ${formatReadableDate(expiresAt)}. Your discount is applied automatically at checkout.
+    </p>
+  `;
 }
 
 function buildRedirect(request: Request, path: string) {
@@ -101,6 +143,7 @@ function buildClientEmailHtml(input: {
               <tr><td style="padding:10px;border-bottom:1px solid #EADDCD;">Valid Until</td><td style="padding:10px;border-bottom:1px solid #EADDCD;"><strong>${input.expiresAt.toDateString()}</strong></td></tr>
             </tbody>
           </table>
+          ${buildMembershipBenefitParagraph(input.tier, input.expiresAt)}
           <p style="margin-bottom:0;">You can now book consultations from your dashboard.</p>
         </div>
       </div>

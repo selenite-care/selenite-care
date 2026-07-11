@@ -4,6 +4,7 @@ import Papa from "papaparse";
 import { useEffect, useState } from "react";
 import Pagination from "@/components/ui/Pagination";
 import { formatDateTime } from "@/lib/dateUtils";
+import { getMembershipPrice } from "@/lib/membershipDiscounts";
 
 type MembershipTier = "SIGNATURE" | "CRYSTAL" | "PLATINUM";
 const ITEMS_PER_PAGE = 20;
@@ -66,16 +67,7 @@ function formatTierLabel(tier: MembershipTier) {
 }
 
 function getMembershipAmount(tier: MembershipTier) {
-  switch (tier) {
-    case "SIGNATURE":
-      return "490 BDT";
-    case "CRYSTAL":
-      return "3990 BDT";
-    case "PLATINUM":
-      return "9990 BDT";
-    default:
-      return "0 BDT";
-  }
+  return `${getMembershipPrice(tier).toLocaleString("en-US")} BDT`;
 }
 
 export default function AdminPaymentsPage() {

@@ -5,6 +5,7 @@ import {
   initializeEPSPayment,
 } from "@/lib/eps";
 import { db } from "@/lib/db";
+import { PRODUCT_DISCOUNTS } from "@/lib/membershipDiscounts";
 
 export const runtime = "nodejs";
 
@@ -17,13 +18,33 @@ function normalizeCustomerPhone(phone: string | null) {
   return normalizedPhone || "01000000000";
 }
 
-function buildProductName(items: Array<{ product: { name: string } }>) {
+function getDiscountTier(discountPercent: number) {
+  if (discountPercent === PRODUCT_DISCOUNTS.PLATINUM) {
+    return "PLATINUM";
+  }
+
+  if (discountPercent === PRODUCT_DISCOUNTS.CRYSTAL) {
+    return "CRYSTAL";
+  }
+
+  return null;
+}
+
+function buildProductName(
+  items: Array<{ product: { name: string } }>,
+  discountPercent: number,
+) {
   const firstItemName = items[0]?.product.name ?? "Selenite Care Order";
   const remainingCount = items.length - 1;
+  const baseProductName =
+    remainingCount > 0
+      ? `${firstItemName} and ${remainingCount} more items`
+      : firstItemName;
+  const discountTier = getDiscountTier(discountPercent);
 
-  return remainingCount > 0
-    ? `${firstItemName} and ${remainingCount} more items`
-    : firstItemName;
+  return discountPercent > 0 && discountTier
+    ? `${baseProductName} (includes ${discountPercent}% ${discountTier} membership discount)`
+    : baseProductName;
 }
 
 export async function POST(request: Request) {
@@ -109,7 +130,7 @@ export async function POST(request: Request) {
       customerEmail: user.email,
       customerPhone: normalizeCustomerPhone(user.phone),
       customerAddress: order.deliveryAddress || "Dhaka",
-      productName: buildProductName(order.items),
+      productName: buildProductName(order.items, order.discountPercent),
       productList: order.items.map((item) => ({
         ProductName: item.product.name,
         NoOfItem: item.quantity.toString(),

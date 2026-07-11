@@ -2,6 +2,10 @@ import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
 import { isMembershipAvailable } from "@/lib/membershipAvailability";
+import {
+  calculateExpiresAt,
+  getMembershipPrice,
+} from "@/lib/membershipDiscounts";
 import type { MembershipTier } from "@prisma/client";
 
 export const runtime = "nodejs";
@@ -9,12 +13,6 @@ export const runtime = "nodejs";
 type CreateMembershipPayload = {
   tier?: unknown;
   stripePaymentId?: unknown;
-};
-
-const MEMBERSHIP_AMOUNTS: Record<MembershipTier, number> = {
-  SIGNATURE: 490,
-  CRYSTAL: 3990,
-  PLATINUM: 9990,
 };
 
 const MEMBERSHIP_TIER_ORDER: Record<MembershipTier, number> = {
@@ -25,7 +23,7 @@ const MEMBERSHIP_TIER_ORDER: Record<MembershipTier, number> = {
 
 const MEMBERSHIP_BENEFITS: Record<MembershipTier, string[]> = {
   SIGNATURE: [
-    "60 Days of Unlimited Skincare Support",
+    "90 Days of Unlimited Skincare Support",
     "Skin, Body & Hair Problem Analysis: Self-submitted photo review, Online skin assessment form",
     "Online and Offline Consultation with Skin Doctor / Aestheticians",
     "Personalized Product Recommendation List",
@@ -116,19 +114,6 @@ function buildBenefitsSummary(tier: MembershipTier) {
   return MEMBERSHIP_BENEFITS[tier]
     .map((benefit) => `<li style="margin-bottom:8px;">${benefit}</li>`)
     .join("");
-}
-
-function getMembershipDurationDays(tier: MembershipTier) {
-  switch (tier) {
-    case "SIGNATURE":
-      return 60;
-    case "CRYSTAL":
-      return 365;
-    case "PLATINUM":
-      return 1095;
-    default:
-      return 0;
-  }
 }
 
 function isHigherTier(nextTier: MembershipTier, currentTier: MembershipTier) {
@@ -233,12 +218,11 @@ export async function POST(request: Request) {
     }
   }
 
-  const amount = MEMBERSHIP_AMOUNTS[tier];
+  const amount = getMembershipPrice(tier);
 
   try {
     const membershipId = await generateMembershipId();
-    const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + getMembershipDurationDays(tier));
+    const expiresAt = calculateExpiresAt(tier);
 
     const membership = await db.$transaction(async (tx) => {
       if (existingBlockingMembership?.status === "ACTIVE") {

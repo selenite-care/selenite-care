@@ -5,8 +5,13 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useCart } from "@/components/cart/CartProvider";
+import {
+  calculateOrderTotal,
+  getProductDiscount,
+} from "@/lib/membershipDiscounts";
 
 type DeliveryArea = "INSIDE_DHAKA" | "SUB_DHAKA" | "OUTSIDE_DHAKA";
+type MembershipTier = "SIGNATURE" | "CRYSTAL" | "PLATINUM";
 
 const DELIVERY_OPTIONS: Array<{
   value: DeliveryArea;
@@ -25,6 +30,15 @@ type CreateOrderResponse = {
 
 type EpsOrderInitiateResponse = {
   redirectUrl?: string;
+  error?: string;
+};
+
+type ClientMembershipResponse = {
+  membership?: {
+    tier: MembershipTier;
+    status: "PENDING" | "ACTIVE" | "EXPIRED" | "CANCELLED";
+    expiresAt: string | null;
+  } | null;
   error?: string;
 };
 
@@ -99,6 +113,8 @@ function CartPageContent() {
   );
   const [error, setError] = useState("");
   const [dismissedPaymentError, setDismissedPaymentError] = useState(false);
+  const [discountMembershipTier, setDiscountMembershipTier] =
+    useState<MembershipTier | null>(null);
   const paymentError = searchParams.get("error");
   const paymentMessage = searchParams.get("message");
 
@@ -108,7 +124,19 @@ function CartPageContent() {
       80,
     [deliveryArea],
   );
-  const orderTotal = totalAmount + deliveryCharge;
+  const membershipTierForDiscount =
+    discountMembershipTier && getProductDiscount(discountMembershipTier) > 0
+      ? discountMembershipTier
+      : null;
+  const orderBreakdown = useMemo(
+    () =>
+      calculateOrderTotal(
+        totalAmount,
+        deliveryCharge,
+        membershipTierForDiscount,
+      ),
+    [deliveryCharge, membershipTierForDiscount, totalAmount],
+  );
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -119,6 +147,73 @@ function CartPageContent() {
   useEffect(() => {
     setDismissedPaymentError(false);
   }, [paymentError, paymentMessage]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadMembership() {
+      if (status !== "authenticated") {
+        setDiscountMembershipTier(null);
+        return;
+      }
+
+      try {
+        const response = await fetch("/api/client/membership", {
+          cache: "no-store",
+        });
+        const data = (await response.json().catch(() => null)) as
+          | ClientMembershipResponse
+          | null;
+
+        if (!response.ok) {
+          throw new Error(data?.error ?? "Unable to load membership.");
+        }
+
+        const membership = data?.membership ?? null;
+        const hasActiveDiscount =
+          membership?.status === "ACTIVE" &&
+          !!membership.expiresAt &&
+          new Date(membership.expiresAt).getTime() > Date.now() &&
+          getProductDiscount(membership.tier) > 0;
+
+        if (isMounted) {
+          setDiscountMembershipTier(
+            hasActiveDiscount ? membership.tier : null,
+          );
+        }
+      } catch {
+        if (isMounted) {
+          setDiscountMembershipTier(null);
+        }
+      }
+    }
+
+    void loadMembership();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [status, session?.user?.id]);
+
+  useEffect(() => {
+    function resetEpsRedirectingState() {
+      setSubmittingMethod((current) => (current === "EPS" ? null : current));
+    }
+
+    function handleVisibilityChange() {
+      if (document.visibilityState === "visible") {
+        resetEpsRedirectingState();
+      }
+    }
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("pageshow", resetEpsRedirectingState);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("pageshow", resetEpsRedirectingState);
+    };
+  }, []);
 
   const paymentErrorMessage = dismissedPaymentError
     ? ""
@@ -161,6 +256,9 @@ function CartPageContent() {
         deliveryArea,
         deliveryCharge,
         deliveryAddress: deliveryAddress.trim(),
+        subtotalAmount: orderBreakdown.subtotal,
+        discountPercent: orderBreakdown.discountPercent,
+        discountAmount: orderBreakdown.discountAmount,
       }),
     });
 
@@ -411,15 +509,27 @@ function CartPageContent() {
                     <div className="space-y-3">
                       <div className="flex items-center justify-between gap-4">
                         <span className="text-sm text-[#6E6257] dark:text-[#8A7D75]">
-                          Subtotal
+                          Items Subtotal
                         </span>
                         <span className="text-sm font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]">
                           {formatBdt(totalAmount)}
                         </span>
                       </div>
+                      {orderBreakdown.discountAmount > 0 &&
+                      membershipTierForDiscount ? (
+                        <div className="flex items-center justify-between gap-4 text-green-700 dark:text-green-400">
+                          <span className="text-sm">
+                            Membership Discount ({membershipTierForDiscount} —
+                            {orderBreakdown.discountPercent}%)
+                          </span>
+                          <span className="text-sm font-semibold">
+                            -{formatBdt(orderBreakdown.discountAmount)}
+                          </span>
+                        </div>
+                      ) : null}
                       <div className="flex items-center justify-between gap-4">
                         <span className="text-sm text-[#6E6257] dark:text-[#8A7D75]">
-                          Delivery Charge
+                          Delivery
                         </span>
                         <span className="text-sm font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]">
                           {formatBdt(deliveryCharge)}
@@ -431,7 +541,7 @@ function CartPageContent() {
                             Total
                           </span>
                           <span className="text-xl font-bold text-[#B87B68]">
-                            {formatBdt(orderTotal)}
+                            {formatBdt(orderBreakdown.total)}
                           </span>
                         </div>
                       </div>
@@ -526,15 +636,27 @@ function CartPageContent() {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-[#8C7967] dark:text-[#8A7D75]">
-                      Subtotal
+                      Items Subtotal
                     </span>
                     <span className="text-sm font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]">
                       {formatBdt(totalAmount)}
                     </span>
                   </div>
+                  {orderBreakdown.discountAmount > 0 &&
+                  membershipTierForDiscount ? (
+                    <div className="flex items-center justify-between gap-4 text-green-700 dark:text-green-400">
+                      <span className="text-sm">
+                        Membership Discount ({membershipTierForDiscount} —
+                        {orderBreakdown.discountPercent}%)
+                      </span>
+                      <span className="text-sm font-semibold">
+                        -{formatBdt(orderBreakdown.discountAmount)}
+                      </span>
+                    </div>
+                  ) : null}
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-[#8C7967] dark:text-[#8A7D75]">
-                      Delivery Charge
+                      Delivery
                     </span>
                     <span className="text-sm font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]">
                       {formatBdt(deliveryCharge)}
@@ -547,7 +669,7 @@ function CartPageContent() {
                     Total
                   </span>
                   <span className="text-xl font-semibold text-[#B87B68]">
-                    {formatBdt(orderTotal)}
+                    {formatBdt(orderBreakdown.total)}
                   </span>
                 </div>
               </div>

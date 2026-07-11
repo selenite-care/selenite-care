@@ -7,6 +7,7 @@ import { FormEvent, Suspense, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
 import { isMembershipAvailable } from "@/lib/membershipAvailability";
+import { MEMBERSHIP_PRICES } from "@/lib/membershipDiscounts";
 import { BRAC_BANK_DETAILS } from "@/lib/bankDetails";
 import FileUploadButton from "@/components/ui/FileUploadButton";
 
@@ -41,10 +42,10 @@ type ClientMembershipResponse = {
 const MEMBERSHIPS: Record<MembershipTier, MembershipTierDetails> = {
   SIGNATURE: {
     name: "Signature Membership",
-    price: 490,
-    originalPrice: 990,
+    price: MEMBERSHIP_PRICES.SIGNATURE.price,
+    originalPrice: MEMBERSHIP_PRICES.SIGNATURE.originalPrice ?? undefined,
     benefits: [
-      "60 Days of Unlimited Skincare Support",
+      "90 Days of Unlimited Skincare Support",
       "Skin, Body & Hair Problem Analysis: Self-submitted photo review, Online skin assessment form",
       "Online and Offline Consultation with Skin Doctor / Aestheticians",
       "Personalized Product Recommendation List",
@@ -55,7 +56,7 @@ const MEMBERSHIPS: Record<MembershipTier, MembershipTierDetails> = {
   },
   CRYSTAL: {
     name: "Crystal Membership",
-    price: 3990,
+    price: MEMBERSHIP_PRICES.CRYSTAL.price,
     benefits: [
       "1 Year Specialist Support (Online & Offline)",
       "Specialist Access: Aesthetician Consultation, Nutritionist Consultation, Psychiatrist Consultation",
@@ -67,7 +68,7 @@ const MEMBERSHIPS: Record<MembershipTier, MembershipTierDetails> = {
   },
   PLATINUM: {
     name: "Platinum Membership",
-    price: 9990,
+    price: MEMBERSHIP_PRICES.PLATINUM.price,
     benefits: [
       "3 Years Specialist Support on both Online & Offline",
       "5% off on Product Purchase for Validate Time of Membership",
@@ -179,6 +180,26 @@ function EpsPaymentSection({
 }) {
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    function resetRedirectingState() {
+      setIsSubmitting(false);
+    }
+
+    function handleVisibilityChange() {
+      if (document.visibilityState === "visible") {
+        resetRedirectingState();
+      }
+    }
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("pageshow", resetRedirectingState);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("pageshow", resetRedirectingState);
+    };
+  }, []);
 
   async function handleEpsPayment() {
     if (isSubmitting) {
@@ -1133,7 +1154,7 @@ function MembershipPaymentPageContent() {
               {tier === "SIGNATURE" && membership.originalPrice ? (
                 <>
                   <div className="mt-3 inline-flex rounded-full bg-[#2B2B2B] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#F8F5F0] dark:bg-[#B87B68] dark:text-[#141210]">
-                    LIMITED TIME - 51% OFF
+                    LIMITED TIME OFFER
                   </div>
                   <div className="mt-3 flex flex-wrap items-baseline gap-3">
                     <span className="text-sm font-semibold text-[#8C7967] line-through decoration-[1.5px] dark:text-[#8A7D75]">
