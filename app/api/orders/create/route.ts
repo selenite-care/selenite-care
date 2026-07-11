@@ -155,6 +155,10 @@ export async function POST(request: Request) {
   const deliveryCharge = DELIVERY_CHARGES[deliveryArea];
   const deliveryAddress =
     typeof body.deliveryAddress === "string" ? body.deliveryAddress.trim() : "";
+  const isEpsPendingOrder =
+    paymentMethod === "BKASH" &&
+    transactionRef === "EPS_PENDING" &&
+    senderNumber === "EPS";
 
   if (items.length === 0) {
     return Response.json(
@@ -304,9 +308,9 @@ export async function POST(request: Request) {
 
   const adminEmail = process.env.ADMIN_EMAIL?.trim();
 
-  if (!adminEmail) {
+  if (!isEpsPendingOrder && !adminEmail) {
     console.error("ADMIN_EMAIL is not configured for product order notifications.");
-  } else {
+  } else if (!isEpsPendingOrder && adminEmail) {
     const itemsHtml = items
       .map((item) => {
         const product = productMap.get(item.productId)!;
@@ -437,30 +441,32 @@ export async function POST(request: Request) {
     }
   }
 
-  try {
-    const admins = await db.user.findMany({
-      where: {
-        role: "ADMIN",
-      },
-      select: {
-        id: true,
-      },
-    });
-    const clientName = user.name ?? user.email ?? "a client";
+  if (!isEpsPendingOrder) {
+    try {
+      const admins = await db.user.findMany({
+        where: {
+          role: "ADMIN",
+        },
+        select: {
+          id: true,
+        },
+      });
+      const clientName = user.name ?? user.email ?? "a client";
 
-    await Promise.all(
-      admins.map((admin) =>
-        createNotification(
-          admin.id,
-          "New Order",
-          `A new product order has been placed by ${clientName}`,
-          NOTIFICATION_TYPES.ORDER,
-          "/admin/orders",
+      await Promise.all(
+        admins.map((admin) =>
+          createNotification(
+            admin.id,
+            "New Order",
+            `A new product order has been placed by ${clientName}`,
+            NOTIFICATION_TYPES.ORDER,
+            "/admin/orders",
+          ),
         ),
-      ),
-    );
-  } catch (notificationError) {
-    console.error("Failed to create admin order notification", notificationError);
+      );
+    } catch (notificationError) {
+      console.error("Failed to create admin order notification", notificationError);
+    }
   }
 
   return Response.json(

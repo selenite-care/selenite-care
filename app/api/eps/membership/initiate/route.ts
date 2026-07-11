@@ -134,6 +134,42 @@ export async function POST(request: Request) {
     }
 
     await db.$transaction(async (tx) => {
+      await tx.membershipPayment.updateMany({
+        where: {
+          membership: {
+            is: {
+              userId: user.id,
+              status: "PENDING",
+            },
+          },
+          epsMerchantTxnId: {
+            not: null,
+          },
+          status: "UNPAID",
+        },
+        data: {
+          epsStatus: "Superseded",
+        },
+      });
+
+      await tx.membership.updateMany({
+        where: {
+          userId: user.id,
+          status: "PENDING",
+          payment: {
+            is: {
+              epsMerchantTxnId: {
+                not: null,
+              },
+              status: "UNPAID",
+            },
+          },
+        },
+        data: {
+          status: "CANCELLED",
+        },
+      });
+
       const membership = await tx.membership.create({
         data: {
           membershipId,

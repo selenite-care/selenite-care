@@ -927,9 +927,6 @@ function MembershipPaymentPageContent() {
     () => parseTier(searchParams.get("tier")),
     [searchParams],
   );
-  const [paymentMethod, setPaymentMethod] = useState<"bkash" | "bank">(
-    "bkash",
-  );
   const [dismissedPaymentError, setDismissedPaymentError] = useState(false);
   const [isCheckingPendingMembership, setIsCheckingPendingMembership] =
     useState(true);
@@ -1117,50 +1114,6 @@ function MembershipPaymentPageContent() {
         <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-8">
           <div className="order-2 flex flex-col gap-6 lg:order-1">
             <EpsPaymentSection tier={tier} membership={membership} />
-
-            <div>
-              <h2
-                className="text-xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]"
-                style={{ fontFamily: "Playfair Display, serif" }}
-              >
-                Or pay manually:
-              </h2>
-              <p className="mt-2 text-sm leading-6 text-[#6E6257] dark:text-[#8A7D75]">
-                Use this option if EPS is unavailable or you prefer manual
-                verification.
-              </p>
-            </div>
-
-            <div className="flex flex-wrap gap-2 rounded-2xl border border-[#EADDCD] bg-white p-1 dark:border-[#3D3530] dark:bg-[#242220]">
-              <button
-                type="button"
-                onClick={() => setPaymentMethod("bkash")}
-                className={`h-11 rounded-xl px-5 text-sm font-medium transition-colors ${
-                  paymentMethod === "bkash"
-                    ? "bg-[#2B2B2B] text-[#F8F5F0] dark:bg-[#B87B68] dark:text-[#141210]"
-                    : "text-[#884F38] hover:bg-black/5 dark:text-[#8A7D75] dark:hover:bg-white/5"
-                }`}
-              >
-                bKash Manual
-              </button>
-              <button
-                type="button"
-                onClick={() => setPaymentMethod("bank")}
-                className={`h-11 rounded-xl px-5 text-sm font-medium transition-colors ${
-                  paymentMethod === "bank"
-                    ? "bg-[#2B2B2B] text-[#F8F5F0] dark:bg-[#B87B68] dark:text-[#141210]"
-                    : "text-[#884F38] hover:bg-black/5 dark:text-[#8A7D75] dark:hover:bg-white/5"
-                }`}
-              >
-                Bank Transfer
-              </button>
-            </div>
-
-            {paymentMethod === "bkash" ? (
-              <BkashManualPaymentForm tier={tier} membership={membership} />
-            ) : (
-              <BankTransferManualPaymentForm tier={tier} membership={membership} />
-            )}
           </div>
 
           <aside className="order-1 h-fit rounded-2xl border border-[#EADDCD] bg-white p-6 dark:border-[#3D3530] dark:bg-[#242220] lg:order-2">

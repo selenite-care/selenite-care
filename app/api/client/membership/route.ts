@@ -22,6 +22,17 @@ const membershipSelect = {
   },
 } as const;
 
+const incompleteEpsCheckoutFilter = {
+  status: "PENDING",
+  payment: {
+    is: {
+      epsMerchantTxnId: {
+        not: null,
+      },
+    },
+  },
+} as const;
+
 export async function GET() {
   const session = await auth();
 
@@ -32,6 +43,7 @@ export async function GET() {
   const membership = await db.membership.findFirst({
     where: {
       userId: session.user.id,
+      NOT: incompleteEpsCheckoutFilter,
     },
     orderBy: {
       createdAt: "desc",

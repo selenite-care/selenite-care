@@ -252,6 +252,48 @@ export async function GET(request: Request) {
         },
       });
 
+      await tx.membershipPayment.updateMany({
+        where: {
+          membership: {
+            is: {
+              userId: existingPayment.membership.user.id,
+              id: {
+                not: existingPayment.membership.id,
+              },
+              status: "PENDING",
+            },
+          },
+          epsMerchantTxnId: {
+            not: null,
+          },
+          status: "UNPAID",
+        },
+        data: {
+          epsStatus: "Superseded",
+        },
+      });
+
+      await tx.membership.updateMany({
+        where: {
+          userId: existingPayment.membership.user.id,
+          id: {
+            not: existingPayment.membership.id,
+          },
+          status: "PENDING",
+          payment: {
+            is: {
+              epsMerchantTxnId: {
+                not: null,
+              },
+              status: "UNPAID",
+            },
+          },
+        },
+        data: {
+          status: "CANCELLED",
+        },
+      });
+
       return {
         payment: updatedPayment,
         membership: updatedMembership,

@@ -1,7 +1,7 @@
 import NextAuth from "next-auth";
 import { authConfig } from "@/lib/auth";
 import { db } from "@/lib/db";
-import type { OrderStatus } from "@prisma/client";
+import type { OrderStatus, Prisma } from "@prisma/client";
 
 const { auth } = NextAuth(authConfig);
 
@@ -39,9 +39,17 @@ export async function GET(request: Request) {
   const page = getPositiveInteger(searchParams.get("page"), 1);
   const limit = Math.min(getPositiveInteger(searchParams.get("limit"), 20), 50);
   const status = parseStatus(searchParams.get("status"));
-  const where = {
+  const where: Prisma.OrderWhereInput = {
     userId: session.user.id,
     ...(status ? { status } : {}),
+    ...(!status || status === "PENDING"
+      ? {
+          NOT: {
+            status: "PENDING",
+            transactionRef: "EPS_PENDING",
+          },
+        }
+      : {}),
   };
 
   const [orders, totalCount] = await db.$transaction([

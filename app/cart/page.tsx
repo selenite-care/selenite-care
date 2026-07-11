@@ -258,7 +258,7 @@ function CartPageContent() {
             Your Cart
           </h1>
           <p className="mt-4 text-base leading-7 text-[#6E6257] dark:text-[#8A7D75]">
-            Review your selected products and choose how you would like to pay.
+            Review your selected products and pay securely through EPS.
           </p>
           {paymentErrorMessage ? (
             <PaymentErrorNotice
@@ -483,33 +483,6 @@ function CartPageContent() {
                     Secured by EPS Payment Gateway - supports bKash, Nagad,
                     Card & more.
                   </p>
-                </section>
-
-                <section className="mt-6 rounded-2xl border border-[#EADDCD] bg-white p-5 dark:border-[#3D3530] dark:bg-[#242220]">
-                  <h2
-                    className="text-xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]"
-                    style={{ fontFamily: "Playfair Display, serif" }}
-                  >
-                    Prefer Cash on Delivery?
-                  </h2>
-                  <p className="mt-3 text-sm leading-7 text-[#6E6257] dark:text-[#8A7D75]">
-                    Place the order now and pay when your products are
-                    delivered. Delivery charge is included in the total above.
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => void handleCashCheckout()}
-                    disabled={submittingMethod !== null}
-                    className={`mt-5 inline-flex h-12 w-full items-center justify-center rounded-md px-5 text-sm font-medium transition-colors ${
-                      submittingMethod
-                        ? "cursor-not-allowed bg-[#EADDCD] text-[#6E6257] dark:bg-[#3D3530] dark:text-[#8A7D75]"
-                        : "bg-[#2B2B2B] text-[#F8F5F0] hover:bg-[#884F38] dark:bg-[#B87B68] dark:text-[#141210] dark:hover:bg-[#D4B47A]"
-                    }`}
-                  >
-                    {submittingMethod === "CASH"
-                      ? "Placing Order..."
-                      : "Place Order with Cash on Delivery"}
-                  </button>
                 </section>
 
                 {error ? (

@@ -33,11 +33,13 @@ export async function POST(request: Request) {
     return Response.json({ error: "Unauthorized." }, { status: 401 });
   }
 
+  let orderId = "";
+
   try {
     const body = (await request.json().catch(() => null)) as
       | InitiateOrderPayload
       | null;
-    const orderId = typeof body?.orderId === "string" ? body.orderId.trim() : "";
+    orderId = typeof body?.orderId === "string" ? body.orderId.trim() : "";
 
     if (!orderId) {
       return Response.json({ error: "orderId is required." }, { status: 400 });
@@ -91,15 +93,6 @@ export async function POST(request: Request) {
 
     const merchantTransactionId = generateTransactionId();
 
-    await db.order.update({
-      where: {
-        id: order.id,
-      },
-      data: {
-        epsMerchantTxnId: merchantTransactionId,
-      },
-    });
-
     const { successUrl, failUrl, cancelUrl } = getEPSCallbackUrls(
       "order",
       order.id,
@@ -128,11 +121,42 @@ export async function POST(request: Request) {
       valueB: session.user.id,
     });
 
+    if (!payment.redirectUrl) {
+      throw new Error("EPS did not return a payment redirect URL.");
+    }
+
+    await db.order.update({
+      where: {
+        id: order.id,
+      },
+      data: {
+        epsMerchantTxnId: merchantTransactionId,
+      },
+    });
+
     return Response.json({
       redirectUrl: payment.redirectUrl,
     });
   } catch (error) {
     console.error("EPS order initiate failed:", error);
+
+    if (orderId) {
+      await db.order
+        .updateMany({
+          where: {
+            id: orderId,
+            userId: session.user.id,
+            status: "PENDING",
+            transactionRef: "EPS_PENDING",
+          },
+          data: {
+            status: "CANCELLED",
+          },
+        })
+        .catch((updateError) => {
+          console.error("Failed to cancel EPS order after initiate error:", updateError);
+        });
+    }
 
     return Response.json(
       { error: "Unable to initiate EPS order payment." },

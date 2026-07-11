@@ -18,12 +18,13 @@ export async function GET(request: Request) {
   const merchantTransactionId = getMerchantTransactionId(request);
 
   if (merchantTransactionId) {
-    await db.order.findUnique({
+    await db.order.updateMany({
       where: {
         epsMerchantTxnId: merchantTransactionId,
+        status: "PENDING",
       },
-      select: {
-        id: true,
+      data: {
+        status: "CANCELLED",
       },
     });
   }

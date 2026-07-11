@@ -169,6 +169,15 @@ export async function POST(request: Request) {
     where: {
       userId: user.id,
       status: "PENDING",
+      NOT: {
+        payment: {
+          is: {
+            epsMerchantTxnId: {
+              not: null,
+            },
+          },
+        },
+      },
     },
     select: {
       id: true,
