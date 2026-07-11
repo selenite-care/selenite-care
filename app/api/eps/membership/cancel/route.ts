@@ -14,61 +14,74 @@ function getMerchantTransactionId(request: Request) {
   ).trim();
 }
 
+function getMembershipId(request: Request) {
+  const { searchParams } = new URL(request.url);
+
+  return (
+    searchParams.get("valueA") ||
+    searchParams.get("ValueA") ||
+    searchParams.get("membershipId") ||
+    searchParams.get("MembershipId") ||
+    ""
+  ).trim();
+}
+
 function redirectToPayment(request: Request, tier?: string) {
   const url = new URL("/membership/payment", request.url);
-  url.searchParams.set("error", "payment_cancelled");
-  url.searchParams.set("message", "Payment was cancelled");
-
   if (tier) {
     url.searchParams.set("tier", tier);
   }
+  url.searchParams.set("error", "payment_cancelled");
 
   return NextResponse.redirect(url);
 }
 
 export async function GET(request: Request) {
   const merchantTransactionId = getMerchantTransactionId(request);
+  const membershipId = getMembershipId(request);
 
-  if (!merchantTransactionId) {
+  if (!merchantTransactionId && !membershipId) {
     return redirectToPayment(request);
   }
 
   try {
-    const payment = await db.membershipPayment.findUnique({
+    const membership = await db.membership.findFirst({
       where: {
-        epsMerchantTxnId: merchantTransactionId,
+        OR: [
+          ...(membershipId ? [{ membershipId }] : []),
+          ...(merchantTransactionId
+            ? [
+                {
+                  payment: {
+                    is: {
+                      epsMerchantTxnId: merchantTransactionId,
+                    },
+                  },
+                },
+              ]
+            : []),
+        ],
       },
       select: {
         id: true,
-        membershipId: true,
-        membership: {
-          select: {
-            tier: true,
-          },
-        },
+        tier: true,
       },
     });
 
-    if (payment) {
+    if (membership) {
       await db.$transaction([
-        db.membershipPayment.update({
+        db.membershipPayment.deleteMany({
           where: {
-            id: payment.id,
-          },
-          data: {
-            epsStatus: "Cancelled",
+            membershipId: membership.id,
           },
         }),
-        db.membership.update({
+        db.membership.deleteMany({
           where: {
-            id: payment.membershipId,
-          },
-          data: {
-            status: "CANCELLED",
+            id: membership.id,
           },
         }),
       ]);
-      return redirectToPayment(request, payment.membership.tier);
+      return redirectToPayment(request, membership.tier);
     }
   } catch (error) {
     console.error("EPS membership cancel handling failed:", error);

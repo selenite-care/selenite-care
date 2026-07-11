@@ -106,6 +106,11 @@ function RegisterPageContent() {
       }
 
       trackMetaPixelEvent("CompleteRegistration");
+      if (typeof window !== "undefined" && typeof gtag !== "undefined") {
+        gtag("event", "conversion", {
+          send_to: "AW-18307861593/sign_up",
+        });
+      }
       setRegisteredEmail(email);
       setResendCountdown(60);
     } catch {

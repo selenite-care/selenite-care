@@ -14,19 +14,51 @@ function getMerchantTransactionId(request: Request) {
   ).trim();
 }
 
+function getOrderId(request: Request) {
+  const { searchParams } = new URL(request.url);
+
+  return (
+    searchParams.get("valueA") ||
+    searchParams.get("ValueA") ||
+    searchParams.get("orderId") ||
+    searchParams.get("OrderId") ||
+    ""
+  ).trim();
+}
+
 export async function GET(request: Request) {
   const merchantTransactionId = getMerchantTransactionId(request);
+  const orderId = getOrderId(request);
 
-  if (merchantTransactionId) {
-    await db.order.updateMany({
+  if (merchantTransactionId || orderId) {
+    const order = await db.order.findFirst({
       where: {
-        epsMerchantTxnId: merchantTransactionId,
-        status: "PENDING",
+        OR: [
+          ...(orderId ? [{ id: orderId }] : []),
+          ...(merchantTransactionId
+            ? [{ epsMerchantTxnId: merchantTransactionId }]
+            : []),
+        ],
       },
-      data: {
-        status: "CANCELLED",
+      select: {
+        id: true,
       },
     });
+
+    if (order) {
+      await db.$transaction([
+        db.orderItem.deleteMany({
+          where: {
+            orderId: order.id,
+          },
+        }),
+        db.order.deleteMany({
+          where: {
+            id: order.id,
+          },
+        }),
+      ]);
+    }
   }
 
   return NextResponse.redirect(
