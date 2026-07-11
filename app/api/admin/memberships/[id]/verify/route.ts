@@ -2,6 +2,11 @@ import NextAuth from "next-auth";
 import { authConfig } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
+import {
+  calculateExpiresAt,
+  getProductDiscount,
+  MEMBERSHIP_PRICES,
+} from "@/lib/membershipDiscounts";
 import { createNotification, NOTIFICATION_TYPES } from "@/lib/notifications";
 
 const { auth } = NextAuth(authConfig);
@@ -11,19 +16,6 @@ type RouteContext = {
     id: string;
   }>;
 };
-
-function getMembershipDurationDays(tier: "SIGNATURE" | "CRYSTAL" | "PLATINUM") {
-  switch (tier) {
-    case "SIGNATURE":
-      return 60;
-    case "CRYSTAL":
-      return 365;
-    case "PLATINUM":
-      return 1095;
-    default:
-      return 0;
-  }
-}
 
 function formatTierLabel(tier: "SIGNATURE" | "CRYSTAL" | "PLATINUM") {
   switch (tier) {
@@ -36,6 +28,53 @@ function formatTierLabel(tier: "SIGNATURE" | "CRYSTAL" | "PLATINUM") {
     default:
       return tier;
   }
+}
+
+function formatBdtWithCommas(amount: number) {
+  return `${Math.round(amount).toLocaleString("en-US")} BDT`;
+}
+
+function formatReadableDate(date: Date | null) {
+  if (!date) {
+    return "your membership expiry date";
+  }
+
+  return new Intl.DateTimeFormat("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  }).format(date);
+}
+
+function buildMembershipBenefitParagraph(
+  tier: "SIGNATURE" | "CRYSTAL" | "PLATINUM",
+  expiresAt: Date | null,
+) {
+  if (tier === "SIGNATURE") {
+    const price = formatBdtWithCommas(MEMBERSHIP_PRICES.SIGNATURE.price);
+    const regularPrice = formatBdtWithCommas(
+      MEMBERSHIP_PRICES.SIGNATURE.originalPrice ??
+        MEMBERSHIP_PRICES.SIGNATURE.price,
+    );
+
+    return `
+      <p style="margin:20px 0 0;font-size:14px;line-height:1.7;color:#4B4037;">
+        Your Signature Membership offer price was ${price} (regular price ${regularPrice}). Offer valid till July 30, 2026.
+      </p>
+    `;
+  }
+
+  const discount = getProductDiscount(tier);
+
+  if (discount <= 0) {
+    return "";
+  }
+
+  return `
+    <p style="margin:20px 0 0;font-size:14px;line-height:1.7;color:#4B4037;">
+      As a ${formatTierLabel(tier)} member, you enjoy ${discount}% discount on all product purchases until ${formatReadableDate(expiresAt)}. Your discount is applied automatically at checkout.
+    </p>
+  `;
 }
 
 export async function PATCH(_request: Request, context: RouteContext) {
@@ -92,10 +131,7 @@ export async function PATCH(_request: Request, context: RouteContext) {
     );
   }
 
-  const expiresAt = new Date();
-  expiresAt.setDate(
-    expiresAt.getDate() + getMembershipDurationDays(existingMembership.tier),
-  );
+  const expiresAt = calculateExpiresAt(existingMembership.tier);
 
   const membership = await db.$transaction(async (tx) => {
     const updatedMembership = await tx.membership.update({
@@ -192,6 +228,7 @@ export async function PATCH(_request: Request, context: RouteContext) {
                     </tr>
                   </tbody>
                 </table>
+                ${buildMembershipBenefitParagraph(membership.tier, membership.expiresAt)}
                 <div style="margin-top:24px;padding:18px 20px;border:1px solid #EADDCD;border-radius:14px;background:#FCFAF7;">
                   <p style="margin:0;font-size:14px;line-height:1.7;color:#4B4037;">
                     Thank you for your payment and for being part of Selenite Care. We are delighted to support your skincare journey.

@@ -7,18 +7,39 @@ import {
   getMembershipAvailabilityLabel,
   isMembershipAvailable,
 } from "@/lib/membershipAvailability";
+import {
+  getProductDiscount,
+  isSignatureOfferValid,
+  MEMBERSHIP_PRICES,
+} from "@/lib/membershipDiscounts";
 import TermsAndConditionsModal from "@/components/membership/TermsAndConditionsModal";
 import ViewportAnimatedSection from "@/components/ui/ViewportAnimatedSection";
 import { MembershipCard } from "@/components/ui/MembershipCards";
 
+function formatBdt(amount: number) {
+  return `${amount.toLocaleString("en-US")} BDT`;
+}
+
+const signatureOfferIsActive = isSignatureOfferValid();
+const signatureCurrentPrice = signatureOfferIsActive
+  ? MEMBERSHIP_PRICES.SIGNATURE.price
+  : (MEMBERSHIP_PRICES.SIGNATURE.originalPrice ?? MEMBERSHIP_PRICES.SIGNATURE.price);
+const signatureOriginalPrice = signatureOfferIsActive
+  ? MEMBERSHIP_PRICES.SIGNATURE.originalPrice
+  : null;
+
 const steps = [
   {
     title: "Signature Membership",
-    validity: "Valid for 2 Months",
-    cost: "490 BDT",
-    originalCost: "990 BDT",
-    discountBadge: "LIMITED TIME - 51% OFF",
-    priceNote: "Offer valid for a limited time and subject to change.",
+    validity: "Valid for 3 Months",
+    cost: formatBdt(signatureCurrentPrice),
+    originalCost: signatureOriginalPrice
+      ? formatBdt(signatureOriginalPrice)
+      : undefined,
+    discountBadge: signatureOfferIsActive ? "LIMITED TIME OFFER" : undefined,
+    priceNote: signatureOfferIsActive
+      ? "Offer valid till July 30, 2026"
+      : undefined,
     description:
       "A perfect starting point for individuals seeking professional skincare guidance and routine development.",
     tier: "signature",
@@ -26,7 +47,9 @@ const steps = [
   {
     title: "Crystal Membership",
     validity: "Valid for 12 Months",
-    cost: "3,990 BDT",
+    cost: formatBdt(MEMBERSHIP_PRICES.CRYSTAL.price),
+    discountBadge: `${getProductDiscount("CRYSTAL")}% OFF on All Products`,
+    priceNote: "Product discount valid throughout membership",
     description:
       "Designed for individuals committed to achieving long-term skin improvement through regular monitoring and expert guidance.",
     tier: "crystal",
@@ -34,7 +57,9 @@ const steps = [
   {
     title: "Platinum Membership",
     validity: "Valid for 36 Months",
-    cost: "9,990 BDT",
+    cost: formatBdt(MEMBERSHIP_PRICES.PLATINUM.price),
+    discountBadge: `${getProductDiscount("PLATINUM")}% OFF on All Products`,
+    priceNote: "Product discount valid throughout membership",
     description:
       "Excellence Skin transformation program combining skincare, nutrition, wellness, and continuous progress monitoring.",
     tier: "platinum",
@@ -88,16 +113,20 @@ const memberships: MembershipTier[] = [
     key: "signature",
     tierValue: "SIGNATURE",
     title: "Signature Membership",
-    validity: "Valid for 2 Months",
-    cost: "490 BDT",
-    originalCost: "990 BDT",
-    discountBadge: "LIMITED TIME - 51% OFF",
-    priceNote: "Offer valid for a limited time and subject to change.",
+    validity: "Valid for 3 Months",
+    cost: formatBdt(signatureCurrentPrice),
+    originalCost: signatureOriginalPrice
+      ? formatBdt(signatureOriginalPrice)
+      : undefined,
+    discountBadge: signatureOfferIsActive ? "LIMITED TIME OFFER" : undefined,
+    priceNote: signatureOfferIsActive
+      ? "Offer valid till July 30, 2026"
+      : undefined,
     description:
       "A perfect starting point for individuals seeking professional skincare guidance and routine development.",
     accentColor: "#B87B68",
     benefits: [
-      { heading: "60 Days of Unlimited Skincare Support", points: [] },
+      { heading: "90 Days of Unlimited Skincare Support", points: [] },
       {
         heading: "Skin, Body & Hair Problem Analysis",
         points: ["Self-submitted photo review", "Online skin assessment form"],
@@ -120,7 +149,9 @@ const memberships: MembershipTier[] = [
     tierValue: "CRYSTAL",
     title: "Crystal Membership",
     validity: "Valid for 12 Months",
-    cost: "3,990 BDT",
+    cost: formatBdt(MEMBERSHIP_PRICES.CRYSTAL.price),
+    discountBadge: `${getProductDiscount("CRYSTAL")}% OFF on All Products`,
+    priceNote: "Product discount valid throughout membership",
     description:
       "Designed for individuals committed to achieving long-term skin improvement through regular monitoring and expert guidance.",
     accentColor: "#4B9DD3",
@@ -162,7 +193,9 @@ const memberships: MembershipTier[] = [
     tierValue: "PLATINUM",
     title: "Platinum Membership",
     validity: "Valid for 36 Months",
-    cost: "9,990 BDT",
+    cost: formatBdt(MEMBERSHIP_PRICES.PLATINUM.price),
+    discountBadge: `${getProductDiscount("PLATINUM")}% OFF on All Products`,
+    priceNote: "Product discount valid throughout membership",
     description:
       "Excellence Skin transformation program combining skincare, nutrition, wellness, and continuous progress monitoring.",
     accentColor: "#B87B68",
@@ -338,17 +371,20 @@ function MembershipModal({
           </p>
 
           <div className="mt-5 flex flex-wrap items-center gap-3">
-            {membership.key === "signature" ? (
-              <div className="flex flex-wrap items-center gap-3">
-                <span
-                  className="inline-flex rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em]"
-                  style={{
-                    backgroundColor: "#2B2B2B",
-                    color: "#F8F5F0",
-                  }}
-                >
-                  LIMITED TIME - 51% OFF
-                </span>
+            <div className="flex flex-wrap items-center gap-3">
+              <span
+                className="text-3xl font-semibold"
+                style={{
+                  color:
+                    membership.key === "platinum"
+                      ? "#F3E0B5"
+                      : "#B87B68",
+                  fontFamily: "Playfair Display, serif",
+                }}
+              >
+                {membership.cost}
+              </span>
+              {membership.originalCost ? (
                 <span
                   className="text-sm font-semibold"
                   style={{
@@ -359,30 +395,8 @@ function MembershipModal({
                 >
                   {membership.originalCost}
                 </span>
-                <span
-                  className="text-3xl font-semibold"
-                  style={{
-                    color: "#B87B68",
-                    fontFamily: "Playfair Display, serif",
-                  }}
-                >
-                  {membership.cost}
-                </span>
-              </div>
-            ) : (
-              <span
-                className="text-2xl font-semibold"
-                style={{
-                  color:
-                    membership.key === "platinum"
-                      ? "#F3E0B5"
-                      : membership.accentColor,
-                  fontFamily: "Playfair Display, serif",
-                }}
-              >
-                {membership.cost}
-              </span>
-            )}
+              ) : null}
+            </div>
             <span
               className="text-xs font-semibold uppercase tracking-[0.14em]"
               style={{
@@ -392,7 +406,22 @@ function MembershipModal({
               {membership.validity}
             </span>
           </div>
-          {membership.key === "signature" && membership.priceNote ? (
+          {membership.discountBadge ? (
+            <span
+              className="mt-3 inline-flex rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em]"
+              style={{
+                backgroundColor: membership.discountBadge.includes("OFF on All Products")
+                  ? "#DCFCE7"
+                  : "#FEE2E2",
+                color: membership.discountBadge.includes("OFF on All Products")
+                  ? "#15803D"
+                  : "#B91C1C",
+              }}
+            >
+              {membership.discountBadge}
+            </span>
+          ) : null}
+          {membership.priceNote ? (
             <p
               className="mt-3 text-xs leading-6 dark:text-[#8A7D75]"
               style={{ color: "#8C7967" }}

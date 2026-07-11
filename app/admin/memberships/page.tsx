@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import Pagination from "@/components/ui/Pagination";
 import { SkeletonTable } from "@/components/ui/Skeleton";
 import { formatDateTime } from "@/lib/dateUtils";
+import { getProductDiscount } from "@/lib/membershipDiscounts";
 
 type AdminMembership = {
   id: string;
@@ -107,6 +108,24 @@ function getPaymentBadgeStyles(status: "UNPAID" | "PAID" | "REFUNDED" | "N/A") {
         color: "#4B5563",
       };
   }
+}
+
+function ProductDiscountCell({ tier }: { tier: AdminMembership["tier"] }) {
+  const discount = getProductDiscount(tier);
+
+  if (discount <= 0) {
+    return (
+      <span className="text-sm font-medium text-[#884F38] dark:text-[#8A7D75]">
+        —
+      </span>
+    );
+  }
+
+  return (
+    <span className="inline-flex rounded-full bg-green-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-green-700 dark:bg-green-950/30 dark:text-green-300">
+      {discount}% OFF
+    </span>
+  );
 }
 
 function getDaysRemaining(expiresAt: string | null) {
@@ -288,7 +307,7 @@ export default function AdminMembershipsPage() {
 
       {isInitialLoading ? (
         <div className="mt-8">
-          <SkeletonTable rows={6} cols={9} />
+          <SkeletonTable rows={6} cols={10} />
         </div>
       ) : null}
 
@@ -373,13 +392,14 @@ export default function AdminMembershipsPage() {
           ) : (
             <div className="mt-6 overflow-hidden rounded-2xl border border-themed bg-card shadow-sm">
               <div className="overflow-x-auto">
-                <table className="table-themed w-full min-w-[1120px] text-left text-sm">
+                <table className="table-themed w-full min-w-[1220px] text-left text-sm">
                   <thead>
                     <tr>
                       <th className="px-4 py-3 font-medium">Membership ID</th>
                       <th className="px-4 py-3 font-medium">Client Name</th>
                       <th className="px-4 py-3 font-medium">Client Phone</th>
                       <th className="px-4 py-3 font-medium">Tier</th>
+                      <th className="px-4 py-3 font-medium">Product Discount</th>
                       <th className="px-4 py-3 font-medium">Status</th>
                       <th className="px-4 py-3 font-medium">Days Remaining</th>
                       <th className="px-4 py-3 font-medium">Payment Status</th>
@@ -411,6 +431,9 @@ export default function AdminMembershipsPage() {
                               >
                                 {membership.tier}
                               </span>
+                            </td>
+                            <td className="px-4 py-4">
+                              <ProductDiscountCell tier={membership.tier} />
                             </td>
                             <td className="px-4 py-4">
                               <span
