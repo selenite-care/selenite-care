@@ -1,66 +1,21 @@
-import { v2 as cloudinary } from "cloudinary";
 import NextAuth from "next-auth";
 import { authConfig } from "@/lib/auth";
+import { uploadToSupabase } from "@/lib/supabaseStorage";
 
 const { auth } = NextAuth(authConfig);
 
 export const runtime = "nodejs";
 
-function configureCloudinary() {
-  const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
-  const apiKey = process.env.CLOUDINARY_API_KEY;
-  const apiSecret = process.env.CLOUDINARY_API_SECRET;
+function buildProductImagePath(fileName: string) {
+  const timestamp = Date.now();
+  const random = Math.random().toString(36).slice(2, 10);
+  const safeFileName = fileName
+    .trim()
+    .replace(/[/\\]/g, "-")
+    .replace(/[^a-zA-Z0-9._-]/g, "-")
+    .replace(/-+/g, "-");
 
-  if (!cloudName || !apiKey || !apiSecret) {
-    return Response.json(
-      { error: "Cloudinary environment variables are not configured." },
-      { status: 500 },
-    );
-  }
-
-  cloudinary.config({
-    cloud_name: cloudName,
-    api_key: apiKey,
-    api_secret: apiSecret,
-  });
-
-  return null;
-}
-
-async function uploadProductImageToCloudinary(file: File) {
-  const arrayBuffer = await file.arrayBuffer();
-  const buffer = Buffer.from(arrayBuffer);
-
-  return new Promise<{ secure_url: string }>((resolve, reject) => {
-    const stream = cloudinary.uploader.upload_stream(
-      {
-        folder: "selenite-care/product-images",
-        resource_type: "image",
-        transformation: [
-          {
-            width: 1200,
-            quality: "auto",
-            fetch_format: "auto",
-          },
-        ],
-      },
-      (error, result) => {
-        if (error) {
-          reject(error);
-          return;
-        }
-
-        if (!result?.secure_url) {
-          reject(new Error("Cloudinary did not return a secure URL."));
-          return;
-        }
-
-        resolve({ secure_url: result.secure_url });
-      },
-    );
-
-    stream.end(buffer);
-  });
+  return `products/${timestamp}-${random}-${safeFileName || "image"}`;
 }
 
 export async function POST(request: Request) {
@@ -68,12 +23,6 @@ export async function POST(request: Request) {
 
   if (!session?.user?.id) {
     return Response.json({ error: "Unauthorized." }, { status: 401 });
-  }
-
-  const configError = configureCloudinary();
-
-  if (configError) {
-    return configError;
   }
 
   const formData = await request.formData();
@@ -88,9 +37,14 @@ export async function POST(request: Request) {
   }
 
   try {
-    const uploaded = await uploadProductImageToCloudinary(file);
+    const publicUrl = await uploadToSupabase(
+      file,
+      "selenite-products",
+      buildProductImagePath(file.name),
+      file.type,
+    );
 
-    return Response.json({ secure_url: uploaded.secure_url });
+    return Response.json({ secure_url: publicUrl });
   } catch (error) {
     console.error("Product image upload failed:", error);
     return Response.json({ error: "Failed to upload product image." }, { status: 500 });

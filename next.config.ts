@@ -9,6 +9,10 @@ const nextConfig = {
       },
       {
         protocol: "https",
+        hostname: "kjgrjljncwjpvvrumycb.supabase.co",
+      },
+      {
+        protocol: "https",
         hostname: "ui-avatars.com",
       },
       {

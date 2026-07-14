@@ -1,5 +1,5 @@
 import { auth } from "@/auth";
-import { v2 as cloudinary } from "cloudinary";
+import { uploadToSupabase } from "@/lib/supabaseStorage";
 
 export const runtime = "nodejs";
 
@@ -13,61 +13,16 @@ async function requireSession() {
   return null;
 }
 
-function configureCloudinary() {
-  const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
-  const apiKey = process.env.CLOUDINARY_API_KEY;
-  const apiSecret = process.env.CLOUDINARY_API_SECRET;
+function buildFeedbackImagePath(fileName: string) {
+  const timestamp = Date.now();
+  const random = Math.random().toString(36).slice(2, 10);
+  const safeFileName = fileName
+    .trim()
+    .replace(/[/\\]/g, "-")
+    .replace(/[^a-zA-Z0-9._-]/g, "-")
+    .replace(/-+/g, "-");
 
-  if (!cloudName || !apiKey || !apiSecret) {
-    return Response.json(
-      { error: "Cloudinary environment variables are not configured." },
-      { status: 500 },
-    );
-  }
-
-  cloudinary.config({
-    cloud_name: cloudName,
-    api_key: apiKey,
-    api_secret: apiSecret,
-  });
-
-  return null;
-}
-
-async function uploadToCloudinary(file: File) {
-  const arrayBuffer = await file.arrayBuffer();
-  const buffer = Buffer.from(arrayBuffer);
-
-  return new Promise<{ secure_url: string }>((resolve, reject) => {
-    const stream = cloudinary.uploader.upload_stream(
-      {
-        folder: "selenite-care/feedback",
-        resource_type: "image",
-        transformation: [
-          {
-            width: 800,
-            quality: "auto",
-            fetch_format: "auto",
-          },
-        ],
-      },
-      (error, result) => {
-        if (error) {
-          reject(error);
-          return;
-        }
-
-        if (!result?.secure_url) {
-          reject(new Error("Cloudinary did not return a secure URL."));
-          return;
-        }
-
-        resolve({ secure_url: result.secure_url });
-      },
-    );
-
-    stream.end(buffer);
-  });
+  return `feedback/${timestamp}-${random}-${safeFileName || "image"}`;
 }
 
 export async function POST(request: Request) {
@@ -75,12 +30,6 @@ export async function POST(request: Request) {
 
   if (sessionError) {
     return sessionError;
-  }
-
-  const configError = configureCloudinary();
-
-  if (configError) {
-    return configError;
   }
 
   const formData = await request.formData();
@@ -95,9 +44,14 @@ export async function POST(request: Request) {
   }
 
   try {
-    const uploaded = await uploadToCloudinary(file);
+    const publicUrl = await uploadToSupabase(
+      file,
+      "selenite-feedback",
+      buildFeedbackImagePath(file.name),
+      file.type,
+    );
 
-    return Response.json({ secure_url: uploaded.secure_url });
+    return Response.json({ secure_url: publicUrl });
   } catch (error) {
     console.error("Feedback image upload failed:", error);
     return Response.json({ error: "Failed to upload image." }, { status: 500 });
