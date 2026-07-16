@@ -44,6 +44,7 @@ const steps = [
       "A perfect starting point for individuals seeking professional skincare guidance and routine development.",
     tier: "signature",
   },
+  /* CRYSTAL_MEMBERSHIP_START
   {
     title: "Crystal Membership",
     validity: "Valid for 12 Months",
@@ -54,6 +55,8 @@ const steps = [
       "Designed for individuals committed to achieving long-term skin improvement through regular monitoring and expert guidance.",
     tier: "crystal",
   },
+  CRYSTAL_MEMBERSHIP_END */
+  /* PLATINUM_MEMBERSHIP_START
   {
     title: "Platinum Membership",
     validity: "Valid for 36 Months",
@@ -64,6 +67,7 @@ const steps = [
       "Excellence Skin transformation program combining skincare, nutrition, wellness, and continuous progress monitoring.",
     tier: "platinum",
   },
+  PLATINUM_MEMBERSHIP_END */
 ];
 
 type BenefitItem = {
@@ -144,6 +148,7 @@ const memberships: MembershipTier[] = [
       { heading: "Before & After Consultation Support", points: [] },
     ],
   },
+  /* CRYSTAL_MEMBERSHIP_START
   {
     key: "crystal",
     tierValue: "CRYSTAL",
@@ -188,6 +193,8 @@ const memberships: MembershipTier[] = [
       },
     ],
   },
+  CRYSTAL_MEMBERSHIP_END */
+  /* PLATINUM_MEMBERSHIP_START
   {
     key: "platinum",
     tierValue: "PLATINUM",
@@ -260,6 +267,7 @@ const memberships: MembershipTier[] = [
       },
     ],
   },
+  PLATINUM_MEMBERSHIP_END */
 ];
 
 function MembershipModal({
