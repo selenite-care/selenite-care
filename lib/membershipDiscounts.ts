@@ -1,7 +1,7 @@
 export const MEMBERSHIP_PRICES = {
   SIGNATURE: { 
     price: 990,           // offered price
-    originalPrice: 1200,  // regular price
+    originalPrice: 2190,  // regular price
     offerValidTill: '2026-07-30'  // offer expires July 30
   },
   CRYSTAL: { 

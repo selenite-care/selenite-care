@@ -764,8 +764,12 @@ export default function LandingPage() {
   const [resendCountdown, setResendCountdown] = useState(0);
   const membershipPlans = [
     membershipContent.signature,
+    /* CRYSTAL_MEMBERSHIP_START
     membershipContent.crystal,
+    CRYSTAL_MEMBERSHIP_END */
+    /* PLATINUM_MEMBERSHIP_START
     membershipContent.platinum,
+    PLATINUM_MEMBERSHIP_END */
   ];
   const faqItems = FAQS.filter((item) =>
     ["1", "2", "3", "6", "11", "14"].includes(item.id),
@@ -1217,7 +1221,10 @@ export default function LandingPage() {
                         {heroOfferLabels.regular}
                       </span>
                       <span className="text-2xl font-bold text-red-600 line-through decoration-red-600 decoration-2 dark:text-red-400 sm:text-3xl">
-                        {MEMBERSHIP_PRICES.SIGNATURE.originalPrice}/-
+                        {(MEMBERSHIP_PRICES.SIGNATURE.originalPrice ??
+                          MEMBERSHIP_PRICES.SIGNATURE.price
+                        ).toLocaleString("en-US")}{" "}
+                        BDT
                       </span>
                     </span>
                     <span className="mt-3 inline-flex max-w-full flex-wrap items-center gap-x-3 gap-y-2 rounded-2xl border border-[#B87B68]/40 bg-[#B87B68]/12 px-4 py-3 shadow-[0_14px_32px_rgba(184,123,104,0.14)] dark:bg-[#B87B68]/15">
@@ -1225,7 +1232,10 @@ export default function LandingPage() {
                         {heroOfferLabels.offered}
                       </span>
                       <span className="text-4xl font-black leading-none text-[#B87B68] sm:text-5xl lg:text-6xl">
-                        {MEMBERSHIP_PRICES.SIGNATURE.price}/-
+                        {MEMBERSHIP_PRICES.SIGNATURE.price.toLocaleString(
+                          "en-US",
+                        )}{" "}
+                        BDT
                       </span>
                     </span>
                   </h1>

@@ -161,9 +161,13 @@ function parseTier(value: string | null): MembershipTier | null {
   const normalized = value.trim().toUpperCase();
 
   if (
-    normalized === "SIGNATURE" ||
-    normalized === "CRYSTAL" ||
-    normalized === "PLATINUM"
+    normalized === "SIGNATURE"
+    /* CRYSTAL_MEMBERSHIP_START
+    || normalized === "CRYSTAL"
+    CRYSTAL_MEMBERSHIP_END */
+    /* PLATINUM_MEMBERSHIP_START
+    || normalized === "PLATINUM"
+    PLATINUM_MEMBERSHIP_END */
   ) {
     return normalized;
   }

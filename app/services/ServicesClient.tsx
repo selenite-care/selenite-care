@@ -122,6 +122,7 @@ const memberships: MembershipTier[] = [
       { heading: "Before & After Consultation Support", points: [] },
     ],
   },
+  /* CRYSTAL_MEMBERSHIP_START
   {
     key: "crystal",
     tierValue: "CRYSTAL",
@@ -166,6 +167,8 @@ const memberships: MembershipTier[] = [
       },
     ],
   },
+  CRYSTAL_MEMBERSHIP_END */
+  /* PLATINUM_MEMBERSHIP_START
   {
     key: "platinum",
     tierValue: "PLATINUM",
@@ -238,6 +241,7 @@ const memberships: MembershipTier[] = [
       },
     ],
   },
+  PLATINUM_MEMBERSHIP_END */
 ];
 
 function MembershipModal({
