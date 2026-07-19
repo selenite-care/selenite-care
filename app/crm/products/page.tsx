@@ -15,6 +15,7 @@ type Product = {
   stockNote: string | null;
   image: string | null;
   description: string | null;
+  ingredients: string | null;
   isVisible: boolean;
   createdAt: string;
 };
@@ -36,6 +37,7 @@ type ProductFormState = {
   price: string;
   skinType: string;
   description: string;
+  ingredients: string;
   image: string;
 };
 
@@ -45,6 +47,7 @@ const emptyForm: ProductFormState = {
   price: "",
   skinType: "",
   description: "",
+  ingredients: "",
   image: "",
 };
 
@@ -55,6 +58,7 @@ type ProductEditFormState = {
   price: string;
   skinType: string;
   description: string;
+  ingredients: string;
   stockStatus: Product["stockStatus"];
   stockNote: string;
   image: string;
@@ -122,6 +126,7 @@ function createEditFormState(product: Product): ProductEditFormState {
     price: String(product.price),
     skinType: product.skinType ?? "",
     description: product.description ?? "",
+    ingredients: product.ingredients ?? "",
     stockStatus: product.stockStatus,
     stockNote: product.stockNote ?? "",
     image: product.image ?? "",
@@ -212,7 +217,7 @@ export default function CrmProductsPage() {
 
   async function patchProduct(
     productId: string,
-    payload: Partial<Pick<Product, "stockStatus" | "stockNote" | "image" | "description">>,
+    payload: Partial<Pick<Product, "stockStatus" | "stockNote" | "image" | "description" | "ingredients">>,
   ) {
     setSaveStates((current) => ({ ...current, [productId]: "saving" }));
 
@@ -368,6 +373,7 @@ export default function CrmProductsPage() {
           price: Number(editForm.price),
           skinType: editForm.skinType,
           description: editForm.description,
+          ingredients: editForm.ingredients,
           stockStatus: editForm.stockStatus,
           stockNote: editForm.stockNote,
           image: editForm.image || null,
@@ -420,6 +426,7 @@ export default function CrmProductsPage() {
           type: form.type,
           price: Number(form.price),
           description: form.description,
+          ingredients: form.ingredients,
           image: form.image || null,
         }),
       });
@@ -854,6 +861,28 @@ export default function CrmProductsPage() {
             </div>
 
             <div>
+              <label
+                htmlFor="ingredients"
+                className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]"
+              >
+                Ingredients
+              </label>
+              <textarea
+                id="ingredients"
+                rows={4}
+                value={form.ingredients}
+                onChange={(event) =>
+                  setForm((current) => ({
+                    ...current,
+                    ingredients: event.target.value,
+                  }))
+                }
+                placeholder="List product ingredients separated by commas..."
+                className="mt-2 w-full rounded-md border border-[#EADDCD] bg-white px-3 py-2 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8] dark:placeholder-[#8A7D75]"
+              />
+            </div>
+
+            <div>
               <label className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
                 Product Image
               </label>
@@ -1060,6 +1089,23 @@ export default function CrmProductsPage() {
                     )
                   }
                   className="mt-2 w-full rounded-md border border-[#EADDCD] bg-white px-3 py-2 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
+                  Ingredients
+                </label>
+                <textarea
+                  rows={4}
+                  value={editForm.ingredients}
+                  onChange={(event) =>
+                    setEditForm((current) =>
+                      current ? { ...current, ingredients: event.target.value } : current,
+                    )
+                  }
+                  placeholder="List product ingredients separated by commas..."
+                  className="mt-2 w-full rounded-md border border-[#EADDCD] bg-white px-3 py-2 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8] dark:placeholder-[#8A7D75]"
                 />
               </div>
 

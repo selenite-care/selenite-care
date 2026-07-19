@@ -38,6 +38,7 @@ export async function GET(request: Request) {
       image: true,
       stockStatus: true,
       stockNote: true,
+      ingredients: true,
     },
     orderBy: {
       createdAt: "desc",

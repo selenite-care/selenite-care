@@ -13,6 +13,7 @@ type ProductPatchPayload = {
   stockNote?: unknown;
   image?: unknown;
   description?: unknown;
+  ingredients?: unknown;
   name?: unknown;
   type?: unknown;
   skinType?: unknown;
@@ -45,6 +46,8 @@ export async function PATCH(request: Request, context: RouteContext) {
   const image = typeof body.image === "string" ? body.image.trim() : undefined;
   const description =
     typeof body.description === "string" ? body.description.trim() : undefined;
+  const ingredients =
+    typeof body.ingredients === "string" ? body.ingredients.trim() : undefined;
   const name = typeof body.name === "string" ? body.name.trim() : undefined;
   const type = typeof body.type === "string" ? body.type.trim() : undefined;
   const skinType =
@@ -88,6 +91,7 @@ export async function PATCH(request: Request, context: RouteContext) {
       ...(stockNote !== undefined ? { stockNote: stockNote || null } : {}),
       ...(image !== undefined ? { image: image || null } : {}),
       ...(description !== undefined ? { description: description || null } : {}),
+      ...(ingredients !== undefined ? { ingredients: ingredients || null } : {}),
       ...(name !== undefined ? { name } : {}),
       ...(type !== undefined ? { type } : {}),
       ...(skinType !== undefined ? { skinType: skinType || null } : {}),
@@ -104,6 +108,7 @@ export async function PATCH(request: Request, context: RouteContext) {
       stockNote: true,
       image: true,
       description: true,
+      ingredients: true,
       isVisible: true,
       createdAt: true,
     },
