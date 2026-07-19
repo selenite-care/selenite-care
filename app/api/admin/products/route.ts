@@ -8,6 +8,7 @@ type ProductPayload = {
   type?: unknown;
   price?: unknown;
   description?: unknown;
+  ingredients?: unknown;
   image?: unknown;
 };
 
@@ -74,6 +75,7 @@ export async function GET(request: Request) {
         stockNote: true,
         image: true,
         description: true,
+        ingredients: true,
         isVisible: true,
         createdAt: true,
       },
@@ -110,6 +112,8 @@ export async function POST(request: Request) {
   const type = typeof body.type === "string" ? body.type.trim() : "";
   const description =
     typeof body.description === "string" ? body.description.trim() : "";
+  const ingredients =
+    typeof body.ingredients === "string" ? body.ingredients.trim() : "";
   const image = typeof body.image === "string" ? body.image.trim() : "";
   const price =
     typeof body.price === "number"
@@ -131,6 +135,7 @@ export async function POST(request: Request) {
       type,
       price,
       description: description || null,
+      ingredients: ingredients || null,
       image: image || null,
     },
     select: {
@@ -143,6 +148,7 @@ export async function POST(request: Request) {
       stockNote: true,
       image: true,
       description: true,
+      ingredients: true,
       isVisible: true,
       createdAt: true,
     },

@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
-import { ShoppingBag } from "lucide-react";
+import { ShoppingBag, X } from "lucide-react";
 import { useCart } from "@/components/cart/CartProvider";
 import { Skeleton, SkeletonCard } from "@/components/ui/Skeleton";
 import { getProductDiscount } from "@/lib/membershipDiscounts";
@@ -20,6 +20,7 @@ type Product = {
   stockStatus: StockStatus;
   stockNote: string | null;
   description: string | null;
+  ingredients: string | null;
   image: string | null;
 };
 
@@ -110,6 +111,7 @@ export default function ProductsPage() {
     useState<ClientMembership | null>(null);
   const [page, setPage] = useState(1);
   const [products, setProducts] = useState<Product[]>([]);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [types, setTypes] = useState<string[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
@@ -302,6 +304,22 @@ export default function ProductsPage() {
     return () => window.clearTimeout(timeout);
   }, [recentlyAddedId]);
 
+  useEffect(() => {
+    if (!selectedProduct) {
+      return;
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setSelectedProduct(null);
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [selectedProduct]);
+
   const productCountLabel = useMemo(() => {
     if (isLoading) {
       return "";
@@ -335,6 +353,20 @@ export default function ProductsPage() {
     });
     setRecentlyAddedId(product.id);
   }
+
+  function handleModalAddToCart(product: Product) {
+    handleAddToCart(product);
+
+    if (product.stockStatus !== "OUT_OF_STOCK") {
+      setSelectedProduct(null);
+    }
+  }
+
+  const selectedStatusColor = selectedProduct
+    ? STOCK_STATUS_COLORS[selectedProduct.stockStatus]
+    : STOCK_STATUS_COLORS.AVAILABLE;
+  const selectedProductIsOutOfStock =
+    selectedProduct?.stockStatus === "OUT_OF_STOCK";
 
   return (
     <main
@@ -668,8 +700,10 @@ export default function ProductsPage() {
                       boxShadow: "0 2px 12px rgba(198,165,107,0.06)",
                       opacity: isOutOfStock ? 0.85 : 1,
                       transition: "transform 0.25s ease, box-shadow 0.25s ease",
+                      cursor: "pointer",
                     }}
-                    className="product-card dark:border-[#3D3530] dark:bg-[#242220]"
+                    className="product-card cursor-pointer dark:border-[#3D3530] dark:bg-[#242220]"
+                    onClick={() => setSelectedProduct(product)}
                     onMouseEnter={(event) => {
                       if (isOutOfStock) return;
                       event.currentTarget.style.transform = "translateY(-6px)";
@@ -961,7 +995,10 @@ export default function ProductsPage() {
 
                       <button
                         type="button"
-                        onClick={() => handleAddToCart(product)}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          handleAddToCart(product);
+                        }}
                         disabled={isOutOfStock}
                         style={{
                           height: 46,
@@ -1058,6 +1095,133 @@ export default function ProductsPage() {
           </>
         )}
       </div>
+
+      {selectedProduct ? (
+        <div
+          className="fixed inset-0 z-[80] flex items-center justify-center bg-black/65 px-4 py-6"
+          onClick={() => setSelectedProduct(null)}
+          role="presentation"
+        >
+          <div
+            className="relative max-h-[90vh] w-full max-w-[500px] overflow-y-auto rounded-2xl border border-[#E8DDD0] bg-white shadow-2xl dark:border-[#3D3530] dark:bg-[#242220]"
+            onClick={(event) => event.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-label={`${selectedProduct.name} product details`}
+          >
+            <button
+              type="button"
+              onClick={() => setSelectedProduct(null)}
+              className="absolute right-3 top-3 z-10 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/95 text-[#2B2B2B] shadow-md transition-colors hover:bg-[#F8F5F0] dark:bg-[#1A1814]/95 dark:text-[#F0EDE8] dark:hover:bg-[#242220]"
+              aria-label="Close product details"
+            >
+              <X className="h-5 w-5" />
+            </button>
+
+            <div className="relative h-72 w-full bg-[#F2EBDF] dark:bg-[#1A1814]">
+              {selectedProduct.image ? (
+                <Image
+                  src={selectedProduct.image}
+                  alt={selectedProduct.name}
+                  fill
+                  sizes="500px"
+                  className="object-cover"
+                />
+              ) : (
+                <div className="flex h-full items-center justify-center">
+                  <span
+                    className="text-5xl font-bold text-[#B87B68]"
+                    style={{ fontFamily: "Playfair Display, serif" }}
+                  >
+                    {getInitials(selectedProduct.name)}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-5 p-6">
+              <div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="rounded-full bg-[#EADDCD] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.1em] text-[#8C7355] dark:bg-[#3D3530] dark:text-[#D4B47A]">
+                    {selectedProduct.type}
+                  </span>
+                  <span
+                    style={{
+                      background: selectedStatusColor.bg,
+                      borderColor: selectedStatusColor.border,
+                      color: selectedStatusColor.text,
+                    }}
+                    className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[11px] font-bold uppercase tracking-[0.08em]"
+                  >
+                    <span
+                      style={{ background: selectedStatusColor.dot }}
+                      className="h-1.5 w-1.5 rounded-full"
+                    />
+                    {STOCK_STATUS_LABELS[selectedProduct.stockStatus]}
+                  </span>
+                </div>
+
+                <h2
+                  className="mt-4 text-3xl font-bold leading-tight text-[#2B2B2B] dark:text-[#F0EDE8]"
+                  style={{ fontFamily: "Playfair Display, serif" }}
+                >
+                  {selectedProduct.name}
+                </h2>
+
+                <p
+                  className="mt-3 text-3xl font-extrabold text-[#B87B68]"
+                  style={{ fontFamily: "Playfair Display, serif" }}
+                >
+                  {formatBdt(selectedProduct.price)}
+                </p>
+
+                {selectedProduct.skinType ? (
+                  <span className="mt-3 inline-flex rounded-full border border-[#E8DDD0] bg-[#FBF9F6] px-3 py-1 text-xs font-semibold uppercase tracking-[0.08em] text-[#A8916F] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#D4B47A]">
+                    For {selectedProduct.skinType} Skin
+                  </span>
+                ) : null}
+              </div>
+
+              {selectedProduct.description ? (
+                <section>
+                  <h3 className="text-sm font-bold uppercase tracking-[0.12em] text-[#2B2B2B] dark:text-[#F0EDE8]">
+                    About this Product
+                  </h3>
+                  <p className="mt-2 whitespace-pre-line text-sm leading-7 text-[#8C7967] dark:text-[#8A7D75]">
+                    {selectedProduct.description}
+                  </p>
+                </section>
+              ) : null}
+
+              {selectedProduct.ingredients ? (
+                <section>
+                  <h3 className="text-sm font-bold uppercase tracking-[0.12em] text-[#2B2B2B] dark:text-[#F0EDE8]">
+                    Ingredients
+                  </h3>
+                  <p className="mt-2 whitespace-pre-line text-sm leading-7 text-[#8C7967] dark:text-[#8A7D75]">
+                    {selectedProduct.ingredients}
+                  </p>
+                </section>
+              ) : null}
+
+              {selectedProduct.stockNote ? (
+                <p className="rounded-xl border border-[#E8DDD0] bg-[#FBF9F6] px-4 py-3 text-sm text-[#8C7967] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#8A7D75]">
+                  {selectedProduct.stockNote}
+                </p>
+              ) : null}
+
+              <button
+                type="button"
+                onClick={() => handleModalAddToCart(selectedProduct)}
+                disabled={selectedProductIsOutOfStock}
+                className="inline-flex h-12 w-full items-center justify-center rounded-xl bg-[#2B2B2B] px-5 text-sm font-semibold text-[#F8F5F0] transition-colors hover:bg-[#B87B68] disabled:cursor-not-allowed disabled:bg-[#E8DDD0] disabled:text-[#A8916F] dark:bg-[#B87B68] dark:text-[#141210] dark:hover:bg-[#D4B47A] dark:disabled:bg-[#3D3530] dark:disabled:text-[#8A7D75]"
+              >
+                {selectedProductIsOutOfStock ? "Unavailable" : "Add to Cart"}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       <style>{`
         @media (max-width: 639px) {

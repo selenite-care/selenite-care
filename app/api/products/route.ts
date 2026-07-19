@@ -117,6 +117,7 @@ export async function GET(request: Request) {
       stockStatus: true,
       stockNote: true,
       description: true,
+      ingredients: true,
       image: true,
     },
     orderBy: [
