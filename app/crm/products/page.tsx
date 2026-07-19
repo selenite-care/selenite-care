@@ -848,7 +848,7 @@ export default function CrmProductsPage() {
               </label>
               <textarea
                 id="description"
-                rows={4}
+                rows={3}
                 value={form.description}
                 onChange={(event) =>
                   setForm((current) => ({
@@ -869,7 +869,7 @@ export default function CrmProductsPage() {
               </label>
               <textarea
                 id="ingredients"
-                rows={4}
+                rows={3}
                 value={form.ingredients}
                 onChange={(event) =>
                   setForm((current) => ({
@@ -943,7 +943,7 @@ export default function CrmProductsPage() {
           onClick={closeEditModal}
         >
           <div
-            className="modal-card w-full max-w-2xl rounded-2xl border border-[#EADDCD] bg-white p-6 shadow-2xl dark:border-[#3D3530] dark:bg-[#242220]"
+            className="modal-card max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-[#EADDCD] bg-white p-6 shadow-2xl dark:border-[#3D3530] dark:bg-[#242220]"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="flex items-start justify-between gap-4">
@@ -1081,7 +1081,7 @@ export default function CrmProductsPage() {
                   Description
                 </label>
                 <textarea
-                  rows={4}
+                  rows={3}
                   value={editForm.description}
                   onChange={(event) =>
                     setEditForm((current) =>
@@ -1097,7 +1097,7 @@ export default function CrmProductsPage() {
                   Ingredients
                 </label>
                 <textarea
-                  rows={4}
+                  rows={3}
                   value={editForm.ingredients}
                   onChange={(event) =>
                     setEditForm((current) =>
