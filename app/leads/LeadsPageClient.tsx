@@ -40,6 +40,8 @@ export default function LeadsPageClient({ embedded = false }: { embedded?: boole
     event.preventDefault();
     setError("");
 
+    const formData = new FormData(event.currentTarget);
+    const website = String(formData.get("website") ?? "");
     const trimmedPhone = phone.trim();
     const trimmedEmail = email.trim();
 
@@ -61,6 +63,7 @@ export default function LeadsPageClient({ embedded = false }: { embedded?: boole
           phone: trimmedPhone || undefined,
           email: trimmedEmail || undefined,
           interest: note.trim() ? `${interest} - ${note.trim()}` : interest,
+          website,
         }),
       });
       const data = (await response.json().catch(() => null)) as
@@ -200,6 +203,14 @@ export default function LeadsPageClient({ embedded = false }: { embedded?: boole
                 </div>
 
                 <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+                  <input
+                    type="text"
+                    name="website"
+                    style={{ display: "none" }}
+                    tabIndex={-1}
+                    autoComplete="off"
+                  />
+
                   <div>
                     <label
                       htmlFor="lead-name"
