@@ -14,6 +14,8 @@ const notificationSelect = {
   createdAt: true,
 } as const;
 
+const NOTIFICATION_RETENTION_MS = 30 * 24 * 60 * 60 * 1000;
+
 export async function GET() {
   const session = await auth();
 
@@ -44,6 +46,21 @@ export async function GET() {
       },
     }),
   ]);
+
+  if (Math.random() < 0.1) {
+    void db.notification
+      .deleteMany({
+        where: {
+          userId: session.user.id,
+          createdAt: {
+            lt: new Date(Date.now() - NOTIFICATION_RETENTION_MS),
+          },
+        },
+      })
+      .catch((error) => {
+        console.error("Notification cleanup failed:", error);
+      });
+  }
 
   return Response.json({
     notifications,
