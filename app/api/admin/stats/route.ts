@@ -15,28 +15,42 @@ export async function GET() {
     return Response.json({ error: "Forbidden." }, { status: 403 });
   }
 
-  const [totalUsers, totalBookings, revenue, pendingBookings] =
-    await Promise.all([
-      db.user.count(),
-      db.booking.count(),
-      db.payment.aggregate({
-        _sum: {
-          amount: true,
+  const [
+    totalUsers,
+    totalBookings,
+    pendingBookings,
+    revenue,
+    totalMemberships,
+    activeMemberships,
+  ] = await db.$transaction([
+    db.user.count(),
+    db.booking.count(),
+    db.booking.count({
+      where: {
+        status: {
+          notIn: ["COMPLETED", "CANCELLED"],
         },
-      }),
-      db.booking.count({
-        where: {
-          status: {
-            notIn: ["COMPLETED", "CANCELLED"],
-          },
-        },
-      }),
-    ]);
+      },
+    }),
+    db.payment.aggregate({
+      _sum: {
+        amount: true,
+      },
+    }),
+    db.membership.count(),
+    db.membership.count({
+      where: {
+        status: "ACTIVE",
+      },
+    }),
+  ]);
 
   return Response.json({
     totalUsers,
     totalBookings,
     totalRevenue: revenue._sum.amount ?? 0,
     pendingBookings,
+    totalMemberships,
+    activeMemberships,
   });
 }

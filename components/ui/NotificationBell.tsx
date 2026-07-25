@@ -28,6 +28,8 @@ type NotificationsResponse = {
   unreadCount?: number;
 };
 
+const NOTIFICATION_POLL_INTERVAL_MS = 300_000;
+
 const typeBorderClasses: Record<string, string> = {
   INFO: "border-l-blue-500",
   SUCCESS: "border-l-green-500",
@@ -45,6 +47,7 @@ function getTypeBorderClass(type: string) {
 export default function NotificationBell() {
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const pollIntervalRef = useRef<number | null>(null);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
@@ -71,13 +74,51 @@ export default function NotificationBell() {
   }
 
   useEffect(() => {
-    void loadNotifications();
+    function stopPolling() {
+      if (pollIntervalRef.current === null) {
+        return;
+      }
 
-    const intervalId = window.setInterval(() => {
+      window.clearInterval(pollIntervalRef.current);
+      pollIntervalRef.current = null;
+    }
+
+    function startPolling() {
+      if (
+        document.visibilityState !== "visible" ||
+        pollIntervalRef.current !== null
+      ) {
+        return;
+      }
+
+      pollIntervalRef.current = window.setInterval(() => {
+        if (document.visibilityState === "visible") {
+          void loadNotifications();
+        }
+      }, NOTIFICATION_POLL_INTERVAL_MS);
+    }
+
+    function handleVisibilityChange() {
+      if (document.visibilityState === "visible") {
+        void loadNotifications();
+        startPolling();
+        return;
+      }
+
+      stopPolling();
+    }
+
+    if (document.visibilityState === "visible") {
       void loadNotifications();
-    }, 60_000);
+      startPolling();
+    }
 
-    return () => window.clearInterval(intervalId);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      stopPolling();
+    };
   }, []);
 
   useEffect(() => {
