@@ -9,6 +9,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { toast } from "sonner";
 
 const CART_STORAGE_KEY = "selenite-cart";
 
@@ -83,15 +84,23 @@ export function CartProvider({ children }: { children: ReactNode }) {
         },
       ];
     });
+    toast.success("Added to cart", {
+      description: product.name,
+    });
   }, []);
 
   const removeItem = useCallback((productId: string) => {
     setItems((currentItems) =>
       currentItems.filter((item) => item.productId !== productId),
     );
+    toast.success("Removed from cart");
   }, []);
 
   const updateQuantity = useCallback((productId: string, quantity: number) => {
+    if (quantity <= 0) {
+      toast.success("Removed from cart");
+    }
+
     setItems((currentItems) => {
       if (quantity <= 0) {
         return currentItems.filter((item) => item.productId !== productId);

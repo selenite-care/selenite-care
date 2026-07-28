@@ -48,6 +48,7 @@
     "react-phone-number-input": "^3.4.17",
     "recharts": "^3.8.1",
     "resend": "^6.12.3",
+    "sonner": "^2.0.7",
     "stripe": "^22.1.1"
   },
   "devDependencies": {

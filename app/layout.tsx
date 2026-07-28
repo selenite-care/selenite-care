@@ -6,6 +6,7 @@ import { CartProvider } from "@/components/cart/CartProvider";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import SessionGuard from "@/components/auth/SessionGuard";
 import { SessionProvider } from "next-auth/react";
+import { Toaster } from "sonner";
 import AppChrome from "@/components/layout/AppChrome";
 import PWAInstallPrompt from "@/components/ui/PWAInstallPrompt";
 import PWAServiceWorkerRegister from "@/components/ui/PWAServiceWorkerRegister";
@@ -147,6 +148,15 @@ export default function RootLayout({
           </CartProvider>
         </SessionProvider>
         <PWAServiceWorkerRegister />
+        <Toaster
+          richColors
+          position="top-right"
+          toastOptions={{
+            style: {
+              fontFamily: "var(--font-geist-sans)",
+            },
+          }}
+        />
         <Analytics />
         <SpeedInsights />
       </body>

@@ -3,6 +3,7 @@
 import { FormEvent, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { toast } from "sonner";
 import {
   Check,
   MessageCircle,
@@ -46,7 +47,9 @@ export default function LeadsPageClient({ embedded = false }: { embedded?: boole
     const trimmedEmail = email.trim();
 
     if (!trimmedPhone && !trimmedEmail) {
-      setError("Please provide either your phone number or email address.");
+      const message = "Please provide either your phone number or email address.";
+      setError(message);
+      toast.error(message);
       return;
     }
 
@@ -75,17 +78,22 @@ export default function LeadsPageClient({ embedded = false }: { embedded?: boole
       }
 
       setIsSuccess(true);
+      toast.success("Thank you! We received your details.");
       setName("");
       setPhone("");
       setEmail("");
       setInterest("Membership packages");
       setNote("");
     } catch (submitError) {
-      setError(
+      const message =
         submitError instanceof Error
           ? submitError.message
-          : "Unable to submit your details right now.",
-      );
+          : "Unable to submit your details right now.";
+
+      setError(message);
+      toast.error("Unable to submit your details.", {
+        description: message,
+      });
     } finally {
       setIsSubmitting(false);
     }
