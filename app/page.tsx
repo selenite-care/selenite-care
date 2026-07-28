@@ -4,6 +4,8 @@ import HeroSlider from "@/components/ui/HeroSlider";
 import { FeatureCard } from "@/components/ui/MembershipCards";
 import MembershipSection from "@/components/ui/MembershipSection";
 import BlogCarousel from "@/components/ui/BlogCarousel";
+import ProductSlideshow from "@/components/ui/ProductSlideshow";
+import { db } from "@/lib/db";
 
 export const revalidate = 3600;
 
@@ -25,7 +27,32 @@ const trustHighlights = [
   { label: "Thoughtful follow-up", value: "Steady support" },
 ];
 
-export default function Home() {
+async function getFeaturedProducts() {
+  return db.product.findMany({
+    where: {
+      isVisible: true,
+      stockStatus: {
+        not: "OUT_OF_STOCK",
+      },
+    },
+    select: {
+      id: true,
+      name: true,
+      type: true,
+      price: true,
+      skinType: true,
+      image: true,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    take: 10,
+  });
+}
+
+export default async function Home() {
+  const featuredProducts = await getFeaturedProducts();
+
   return (
     <div className="bg-page text-page flex flex-1 flex-col">
       <style>{`
@@ -83,6 +110,8 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <ProductSlideshow products={featuredProducts} />
 
       {/* ── Our Memberships ── */}
       <MembershipSection />

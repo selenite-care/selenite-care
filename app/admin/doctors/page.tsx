@@ -7,6 +7,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { toast } from "sonner";
 import FileUploadButton from "@/components/ui/FileUploadButton";
 
 type Doctor = {
@@ -312,7 +313,9 @@ export default function AdminDoctorsPage() {
     setSuccessMessage("");
 
     if (form.selectedDays.length === 0) {
-      setError("Please select at least one available day.");
+      const message = "Please select at least one available day.";
+      setError(message);
+      toast.error(message);
       return;
     }
 
@@ -378,9 +381,14 @@ export default function AdminDoctorsPage() {
 
       resetAddForm();
       setSuccessMessage("Doctor added successfully.");
+      toast.success("Doctor added successfully.");
       await loadDoctors();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unable to save doctor.");
+      const message = err instanceof Error ? err.message : "Unable to save doctor.";
+      setError(message);
+      toast.error("Unable to save doctor.", {
+        description: message,
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -397,7 +405,9 @@ export default function AdminDoctorsPage() {
     setSuccessMessage("");
 
     if (editForm.selectedDays.length === 0) {
-      setError("Please select at least one available day.");
+      const message = "Please select at least one available day.";
+      setError(message);
+      toast.error(message);
       return;
     }
 
@@ -456,9 +466,14 @@ export default function AdminDoctorsPage() {
 
       closeEditModal();
       setSuccessMessage("Doctor updated successfully.");
+      toast.success("Doctor updated successfully.");
       await loadDoctors();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unable to update doctor.");
+      const message = err instanceof Error ? err.message : "Unable to update doctor.";
+      setError(message);
+      toast.error("Unable to update doctor.", {
+        description: message,
+      });
     } finally {
       setIsEditSubmitting(false);
     }
@@ -484,12 +499,17 @@ export default function AdminDoctorsPage() {
           }
         | null;
 
-      setError(data?.error ?? "Unable to update doctor status.");
+      const message = data?.error ?? "Unable to update doctor status.";
+      setError(message);
+      toast.error("Unable to update doctor status.", {
+        description: message,
+      });
       setUpdatingDoctorId(null);
       return;
     }
 
     await loadDoctors();
+    toast.success(isActive ? "Doctor activated." : "Doctor deactivated.");
     setUpdatingDoctorId(null);
   }
 
@@ -501,8 +521,10 @@ export default function AdminDoctorsPage() {
     try {
       await navigator.clipboard.writeText(doctorCredentials.temporaryPassword);
       setIsPasswordCopied(true);
+      toast.success("Temporary password copied.");
     } catch {
       setError("Unable to copy password. Please select and copy it manually.");
+      toast.error("Unable to copy password.");
     }
   }
 

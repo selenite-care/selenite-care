@@ -4,6 +4,7 @@ import { Suspense, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { toast } from "sonner";
 import { useCart } from "@/components/cart/CartProvider";
 import {
   calculateOrderTotal,
@@ -224,11 +225,13 @@ function CartPageContent() {
 
     if (items.length === 0) {
       setError("Your cart is empty.");
+      toast.error("Your cart is empty.");
       return false;
     }
 
     if (!deliveryAddress.trim()) {
       setError("Please enter your delivery address.");
+      toast.error("Please enter your delivery address.");
       return false;
     }
 
@@ -279,6 +282,7 @@ function CartPageContent() {
     }
 
     setSubmittingMethod("EPS");
+    const toastId = toast.loading("Redirecting to secure EPS payment...");
 
     try {
       const orderId = await createOrder("BKASH");
@@ -297,13 +301,19 @@ function CartPageContent() {
         throw new Error(data?.error ?? "Unable to start EPS payment.");
       }
 
+      toast.success("Opening EPS secure payment...", { id: toastId });
       window.location.href = data.redirectUrl;
     } catch (submitError) {
-      setError(
+      const message =
         submitError instanceof Error
           ? submitError.message
-          : "Unable to start EPS payment.",
-      );
+          : "Unable to start EPS payment.";
+
+      setError(message);
+      toast.error("Unable to start EPS payment.", {
+        id: toastId,
+        description: message,
+      });
       setSubmittingMethod(null);
     }
   }
@@ -318,13 +328,18 @@ function CartPageContent() {
     try {
       const orderId = await createOrder("CASH");
       clearCart();
+      toast.success("Order placed successfully.");
       router.push(`/orders/confirmation?id=${encodeURIComponent(orderId)}`);
     } catch (submitError) {
-      setError(
+      const message =
         submitError instanceof Error
           ? submitError.message
-          : "Unable to place your order.",
-      );
+          : "Unable to place your order.";
+
+      setError(message);
+      toast.error("Unable to place your order.", {
+        description: message,
+      });
       setSubmittingMethod(null);
     }
   }

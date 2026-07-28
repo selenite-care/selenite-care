@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { FormEvent, useEffect, useState } from "react";
+import { toast } from "sonner";
 import FileUploadButton from "@/components/ui/FileUploadButton";
 import Pagination from "@/components/ui/Pagination";
 
@@ -245,6 +246,7 @@ export default function AdminProductsPage() {
       );
       setSaveStates((current) => ({ ...current, [productId]: "saved" }));
       setSuccessMessage("Product updated successfully.");
+      toast.success("Product updated successfully.");
       window.setTimeout(() => {
         setSaveStates((current) =>
           current[productId] === "saved" ? { ...current, [productId]: "idle" } : current,
@@ -252,11 +254,15 @@ export default function AdminProductsPage() {
       }, 1200);
     } catch (patchError) {
       setSaveStates((current) => ({ ...current, [productId]: "error" }));
-      setError(
+      const message =
         patchError instanceof Error
           ? patchError.message
-          : "Unable to update product.",
-      );
+          : "Unable to update product.";
+
+      setError(message);
+      toast.error("Unable to update product.", {
+        description: message,
+      });
     }
   }
 
@@ -340,12 +346,17 @@ export default function AdminProductsPage() {
         ),
       );
       setSuccessMessage("Product image updated successfully.");
+      toast.success("Product image updated successfully.");
     } catch (uploadError) {
-      setError(
+      const message =
         uploadError instanceof Error
           ? uploadError.message
-          : "Unable to upload product image.",
-      );
+          : "Unable to upload product image.";
+
+      setError(message);
+      toast.error("Unable to upload product image.", {
+        description: message,
+      });
     } finally {
       setUploadingProductId(null);
     }
@@ -395,16 +406,21 @@ export default function AdminProductsPage() {
         ),
       );
       setSuccessMessage("Product updated successfully.");
+      toast.success("Product updated successfully.");
       setIsEditModalOpen(false);
       setEditingProductId(null);
       setEditForm(null);
       await loadProducts(page, searchQuery, stockFilter);
     } catch (submitError) {
-      setError(
+      const message =
         submitError instanceof Error
           ? submitError.message
-          : "Unable to update product.",
-      );
+          : "Unable to update product.";
+
+      setError(message);
+      toast.error("Unable to update product.", {
+        description: message,
+      });
     } finally {
       setIsEditSubmitting(false);
     }
@@ -440,10 +456,14 @@ export default function AdminProductsPage() {
       setForm(emptyForm);
       setPage(1);
       await loadProducts(1, searchQuery, stockFilter);
+      toast.success("Product added successfully.");
     } catch (submitError) {
-      setError(
-        submitError instanceof Error ? submitError.message : "Unable to add product.",
-      );
+      const message =
+        submitError instanceof Error ? submitError.message : "Unable to add product.";
+      setError(message);
+      toast.error("Unable to add product.", {
+        description: message,
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -466,10 +486,14 @@ export default function AdminProductsPage() {
       const nextPage = products.length === 1 && page > 1 ? page - 1 : page;
       setPage(nextPage);
       await loadProducts(nextPage, searchQuery, stockFilter);
+      toast.success("Product deleted.");
     } catch (deleteError) {
-      setError(
-        deleteError instanceof Error ? deleteError.message : "Unable to delete product.",
-      );
+      const message =
+        deleteError instanceof Error ? deleteError.message : "Unable to delete product.";
+      setError(message);
+      toast.error("Unable to delete product.", {
+        description: message,
+      });
     }
   }
 

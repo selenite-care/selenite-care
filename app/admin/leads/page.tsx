@@ -2,6 +2,7 @@
 
 import Papa from "papaparse";
 import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 import { formatDateTime } from "@/lib/dateUtils";
 
 type Lead = {
@@ -91,8 +92,10 @@ export default function AdminLeadsPage() {
     try {
       await navigator.clipboard.writeText(phone);
       setCopiedPhone(phone);
+      toast.success("Phone number copied.");
     } catch {
       setError("Unable to copy the phone number right now.");
+      toast.error("Unable to copy the phone number right now.");
     }
   }
 

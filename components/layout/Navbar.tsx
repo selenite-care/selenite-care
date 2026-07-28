@@ -303,9 +303,6 @@ function NavbarContent() {
                   <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#B87B68]">
                     Skincare Shop
                   </p>
-                  <p className="mt-2 text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
-                    Browse products by category
-                  </p>
                 </div>
 
                 <div className="max-h-[320px] overflow-y-auto p-2">

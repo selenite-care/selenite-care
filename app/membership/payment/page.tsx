@@ -6,6 +6,7 @@ import Image from "next/image";
 import { FormEvent, Suspense, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
+import { toast } from "sonner";
 import { isMembershipAvailable } from "@/lib/membershipAvailability";
 import { MEMBERSHIP_PRICES } from "@/lib/membershipDiscounts";
 import { BRAC_BANK_DETAILS } from "@/lib/bankDetails";
@@ -212,6 +213,7 @@ function EpsPaymentSection({
 
     setError("");
     setIsSubmitting(true);
+    const toastId = toast.loading("Redirecting to secure EPS payment...");
 
     try {
       const response = await fetch("/api/eps/membership/initiate", {
@@ -230,13 +232,19 @@ function EpsPaymentSection({
         throw new Error(data?.error ?? "Unable to start EPS payment.");
       }
 
+      toast.success("Opening EPS secure payment...", { id: toastId });
       window.location.href = data.redirectUrl;
     } catch (paymentError) {
-      setError(
+      const message =
         paymentError instanceof Error
           ? paymentError.message
-          : "Unable to start EPS payment.",
-      );
+          : "Unable to start EPS payment.";
+
+      setError(message);
+      toast.error("Unable to start EPS payment.", {
+        id: toastId,
+        description: message,
+      });
       setIsSubmitting(false);
     }
   }
@@ -339,8 +347,10 @@ function BkashManualPaymentForm({
     try {
       await navigator.clipboard.writeText("01810835553");
       setCopied(true);
+      toast.success("Merchant number copied.");
     } catch {
       setError("Unable to copy the merchant number right now.");
+      toast.error("Unable to copy the merchant number right now.");
     }
   }
 
@@ -366,12 +376,17 @@ function BkashManualPaymentForm({
       }
 
       setProofImageUrl(data.secure_url);
+      toast.success("Payment proof uploaded.");
     } catch (uploadError) {
-      setError(
+      const message =
         uploadError instanceof Error
           ? uploadError.message
-          : "Unable to upload payment proof.",
-      );
+          : "Unable to upload payment proof.";
+
+      setError(message);
+      toast.error("Unable to upload payment proof.", {
+        description: message,
+      });
     } finally {
       setUploadingProof(false);
     }
@@ -387,14 +402,16 @@ function BkashManualPaymentForm({
     setError("");
 
     if (!transactionId.trim() && !proofImageUrl.trim()) {
-      setError(
-        "Please provide either a Transaction ID or a payment confirmation screenshot.",
-      );
+      const message =
+        "Please provide either a Transaction ID or a payment confirmation screenshot.";
+      setError(message);
+      toast.error(message);
       return;
     }
 
     if (!senderNumber || !isValidPhoneNumber(senderNumber)) {
       setError("Please enter a valid bKash number with country code.");
+      toast.error("Please enter a valid bKash number with country code.");
       return;
     }
 
@@ -423,15 +440,20 @@ function BkashManualPaymentForm({
         throw new Error(data?.error ?? "Unable to submit your payment.");
       }
 
+      toast.success("Manual payment submitted for review.");
       router.push(
         getPendingMembershipRedirectHref(tier, membership.price),
       );
     } catch (submitError) {
-      setError(
+      const message =
         submitError instanceof Error
           ? submitError.message
-          : "Unable to submit your payment.",
-      );
+          : "Unable to submit your payment.";
+
+      setError(message);
+      toast.error("Unable to submit your payment.", {
+        description: message,
+      });
       setIsSubmitting(false);
     }
   }
@@ -704,8 +726,10 @@ function BankTransferManualPaymentForm({
     try {
       await navigator.clipboard.writeText(BRAC_BANK_DETAILS.accountNumber);
       setCopied(true);
+      toast.success("Account number copied.");
     } catch {
       setError("Unable to copy the account number right now.");
+      toast.error("Unable to copy the account number right now.");
     }
   }
 
@@ -731,12 +755,17 @@ function BankTransferManualPaymentForm({
       }
 
       setProofImageUrl(data.secure_url);
+      toast.success("Payment proof uploaded.");
     } catch (uploadError) {
-      setError(
+      const message =
         uploadError instanceof Error
           ? uploadError.message
-          : "Unable to upload payment proof.",
-      );
+          : "Unable to upload payment proof.";
+
+      setError(message);
+      toast.error("Unable to upload payment proof.", {
+        description: message,
+      });
     } finally {
       setUploadingProof(false);
     }
@@ -752,9 +781,10 @@ function BankTransferManualPaymentForm({
     setError("");
 
     if (!transactionRef.trim() && !proofImageUrl.trim()) {
-      setError(
-        "Please provide either a Transaction ID or a payment confirmation screenshot.",
-      );
+      const message =
+        "Please provide either a Transaction ID or a payment confirmation screenshot.";
+      setError(message);
+      toast.error(message);
       return;
     }
 
@@ -782,15 +812,20 @@ function BankTransferManualPaymentForm({
         throw new Error(data?.error ?? "Unable to submit your payment.");
       }
 
+      toast.success("Manual payment submitted for review.");
       router.push(
         getPendingMembershipRedirectHref(tier, membership.price),
       );
     } catch (submitError) {
-      setError(
+      const message =
         submitError instanceof Error
           ? submitError.message
-          : "Unable to submit your payment.",
-      );
+          : "Unable to submit your payment.";
+
+      setError(message);
+      toast.error("Unable to submit your payment.", {
+        description: message,
+      });
       setIsSubmitting(false);
     }
   }

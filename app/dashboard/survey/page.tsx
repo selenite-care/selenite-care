@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { FormEvent, useEffect, useState } from "react";
+import { toast } from "sonner";
 import FileUploadButton from "@/components/ui/FileUploadButton";
 
 const skinIssuesOptions = [
@@ -258,12 +259,21 @@ export default function DashboardSurveyPage() {
           skinImages: [...current.skinImages, data.secure_url as string].slice(0, 4),
         }));
       }
+      toast.success(
+        filesToUpload.length === 1
+          ? "Skin photo uploaded."
+          : `${filesToUpload.length} skin photos uploaded.`,
+      );
     } catch (uploadError) {
-      setError(
+      const message =
         uploadError instanceof Error
           ? uploadError.message
-          : "Failed to upload skin image.",
-      );
+          : "Failed to upload skin image.";
+
+      setError(message);
+      toast.error("Failed to upload skin image.", {
+        description: message,
+      });
     } finally {
       setIsUploadingSkinImage(false);
     }
@@ -275,6 +285,7 @@ export default function DashboardSurveyPage() {
       skinImages: current.skinImages.filter((imageUrl) => imageUrl !== url),
     }));
     setSuccessMessage("");
+    toast.success("Skin photo removed.");
   }
 
   async function handleCurrentProductsImageUpload(file: File) {
@@ -302,12 +313,17 @@ export default function DashboardSurveyPage() {
         ...current,
         currentProductsImage: data.secure_url as string,
       }));
+      toast.success("Product photo uploaded.");
     } catch (uploadError) {
-      setError(
+      const message =
         uploadError instanceof Error
           ? uploadError.message
-          : "Failed to upload product photo.",
-      );
+          : "Failed to upload product photo.";
+
+      setError(message);
+      toast.error("Failed to upload product photo.", {
+        description: message,
+      });
     } finally {
       setIsUploadingProductImage(false);
     }
@@ -319,6 +335,7 @@ export default function DashboardSurveyPage() {
       currentProductsImage: "",
     }));
     setSuccessMessage("");
+    toast.success("Product photo removed.");
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -382,12 +399,17 @@ export default function DashboardSurveyPage() {
       }
 
       setSuccessMessage("Skin profile updated successfully.");
+      toast.success("Skin profile updated successfully.");
     } catch (submitError) {
-      setError(
+      const message =
         submitError instanceof Error
           ? submitError.message
-          : "Failed to save profile.",
-      );
+          : "Failed to save profile.";
+
+      setError(message);
+      toast.error("Failed to save profile.", {
+        description: message,
+      });
     } finally {
       setIsSubmitting(false);
     }
