@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Playfair_Display } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -7,6 +7,8 @@ import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import SessionGuard from "@/components/auth/SessionGuard";
 import { SessionProvider } from "next-auth/react";
 import AppChrome from "@/components/layout/AppChrome";
+import PWAInstallPrompt from "@/components/ui/PWAInstallPrompt";
+import PWAServiceWorkerRegister from "@/components/ui/PWAServiceWorkerRegister";
 import Script from "next/script";
 import "./globals.css";
 
@@ -28,6 +30,25 @@ const playfair = Playfair_Display({
 export const metadata: Metadata = {
   title: "Selenite Care",
   description: "Premium skincare consultation services",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Selenite Care",
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  icons: {
+    apple: "/icons/icon-180x180.png",
+  },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  themeColor: "#B87B68",
 };
 
 export default function RootLayout({
@@ -121,9 +142,11 @@ export default function RootLayout({
               <SessionGuard>
                 <AppChrome>{children}</AppChrome>
               </SessionGuard>
+              <PWAInstallPrompt />
             </ThemeProvider>
           </CartProvider>
         </SessionProvider>
+        <PWAServiceWorkerRegister />
         <Analytics />
         <SpeedInsights />
       </body>
