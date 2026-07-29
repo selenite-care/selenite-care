@@ -6,17 +6,20 @@ import {
   CalendarCheck,
   CreditCard,
   LayoutDashboard,
+  MessageCircle,
   Package,
   ScanFace,
   UserRound,
 } from "lucide-react";
+import MessagesBadge from "@/components/ui/MessagesBadge";
 
 const dashboardLinks = [
   { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
   { href: "/dashboard/bookings", label: "Bookings", icon: CalendarCheck },
   { href: "/dashboard/payments", label: "Payments", icon: CreditCard },
   { href: "/dashboard/orders", label: "Orders", icon: Package },
-  { href: "/dashboard/survey", label: "Skin Profile", icon: ScanFace },
+  { href: "/dashboard/survey", label: "Skin", icon: ScanFace },
+  { href: "/dashboard/messages", label: "Messages", icon: MessageCircle },
   { href: "/dashboard/profile", label: "Profile", icon: UserRound },
 ];
 
@@ -40,7 +43,7 @@ export function DashboardSidebarNav() {
           <Link
             key={link.href}
             href={link.href}
-            className="block rounded-md px-3 py-2 text-sm font-medium transition-colors"
+            className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors"
             style={{
               backgroundColor: isActive
                 ? "color-mix(in srgb, var(--gold) 12%, transparent)"
@@ -51,6 +54,11 @@ export function DashboardSidebarNav() {
             <span className="transition-colors">
               {link.label}
             </span>
+            {link.href === "/dashboard/messages" ? (
+              <span className="ml-auto">
+                <MessagesBadge />
+              </span>
+            ) : null}
           </Link>
         );
       })}
@@ -63,7 +71,7 @@ export function DashboardMobileNav() {
 
   return (
     <nav
-      className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-6 border-t px-2 py-2 md:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-7 border-t px-1 py-2 md:hidden"
       style={{
         backgroundColor: "var(--sidebar)",
         borderColor: "var(--gold)",
@@ -77,7 +85,7 @@ export function DashboardMobileNav() {
           <Link
             key={link.href}
             href={link.href}
-            className="flex min-h-14 flex-col items-center justify-center gap-1 rounded-md px-2 py-1 text-xs font-medium transition-colors"
+            className="relative flex min-h-14 flex-col items-center justify-center gap-1 rounded-md px-1 py-1 text-[11px] font-medium transition-colors"
             style={{
               backgroundColor: isActive
                 ? "color-mix(in srgb, var(--gold) 12%, transparent)"
@@ -86,6 +94,11 @@ export function DashboardMobileNav() {
             }}
           >
             <Icon aria-hidden="true" className="h-5 w-5" />
+            {link.href === "/dashboard/messages" ? (
+              <span className="absolute right-1 top-1">
+                <MessagesBadge />
+              </span>
+            ) : null}
             {link.label}
           </Link>
         );
