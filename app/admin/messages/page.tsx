@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
-import { Send, Video } from "lucide-react";
+import { Search, Send, Video } from "lucide-react";
 import { toast } from "sonner";
 import Avatar from "@/components/ui/Avatar";
 import { formatTimeOnly } from "@/lib/dateUtils";
@@ -43,6 +43,28 @@ type SendMessageResponse = {
   error?: string;
 };
 
+type ClientSearchResult = {
+  id: string;
+  name: string | null;
+  email: string;
+  phone: string | null;
+  image: string | null;
+  conversationId: string | null;
+  membershipId: string | null;
+  membershipTier: string | null;
+  membershipStatus: string | null;
+};
+
+type ClientSearchResponse = {
+  clients?: ClientSearchResult[];
+  error?: string;
+};
+
+type OpenConversationResponse = {
+  conversation?: InboxConversation;
+  error?: string;
+};
+
 const INBOX_POLL_INTERVAL_MS = 15_000;
 const MESSAGES_POLL_INTERVAL_MS = 10_000;
 const googleMeetUrlPattern =
@@ -71,6 +93,12 @@ function getMessagesSignature(messages: ConversationMessage[]) {
   return messages
     .map((message) => `${message.id}:${message.createdAt}:${message.content}`)
     .join("|");
+}
+
+function mergeMessagesById(messages: ConversationMessage[]) {
+  return Array.from(
+    new Map(messages.map((message) => [message.id, message])).values(),
+  );
 }
 
 function getGoogleMeetUrl(content: string) {
@@ -122,9 +150,15 @@ export default function AdminMessagesPage() {
     null,
   );
   const [messages, setMessages] = useState<ConversationMessage[]>([]);
+  const [clientSearchQuery, setClientSearchQuery] = useState("");
+  const [clientSearchResults, setClientSearchResults] = useState<
+    ClientSearchResult[]
+  >([]);
   const [reply, setReply] = useState("");
   const [isLoadingInbox, setIsLoadingInbox] = useState(true);
   const [isLoadingMessages, setIsLoadingMessages] = useState(false);
+  const [isSearchingClients, setIsSearchingClients] = useState(false);
+  const [isOpeningConversation, setIsOpeningConversation] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState("");
 
@@ -166,6 +200,44 @@ export default function AdminMessagesPage() {
     }
   }
 
+  async function searchClients(query: string) {
+    const normalizedQuery = query.trim();
+
+    if (normalizedQuery.length < 2) {
+      setClientSearchResults([]);
+      return;
+    }
+
+    setIsSearchingClients(true);
+
+    try {
+      const response = await fetch(
+        `/api/messages/clients/search?q=${encodeURIComponent(normalizedQuery)}`,
+        {
+          cache: "no-store",
+        },
+      );
+      const data = (await response.json().catch(() => null)) as
+        | ClientSearchResponse
+        | null;
+
+      if (!response.ok) {
+        throw new Error(data?.error ?? "Unable to search clients.");
+      }
+
+      setClientSearchResults(data?.clients ?? []);
+    } catch (searchError) {
+      const message =
+        searchError instanceof Error
+          ? searchError.message
+          : "Unable to search clients.";
+      setError(message);
+      setClientSearchResults([]);
+    } finally {
+      setIsSearchingClients(false);
+    }
+  }
+
   async function loadConversation(
     conversationId: string,
     options: { showLoading?: boolean } = {},
@@ -190,7 +262,7 @@ export default function AdminMessagesPage() {
       setMessages((current) =>
         getMessagesSignature(current) === getMessagesSignature(nextMessages)
           ? current
-          : nextMessages,
+          : mergeMessagesById(nextMessages),
       );
       setConversations((current) =>
         current.map((conversation) =>
@@ -224,6 +296,14 @@ export default function AdminMessagesPage() {
 
     return () => window.clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    const timeout = window.setTimeout(() => {
+      void searchClients(clientSearchQuery);
+    }, 300);
+
+    return () => window.clearTimeout(timeout);
+  }, [clientSearchQuery]);
 
   useEffect(() => {
     if (!selectedConversationId) {
@@ -262,6 +342,54 @@ export default function AdminMessagesPage() {
     setReply("");
   }
 
+  async function handleOpenClientConversation(clientId: string) {
+    if (isOpeningConversation) {
+      return;
+    }
+
+    setIsOpeningConversation(true);
+    setError("");
+
+    try {
+      const response = await fetch("/api/messages/conversation", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ clientId }),
+      });
+      const data = (await response.json().catch(() => null)) as
+        | OpenConversationResponse
+        | null;
+
+      if (!response.ok || !data?.conversation) {
+        throw new Error(data?.error ?? "Unable to open conversation.");
+      }
+
+      setConversations((current) => {
+        const withoutCurrent = current.filter(
+          (conversation) => conversation.id !== data.conversation!.id,
+        );
+
+        return [data.conversation!, ...withoutCurrent];
+      });
+      setClientSearchQuery("");
+      setClientSearchResults([]);
+      handleSelectConversation(data.conversation.id);
+    } catch (openError) {
+      const message =
+        openError instanceof Error
+          ? openError.message
+          : "Unable to open conversation.";
+      setError(message);
+      toast.error("Unable to open conversation.", {
+        description: message,
+      });
+    } finally {
+      setIsOpeningConversation(false);
+    }
+  }
+
   async function handleSendReply(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -297,7 +425,9 @@ export default function AdminMessagesPage() {
         throw new Error(data?.error ?? "Unable to send reply.");
       }
 
-      setMessages((current) => [...current, data.message as ConversationMessage]);
+      setMessages((current) =>
+        mergeMessagesById([...current, data.message as ConversationMessage]),
+      );
       setReply("");
       void loadInbox();
     } catch (sendError) {
@@ -338,9 +468,76 @@ export default function AdminMessagesPage() {
             <h2 className="text-sm font-semibold uppercase tracking-[0.14em] text-[#884F38] dark:text-[#D4B47A]">
               Inbox
             </h2>
+            <label htmlFor="staff-client-search" className="sr-only">
+              Search clients
+            </label>
+            <div className="mt-3 flex h-11 items-center gap-2 rounded-xl border border-[#EADDCD] bg-white px-3 dark:border-[#3D3530] dark:bg-[#141210]">
+              <Search
+                className="h-4 w-4 shrink-0 text-[#8C7967] dark:text-[#8A7D75]"
+                aria-hidden="true"
+              />
+              <input
+                id="staff-client-search"
+                type="search"
+                value={clientSearchQuery}
+                onChange={(event) => setClientSearchQuery(event.target.value)}
+                placeholder="Search clients..."
+                className="h-full min-w-0 flex-1 bg-transparent text-sm text-[#2B2B2B] outline-none placeholder:text-[#8C7967] dark:text-[#F0EDE8] dark:placeholder:text-[#8A7D75]"
+              />
+            </div>
           </div>
 
           <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+            {clientSearchQuery.trim().length >= 2 ? (
+              <div className="border-b border-[#EADDCD] bg-[#FFFCF8] px-4 py-3 dark:border-[#3D3530] dark:bg-[#181513]">
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#884F38] dark:text-[#D4B47A]">
+                  Client Search
+                </p>
+
+                {isSearchingClients ? (
+                  <p className="mt-3 text-sm text-[#6E6257] dark:text-[#8A7D75]">
+                    Searching clients...
+                  </p>
+                ) : null}
+
+                {!isSearchingClients && clientSearchResults.length === 0 ? (
+                  <p className="mt-3 text-sm text-[#6E6257] dark:text-[#8A7D75]">
+                    No eligible clients found.
+                  </p>
+                ) : null}
+
+                <div className="mt-3 space-y-2">
+                  {clientSearchResults.map((client) => (
+                    <button
+                      key={client.id}
+                      type="button"
+                      onClick={() => void handleOpenClientConversation(client.id)}
+                      disabled={isOpeningConversation}
+                      className="flex w-full gap-3 rounded-xl border border-[#EADDCD] bg-white px-3 py-3 text-left transition-colors hover:border-[#B87B68] hover:bg-[#F8F5F0] disabled:cursor-not-allowed disabled:opacity-70 dark:border-[#3D3530] dark:bg-[#242220] dark:hover:bg-[#1A1814]"
+                    >
+                      <Avatar
+                        imageUrl={client.image}
+                        name={client.name}
+                        size="sm"
+                      />
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-sm font-bold text-[#2B2B2B] dark:text-[#F0EDE8]">
+                          {client.name ?? "Client"}
+                        </span>
+                        <span className="mt-1 block truncate text-xs text-[#884F38] dark:text-[#8A7D75]">
+                          {client.phone ?? client.email}
+                        </span>
+                        <span className="mt-2 inline-flex rounded-full bg-[#B87B68]/12 px-2 py-1 text-[10px] font-bold uppercase text-[#884F38] dark:text-[#D4B47A]">
+                          {client.membershipId ?? "Membership"} ·{" "}
+                          {client.membershipStatus ?? "CLIENT"}
+                        </span>
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+
             {isLoadingInbox ? (
               <p className="px-4 py-5 text-sm text-[#6E6257] dark:text-[#8A7D75]">
                 Loading conversations...
