@@ -39,6 +39,12 @@ function getMessagesSignature(messages: MessageItem[]) {
     .join("|");
 }
 
+function mergeMessagesById(messages: MessageItem[]) {
+  return Array.from(
+    new Map(messages.map((message) => [message.id, message])).values(),
+  );
+}
+
 function getGoogleMeetUrl(content: string) {
   return content.match(googleMeetUrlPattern)?.[0] ?? null;
 }
@@ -110,7 +116,7 @@ export default function DashboardMessagesPage() {
       setMessages((current) =>
         getMessagesSignature(current) === getMessagesSignature(nextMessages)
           ? current
-          : nextMessages,
+          : mergeMessagesById(nextMessages),
       );
       setError("");
     } catch (loadError) {
@@ -184,7 +190,9 @@ export default function DashboardMessagesPage() {
         throw new Error(data?.error ?? "Unable to send message.");
       }
 
-      setMessages((current) => [...current, data.message as MessageItem]);
+      setMessages((current) =>
+        mergeMessagesById([...current, data.message as MessageItem]),
+      );
       setContent("");
     } catch (sendError) {
       const message =
