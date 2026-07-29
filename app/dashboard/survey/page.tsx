@@ -685,7 +685,7 @@ export default function DashboardSurveyPage() {
                 void handleCurrentProductsImageUpload(file);
               }}
               label={isUploadingProductImage ? "Uploading..." : "Upload Product Photo"}
-              accept="image/*"
+              accept="image/*,.heic,.heif"
               currentPreviewUrl={formState.currentProductsImage}
             />
           </div>
@@ -908,7 +908,7 @@ export default function DashboardSurveyPage() {
                 void handleSkinImageUpload(dataTransfer.files);
               }}
               label={isUploadingSkinImage ? "Uploading..." : "Upload Skin Photo"}
-              accept="image/*"
+              accept="image/*,.heic,.heif"
             />
           </div>
 

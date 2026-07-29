@@ -28,7 +28,12 @@ type NotificationsResponse = {
   unreadCount?: number;
 };
 
+type UnreadMessagesResponse = {
+  count?: number;
+};
+
 const NOTIFICATION_POLL_INTERVAL_MS = 300_000;
+const MESSAGE_UNREAD_POLL_INTERVAL_MS = 60_000;
 
 const typeBorderClasses: Record<string, string> = {
   INFO: "border-l-blue-500",
@@ -48,9 +53,12 @@ export default function NotificationBell() {
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement | null>(null);
   const pollIntervalRef = useRef<number | null>(null);
+  const messagePollIntervalRef = useRef<number | null>(null);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
-  const [unreadCount, setUnreadCount] = useState(0);
+  const [notificationUnreadCount, setNotificationUnreadCount] = useState(0);
+  const [messageUnreadCount, setMessageUnreadCount] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
+  const totalUnreadCount = notificationUnreadCount + messageUnreadCount;
 
   async function loadNotifications() {
     try {
@@ -60,16 +68,36 @@ export default function NotificationBell() {
 
       if (!response.ok) {
         setNotifications([]);
-        setUnreadCount(0);
+        setNotificationUnreadCount(0);
         return;
       }
 
       const data = (await response.json()) as NotificationsResponse;
       setNotifications(data.notifications ?? []);
-      setUnreadCount(data.unreadCount ?? 0);
+      setNotificationUnreadCount(data.unreadCount ?? 0);
     } catch {
       setNotifications([]);
-      setUnreadCount(0);
+      setNotificationUnreadCount(0);
+    }
+  }
+
+  async function loadMessageUnreadCount() {
+    try {
+      const response = await fetch("/api/messages/unread", {
+        cache: "no-store",
+      });
+
+      if (!response.ok) {
+        setMessageUnreadCount(0);
+        return;
+      }
+
+      const data = (await response.json().catch(() => null)) as
+        | UnreadMessagesResponse
+        | null;
+      setMessageUnreadCount(data?.count ?? 0);
+    } catch {
+      setMessageUnreadCount(0);
     }
   }
 
@@ -81,6 +109,15 @@ export default function NotificationBell() {
 
       window.clearInterval(pollIntervalRef.current);
       pollIntervalRef.current = null;
+    }
+
+    function stopMessagePolling() {
+      if (messagePollIntervalRef.current === null) {
+        return;
+      }
+
+      window.clearInterval(messagePollIntervalRef.current);
+      messagePollIntervalRef.current = null;
     }
 
     function startPolling() {
@@ -98,19 +135,39 @@ export default function NotificationBell() {
       }, NOTIFICATION_POLL_INTERVAL_MS);
     }
 
+    function startMessagePolling() {
+      if (
+        document.visibilityState !== "visible" ||
+        messagePollIntervalRef.current !== null
+      ) {
+        return;
+      }
+
+      messagePollIntervalRef.current = window.setInterval(() => {
+        if (document.visibilityState === "visible") {
+          void loadMessageUnreadCount();
+        }
+      }, MESSAGE_UNREAD_POLL_INTERVAL_MS);
+    }
+
     function handleVisibilityChange() {
       if (document.visibilityState === "visible") {
         void loadNotifications();
+        void loadMessageUnreadCount();
         startPolling();
+        startMessagePolling();
         return;
       }
 
       stopPolling();
+      stopMessagePolling();
     }
 
     if (document.visibilityState === "visible") {
       void loadNotifications();
+      void loadMessageUnreadCount();
       startPolling();
+      startMessagePolling();
     }
 
     document.addEventListener("visibilitychange", handleVisibilityChange);
@@ -118,6 +175,7 @@ export default function NotificationBell() {
     return () => {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
       stopPolling();
+      stopMessagePolling();
     };
   }, []);
 
@@ -149,7 +207,7 @@ export default function NotificationBell() {
       setNotifications((current) =>
         current.map((notification) => ({ ...notification, isRead: true })),
       );
-      setUnreadCount(0);
+      setNotificationUnreadCount(0);
     } catch {
       // Keep the current state if the network request fails.
     }
@@ -162,7 +220,7 @@ export default function NotificationBell() {
           item.id === notification.id ? { ...item, isRead: true } : item,
         ),
       );
-      setUnreadCount((current) => Math.max(current - 1, 0));
+      setNotificationUnreadCount((current) => Math.max(current - 1, 0));
 
       try {
         await fetch(`/api/notifications/${notification.id}`, {
@@ -174,6 +232,11 @@ export default function NotificationBell() {
     }
 
     setIsOpen(false);
+
+    if (notification.type === "INFO" && notification.link === "/dashboard/messages") {
+      router.push("/dashboard/messages");
+      return;
+    }
 
     if (notification.link) {
       router.push(notification.link);
@@ -190,9 +253,9 @@ export default function NotificationBell() {
         aria-expanded={isOpen}
       >
         <Bell className="h-5 w-5" />
-        {unreadCount > 0 ? (
+        {totalUnreadCount > 0 ? (
           <span className="absolute -right-1 -top-1 inline-flex min-h-5 min-w-5 items-center justify-center rounded-full bg-red-600 px-1.5 text-[10px] font-bold leading-none text-white">
-            {unreadCount > 9 ? "9+" : unreadCount}
+            {totalUnreadCount > 9 ? "9+" : totalUnreadCount}
           </span>
         ) : null}
       </button>
@@ -209,7 +272,7 @@ export default function NotificationBell() {
             <button
               type="button"
               onClick={markAllRead}
-              disabled={unreadCount === 0}
+              disabled={notificationUnreadCount === 0}
               className="text-xs font-semibold text-[#B87B68] transition-colors hover:text-[#8A6A2F] disabled:cursor-not-allowed disabled:opacity-50 dark:hover:text-[#D4B47A]"
             >
               Mark all read

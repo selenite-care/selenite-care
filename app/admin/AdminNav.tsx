@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import MessagesBadge from "@/components/ui/MessagesBadge";
 
 const adminSections = [
   {
@@ -17,6 +18,7 @@ const adminSections = [
       { href: "/admin/users", label: "All Users" },
       { href: "/admin/products", label: "Products" },
       { href: "/admin/orders", label: "Orders" },
+      { href: "/admin/messages", label: "Messages" },
       // { href: "/admin/services", label: "Services Management" },
       { href: "/admin/doctors", label: "Manage Doctors" },
       { href: "/admin/payments", label: "Membership Payments" },
@@ -122,6 +124,7 @@ export function AdminSidebarNav() {
                       {pendingCount}
                     </span>
                   ) : null}
+                  {link.href === "/admin/messages" ? <MessagesBadge /> : null}
                 </Link>
               );
             })}
@@ -209,6 +212,9 @@ export function AdminMobileNav() {
                             <span className="inline-flex min-w-6 items-center justify-center rounded-full bg-[var(--gold)] px-2 py-0.5 text-[11px] font-semibold text-[var(--sidebar)]">
                               {pendingCount}
                             </span>
+                          ) : null}
+                          {link.href === "/admin/messages" ? (
+                            <MessagesBadge />
                           ) : null}
                         </Link>
                       );

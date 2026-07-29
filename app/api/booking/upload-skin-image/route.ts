@@ -25,6 +25,24 @@ function buildSkinImagePath(fileName: string) {
   return `skin-photos/${timestamp}-${random}-${safeFileName || "image"}`;
 }
 
+function getImageContentType(file: File) {
+  const lowerName = file.name.toLowerCase();
+
+  if (file.type.startsWith("image/")) {
+    return file.type;
+  }
+
+  if (lowerName.endsWith(".heic")) {
+    return "image/heic";
+  }
+
+  if (lowerName.endsWith(".heif")) {
+    return "image/heif";
+  }
+
+  return null;
+}
+
 export async function POST(request: Request) {
   const sessionError = await requireSession();
 
@@ -39,7 +57,9 @@ export async function POST(request: Request) {
     return Response.json({ error: "A file field is required." }, { status: 400 });
   }
 
-  if (!file.type.startsWith("image/")) {
+  const contentType = getImageContentType(file);
+
+  if (!contentType) {
     return Response.json({ error: "Only image uploads are allowed." }, { status: 400 });
   }
 
@@ -48,7 +68,7 @@ export async function POST(request: Request) {
       file,
       "selenite-skin-photos",
       buildSkinImagePath(file.name),
-      file.type,
+      contentType,
     );
 
     return Response.json({ secure_url: publicUrl });

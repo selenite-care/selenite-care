@@ -4,10 +4,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
+import MessagesBadge from "@/components/ui/MessagesBadge";
 
 const doctorLinks = [
   { href: "/doctor", label: "Overview" },
   { href: "/doctor/bookings", label: "My Bookings" },
+  { href: "/doctor/messages", label: "Messages" },
   { href: "/doctor/profile", label: "My Profile" },
 ];
 
@@ -31,13 +33,14 @@ export function DoctorSidebarNav() {
           <Link
             key={link.href}
             href={link.href}
-            className={`block rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+            className={`flex items-center justify-between rounded-md px-3 py-2 text-sm font-medium transition-colors ${
               isActive
                 ? "bg-[color-mix(in_srgb,var(--gold)_12%,transparent)] text-[var(--gold)]"
                 : "text-[var(--sidebar-text)]"
             }`}
           >
-            {link.label}
+            <span>{link.label}</span>
+            {link.href === "/doctor/messages" ? <MessagesBadge /> : null}
           </Link>
         );
       })}
@@ -100,13 +103,16 @@ export function DoctorMobileNav() {
                     key={link.href}
                     href={link.href}
                     onClick={() => setIsOpen(false)}
-                    className={`block rounded-md px-3 py-3 text-sm font-medium transition-colors ${
+                    className={`flex items-center justify-between rounded-md px-3 py-3 text-sm font-medium transition-colors ${
                       isActive
                         ? "bg-[color-mix(in_srgb,var(--gold)_12%,transparent)] text-[var(--gold)]"
                         : "text-[var(--sidebar-text)]"
                     }`}
                   >
-                    {link.label}
+                    <span>{link.label}</span>
+                    {link.href === "/doctor/messages" ? (
+                      <MessagesBadge />
+                    ) : null}
                   </Link>
                 );
               })}

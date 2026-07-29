@@ -69,9 +69,11 @@ export default function MembershipCountdown({
   tier,
 }: MembershipCountdownProps) {
   const targetDate = useMemo(() => new Date(expiresAt), [expiresAt]);
-  const [now, setNow] = useState(() => Date.now());
+  const [now, setNow] = useState<number | null>(null);
 
   useEffect(() => {
+    setNow(Date.now());
+
     const interval = window.setInterval(() => {
       setNow(Date.now());
     }, 1000);
@@ -81,7 +83,7 @@ export default function MembershipCountdown({
     };
   }, []);
 
-  const remaining = getTimeRemaining(targetDate, now);
+  const remaining = now === null ? null : getTimeRemaining(targetDate, now);
 
   return (
     <article className="rounded-lg border border-[#EADDCD] border-l-4 border-l-[#B87B68] bg-white p-6 dark:border-[#3D3530] dark:bg-[#242220]">
@@ -108,17 +110,29 @@ export default function MembershipCountdown({
             Time Remaining
           </p>
 
-          {remaining.expired ? (
+          {remaining?.expired ? (
             <p className="mt-4 text-lg font-semibold text-red-600">
               Membership Expired
             </p>
           ) : (
             <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
               {[
-                { label: "Days", value: remaining.days.toString() },
-                { label: "Hours", value: pad(remaining.hours) },
-                { label: "Minutes", value: pad(remaining.minutes) },
-                { label: "Seconds", value: pad(remaining.seconds) },
+                {
+                  label: "Days",
+                  value: remaining ? remaining.days.toString() : "--",
+                },
+                {
+                  label: "Hours",
+                  value: remaining ? pad(remaining.hours) : "--",
+                },
+                {
+                  label: "Minutes",
+                  value: remaining ? pad(remaining.minutes) : "--",
+                },
+                {
+                  label: "Seconds",
+                  value: remaining ? pad(remaining.seconds) : "--",
+                },
               ].map((item) => (
                 <div
                   key={item.label}

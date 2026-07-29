@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
+import MessagesBadge from "@/components/ui/MessagesBadge";
 
 const crmLinks = [
   { href: "/crm", label: "Overview" },
@@ -11,6 +12,7 @@ const crmLinks = [
   { href: "/crm/bookings", label: "All Bookings" },
   { href: "/crm/memberships", label: "Memberships" },
   { href: "/crm/products", label: "Products" },
+  { href: "/crm/messages", label: "Messages" },
   { href: "/crm/blog", label: "Blog Posts" },
   { href: "/crm/profile", label: "My Profile" },
 ];
@@ -35,13 +37,14 @@ export function CrmSidebarNav() {
           <Link
             key={link.href}
             href={link.href}
-            className={`block rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+            className={`flex items-center justify-between rounded-md px-3 py-2 text-sm font-medium transition-colors ${
               isActive
                 ? "bg-[color-mix(in_srgb,var(--gold)_12%,transparent)] text-[var(--gold)]"
                 : "text-[var(--sidebar-text)]"
             }`}
           >
-            {link.label}
+            <span>{link.label}</span>
+            {link.href === "/crm/messages" ? <MessagesBadge /> : null}
           </Link>
         );
       })}
@@ -104,13 +107,14 @@ export function CrmMobileNav() {
                     key={link.href}
                     href={link.href}
                     onClick={() => setIsOpen(false)}
-                    className={`block rounded-md px-3 py-3 text-sm font-medium transition-colors ${
+                    className={`flex items-center justify-between rounded-md px-3 py-3 text-sm font-medium transition-colors ${
                       isActive
                         ? "bg-[color-mix(in_srgb,var(--gold)_12%,transparent)] text-[var(--gold)]"
                         : "text-[var(--sidebar-text)]"
                     }`}
                   >
-                    {link.label}
+                    <span>{link.label}</span>
+                    {link.href === "/crm/messages" ? <MessagesBadge /> : null}
                   </Link>
                 );
               })}
