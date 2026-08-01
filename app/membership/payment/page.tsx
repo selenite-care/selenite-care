@@ -1193,7 +1193,7 @@ function MembershipPaymentPageContent() {
               {tier === "SIGNATURE" && membership.originalPrice ? (
                 <>
                   <div className="mt-3 inline-flex rounded-full bg-[#2B2B2B] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#F8F5F0] dark:bg-[#B87B68] dark:text-[#141210]">
-                    LIMITED TIME OFFER
+                    55% OFF
                   </div>
                   <div className="mt-3 flex flex-wrap items-baseline gap-3">
                     <span className="text-sm font-semibold text-[#8C7967] line-through decoration-[1.5px] dark:text-[#8A7D75]">

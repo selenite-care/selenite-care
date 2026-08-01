@@ -59,7 +59,7 @@ function buildMembershipBenefitParagraph(
 
     return `
       <p style="margin:20px 0 0;font-size:14px;line-height:1.7;color:#4B4037;">
-        Your Signature Membership offer price was ${price} (regular price ${regularPrice}). Offer valid till July 30, 2026.
+        Your Signature Membership offer price was ${price} (regular price ${regularPrice}). This offer is available for a limited time.
       </p>
     `;
   }

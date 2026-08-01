@@ -36,9 +36,9 @@ const steps = [
     originalCost: signatureOriginalPrice
       ? formatBdt(signatureOriginalPrice)
       : undefined,
-    discountBadge: signatureOfferIsActive ? "LIMITED TIME OFFER" : undefined,
+    discountBadge: signatureOfferIsActive ? "55% OFF" : undefined,
     priceNote: signatureOfferIsActive
-      ? "Offer valid till July 30, 2026"
+      ? "For limited time"
       : undefined,
     description:
       "A perfect starting point for individuals seeking professional skincare guidance and routine development.",
@@ -122,9 +122,9 @@ const memberships: MembershipTier[] = [
     originalCost: signatureOriginalPrice
       ? formatBdt(signatureOriginalPrice)
       : undefined,
-    discountBadge: signatureOfferIsActive ? "LIMITED TIME OFFER" : undefined,
+    discountBadge: signatureOfferIsActive ? "55% OFF" : undefined,
     priceNote: signatureOfferIsActive
-      ? "Offer valid till July 30, 2026"
+      ? "For limited time"
       : undefined,
     description:
       "A perfect starting point for individuals seeking professional skincare guidance and routine development.",
