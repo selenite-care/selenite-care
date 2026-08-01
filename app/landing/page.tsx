@@ -88,9 +88,9 @@ const CONTENT = {
         original: signatureOriginalPrice
           ? `${signatureOriginalPrice.toLocaleString("en-US")} BDT`
           : undefined,
-        badge: signatureOfferIsActive ? "LIMITED TIME OFFER" : undefined,
+        badge: signatureOfferIsActive ? "55% OFF" : undefined,
         priceNote: signatureOfferIsActive
-          ? "Offer valid till July 30, 2026"
+          ? "For limited time"
           : undefined,
         benefits: [
           "90 Days Skincare Support",
@@ -339,10 +339,10 @@ const CONTENT = {
           : undefined,
         badge:
           signatureOfferIsActive
-            ? "\u09ac\u09bf\u09b6\u09c7\u09b7 \u0985\u09ab\u09be\u09b0"
+            ? "\u09eb\u09eb% \u099b\u09be\u09dc"
             : undefined,
         priceNote: signatureOfferIsActive
-          ? "Offer valid till July 30, 2026"
+          ? "\u09b8\u09c0\u09ae\u09bf\u09a4 \u09b8\u09ae\u09df\u09c7\u09b0 \u099c\u09a8\u09cd\u09af"
           : undefined,
         benefits: [
           "\u09ef\u09e6 \u09a6\u09bf\u09a8 \u09b8\u09cd\u0995\u09bf\u09a8\u0995\u09c7\u09df\u09be\u09b0 \u09b8\u09be\u09aa\u09cb\u09b0\u09cd\u099f",
@@ -1239,7 +1239,11 @@ export default function LandingPage() {
                       </span>
                     </span>
                   </h1>
-                  <p className="mt-5 max-w-lg leading-8 text-[red] dark:text-[#9B8E84]">valid till 30-July-2026</p>
+                  <p className="mt-5 max-w-lg font-semibold leading-8 text-red-600 dark:text-red-400">
+                    {language === "en"
+                      ? "For limited time"
+                      : "\u09b8\u09c0\u09ae\u09bf\u09a4 \u09b8\u09ae\u09df\u09c7\u09b0 \u099c\u09a8\u09cd\u09af"}
+                  </p>
 
                   <p className="mt-5 max-w-lg text-base leading-8 text-[#7D7066] dark:text-[#9B8E84]">
                     {heroContent.subtext}

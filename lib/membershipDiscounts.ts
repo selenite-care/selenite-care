@@ -2,7 +2,7 @@ export const MEMBERSHIP_PRICES = {
   SIGNATURE: { 
     price: 990,           // offered price
     originalPrice: 2190,  // regular price
-    offerValidTill: '2026-07-30'  // offer expires July 30
+    offerValidTill: null  // offer stays active until manually changed
   },
   CRYSTAL: { 
     price: 4500, 
@@ -43,7 +43,7 @@ export function getProductDiscount(tier: string | null | undefined): number {
 }
 
 export function isSignatureOfferValid(): boolean {
-  return new Date() <= new Date('2026-07-30T23:59:59')
+  return true
 }
 
 export function calculateExpiresAt(tier: string, fromDate: Date = new Date()): Date {
