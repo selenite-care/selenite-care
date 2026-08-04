@@ -1,6 +1,7 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
+import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 
 type LeadResponse = {
   ok?: boolean;
@@ -15,6 +16,7 @@ function trackMetaPixelEvent(eventName: string) {
 }
 
 export default function LandingLeadCaptureSection() {
+  const { executeRecaptcha } = useGoogleReCaptcha();
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -22,6 +24,11 @@ export default function LandingLeadCaptureSection() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
+  const [formLoadTime, setFormLoadTime] = useState("");
+
+  useEffect(() => {
+    setFormLoadTime(String(Date.now()));
+  }, []);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -35,6 +42,15 @@ export default function LandingLeadCaptureSection() {
     setIsSubmitting(true);
 
     try {
+      if (!executeRecaptcha) {
+        throw new Error("Security check is still loading. Please try again.");
+      }
+
+      const recaptchaToken = await executeRecaptcha("lead_submit");
+      const formData = new FormData(event.currentTarget);
+      const website = String(formData.get("website") ?? "");
+      const submittedFormLoadTime = String(formData.get("formLoadTime") ?? "");
+
       const response = await fetch("/api/landing/lead", {
         method: "POST",
         headers: {
@@ -45,6 +61,9 @@ export default function LandingLeadCaptureSection() {
           phone: phone.trim(),
           email: email.trim() || undefined,
           interest: interest.trim() || undefined,
+          website,
+          formLoadTime: submittedFormLoadTime,
+          recaptchaToken,
         }),
       });
 
@@ -97,6 +116,19 @@ export default function LandingLeadCaptureSection() {
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-5">
+              <input
+                type="text"
+                name="website"
+                style={{ display: "none" }}
+                tabIndex={-1}
+                autoComplete="off"
+              />
+              <input
+                type="hidden"
+                name="formLoadTime"
+                value={formLoadTime}
+                readOnly
+              />
               <div>
                 <label
                   htmlFor="lead-name"

@@ -14,11 +14,87 @@ type Lead = {
   createdAt: string;
 };
 
+type LeadQuality = "LIKELY_REAL" | "REVIEW" | "SPAM";
+type LeadWithQuality = Lead & {
+  quality: LeadQuality;
+};
+
+const QUALITY_LABELS: Record<LeadQuality, string> = {
+  LIKELY_REAL: "Likely Real",
+  REVIEW: "Review",
+  SPAM: "Likely Spam",
+};
+
+const TRUSTED_EMAIL_DOMAINS = new Set([
+  "gmail.com",
+  "yahoo.com",
+  "hotmail.com",
+]);
+
+function hasVowels(value: string) {
+  return /[aeiouAEIOU]/.test(value);
+}
+
+function hasSuspiciousDotPattern(email: string) {
+  const [localPart = ""] = email.toLowerCase().split("@");
+  return /(?:^|\.)(?:[a-z0-9]\.){2,}[a-z0-9](?:\.|$)/i.test(localPart);
+}
+
+function getEmailDomain(email: string | null) {
+  return email?.split("@")[1]?.toLowerCase().trim() ?? "";
+}
+
+function isBangladeshiPhone(phone: string) {
+  const normalized = phone.trim();
+  return normalized.startsWith("+880") || normalized.startsWith("01");
+}
+
+function isTenDigitsWithoutCountryCode(phone: string) {
+  return /^\d{10}$/.test(phone.trim());
+}
+
+function getLeadQuality(lead: Lead): LeadQuality {
+  const email = lead.email?.trim() ?? "";
+  const emailHasSuspiciousDots = email ? hasSuspiciousDotPattern(email) : false;
+
+  if (
+    isTenDigitsWithoutCountryCode(lead.phone) ||
+    !hasVowels(lead.name) ||
+    emailHasSuspiciousDots
+  ) {
+    return "SPAM";
+  }
+
+  const trustedEmail =
+    email &&
+    TRUSTED_EMAIL_DOMAINS.has(getEmailDomain(email)) &&
+    !emailHasSuspiciousDots;
+
+  if (isBangladeshiPhone(lead.phone) && /\s/.test(lead.name) && trustedEmail) {
+    return "LIKELY_REAL";
+  }
+
+  return "REVIEW";
+}
+
+function getQualityBadgeClasses(quality: LeadQuality) {
+  switch (quality) {
+    case "LIKELY_REAL":
+      return "border-green-200 bg-green-50 text-green-700 dark:border-green-900/50 dark:bg-green-950/20 dark:text-green-300";
+    case "SPAM":
+      return "border-red-200 bg-red-50 text-red-700 dark:border-red-900/50 dark:bg-red-950/20 dark:text-red-300";
+    default:
+      return "border-yellow-200 bg-yellow-50 text-yellow-700 dark:border-yellow-900/50 dark:bg-yellow-950/20 dark:text-yellow-300";
+  }
+}
+
 export default function AdminLeadsPage() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [qualityFilter, setQualityFilter] = useState<"ALL" | LeadQuality>("ALL");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [isDeletingSpam, setIsDeletingSpam] = useState(false);
   const [copiedPhone, setCopiedPhone] = useState<string | null>(null);
 
   useEffect(() => {
@@ -73,20 +149,42 @@ export default function AdminLeadsPage() {
     return () => window.clearTimeout(timeout);
   }, [copiedPhone]);
 
+  const leadsWithQuality = useMemo<LeadWithQuality[]>(
+    () =>
+      leads.map((lead) => ({
+        ...lead,
+        quality: getLeadQuality(lead),
+      })),
+    [leads],
+  );
+
   const filteredLeads = useMemo(() => {
     const normalizedQuery = searchQuery.trim().toLowerCase();
 
-    if (!normalizedQuery) {
-      return leads;
-    }
+    return leadsWithQuality.filter((lead) => {
+      const matchesQuality =
+        qualityFilter === "ALL" || lead.quality === qualityFilter;
 
-    return leads.filter((lead) => {
+      if (!matchesQuality) {
+        return false;
+      }
+
+      if (!normalizedQuery) {
+        return true;
+      }
+
       return (
         lead.name.toLowerCase().includes(normalizedQuery) ||
-        lead.phone.toLowerCase().includes(normalizedQuery)
+        lead.phone.toLowerCase().includes(normalizedQuery) ||
+        (lead.email ?? "").toLowerCase().includes(normalizedQuery)
       );
     });
-  }, [leads, searchQuery]);
+  }, [leadsWithQuality, qualityFilter, searchQuery]);
+
+  const spamLeads = useMemo(
+    () => leadsWithQuality.filter((lead) => lead.quality === "SPAM"),
+    [leadsWithQuality],
+  );
 
   async function handleCopyPhone(phone: string) {
     try {
@@ -106,6 +204,7 @@ export default function AdminLeadsPage() {
         Phone: lead.phone,
         Email: lead.email ?? "",
         Interest: lead.interest ?? "",
+        Quality: QUALITY_LABELS[lead.quality],
         "Date Submitted": formatDateTime(lead.createdAt),
       })),
     );
@@ -120,6 +219,55 @@ export default function AdminLeadsPage() {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
+  }
+
+  async function handleDeleteSpam() {
+    if (spamLeads.length === 0 || isDeletingSpam) {
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Delete ${spamLeads.length} lead${spamLeads.length === 1 ? "" : "s"} marked as likely spam? This cannot be undone.`,
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setIsDeletingSpam(true);
+    setError("");
+
+    try {
+      const response = await fetch("/api/admin/leads", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ids: spamLeads.map((lead) => lead.id),
+        }),
+      });
+      const data = (await response.json().catch(() => null)) as
+        | { deletedCount?: number; error?: string }
+        | null;
+
+      if (!response.ok) {
+        throw new Error(data?.error ?? "Unable to delete spam leads.");
+      }
+
+      const deletedIds = new Set(spamLeads.map((lead) => lead.id));
+      setLeads((current) => current.filter((lead) => !deletedIds.has(lead.id)));
+      toast.success(`Deleted ${data?.deletedCount ?? spamLeads.length} spam leads.`);
+    } catch (deleteError) {
+      const message =
+        deleteError instanceof Error
+          ? deleteError.message
+          : "Unable to delete spam leads.";
+      setError(message);
+      toast.error(message);
+    } finally {
+      setIsDeletingSpam(false);
+    }
   }
 
   return (
@@ -147,7 +295,7 @@ export default function AdminLeadsPage() {
       {!isLoading && !error ? (
         <>
           <div className="mt-8 rounded-lg border border-[#EADDCD] bg-white p-4 dark:border-[#3D3530] dark:bg-[#242220]">
-            <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+            <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_220px_auto_auto] lg:items-end">
               <div>
                 <label
                   htmlFor="leads-search"
@@ -165,6 +313,28 @@ export default function AdminLeadsPage() {
                 />
               </div>
 
+              <div>
+                <label
+                  htmlFor="leads-quality"
+                  className="text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]"
+                >
+                  Quality
+                </label>
+                <select
+                  id="leads-quality"
+                  value={qualityFilter}
+                  onChange={(event) =>
+                    setQualityFilter(event.target.value as "ALL" | LeadQuality)
+                  }
+                  className="mt-2 h-11 w-full rounded-md border border-[#EADDCD] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
+                >
+                  <option value="ALL">All Leads</option>
+                  <option value="LIKELY_REAL">Likely Real</option>
+                  <option value="REVIEW">Review</option>
+                  <option value="SPAM">Spam</option>
+                </select>
+              </div>
+
               <button
                 type="button"
                 onClick={handleExportCsv}
@@ -172,6 +342,15 @@ export default function AdminLeadsPage() {
                 className="inline-flex h-11 items-center justify-center rounded-md bg-[#2B2B2B] px-5 text-sm font-medium text-[#F8F5F0] transition-colors hover:bg-[#884F38] disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#B87B68] dark:text-[#141210] dark:hover:bg-[#D4B47A]"
               >
                 Export CSV
+              </button>
+
+              <button
+                type="button"
+                onClick={() => void handleDeleteSpam()}
+                disabled={spamLeads.length === 0 || isDeletingSpam}
+                className="inline-flex h-11 items-center justify-center rounded-md border border-red-200 bg-red-50 px-5 text-sm font-medium text-red-700 transition-colors hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-red-900/50 dark:bg-red-950/20 dark:text-red-300 dark:hover:bg-red-950/30"
+              >
+                {isDeletingSpam ? "Deleting..." : `Delete Spam (${spamLeads.length})`}
               </button>
             </div>
 
@@ -189,13 +368,14 @@ export default function AdminLeadsPage() {
                     <th className="px-4 py-3 font-medium">Phone</th>
                     <th className="px-4 py-3 font-medium">Email</th>
                     <th className="px-4 py-3 font-medium">Interest</th>
+                    <th className="px-4 py-3 font-medium">Quality</th>
                     <th className="px-4 py-3 font-medium">Date Submitted</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredLeads.length === 0 ? (
                     <tr>
-                      <td colSpan={5} className="cell-muted px-4 py-8 text-center text-sm">
+                      <td colSpan={6} className="cell-muted px-4 py-8 text-center text-sm">
                         No leads match the current search.
                       </td>
                     </tr>
@@ -222,6 +402,15 @@ export default function AdminLeadsPage() {
                         </td>
                         <td className="cell-muted px-4 py-4">
                           {lead.interest ?? "Not specified"}
+                        </td>
+                        <td className="px-4 py-4">
+                          <span
+                            className={`inline-flex rounded-full border px-3 py-1 text-xs font-medium ${getQualityBadgeClasses(
+                              lead.quality,
+                            )}`}
+                          >
+                            {QUALITY_LABELS[lead.quality]}
+                          </span>
                         </td>
                         <td className="cell-muted px-4 py-4">
                           {formatDateTime(lead.createdAt)}

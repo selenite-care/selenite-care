@@ -4,6 +4,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { CartProvider } from "@/components/cart/CartProvider";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
+import GoogleRecaptchaProvider from "@/components/providers/GoogleRecaptchaProvider";
 import SessionGuard from "@/components/auth/SessionGuard";
 import { SessionProvider } from "next-auth/react";
 import { Toaster } from "sonner";
@@ -138,14 +139,18 @@ export default function RootLayout({
           refetchOnWindowFocus
           refetchWhenOffline={false}
         >
-          <CartProvider>
-            <ThemeProvider>
-              <SessionGuard>
-                <AppChrome>{children}</AppChrome>
-              </SessionGuard>
-              <PWAInstallPrompt />
-            </ThemeProvider>
-          </CartProvider>
+          <GoogleRecaptchaProvider
+            reCaptchaKey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
+          >
+            <CartProvider>
+              <ThemeProvider>
+                <SessionGuard>
+                  <AppChrome>{children}</AppChrome>
+                </SessionGuard>
+                <PWAInstallPrompt />
+              </ThemeProvider>
+            </CartProvider>
+          </GoogleRecaptchaProvider>
         </SessionProvider>
         <PWAServiceWorkerRegister />
         <Toaster
