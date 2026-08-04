@@ -1,7 +1,12 @@
 import { db } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
 import { appendToSheet } from "@/lib/googleSheets";
-import { sanitizeEmail, sanitizeName, sanitizePhone, sanitizeText } from "@/lib/sanitize";
+import {
+  sanitizeEmail,
+  sanitizeName,
+  sanitizePhone,
+  sanitizeText,
+} from "@/lib/sanitize";
 
 type LeadPayload = {
   name?: unknown;
@@ -10,11 +15,41 @@ type LeadPayload = {
   interest?: unknown;
   website?: unknown;
   url?: unknown;
+  formLoadTime?: unknown;
+  recaptchaToken?: unknown;
 };
 
 const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000;
 const RATE_LIMIT_MAX_SUBMISSIONS = 3;
+const RECAPTCHA_MIN_SCORE = 0.5;
+const RECAPTCHA_SHEET_MIN_SCORE = 0.7;
+const MIN_FORM_COMPLETION_TIME_MS = 5000;
+const BLOCKED_EMAIL_DOMAINS = new Set([
+  "chilleruptime.com",
+  "parsippany.net",
+  "mamgroup.ae",
+  "mytravelinbox.com",
+]);
+const RECOGNIZED_INTERESTS = new Set([
+  "signature",
+  "signature membership",
+  "crystal",
+  "crystal membership",
+  "platinum",
+  "platinum membership",
+  "not sure",
+  "not sure yet",
+]);
 const leadSubmissionAttempts = new Map<string, number[]>();
+
+type RecaptchaVerifyResponse = {
+  success?: boolean;
+  score?: number;
+  action?: string;
+  challenge_ts?: string;
+  hostname?: string;
+  "error-codes"?: string[];
+};
 
 function genericSuccessResponse() {
   return Response.json({
@@ -96,6 +131,68 @@ function hasBotEmailPattern(value: string) {
   return /(\w\.){3,}/.test(value);
 }
 
+function hasSuspiciousName(value: string) {
+  if (!value) {
+    return false;
+  }
+
+  const lettersOnly = value.replace(/[^a-z]/gi, "");
+
+  return (
+    (lettersOnly.length > 0 && !/[aeiouAEIOU]/.test(lettersOnly)) ||
+    (value.length > 25 && !/\s/.test(value)) ||
+    /^[^aeiouAEIOU]{4,}/.test(lettersOnly)
+  );
+}
+
+function hasSuspiciousPhone(value: string) {
+  const digits = value.replace(/\D/g, "");
+
+  if (!digits) {
+    return false;
+  }
+
+  return /^\d{10}$/.test(value.trim()) || /^(\d)\1+$/.test(digits);
+}
+
+function hasSuspiciousEmail(value: string) {
+  if (!value) {
+    return false;
+  }
+
+  const [localPart, domain = ""] = value.toLowerCase().split("@");
+
+  return (
+    /(?:^|\.)(?:[a-z0-9]\.){2,}[a-z0-9](?:\.|$)/i.test(localPart) ||
+    BLOCKED_EMAIL_DOMAINS.has(domain)
+  );
+}
+
+function hasSuspiciousInterest(value: string) {
+  if (!value) {
+    return false;
+  }
+
+  const normalized = value.trim().toLowerCase().replace(/\s+/g, " ");
+
+  return /\d/.test(normalized) || !RECOGNIZED_INTERESTS.has(normalized);
+}
+
+function wasSubmittedTooQuickly(value: unknown) {
+  const formLoadTime =
+    typeof value === "number"
+      ? value
+      : typeof value === "string"
+        ? Number(value)
+        : NaN;
+
+  if (!Number.isFinite(formLoadTime)) {
+    return true;
+  }
+
+  return Date.now() - formLoadTime < MIN_FORM_COMPLETION_TIME_MS;
+}
+
 function isRateLimited(ip: string) {
   const now = Date.now();
   const recentAttempts = (leadSubmissionAttempts.get(ip) ?? []).filter(
@@ -109,6 +206,44 @@ function isRateLimited(ip: string) {
 
   leadSubmissionAttempts.set(ip, [...recentAttempts, now]);
   return false;
+}
+
+async function verifyRecaptchaToken(token: string) {
+  const secret = process.env.RECAPTCHA_SECRET_KEY?.trim();
+
+  if (!secret) {
+    throw new Error("RECAPTCHA_SECRET_KEY is not configured.");
+  }
+
+  const response = await fetch("https://www.google.com/recaptcha/api/siteverify", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: new URLSearchParams({
+      secret,
+      response: token,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`reCAPTCHA verification failed with ${response.status}.`);
+  }
+
+  const data = (await response.json()) as RecaptchaVerifyResponse;
+  const score = typeof data.score === "number" ? data.score : 0;
+
+  console.log("Landing lead reCAPTCHA score:", {
+    success: data.success === true,
+    score,
+    action: data.action,
+    hostname: data.hostname,
+  });
+
+  return {
+    isHuman: data.success === true && score >= RECAPTCHA_MIN_SCORE,
+    score,
+  };
 }
 
 export async function POST(request: Request) {
@@ -134,13 +269,23 @@ export async function POST(request: Request) {
     return genericSuccessResponse();
   }
 
+  if (wasSubmittedTooQuickly(body?.formLoadTime)) {
+    return genericSuccessResponse();
+  }
+
   const name = typeof body?.name === "string" ? sanitizeName(body.name) : "";
   const phone = typeof body?.phone === "string" ? sanitizePhone(body.phone) : "";
   const email = typeof body?.email === "string" ? sanitizeEmail(body.email) : "";
   const interest =
     typeof body?.interest === "string" ? sanitizeText(body.interest) : "";
 
-  if (hasRandomMixedCaseName(name) || (email && hasBotEmailPattern(email))) {
+  if (
+    hasRandomMixedCaseName(name) ||
+    hasSuspiciousName(name) ||
+    hasSuspiciousPhone(phone) ||
+    hasSuspiciousInterest(interest) ||
+    (email && (hasBotEmailPattern(email) || hasSuspiciousEmail(email)))
+  ) {
     return genericSuccessResponse();
   }
 
@@ -158,6 +303,30 @@ export async function POST(request: Request) {
     );
   }
 
+  const recaptchaToken =
+    typeof body?.recaptchaToken === "string" ? body.recaptchaToken.trim() : "";
+
+  if (!recaptchaToken) {
+    return genericSuccessResponse();
+  }
+
+  let recaptchaScore = 0;
+
+  try {
+    const verification = await verifyRecaptchaToken(recaptchaToken);
+    recaptchaScore = verification.score;
+
+    if (!verification.isHuman) {
+      return genericSuccessResponse();
+    }
+  } catch (error) {
+    console.error("Landing lead reCAPTCHA verification failed:", error);
+    return Response.json(
+      { error: "Unable to verify security check. Please try again." },
+      { status: 500 },
+    );
+  }
+
   const lead = await db.leadCapture.create({
     data: {
       name: name || "Marketing Lead",
@@ -167,13 +336,15 @@ export async function POST(request: Request) {
     },
   });
 
-  void appendToSheet({
-    name: name || "Marketing Lead",
-    email: email || "Not provided",
-    phone,
-    dateOfBirth: null,
-    source: "Landing Page Lead",
-  });
+  if (recaptchaScore > RECAPTCHA_SHEET_MIN_SCORE) {
+    void appendToSheet({
+      name: name || "Marketing Lead",
+      email: email || "Not provided",
+      phone,
+      dateOfBirth: null,
+      source: "Landing Page Lead",
+    });
+  }
 
   const submittedAt = lead.createdAt.toLocaleString("en-BD", {
     dateStyle: "medium",

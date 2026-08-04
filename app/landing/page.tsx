@@ -16,6 +16,7 @@ import {
 import { FormEvent, useEffect, useState } from "react";
 import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
 import InAppBrowserWarning from "@/components/ui/InAppBrowserWarning";
+import LandingLeadCaptureSection from "@/components/landing/LandingLeadCaptureSection";
 import { FAQS } from "@/lib/faq";
 import {
   getMembershipAvailabilityLabel,
@@ -1676,6 +1677,8 @@ export default function LandingPage() {
             </div>
           </div>
         </section>
+
+        <LandingLeadCaptureSection />
 
         <section className="bg-[#2B2B2B] px-6 py-12 dark:bg-[#0F0D0C]">
           <div className="mx-auto w-full max-w-3xl text-center">
