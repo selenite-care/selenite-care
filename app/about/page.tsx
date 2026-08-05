@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { db } from "@/lib/db";
 
 export const revalidate = 3600;
 
@@ -38,7 +39,58 @@ const teamMembers = [
   // },
 ];
 
-export default function AboutPage() {
+async function getTeamMembers() {
+  try {
+    const doctors = await db.doctor.findMany({
+      where: {
+        isActive: true,
+      },
+      orderBy: {
+        name: "asc",
+      },
+      select: {
+        id: true,
+        name: true,
+        designation: true,
+        bio: true,
+        image: true,
+      },
+    });
+
+    if (doctors.length === 0) {
+      return teamMembers.map((member, index) => ({
+        id: `fallback-${index}`,
+        name: member.name,
+        role: member.role,
+        image: member.image,
+        description: member.description,
+        bio: null,
+      }));
+    }
+
+    return doctors.map((doctor) => ({
+      id: doctor.id,
+      name: doctor.name,
+      role: doctor.designation,
+      image: doctor.image,
+      description: doctor.bio ?? "Doctor profile coming soon.",
+      bio: doctor.bio,
+    }));
+  } catch {
+    return teamMembers.map((member, index) => ({
+      id: `fallback-${index}`,
+      name: member.name,
+      role: member.role,
+      image: member.image,
+      description: member.description,
+      bio: null,
+    }));
+  }
+}
+
+export default async function AboutPage() {
+  const team = await getTeamMembers();
+
   return (
     <div className="bg-page text-page flex flex-1 flex-col">
       <section className="relative overflow-hidden px-6 py-20 sm:py-24">
@@ -360,9 +412,9 @@ export default function AboutPage() {
           </div>
 
           <div className="mt-10 grid gap-5 md:grid-cols-3">
-            {teamMembers.map((member, index) => (
+            {team.map((member) => (
               <article
-                key={`${member.role}-${index}`}
+                key={member.id}
                 className="rounded-2xl border border-[#EADDCD] bg-white p-6 transition-shadow duration-200 hover:shadow-lg dark:border-[#3D3530] dark:bg-[#242220]"
                 style={{
                 }}
