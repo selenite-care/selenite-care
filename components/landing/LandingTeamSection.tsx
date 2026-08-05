@@ -7,6 +7,7 @@ type LandingDoctor = {
   id: string;
   name: string;
   designation: string;
+  bio: string | null;
   image: string | null;
   specialization: "AESTHETICIAN" | "NUTRITIONIST" | "PSYCHIATRIST";
 };
@@ -139,6 +140,9 @@ export default function LandingTeamSection() {
                 </h3>
                 <p className="mt-2 text-sm text-[#884F38] dark:text-[#8A7D75]">
                   {doctor.designation}
+                </p>
+                <p className="mx-auto mt-3 max-w-[220px] text-xs leading-5 text-[#6E6257] dark:text-[#8A7D75]">
+                  {doctor.bio ?? "Doctor profile coming soon."}
                 </p>
                 <span className="mt-4 inline-flex rounded-full bg-[#F8F5F0] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#B87B68] dark:bg-[#1A1814] dark:text-[#D4B47A]">
                   {specializationLabels[doctor.specialization]}

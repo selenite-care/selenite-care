@@ -627,6 +627,7 @@ type LandingDoctor = {
   id: string;
   name: string;
   designation: string;
+  bio: string | null;
   image: string | null;
   specialization: string;
   isActive?: boolean;
@@ -1600,6 +1601,9 @@ export default function LandingPage() {
                     ) : null}
                     <p className="mt-2 text-sm text-[#884F38] dark:text-[#8A7D75]">
                       {doctor.designation}
+                    </p>
+                    <p className="mx-auto mt-3 max-w-[240px] text-xs leading-5 text-[#6E6257] dark:text-[#8A7D75]">
+                      {doctor.bio ?? "Doctor profile coming soon."}
                     </p>
                     <span className="mt-4 inline-flex rounded-full bg-[#B87B68] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#2B2B2B]">
                       {getSpecializationLabel(language, doctor.specialization)}
