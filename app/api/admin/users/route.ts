@@ -85,7 +85,17 @@ export async function GET(request: Request) {
         email: true,
         phone: true,
         role: true,
+        emailVerified: true,
         createdAt: true,
+        accounts: {
+          where: {
+            provider: "google",
+          },
+          take: 1,
+          select: {
+            provider: true,
+          },
+        },
         memberships: {
           orderBy: {
             createdAt: "desc",
@@ -101,6 +111,8 @@ export async function GET(request: Request) {
         _count: {
           select: {
             bookings: true,
+            memberships: true,
+            orders: true,
           },
         },
       },
@@ -113,4 +125,99 @@ export async function GET(request: Request) {
     totalCount,
     pagination: getPaginationMeta({ page, limit, totalCount }),
   });
+}
+
+export async function DELETE(request: Request) {
+  const session = await auth();
+
+  if (!session?.user) {
+    return Response.json({ error: "Unauthorized." }, { status: 401 });
+  }
+
+  if (session.user.role !== "ADMIN") {
+    return Response.json({ error: "Forbidden." }, { status: 403 });
+  }
+
+  const body = (await request.json().catch(() => null)) as
+    | { ids?: unknown }
+    | null;
+  const ids = Array.isArray(body?.ids)
+    ? body.ids.filter(
+        (id): id is string => typeof id === "string" && id.length > 0,
+      )
+    : [];
+
+  if (ids.length === 0) {
+    return Response.json({ error: "No user IDs provided." }, { status: 400 });
+  }
+
+  const deletableUsers = await db.user.findMany({
+    where: {
+      id: { in: ids },
+      role: "CLIENT",
+      emailVerified: null,
+      accounts: {
+        none: {
+          provider: "google",
+        },
+      },
+      bookings: { none: {} },
+      memberships: { none: {} },
+      orders: { none: {} },
+    },
+    select: {
+      id: true,
+      conversation: {
+        select: {
+          id: true,
+        },
+      },
+    },
+  });
+  const deletableIds = deletableUsers.map((user) => user.id);
+  const conversationIds = deletableUsers
+    .map((user) => user.conversation?.id)
+    .filter((id): id is string => Boolean(id));
+
+  if (deletableIds.length === 0) {
+    return Response.json({ deletedCount: 0 });
+  }
+
+  await db.$transaction([
+    db.message.deleteMany({
+      where: {
+        OR: [
+          { senderId: { in: deletableIds } },
+          { conversationId: { in: conversationIds } },
+        ],
+      },
+    }),
+    db.conversation.deleteMany({
+      where: {
+        id: { in: conversationIds },
+      },
+    }),
+    db.notification.deleteMany({
+      where: {
+        userId: { in: deletableIds },
+      },
+    }),
+    db.surveyProfile.deleteMany({
+      where: {
+        userId: { in: deletableIds },
+      },
+    }),
+    db.account.deleteMany({
+      where: {
+        userId: { in: deletableIds },
+      },
+    }),
+    db.user.deleteMany({
+      where: {
+        id: { in: deletableIds },
+      },
+    }),
+  ]);
+
+  return Response.json({ deletedCount: deletableIds.length });
 }

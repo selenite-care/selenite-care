@@ -1,7 +1,7 @@
 "use client";
 
 import Papa from "papaparse";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Pagination from "@/components/ui/Pagination";
 import { SkeletonTable } from "@/components/ui/Skeleton";
 import { formatDateOnly } from "@/lib/dateUtils";
@@ -12,7 +12,11 @@ type AdminUser = {
   email: string;
   phone: string | null;
   role: string;
+  emailVerified: string | null;
   createdAt: string;
+  accounts: Array<{
+    provider: string;
+  }>;
   memberships: Array<{
     id: string;
     tier: "SIGNATURE" | "CRYSTAL" | "PLATINUM";
@@ -21,7 +25,14 @@ type AdminUser = {
   }>;
   _count: {
     bookings: number;
+    memberships: number;
+    orders: number;
   };
+};
+
+type UserQuality = "VERIFIED" | "UNVERIFIED" | "SUSPICIOUS" | "NOT_CLIENT";
+type AdminUserWithQuality = AdminUser & {
+  quality: UserQuality;
 };
 
 type AdminUsersResponse = {
@@ -31,6 +42,12 @@ type AdminUsersResponse = {
 
 const ROLES = ["CLIENT", "DOCTOR", "CRM", "ADMIN"];
 const ROLE_FILTERS = ["All", "CLIENT", "DOCTOR", "CRM", "ADMIN"] as const;
+const STATUS_FILTERS = [
+  { value: "all", label: "All" },
+  { value: "VERIFIED", label: "Verified" },
+  { value: "UNVERIFIED", label: "Unverified" },
+  { value: "SUSPICIOUS", label: "Suspicious" },
+] as const;
 const MEMBERSHIP_FILTERS = [
   { value: "all", label: "All" },
   { value: "none", label: "No Membership" },
@@ -40,6 +57,7 @@ const MEMBERSHIP_FILTERS = [
   { value: "cancelled", label: "Cancelled" },
 ] as const;
 const ITEMS_PER_PAGE = 20;
+const BOT_EMAIL_DOT_PATTERN = /(\w\.){2,}\w+@/;
 
 const roleColors: Record<string, { badge: string; text: string }> = {
   CLIENT: {
@@ -101,6 +119,108 @@ function getTierLabel(tier: "SIGNATURE" | "CRYSTAL" | "PLATINUM") {
   }
 }
 
+function getPhoneDigits(phone: string | null) {
+  return phone?.replace(/\D/g, "") ?? "";
+}
+
+function isBangladeshiPhone(phone: string | null) {
+  const normalized = phone?.trim() ?? "";
+  return normalized.startsWith("+880") || normalized.startsWith("01");
+}
+
+function looksValidPhone(phone: string | null) {
+  const normalized = phone?.trim() ?? "";
+  return /^[+0]/.test(normalized) && getPhoneDigits(phone).length >= 11;
+}
+
+function isTenDigitPhone(phone: string | null) {
+  return /^\d{10}$/.test(phone?.trim() ?? "");
+}
+
+function hasNoVowels(name: string | null) {
+  const letters = name?.replace(/[^a-z]/gi, "") ?? "";
+  return letters.length > 0 && !/[aeiouAEIOU]/.test(letters);
+}
+
+function hasSuspiciousEmailDotPattern(email: string) {
+  return BOT_EMAIL_DOT_PATTERN.test(email);
+}
+
+function hasGoogleAccount(user: AdminUser) {
+  return user.accounts.some((account) => account.provider === "google");
+}
+
+function getUserQuality(user: AdminUser): UserQuality {
+  if (user.role !== "CLIENT") {
+    return "NOT_CLIENT";
+  }
+
+  if (hasGoogleAccount(user)) {
+    return user.emailVerified ? "VERIFIED" : "UNVERIFIED";
+  }
+
+  const hasMembership = user._count.memberships > 0 || user.memberships.length > 0;
+
+  if (
+    user.emailVerified &&
+    isBangladeshiPhone(user.phone) &&
+    hasMembership
+  ) {
+    return "VERIFIED";
+  }
+
+  if (
+    !user.emailVerified &&
+    (isTenDigitPhone(user.phone) ||
+      hasSuspiciousEmailDotPattern(user.email) ||
+      hasNoVowels(user.name))
+  ) {
+    return "SUSPICIOUS";
+  }
+
+  if (!user.emailVerified && looksValidPhone(user.phone)) {
+    return "UNVERIFIED";
+  }
+
+  return "UNVERIFIED";
+}
+
+function getUserQualityLabel(quality: UserQuality) {
+  switch (quality) {
+    case "VERIFIED":
+      return "Verified";
+    case "SUSPICIOUS":
+      return "Suspicious";
+    case "UNVERIFIED":
+      return "Unverified";
+    default:
+      return "—";
+  }
+}
+
+function getUserQualityClasses(quality: UserQuality) {
+  switch (quality) {
+    case "VERIFIED":
+      return "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-300";
+    case "SUSPICIOUS":
+      return "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300";
+    case "UNVERIFIED":
+      return "bg-amber-100 text-amber-800 dark:bg-amber-900/20 dark:text-amber-300";
+    default:
+      return "bg-zinc-200 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300";
+  }
+}
+
+function canDeleteSuspiciousUser(user: AdminUserWithQuality) {
+  return (
+    user.quality === "SUSPICIOUS" &&
+    !user.emailVerified &&
+    user._count.bookings === 0 &&
+    user._count.memberships === 0 &&
+    user._count.orders === 0
+  );
+}
+
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [error, setError] = useState("");
@@ -109,17 +229,16 @@ export default function AdminUsersPage() {
     useState<(typeof ROLE_FILTERS)[number]>("All");
   const [membershipFilter, setMembershipFilter] =
     useState<(typeof MEMBERSHIP_FILTERS)[number]["value"]>("all");
+  const [statusFilter, setStatusFilter] =
+    useState<(typeof STATUS_FILTERS)[number]["value"]>("all");
   const [isLoading, setIsLoading] = useState(true);
   const [hasLoaded, setHasLoaded] = useState(false);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [isDeletingSuspicious, setIsDeletingSuspicious] = useState(false);
   const [updateError, setUpdateError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const totalPages = Math.max(1, Math.ceil(totalCount / ITEMS_PER_PAGE));
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchQuery, roleFilter, membershipFilter]);
 
   useEffect(() => {
     async function loadUsers() {
@@ -203,7 +322,25 @@ export default function AdminUsersPage() {
     }
   }
 
-  const filteredUsers = users;
+  const usersWithQuality = useMemo<AdminUserWithQuality[]>(
+    () =>
+      users.map((user) => ({
+        ...user,
+        quality: getUserQuality(user),
+      })),
+    [users],
+  );
+  const filteredUsers = useMemo(
+    () =>
+      usersWithQuality.filter(
+        (user) => statusFilter === "all" || user.quality === statusFilter,
+      ),
+    [statusFilter, usersWithQuality],
+  );
+  const deletableSuspiciousUsers = useMemo(
+    () => usersWithQuality.filter(canDeleteSuspiciousUser),
+    [usersWithQuality],
+  );
   const isInitialLoading = isLoading && !hasLoaded;
 
   function handleExportCsv() {
@@ -213,11 +350,13 @@ export default function AdminUsersPage() {
         Email: user.email,
         Phone: user.phone ?? "",
         Role: user.role,
+        Status: getUserQualityLabel(user.quality),
         Membership: user.memberships[0]
           ? `${getTierLabel(user.memberships[0].tier)} (${user.memberships[0].status})`
           : "No Membership",
         "Registration Date": formatDateOnly(user.createdAt),
         "Total Bookings": user._count.bookings,
+        "Total Orders": user._count.orders,
       })),
       {
         columns: [
@@ -225,9 +364,11 @@ export default function AdminUsersPage() {
           "Email",
           "Phone",
           "Role",
+          "Status",
           "Membership",
           "Registration Date",
           "Total Bookings",
+          "Total Orders",
         ],
       },
     );
@@ -241,6 +382,58 @@ export default function AdminUsersPage() {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
+  }
+
+  async function handleDeleteSuspiciousUsers() {
+    if (deletableSuspiciousUsers.length === 0 || isDeletingSuspicious) {
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Delete ${deletableSuspiciousUsers.length} suspicious unverified accounts with no activity?`,
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setIsDeletingSuspicious(true);
+    setUpdateError(null);
+
+    try {
+      const response = await fetch("/api/admin/users", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ids: deletableSuspiciousUsers.map((user) => user.id),
+        }),
+      });
+      const data = (await response.json().catch(() => null)) as
+        | { deletedCount?: number; error?: string }
+        | null;
+
+      if (!response.ok) {
+        throw new Error(data?.error ?? "Failed to delete suspicious users.");
+      }
+
+      const deletedIds = new Set(
+        deletableSuspiciousUsers.map((user) => user.id),
+      );
+      setUsers((current) => current.filter((user) => !deletedIds.has(user.id)));
+      setTotalCount((current) =>
+        Math.max(0, current - (data?.deletedCount ?? deletedIds.size)),
+      );
+    } catch (err) {
+      setUpdateError(
+        err instanceof Error
+          ? err.message
+          : "Failed to delete suspicious users.",
+      );
+    } finally {
+      setIsDeletingSuspicious(false);
+    }
   }
 
   return (
@@ -274,7 +467,7 @@ export default function AdminUsersPage() {
       {!isInitialLoading && !error ? (
         <>
           <div className="mt-8 rounded-lg border border-[#EADDCD] bg-white p-4">
-            <div className="grid gap-4 md:grid-cols-[1fr_220px_220px_auto] md:items-end">
+            <div className="grid gap-4 md:grid-cols-[1fr_180px_220px_180px_auto_auto] md:items-end">
               <div>
                 <label
                   htmlFor="user-search"
@@ -286,7 +479,10 @@ export default function AdminUsersPage() {
                   id="user-search"
                   type="search"
                   value={searchQuery}
-                  onChange={(event) => setSearchQuery(event.target.value)}
+                  onChange={(event) => {
+                    setSearchQuery(event.target.value);
+                    setCurrentPage(1);
+                  }}
                   placeholder="Name, email, or phone number"
                   className="mt-2 h-11 w-full rounded-md border border-[#EADDCD] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors placeholder:text-[#884F38] focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68]"
                 />
@@ -302,11 +498,12 @@ export default function AdminUsersPage() {
                 <select
                   id="role-filter"
                   value={roleFilter}
-                  onChange={(event) =>
+                  onChange={(event) => {
                     setRoleFilter(
                       event.target.value as (typeof ROLE_FILTERS)[number],
-                    )
-                  }
+                    );
+                    setCurrentPage(1);
+                  }}
                   className="mt-2 h-11 w-full rounded-md border border-[#EADDCD] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68]"
                 >
                   {ROLE_FILTERS.map((role) => (
@@ -327,14 +524,42 @@ export default function AdminUsersPage() {
                 <select
                   id="membership-filter"
                   value={membershipFilter}
-                  onChange={(event) =>
+                  onChange={(event) => {
                     setMembershipFilter(
                       event.target.value as (typeof MEMBERSHIP_FILTERS)[number]["value"],
-                    )
-                  }
+                    );
+                    setCurrentPage(1);
+                  }}
                   className="mt-2 h-11 w-full rounded-md border border-[#EADDCD] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68]"
                 >
                   {MEMBERSHIP_FILTERS.map((filter) => (
+                    <option key={filter.value} value={filter.value}>
+                      {filter.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label
+                  htmlFor="status-filter"
+                  className="text-sm font-medium text-[#2B2B2B]"
+                >
+                  Status
+                </label>
+                <select
+                  id="status-filter"
+                  value={statusFilter}
+                  onChange={(event) => {
+                    setStatusFilter(
+                      event.target
+                        .value as (typeof STATUS_FILTERS)[number]["value"],
+                    );
+                    setCurrentPage(1);
+                  }}
+                  className="mt-2 h-11 w-full rounded-md border border-[#EADDCD] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68]"
+                >
+                  {STATUS_FILTERS.map((filter) => (
                     <option key={filter.value} value={filter.value}>
                       {filter.label}
                     </option>
@@ -354,6 +579,20 @@ export default function AdminUsersPage() {
               >
                 Export CSV
               </button>
+
+              <button
+                type="button"
+                onClick={() => void handleDeleteSuspiciousUsers()}
+                disabled={
+                  deletableSuspiciousUsers.length === 0 ||
+                  isDeletingSuspicious
+                }
+                className="inline-flex h-11 items-center justify-center rounded-md border border-red-200 bg-red-50 px-5 text-sm font-medium text-red-700 transition-colors hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-red-900/50 dark:bg-red-950/20 dark:text-red-300"
+              >
+                {isDeletingSuspicious
+                  ? "Deleting..."
+                  : `Delete Suspicious (${deletableSuspiciousUsers.length})`}
+              </button>
             </div>
             {isLoading ? (
               <p className="mt-4 text-xs text-[#884F38] dark:text-[#8A7D75]">
@@ -371,16 +610,18 @@ export default function AdminUsersPage() {
                     <th className="px-4 py-3 font-medium">Email</th>
                     <th className="px-4 py-3 font-medium">Phone</th>
                     <th className="px-4 py-3 font-medium">Role</th>
+                    <th className="px-4 py-3 font-medium">Status</th>
                     <th className="px-4 py-3 font-medium">Membership</th>
                     <th className="px-4 py-3 font-medium">Registration Date</th>
                     <th className="px-4 py-3 font-medium">Total Bookings</th>
+                    <th className="px-4 py-3 font-medium">Total Orders</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredUsers.length === 0 ? (
                     <tr>
                       <td
-                        colSpan={7}
+                        colSpan={9}
                         className="cell-muted px-4 py-8 text-center text-sm"
                       >
                         No users match the selected filters.
@@ -422,6 +663,15 @@ export default function AdminUsersPage() {
                           </td>
                           <td className="px-4 py-4">
                             <span
+                              className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ${getUserQualityClasses(
+                                user.quality,
+                              )}`}
+                            >
+                              {getUserQualityLabel(user.quality)}
+                            </span>
+                          </td>
+                          <td className="px-4 py-4">
+                            <span
                               className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ${membershipStyles.badge} ${membershipStyles.text}`}
                             >
                               {latestMembership
@@ -434,6 +684,9 @@ export default function AdminUsersPage() {
                           </td>
                           <td className="cell-muted px-4 py-4">
                             {user._count.bookings}
+                          </td>
+                          <td className="cell-muted px-4 py-4">
+                            {user._count.orders}
                           </td>
                         </tr>
                       );
