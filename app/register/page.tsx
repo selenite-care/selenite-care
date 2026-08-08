@@ -6,6 +6,7 @@ import { FormEvent, Suspense, useEffect, useState } from "react";
 import { signIn } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
+import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 import InAppBrowserWarning from "@/components/ui/InAppBrowserWarning";
 import { isInAppBrowser } from "@/lib/detectBrowser";
 
@@ -16,18 +17,21 @@ function trackMetaPixelEvent(eventName: string) {
 }
 
 function RegisterPageContent() {
+  const { executeRecaptcha } = useGoogleReCaptcha();
   const searchParams = useSearchParams();
   const source = searchParams.get("source")?.trim() || "website";
   const [error, setError] = useState("");
   const [showExistingAccountNotice, setShowExistingAccountNotice] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isVerifyingRecaptcha, setIsVerifyingRecaptcha] = useState(false);
   const [phone, setPhone] = useState("");
   const [registeredEmail, setRegisteredEmail] = useState("");
   const [resendError, setResendError] = useState("");
   const [resendSuccess, setResendSuccess] = useState("");
   const [isResending, setIsResending] = useState(false);
   const [resendCountdown, setResendCountdown] = useState(0);
-  const [isUsingInAppBrowser, setIsUsingInAppBrowser] = useState(false);
+  const [isUsingInAppBrowser] = useState(() => isInAppBrowser());
+  const [formLoadTime, setFormLoadTime] = useState("");
 
   function handleGoogleRegister() {
     document.cookie =
@@ -38,7 +42,11 @@ function RegisterPageContent() {
   }
 
   useEffect(() => {
-    setIsUsingInAppBrowser(isInAppBrowser());
+    const timeout = window.setTimeout(() => {
+      setFormLoadTime(String(Date.now()));
+    }, 0);
+
+    return () => window.clearTimeout(timeout);
   }, []);
 
   useEffect(() => {
@@ -68,6 +76,7 @@ function RegisterPageContent() {
     const email = String(formData.get("email") ?? "");
     const password = String(formData.get("password") ?? "");
     const dateOfBirth = String(formData.get("dateOfBirth") ?? "");
+    const submittedFormLoadTime = String(formData.get("formLoadTime") ?? "");
 
     if (!phone || !isValidPhoneNumber(phone)) {
       setError("Please enter a valid phone number.");
@@ -76,6 +85,14 @@ function RegisterPageContent() {
     }
 
     try {
+      if (!executeRecaptcha) {
+        throw new Error("Security check is still loading. Please try again.");
+      }
+
+      setIsVerifyingRecaptcha(true);
+      const recaptchaToken = await executeRecaptcha("register");
+      setIsVerifyingRecaptcha(false);
+
       const response = await fetch("/api/register", {
         method: "POST",
         headers: {
@@ -88,6 +105,8 @@ function RegisterPageContent() {
           password,
           dateOfBirth,
           source,
+          formLoadTime: submittedFormLoadTime,
+          recaptchaToken,
         }),
       });
 
@@ -116,6 +135,7 @@ function RegisterPageContent() {
     } catch {
       setError("Registration failed. Please try again.");
     } finally {
+      setIsVerifyingRecaptcha(false);
       setIsSubmitting(false);
     }
   }
@@ -198,7 +218,7 @@ function RegisterPageContent() {
                 Verify Your Email
               </h1>
               <p className="mt-[14px] text-sm leading-7 text-[#6E6257] dark:text-[#8A7D75]">
-                We've sent a verification link to{" "}
+                We&apos;ve sent a verification link to{" "}
                 <span className="text-page font-semibold">
                   {registeredEmail}
                 </span>
@@ -257,6 +277,12 @@ function RegisterPageContent() {
             onSubmit={handleSubmit}
             className="border-themed bg-card flex w-full flex-col gap-5 rounded-xl border p-5 shadow-[0_16px_34px_rgba(43,43,43,0.06)] dark:shadow-none"
           >
+            <input
+              type="hidden"
+              name="formLoadTime"
+              value={formLoadTime}
+              readOnly
+            />
             {isUsingInAppBrowser ? (
               <div className="rounded-lg border border-[#B87B68] bg-[#F8F5F0] px-4 py-3 text-sm leading-6 text-[#2B2B2B] dark:bg-[#242220] dark:text-[#F0EDE8]">
                 Google Sign-In is not available in this browser. Please open in
@@ -454,7 +480,11 @@ function RegisterPageContent() {
                 void e;
               }}
             >
-              {isSubmitting ? "Creating account..." : "Create account"}
+              {isVerifyingRecaptcha
+                ? "Verifying..."
+                : isSubmitting
+                  ? "Creating account..."
+                  : "Create account"}
             </button>
             <p className="text-muted mt-3 text-center text-sm leading-6">
               Already a User?{" "}

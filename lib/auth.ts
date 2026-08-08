@@ -210,6 +210,7 @@ function createAuthConfig(sessionMaxAge: number): NextAuthConfig {
             select: {
               id: true,
               isActive: true,
+              emailVerified: true,
             },
           });
 
@@ -219,6 +220,17 @@ function createAuthConfig(sessionMaxAge: number): NextAuthConfig {
 
           if (existingUser && !existingUser.isActive) {
             return "/login?error=AccountInactive";
+          }
+
+          if (existingUser && !existingUser.emailVerified) {
+            try {
+              await db.user.update({
+                where: { id: existingUser.id },
+                data: { emailVerified: new Date() },
+              });
+            } catch (error) {
+              console.error("Google sign-in email verification sync failed:", error);
+            }
           }
 
           const existingGoogleAccount = await db.account.findUnique({
@@ -282,6 +294,27 @@ function createAuthConfig(sessionMaxAge: number): NextAuthConfig {
           token.phone = user.phone ?? null;
           token.image = user.image ?? token.picture ?? null;
           token.rememberMe = user.rememberMe === true;
+
+          if (account?.provider === "google" && user.id) {
+            try {
+              const googleUser = await db.user.findUnique({
+                where: { id: user.id },
+                select: { emailVerified: true },
+              });
+
+              if (!googleUser?.emailVerified) {
+                await db.user.update({
+                  where: { id: user.id },
+                  data: { emailVerified: new Date() },
+                });
+              }
+            } catch (error) {
+              console.error(
+                "Google JWT email verification sync failed:",
+                error,
+              );
+            }
+          }
 
           if (user.role) {
             token.role = user.role;
