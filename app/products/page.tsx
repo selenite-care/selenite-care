@@ -56,9 +56,9 @@ type ClientMembership = {
 const PAGE_SIZE = 12;
 
 const STOCK_STATUS_LABELS: Record<StockStatus, string> = {
-  AVAILABLE: "In Stock",
-  LIMITED: "Limited Stock",
-  OUT_OF_STOCK: "Out of Stock",
+  AVAILABLE: "Order Now",
+  LIMITED: "Order Now",
+  OUT_OF_STOCK: "Order Now",
 };
 
 const STOCK_STATUS_COLORS: Record<
@@ -78,10 +78,10 @@ const STOCK_STATUS_COLORS: Record<
     dot: "#E0A52E",
   },
   OUT_OF_STOCK: {
-    bg: "#FBEAEA",
-    text: "#A23636",
-    border: "#F0CACA",
-    dot: "#C24545",
+    bg: "#EAF7EE",
+    text: "#1F7A3D",
+    border: "#BFE5CC",
+    dot: "#2FAE5C",
   },
 };
 
@@ -127,14 +127,11 @@ export default function ProductsPage() {
   useEffect(() => {
     const timeout = window.setTimeout(() => {
       setDebouncedSearch(searchInput.trim());
+      setPage(1);
     }, 300);
 
     return () => window.clearTimeout(timeout);
   }, [searchInput]);
-
-  useEffect(() => {
-    setPage(1);
-  }, [debouncedSearch, selectedType, showDoctorRecommended]);
 
   useEffect(() => {
     let isMounted = true;
@@ -341,10 +338,6 @@ export default function ProductsPage() {
   }, [page, totalPages]);
 
   function handleAddToCart(product: Product) {
-    if (product.stockStatus === "OUT_OF_STOCK") {
-      return;
-    }
-
     addItem({
       productId: product.id,
       name: product.name,
@@ -356,17 +349,10 @@ export default function ProductsPage() {
 
   function handleModalAddToCart(product: Product) {
     handleAddToCart(product);
-
-    if (product.stockStatus !== "OUT_OF_STOCK") {
-      setSelectedProduct(null);
-    }
+    setSelectedProduct(null);
   }
 
-  const selectedStatusColor = selectedProduct
-    ? STOCK_STATUS_COLORS[selectedProduct.stockStatus]
-    : STOCK_STATUS_COLORS.AVAILABLE;
-  const selectedProductIsOutOfStock =
-    selectedProduct?.stockStatus === "OUT_OF_STOCK";
+  const selectedStatusColor = STOCK_STATUS_COLORS.AVAILABLE;
 
   return (
     <main
@@ -526,7 +512,10 @@ export default function ProductsPage() {
               <select
                 id="product-type"
                 value={selectedType}
-                onChange={(event) => setSelectedType(event.target.value)}
+                onChange={(event) => {
+                  setSelectedType(event.target.value);
+                  setPage(1);
+                }}
                 style={{
                   height: 46,
                   width: "100%",
@@ -561,9 +550,10 @@ export default function ProductsPage() {
             {recommendedProductIds.size > 0 ? (
               <button
                 type="button"
-                onClick={() =>
-                  setShowDoctorRecommended((current) => !current)
-                }
+                onClick={() => {
+                  setShowDoctorRecommended((current) => !current);
+                  setPage(1);
+                }}
                 style={{
                   height: 46,
                   borderRadius: 12,
@@ -680,9 +670,7 @@ export default function ProductsPage() {
           <>
             <section className="mt-8 grid grid-cols-3 gap-2 sm:gap-4 md:grid-cols-2 xl:grid-cols-4">
               {products.map((product) => {
-                const isOutOfStock = product.stockStatus === "OUT_OF_STOCK";
-                const isLimited = product.stockStatus === "LIMITED";
-                const statusColor = STOCK_STATUS_COLORS[product.stockStatus];
+                const statusColor = STOCK_STATUS_COLORS.AVAILABLE;
                 const isDoctorRecommended = recommendedProductIds.has(product.id);
 
                 return (
@@ -698,14 +686,13 @@ export default function ProductsPage() {
                       background: "#FFFFFF",
                       overflow: "hidden",
                       boxShadow: "0 2px 12px rgba(198,165,107,0.06)",
-                      opacity: isOutOfStock ? 0.85 : 1,
+                      opacity: 1,
                       transition: "transform 0.25s ease, box-shadow 0.25s ease",
                       cursor: "pointer",
                     }}
                     className="product-card cursor-pointer dark:border-[#3D3530] dark:bg-[#242220]"
                     onClick={() => setSelectedProduct(product)}
                     onMouseEnter={(event) => {
-                      if (isOutOfStock) return;
                       event.currentTarget.style.transform = "translateY(-6px)";
                       event.currentTarget.style.boxShadow =
                         "0 16px 40px rgba(198,165,107,0.22)";
@@ -716,34 +703,6 @@ export default function ProductsPage() {
                         "0 2px 12px rgba(198,165,107,0.06)";
                     }}
                   >
-                    {isOutOfStock ? (
-                      <div
-                        style={{
-                          position: "absolute",
-                          inset: 0,
-                          zIndex: 10,
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          background: "rgba(43,43,43,0.55)",
-                        }}
-                      >
-                        <span
-                          style={{
-                            borderRadius: 99,
-                            background: "#FFFFFF",
-                            padding: "8px 18px",
-                            fontSize: 13,
-                            fontWeight: 700,
-                            color: "#2B2B2B",
-                          }}
-                          className="product-sold-out-badge dark:bg-[#1A1814] dark:text-[#F0EDE8]"
-                        >
-                          Out of Stock
-                        </span>
-                      </div>
-                    ) : null}
-
                     {isDoctorRecommended ? (
                       <span
                         style={{
@@ -893,7 +852,7 @@ export default function ProductsPage() {
                               display: "inline-block",
                             }}
                           />
-                          {STOCK_STATUS_LABELS[product.stockStatus]}
+                          {STOCK_STATUS_LABELS.AVAILABLE}
                         </span>
                       </div>
 
@@ -970,36 +929,12 @@ export default function ProductsPage() {
                         </p>
                       </div>
 
-                      <div
-                        style={{ minHeight: 18, marginBottom: 10 }}
-                        className="product-stock-note-row"
-                      >
-                        {product.stockNote ? (
-                          <p
-                            style={{
-                              fontSize: 12,
-                              lineHeight: 1.4,
-                              margin: 0,
-                              color: isLimited ? "#9A6A0C" : "#8C7967",
-                            }}
-                            className={
-                              isLimited
-                                ? "dark:text-amber-300"
-                                : "dark:text-[#8A7D75]"
-                            }
-                          >
-                            {product.stockNote}
-                          </p>
-                        ) : null}
-                      </div>
-
                       <button
                         type="button"
                         onClick={(event) => {
                           event.stopPropagation();
                           handleAddToCart(product);
                         }}
-                        disabled={isOutOfStock}
                         style={{
                           height: 46,
                           width: "100%",
@@ -1007,29 +942,27 @@ export default function ProductsPage() {
                           fontSize: 14,
                           fontWeight: 600,
                           border: "none",
-                          cursor: isOutOfStock ? "not-allowed" : "pointer",
+                          cursor: "pointer",
                           transition: "all 0.2s ease",
-                          background: isOutOfStock
-                            ? "#E8DDD0"
-                            : recentlyAddedId === product.id
+                          background:
+                            recentlyAddedId === product.id
                               ? "#EADDCD"
                               : "#2B2B2B",
-                          color: isOutOfStock
-                            ? "#A8916F"
-                            : recentlyAddedId === product.id
+                          color:
+                            recentlyAddedId === product.id
                               ? "#2B2B2B"
                               : "#F8F5F0",
                         }}
                         className="product-add-button"
                         onMouseEnter={(event) => {
-                          if (isOutOfStock || recentlyAddedId === product.id) {
+                          if (recentlyAddedId === product.id) {
                             return;
                           }
 
                           event.currentTarget.style.background = "#B87B68";
                         }}
                         onMouseLeave={(event) => {
-                          if (isOutOfStock || recentlyAddedId === product.id) {
+                          if (recentlyAddedId === product.id) {
                             return;
                           }
 
@@ -1038,9 +971,7 @@ export default function ProductsPage() {
                       >
                         {recentlyAddedId === product.id
                           ? "Added to Cart"
-                          : isOutOfStock
-                            ? "Unavailable"
-                            : "Add to Cart"}
+                          : "Order Now"}
                       </button>
                     </div>
                   </article>
@@ -1157,7 +1088,7 @@ export default function ProductsPage() {
                       style={{ background: selectedStatusColor.dot }}
                       className="h-1.5 w-1.5 rounded-full"
                     />
-                    {STOCK_STATUS_LABELS[selectedProduct.stockStatus]}
+                    {STOCK_STATUS_LABELS.AVAILABLE}
                   </span>
                 </div>
 
@@ -1204,19 +1135,12 @@ export default function ProductsPage() {
                 </section>
               ) : null}
 
-              {selectedProduct.stockNote ? (
-                <p className="rounded-xl border border-[#E8DDD0] bg-[#FBF9F6] px-4 py-3 text-sm text-[#8C7967] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#8A7D75]">
-                  {selectedProduct.stockNote}
-                </p>
-              ) : null}
-
               <button
                 type="button"
                 onClick={() => handleModalAddToCart(selectedProduct)}
-                disabled={selectedProductIsOutOfStock}
-                className="inline-flex h-12 w-full items-center justify-center rounded-xl bg-[#2B2B2B] px-5 text-sm font-semibold text-[#F8F5F0] transition-colors hover:bg-[#B87B68] disabled:cursor-not-allowed disabled:bg-[#E8DDD0] disabled:text-[#A8916F] dark:bg-[#B87B68] dark:text-[#141210] dark:hover:bg-[#D4B47A] dark:disabled:bg-[#3D3530] dark:disabled:text-[#8A7D75]"
+                className="inline-flex h-12 w-full items-center justify-center rounded-xl bg-[#2B2B2B] px-5 text-sm font-semibold text-[#F8F5F0] transition-colors hover:bg-[#B87B68] dark:bg-[#B87B68] dark:text-[#141210] dark:hover:bg-[#D4B47A]"
               >
-                {selectedProductIsOutOfStock ? "Unavailable" : "Add to Cart"}
+                Order Now
               </button>
             </div>
           </div>
