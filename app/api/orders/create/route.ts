@@ -3,7 +3,7 @@ import { db } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
 import { calculateOrderTotal } from "@/lib/membershipDiscounts";
 import { createNotification, NOTIFICATION_TYPES } from "@/lib/notifications";
-import type { DeliveryArea, PaymentMethod, StockStatus } from "@prisma/client";
+import type { DeliveryArea, PaymentMethod } from "@prisma/client";
 
 export const runtime = "nodejs";
 
@@ -228,7 +228,6 @@ export async function POST(request: Request) {
       id: true,
       name: true,
       price: true,
-      stockStatus: true,
     },
   });
 
@@ -240,17 +239,6 @@ export async function POST(request: Request) {
   }
 
   const productMap = new Map(products.map((product) => [product.id, product]));
-  const unavailableProduct = items.find((item) => {
-    const product = productMap.get(item.productId);
-    return !product || product.stockStatus === ("OUT_OF_STOCK" satisfies StockStatus);
-  });
-
-  if (unavailableProduct) {
-    return Response.json(
-      { error: "One or more products in your cart are out of stock." },
-      { status: 400 },
-    );
-  }
 
   const serverSubtotalAmount = items.reduce((sum, item) => {
     const product = productMap.get(item.productId);
