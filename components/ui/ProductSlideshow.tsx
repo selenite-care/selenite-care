@@ -85,7 +85,7 @@ export default function ProductSlideshow({ products }: ProductSlideshowProps) {
                       alt={product.name}
                       fill
                       sizes="250px"
-                      className="object-cover transition-transform duration-500 group-hover:scale-105"
+                      className="object-contain p-3"
                     />
                   ) : (
                     <div className="flex h-full items-center justify-center">
