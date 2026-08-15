@@ -31,9 +31,6 @@ async function getFeaturedProducts() {
   return db.product.findMany({
     where: {
       isVisible: true,
-      stockStatus: {
-        not: "OUT_OF_STOCK",
-      },
     },
     select: {
       id: true,
