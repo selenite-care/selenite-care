@@ -766,7 +766,7 @@ export default function ProductsPage() {
                           alt={product.name}
                           fill
                           sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 25vw"
-                          style={{ objectFit: "cover" }}
+                          style={{ objectFit: "contain", padding: 12 }}
                         />
                       ) : (
                         <div
@@ -1056,7 +1056,7 @@ export default function ProductsPage() {
                   alt={selectedProduct.name}
                   fill
                   sizes="500px"
-                  className="object-cover"
+                  className="object-contain p-4"
                 />
               ) : (
                 <div className="flex h-full items-center justify-center">
