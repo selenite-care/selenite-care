@@ -1,8 +1,17 @@
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
-import { calculateOrderTotal } from "@/lib/membershipDiscounts";
+import {
+  calculateOrderTotal,
+  getProductDiscount,
+} from "@/lib/membershipDiscounts";
 import { createNotification, NOTIFICATION_TYPES } from "@/lib/notifications";
+import {
+  getSetting,
+  PRODUCT_DISCOUNT_ENABLED,
+  PRODUCT_DISCOUNT_LABEL,
+  PRODUCT_DISCOUNT_PERCENT,
+} from "@/lib/settings";
 import type { DeliveryArea, PaymentMethod } from "@prisma/client";
 
 export const runtime = "nodejs";
@@ -113,12 +122,14 @@ function buildOrderNote({
   senderNumber,
   deliveryArea,
   deliveryAddress,
+  appliedDiscountNote,
 }: {
   customNote: string;
   paymentMethod: PaymentMethod;
   senderNumber: string;
   deliveryArea: DeliveryArea;
   deliveryAddress: string;
+  appliedDiscountNote: string | null;
 }) {
   const parts: string[] = [];
 
@@ -135,7 +146,25 @@ function buildOrderNote({
     parts.push(`Delivery Address: ${deliveryAddress}`);
   }
 
+  if (appliedDiscountNote) {
+    parts.push(appliedDiscountNote);
+  }
+
   return parts.length > 0 ? parts.join(" | ") : null;
+}
+
+function parseBooleanSetting(value: string | null) {
+  return ["true", "1", "yes", "on"].includes(value?.trim().toLowerCase() ?? "");
+}
+
+function parseDiscountPercent(value: string | null) {
+  const percent = Number(value ?? 0);
+
+  if (!Number.isFinite(percent)) {
+    return 0;
+  }
+
+  return Math.min(100, Math.max(0, percent));
 }
 
 export async function POST(request: Request) {
@@ -263,12 +292,44 @@ export async function POST(request: Request) {
       createdAt: "desc",
     },
   });
+  const [globalDiscountEnabledValue, globalDiscountPercentValue, globalDiscountLabel] =
+    await Promise.all([
+      getSetting(PRODUCT_DISCOUNT_ENABLED),
+      getSetting(PRODUCT_DISCOUNT_PERCENT),
+      getSetting(PRODUCT_DISCOUNT_LABEL),
+    ]);
+  const membershipDiscountPercent = getProductDiscount(activeMembership?.tier);
+  const globalDiscountPercent = parseBooleanSetting(globalDiscountEnabledValue)
+    ? parseDiscountPercent(globalDiscountPercentValue)
+    : 0;
+  const appliedDiscountPercent = Math.max(
+    membershipDiscountPercent,
+    globalDiscountPercent,
+  );
+  const appliedDiscountSource =
+    appliedDiscountPercent > 0
+      ? appliedDiscountPercent === membershipDiscountPercent &&
+        membershipDiscountPercent >= globalDiscountPercent &&
+        activeMembership
+        ? `${activeMembership.tier} membership discount`
+        : globalDiscountLabel?.trim() || "global product discount"
+      : null;
   const orderBreakdown = calculateOrderTotal(
     serverSubtotalAmount,
     deliveryCharge,
-    activeMembership?.tier ?? null,
+    null,
   );
+  orderBreakdown.discountPercent = appliedDiscountPercent;
+  orderBreakdown.discountAmount = Math.round(
+    (serverSubtotalAmount * appliedDiscountPercent) / 100,
+  );
+  orderBreakdown.total =
+    serverSubtotalAmount - orderBreakdown.discountAmount + deliveryCharge;
   const totalAmount = orderBreakdown.total;
+  const appliedDiscountNote =
+    appliedDiscountSource && appliedDiscountPercent > 0
+      ? `Applied Discount: ${appliedDiscountPercent}% (${appliedDiscountSource})`
+      : null;
 
   const note = buildOrderNote({
     customNote,
@@ -276,6 +337,7 @@ export async function POST(request: Request) {
     senderNumber,
     deliveryArea,
     deliveryAddress,
+    appliedDiscountNote,
   });
 
   const user = await db.user.findUnique({
@@ -356,10 +418,10 @@ export async function POST(request: Request) {
           : "Cash on Delivery";
 
     const discountHtml =
-      orderBreakdown.discountAmount > 0 && activeMembership
+      orderBreakdown.discountAmount > 0
         ? `
                 <tr>
-                  <td style="padding: 10px 0; border-bottom: 1px solid #EEE0D0; color: #6E6257;">Membership Discount (${activeMembership.tier} - ${orderBreakdown.discountPercent}%)</td>
+                  <td style="padding: 10px 0; border-bottom: 1px solid #EEE0D0; color: #6E6257;">Discount (${appliedDiscountSource ?? "Applied"} - ${orderBreakdown.discountPercent}%)</td>
                   <td style="padding: 10px 0; border-bottom: 1px solid #EEE0D0; color: #15803D;">-${Math.round(orderBreakdown.discountAmount)} BDT</td>
                 </tr>`
         : "";

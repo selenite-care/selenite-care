@@ -6,6 +6,12 @@ import {
 } from "@/lib/eps";
 import { db } from "@/lib/db";
 import { getMembershipPrice } from "@/lib/membershipDiscounts";
+import {
+  getSettings,
+  MEMBERSHIP_CRYSTAL_PRICE,
+  MEMBERSHIP_PLATINUM_PRICE,
+  MEMBERSHIP_SIGNATURE_PRICE,
+} from "@/lib/settings";
 import type { MembershipTier } from "@prisma/client";
 
 export const runtime = "nodejs";
@@ -62,6 +68,24 @@ function normalizeCustomerPhone(phone: string | null) {
   return normalizedPhone || "01000000000";
 }
 
+const MEMBERSHIP_PRICE_SETTING_KEYS: Record<MembershipTier, string> = {
+  SIGNATURE: MEMBERSHIP_SIGNATURE_PRICE,
+  CRYSTAL: MEMBERSHIP_CRYSTAL_PRICE,
+  PLATINUM: MEMBERSHIP_PLATINUM_PRICE,
+};
+
+async function getCurrentMembershipPrice(tier: MembershipTier) {
+  const settingKey = MEMBERSHIP_PRICE_SETTING_KEYS[tier];
+  const settings = await getSettings(Object.values(MEMBERSHIP_PRICE_SETTING_KEYS));
+  const settingPrice = Number(settings[settingKey]);
+
+  if (Number.isFinite(settingPrice) && settingPrice > 0) {
+    return settingPrice;
+  }
+
+  return getMembershipPrice(tier);
+}
+
 export async function POST(request: Request) {
   const session = await auth();
 
@@ -99,7 +123,7 @@ export async function POST(request: Request) {
       return Response.json({ error: "User not found." }, { status: 404 });
     }
 
-    const amount = getMembershipPrice(tier);
+    const amount = await getCurrentMembershipPrice(tier);
     const membershipId = await generateMembershipId();
     const merchantTransactionId = generateTransactionId();
 

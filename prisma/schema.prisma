@@ -401,6 +401,15 @@ model Message {
   @@index([senderId])
 }
 
+model AppSetting {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  value       String
+  description String?
+  updatedAt   DateTime @updatedAt
+  updatedBy   String?
+}
+
 enum Role {
   CLIENT
   DOCTOR
