@@ -53,6 +53,12 @@ type ClientMembership = {
   expiresAt: string | null;
 };
 
+type PublicSettingsResponse = {
+  discountEnabled?: boolean;
+  discountPercent?: number;
+  discountLabel?: string;
+};
+
 const PAGE_SIZE = 12;
 
 const STOCK_STATUS_LABELS: Record<StockStatus, string> = {
@@ -98,6 +104,10 @@ function getInitials(name: string) {
     .toUpperCase();
 }
 
+function getDiscountedPrice(price: number, percent: number) {
+  return Math.round(price * (1 - percent / 100));
+}
+
 export default function ProductsPage() {
   const { addItem } = useCart();
   const [searchInput, setSearchInput] = useState("");
@@ -118,11 +128,25 @@ export default function ProductsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [recentlyAddedId, setRecentlyAddedId] = useState<string | null>(null);
+  const [globalProductDiscount, setGlobalProductDiscount] = useState({
+    enabled: false,
+    percent: 0,
+    label: "",
+  });
   const productDiscountPercent = getProductDiscount(discountMembership?.tier);
   const hasProductDiscount =
     !!discountMembership &&
     discountMembership.status === "ACTIVE" &&
     productDiscountPercent > 0;
+  const globalDiscountPercent = Math.min(
+    100,
+    Math.max(0, globalProductDiscount.percent),
+  );
+  const hasGlobalProductDiscount =
+    globalProductDiscount.enabled && globalDiscountPercent > 0;
+  const globalDiscountLabel =
+    globalProductDiscount.label.trim() ||
+    `${globalDiscountPercent}% OFF - Limited Time Offer on All Products!`;
 
   useEffect(() => {
     const timeout = window.setTimeout(() => {
@@ -167,6 +191,50 @@ export default function ProductsPage() {
     }
 
     void loadMembershipDiscount();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadPublicSettings() {
+      try {
+        const response = await fetch("/api/settings/public");
+
+        if (!response.ok) {
+          return;
+        }
+
+        const data = (await response.json().catch(() => null)) as
+          | PublicSettingsResponse
+          | null;
+
+        if (isMounted && data) {
+          setGlobalProductDiscount({
+            enabled: data.discountEnabled === true,
+            percent:
+              typeof data.discountPercent === "number" &&
+              Number.isFinite(data.discountPercent)
+                ? data.discountPercent
+                : 0,
+            label: data.discountLabel ?? "",
+          });
+        }
+      } catch {
+        if (isMounted) {
+          setGlobalProductDiscount({
+            enabled: false,
+            percent: 0,
+            label: "",
+          });
+        }
+      }
+    }
+
+    void loadPublicSettings();
 
     return () => {
       isMounted = false;
@@ -353,6 +421,9 @@ export default function ProductsPage() {
   }
 
   const selectedStatusColor = STOCK_STATUS_COLORS.AVAILABLE;
+  const selectedProductDiscountedPrice = selectedProduct
+    ? getDiscountedPrice(selectedProduct.price, globalDiscountPercent)
+    : 0;
 
   return (
     <main
@@ -363,6 +434,12 @@ export default function ProductsPage() {
       }}
       className="min-h-screen px-6 py-16 text-[#2B2B2B] dark:bg-[#1A1814] dark:text-[#F0EDE8]"
     >
+      {hasGlobalProductDiscount ? (
+        <div className="sticky top-0 z-40 -mx-6 -mt-16 mb-10 bg-[#B87B68] px-6 py-3 text-center text-sm font-bold text-[#2B2B2B] shadow-md dark:bg-[#D4B47A] dark:text-[#141210]">
+          🎉 {globalDiscountLabel}
+        </div>
+      ) : null}
+
       <div
         style={{
           position: "absolute",
@@ -672,6 +749,10 @@ export default function ProductsPage() {
               {products.map((product) => {
                 const statusColor = STOCK_STATUS_COLORS.AVAILABLE;
                 const isDoctorRecommended = recommendedProductIds.has(product.id);
+                const discountedPrice = getDiscountedPrice(
+                  product.price,
+                  globalDiscountPercent,
+                );
 
                 return (
                   <article
@@ -726,7 +807,29 @@ export default function ProductsPage() {
                       </span>
                     ) : null}
 
-                    {hasProductDiscount ? (
+                    {hasGlobalProductDiscount ? (
+                      <span
+                        style={{
+                          position: "absolute",
+                          top: 12,
+                          right: 12,
+                          zIndex: 13,
+                          borderRadius: 99,
+                          background: "#FEE2E2",
+                          border: "1px solid #FCA5A5",
+                          padding: "5px 11px",
+                          fontSize: 10,
+                          fontWeight: 800,
+                          letterSpacing: "0.08em",
+                          textTransform: "uppercase",
+                          color: "#B91C1C",
+                          boxShadow: "0 4px 12px rgba(0,0,0,0.12)",
+                        }}
+                        className="product-discount-badge"
+                      >
+                        {globalDiscountPercent}% OFF
+                      </span>
+                    ) : hasProductDiscount ? (
                       <span
                         style={{
                           position: "absolute",
@@ -910,11 +1013,16 @@ export default function ProductsPage() {
                       <div
                         style={{
                           display: "flex",
-                          alignItems: "baseline",
-                          justifyContent: "space-between",
+                          flexDirection: "column",
+                          alignItems: "flex-start",
                           marginBottom: 6,
                         }}
                       >
+                        {hasGlobalProductDiscount ? (
+                          <span className="text-sm font-semibold text-[#8C7967] line-through decoration-[#8C7967] dark:text-[#8A7D75]">
+                            {formatBdt(product.price)}
+                          </span>
+                        ) : null}
                         <p
                           style={{
                             fontSize: 24,
@@ -925,7 +1033,11 @@ export default function ProductsPage() {
                           }}
                           className="product-card-price"
                         >
-                          {formatBdt(product.price)}
+                          {formatBdt(
+                            hasGlobalProductDiscount
+                              ? discountedPrice
+                              : product.price,
+                          )}
                         </p>
                       </div>
 
@@ -1099,12 +1211,28 @@ export default function ProductsPage() {
                   {selectedProduct.name}
                 </h2>
 
-                <p
-                  className="mt-3 text-3xl font-extrabold text-[#B87B68]"
-                  style={{ fontFamily: "Playfair Display, serif" }}
-                >
-                  {formatBdt(selectedProduct.price)}
-                </p>
+                <div className="mt-3">
+                  {hasGlobalProductDiscount ? (
+                    <div className="mb-1 flex flex-wrap items-center gap-2">
+                      <span className="text-base font-semibold text-[#8C7967] line-through decoration-[#8C7967] dark:text-[#8A7D75]">
+                        {formatBdt(selectedProduct.price)}
+                      </span>
+                      <span className="rounded-full bg-red-100 px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.08em] text-red-700 dark:bg-red-950/40 dark:text-red-300">
+                        {globalDiscountPercent}% OFF
+                      </span>
+                    </div>
+                  ) : null}
+                  <p
+                    className="text-3xl font-extrabold text-[#B87B68]"
+                    style={{ fontFamily: "Playfair Display, serif" }}
+                  >
+                    {formatBdt(
+                      hasGlobalProductDiscount
+                        ? selectedProductDiscountedPrice
+                        : selectedProduct.price,
+                    )}
+                  </p>
+                </div>
 
                 {selectedProduct.skinType ? (
                   <span className="mt-3 inline-flex rounded-full border border-[#E8DDD0] bg-[#FBF9F6] px-3 py-1 text-xs font-semibold uppercase tracking-[0.08em] text-[#A8916F] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#D4B47A]">

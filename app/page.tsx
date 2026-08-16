@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Gift } from "lucide-react";
 import ViewportAnimatedSection from "@/components/ui/ViewportAnimatedSection";
 import HeroSlider from "@/components/ui/HeroSlider";
 import { FeatureCard } from "@/components/ui/MembershipCards";
@@ -27,6 +28,18 @@ const trustHighlights = [
   { label: "Thoughtful follow-up", value: "Steady support" },
 ];
 
+type PublicDiscountSettings = {
+  discountEnabled: boolean;
+  discountPercent: number;
+  discountLabel: string;
+};
+
+const DEFAULT_DISCOUNT_SETTINGS: PublicDiscountSettings = {
+  discountEnabled: false,
+  discountPercent: 0,
+  discountLabel: "",
+};
+
 async function getFeaturedProducts() {
   return db.product.findMany({
     where: {
@@ -47,8 +60,54 @@ async function getFeaturedProducts() {
   });
 }
 
+async function getPublicDiscountSettings(): Promise<PublicDiscountSettings> {
+  const baseUrl =
+    process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ??
+    process.env.NEXTAUTH_URL?.replace(/\/$/, "");
+
+  if (!baseUrl) {
+    return DEFAULT_DISCOUNT_SETTINGS;
+  }
+
+  try {
+    const response = await fetch(`${baseUrl}/api/settings/public`, {
+      next: {
+        revalidate: 300,
+      },
+    });
+
+    if (!response.ok) {
+      return DEFAULT_DISCOUNT_SETTINGS;
+    }
+
+    const data = (await response.json()) as Partial<PublicDiscountSettings>;
+    const discountPercent =
+      typeof data.discountPercent === "number" &&
+      Number.isFinite(data.discountPercent)
+        ? Math.min(100, Math.max(0, data.discountPercent))
+        : 0;
+
+    return {
+      discountEnabled: data.discountEnabled === true,
+      discountPercent,
+      discountLabel:
+        typeof data.discountLabel === "string" ? data.discountLabel : "",
+    };
+  } catch {
+    return DEFAULT_DISCOUNT_SETTINGS;
+  }
+}
+
 export default async function Home() {
-  const featuredProducts = await getFeaturedProducts();
+  const [featuredProducts, discountSettings] = await Promise.all([
+    getFeaturedProducts(),
+    getPublicDiscountSettings(),
+  ]);
+  const showProductDiscountBanner =
+    discountSettings.discountEnabled && discountSettings.discountPercent > 0;
+  const productDiscountLabel =
+    discountSettings.discountLabel.trim() ||
+    `${discountSettings.discountPercent}% OFF - Limited Time Offer on All Products!`;
 
   return (
     <div className="bg-page text-page flex flex-1 flex-col">
@@ -66,12 +125,96 @@ export default async function Home() {
           50%  { opacity: 0.32; }
           100% { opacity: 0.18; transform: translateX(200%) skewX(-15deg); }
         }
+        @keyframes productDiscountShimmer {
+          0%   { transform: translateX(-130%) skewX(-18deg); opacity: 0; }
+          20%  { opacity: 0.28; }
+          55%  { opacity: 0.5; }
+          100% { transform: translateX(130%) skewX(-18deg); opacity: 0; }
+        }
+        @keyframes productDiscountSparkle {
+          0%, 100% { opacity: 0.35; transform: scale(0.86); }
+          50%      { opacity: 1; transform: scale(1.08); }
+        }
+        @keyframes heroPromoFloat {
+          0%, 100% { transform: translateY(0); }
+          50%      { transform: translateY(-8px); }
+        }
+        @keyframes heroPromoPulse {
+          0%, 100% { box-shadow: 0 20px 55px rgba(0,0,0,0.22), 0 0 0 1px rgba(255,255,255,0.36); }
+          50%      { box-shadow: 0 28px 70px rgba(0,0,0,0.30), 0 0 0 1px rgba(255,255,255,0.62), 0 0 34px rgba(198,165,107,0.38); }
+        }
       `}</style>
 
       {/* Hero Section */}
-      <section className="relative min-h-[85vh] overflow-hidden">
+      <section className="relative h-[45svh] min-h-[350px] overflow-hidden sm:h-auto sm:min-h-[85vh]">
         <HeroSlider />
-        <div className="relative z-10 px-4 py-24 sm:px-6 sm:py-32">
+        {showProductDiscountBanner ? (
+          <>
+            <Link
+              href="/products"
+              className="absolute right-4 top-6 z-20 hidden w-[300px] overflow-hidden rounded-2xl border border-white/35 bg-white/12 p-4 text-[#F8F5F0] shadow-2xl backdrop-blur-md transition-transform hover:-translate-y-1 lg:block"
+              style={{
+                animation:
+                  "heroPromoFloat 4.8s ease-in-out infinite, heroPromoPulse 3.2s ease-in-out infinite",
+              }}
+            >
+              <div
+                className="pointer-events-none absolute inset-y-0 left-0 w-1/2 bg-white/25 blur-xl"
+                style={{ animation: "productDiscountShimmer 3.6s ease-in-out infinite" }}
+              />
+              <span
+                className="pointer-events-none absolute right-5 top-4 h-2 w-2 rounded-full bg-[#B87B68]"
+                style={{ animation: "productDiscountSparkle 1.9s ease-in-out infinite" }}
+              />
+              <span
+                className="pointer-events-none absolute bottom-5 left-7 h-1.5 w-1.5 rounded-full bg-[#B87B68]"
+                style={{ animation: "productDiscountSparkle 2.4s ease-in-out infinite" }}
+              />
+
+              <div className="relative flex items-start gap-3">
+                <div className="mt-1 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#B87B68] text-[#2B2B2B]">
+                  <Gift className="h-5 w-5" aria-hidden="true" />
+                </div>
+                <div>
+                  <p 
+  className="text-xs font-bold uppercase tracking-[0.18em] text-[#FFFFFF]"
+  style={{
+    WebkitTextStroke: "1.5px rgba(0, 0, 0, 0.5)",
+    paintOrder: "stroke",
+  }}
+>
+  Product Offer
+</p>
+                  <p
+                    className="mt-1 text-3xl font-black leading-none text-white"
+                    style={{
+                      textShadow: "0 2px 14px rgba(0,0,0,0.45)",
+                    }}
+                  >
+                    {discountSettings.discountPercent}% OFF
+                  </p>
+                  <p className="mt-2 text-sm font-medium leading-5 text-white/85">
+                    See all our products
+                  </p>
+                </div>
+              </div>
+            </Link>
+
+            <Link
+              href="/products"
+              className="absolute right-4 top-5 z-20 inline-flex items-center gap-2 overflow-hidden rounded-full border border-white/35 bg-white/15 px-3 py-2 text-xs font-bold uppercase tracking-[0.08em] text-white shadow-xl backdrop-blur-md lg:hidden"
+              style={{ animation: "heroPromoPulse 3.2s ease-in-out infinite" }}
+            >
+              <span
+                className="pointer-events-none absolute inset-y-0 left-0 w-1/2 bg-white/25 blur-lg"
+                style={{ animation: "productDiscountShimmer 3.6s ease-in-out infinite" }}
+              />
+              <Gift className="relative h-4 w-4 text-[#B87B68]" aria-hidden="true" />
+              <span className="relative">{discountSettings.discountPercent}% OFF Products</span>
+            </Link>
+          </>
+        ) : null}
+        <div className="relative z-10 px-4 py-20 sm:px-6 sm:py-32">
           <div className="mx-auto w-full max-w-6xl">
             <div className="max-w-2xl">
 {/* ── Headline — glitter-text class kept, with stronger shadow for image-bg contrast ── */}
@@ -109,6 +252,44 @@ export default async function Home() {
       </section>
 
       <ProductSlideshow products={featuredProducts} />
+
+      {showProductDiscountBanner ? (
+        <section className="relative overflow-hidden bg-[#B87B68] px-6 py-12 text-[#2B2B2B] dark:bg-[#D4B47A] dark:text-[#141210]">
+          <div
+            className="pointer-events-none absolute inset-y-0 left-0 w-1/2 bg-white/30 blur-2xl"
+            style={{ animation: "productDiscountShimmer 4s ease-in-out infinite" }}
+          />
+          <span
+            className="pointer-events-none absolute left-[12%] top-6 h-2 w-2 rounded-full bg-white/80"
+            style={{ animation: "productDiscountSparkle 2.4s ease-in-out infinite" }}
+          />
+          <span
+            className="pointer-events-none absolute bottom-7 right-[16%] h-2.5 w-2.5 rounded-full bg-white/70"
+            style={{ animation: "productDiscountSparkle 3s ease-in-out infinite" }}
+          />
+
+          <div className="relative mx-auto flex max-w-5xl flex-col items-center text-center">
+            <div className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-[#2B2B2B] text-[#F8F5F0] shadow-[0_16px_34px_rgba(43,43,43,0.18)]">
+              <Gift className="h-7 w-7" aria-hidden="true" />
+            </div>
+            <h2
+              className="mt-5 text-3xl font-black leading-tight sm:text-4xl"
+              style={{ fontFamily: "Playfair Display, serif" }}
+            >
+              {productDiscountLabel}
+            </h2>
+            <p className="mt-3 text-base font-medium leading-7">
+              Shop now and save on all skincare products
+            </p>
+            <Link
+              href="/products"
+              className="mt-7 inline-flex h-12 items-center justify-center rounded-md bg-[#2B2B2B] px-7 text-sm font-semibold text-[#F8F5F0] transition-transform hover:-translate-y-0.5 hover:bg-[#3A3734]"
+            >
+              Shop Now
+            </Link>
+          </div>
+        </section>
+      ) : null}
 
       {/* ── Our Memberships ── */}
       <MembershipSection />

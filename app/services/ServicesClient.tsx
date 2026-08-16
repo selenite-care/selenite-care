@@ -1,18 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import {
   getMembershipAvailabilityLabel,
   isMembershipAvailable,
 } from "@/lib/membershipAvailability";
-import {
-  getProductDiscount,
-  isSignatureOfferValid,
-  MEMBERSHIP_PRICES,
-} from "@/lib/membershipDiscounts";
+import { isSignatureOfferValid } from "@/lib/membershipDiscounts";
 import TermsAndConditionsModal from "@/components/membership/TermsAndConditionsModal";
 import DoctorMascot from "@/components/ui/DoctorMascot";
 import { MembershipCard } from "@/components/ui/MembershipCards";
@@ -42,6 +38,14 @@ type ClientMembership = {
   expiresAt: string | null;
 };
 
+export type ServicesMembershipPrices = Record<
+  ClientMembership["tier"],
+  {
+    price: number;
+    originalPrice: number | null;
+  }
+>;
+
 type MembershipResponse = {
   membership?: ClientMembership | null;
   error?: string;
@@ -53,23 +57,9 @@ type MembershipActionState = {
   label: string;
 };
 
-const MEMBERSHIP_AMOUNTS: Record<ClientMembership["tier"], number> = {
-  SIGNATURE: MEMBERSHIP_PRICES.SIGNATURE.price,
-  CRYSTAL: MEMBERSHIP_PRICES.CRYSTAL.price,
-  PLATINUM: MEMBERSHIP_PRICES.PLATINUM.price,
-};
-
 function formatBdt(amount: number) {
   return `${amount.toLocaleString("en-US")} BDT`;
 }
-
-const signatureOfferIsActive = isSignatureOfferValid();
-const signatureCurrentPrice = signatureOfferIsActive
-  ? MEMBERSHIP_PRICES.SIGNATURE.price
-  : (MEMBERSHIP_PRICES.SIGNATURE.originalPrice ?? MEMBERSHIP_PRICES.SIGNATURE.price);
-const signatureOriginalPrice = signatureOfferIsActive
-  ? MEMBERSHIP_PRICES.SIGNATURE.originalPrice
-  : null;
 
 const TIER_ORDER = {
   SIGNATURE: 1,
@@ -86,8 +76,20 @@ function trackMetaPixelEvent(
   }
 }
 
-const memberships: MembershipTier[] = [
-  {
+function buildMemberships(
+  membershipPrices: ServicesMembershipPrices,
+): MembershipTier[] {
+  const signatureOfferIsActive = isSignatureOfferValid();
+  const signatureCurrentPrice = signatureOfferIsActive
+    ? membershipPrices.SIGNATURE.price
+    : (membershipPrices.SIGNATURE.originalPrice ??
+      membershipPrices.SIGNATURE.price);
+  const signatureOriginalPrice = signatureOfferIsActive
+    ? membershipPrices.SIGNATURE.originalPrice
+    : null;
+
+  return [
+    {
     key: "signature",
     tierValue: "SIGNATURE",
     title: "Signature Membership",
@@ -242,7 +244,8 @@ const memberships: MembershipTier[] = [
     ],
   },
   PLATINUM_MEMBERSHIP_END */
-];
+  ];
+}
 
 function MembershipModal({
   membership,
@@ -513,9 +516,25 @@ function MembershipModal({
   );
 }
 
-export default function ServicesClient() {
+export default function ServicesClient({
+  membershipPrices,
+}: {
+  membershipPrices: ServicesMembershipPrices;
+}) {
   const router = useRouter();
   const { data: session } = useSession();
+  const memberships = useMemo(
+    () => buildMemberships(membershipPrices),
+    [membershipPrices],
+  );
+  const membershipAmounts = useMemo<Record<ClientMembership["tier"], number>>(
+    () => ({
+      SIGNATURE: membershipPrices.SIGNATURE.price,
+      CRYSTAL: membershipPrices.CRYSTAL.price,
+      PLATINUM: membershipPrices.PLATINUM.price,
+    }),
+    [membershipPrices],
+  );
   const [selectedMembership, setSelectedMembership] = useState<MembershipTier | null>(
     null,
   );
@@ -523,12 +542,21 @@ export default function ServicesClient() {
     null,
   );
   const [isMembershipLoading, setIsMembershipLoading] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
 
   useEffect(() => {
     trackMetaPixelEvent("ViewContent", {
       content_name: "Membership Plans",
       content_category: "Services",
     });
+  }, []);
+
+  useEffect(() => {
+    const timeout = window.setTimeout(() => {
+      setCurrentTime(Date.now());
+    }, 0);
+
+    return () => window.clearTimeout(timeout);
   }, []);
 
   useEffect(() => {
@@ -558,7 +586,7 @@ export default function ServicesClient() {
 
           if (membership?.status === "PENDING") {
             router.replace(
-              `/membership/pending?tier=${membership.tier}&amount=${MEMBERSHIP_AMOUNTS[membership.tier]}`,
+              `/membership/pending?tier=${membership.tier}&amount=${membershipAmounts[membership.tier]}`,
             );
           }
         }
@@ -578,7 +606,7 @@ export default function ServicesClient() {
     return () => {
       isMounted = false;
     };
-  }, [router, session?.user]);
+  }, [membershipAmounts, router, session?.user]);
 
   function getMembershipActionState(
     membership: MembershipTier,
@@ -618,7 +646,7 @@ export default function ServicesClient() {
     const hasActiveMembership =
       clientMembership?.status === "ACTIVE" &&
       !!clientMembership.expiresAt &&
-      new Date(clientMembership.expiresAt).getTime() > Date.now();
+      new Date(clientMembership.expiresAt).getTime() > currentTime;
 
     if (!hasActiveMembership || !clientMembership) {
       return {

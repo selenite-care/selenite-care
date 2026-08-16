@@ -19,6 +19,7 @@ const adminSections = [
       { href: "/admin/products", label: "Products" },
       { href: "/admin/orders", label: "Orders" },
       { href: "/admin/messages", label: "Messages" },
+      { href: "/admin/settings", label: "Settings" },
       // { href: "/admin/services", label: "Services Management" },
       { href: "/admin/doctors", label: "Manage Doctors" },
       { href: "/admin/payments", label: "Membership Payments" },
