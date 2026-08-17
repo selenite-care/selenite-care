@@ -17,7 +17,7 @@ type AdminStats = {
 const statLabels = [
   { key: "totalUsers", label: "Total Users" },
   { key: "totalBookings", label: "Total Bookings" },
-  { key: "totalRevenue", label: "Total Revenue" },
+  // { key: "totalRevenue", label: "Total Revenue" },
   { key: "pendingBookings", label: "Pending Bookings" },
 ] satisfies Array<{ key: keyof AdminStats; label: string }>;
 

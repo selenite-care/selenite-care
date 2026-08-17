@@ -35,6 +35,7 @@ export async function GET() {
           id: true,
           clientId: true,
           lastMessage: true,
+          createdAt: true,
           isRead: true,
           client: {
             select: {
@@ -50,6 +51,7 @@ export async function GET() {
             take: 1,
             select: {
               content: true,
+              createdAt: true,
             },
           },
         },
@@ -62,8 +64,13 @@ export async function GET() {
     ]);
 
     return Response.json({
-      conversations: conversations.map((conversation) => {
+      conversations: conversations
+        .map((conversation) => {
         const lastMessageContent = conversation.messages[0]?.content ?? "";
+        const latestMessageAt =
+          conversation.messages[0]?.createdAt ??
+          conversation.lastMessage ??
+          conversation.createdAt;
 
         return {
           id: conversation.id,
@@ -71,11 +78,16 @@ export async function GET() {
           clientName: conversation.client.name,
           clientPhone: conversation.client.phone,
           clientImage: conversation.client.image,
-          lastMessage: conversation.lastMessage,
+          lastMessage: latestMessageAt,
           isRead: conversation.isRead,
           preview: getPreview(lastMessageContent),
         };
-      }),
+      })
+        .sort(
+          (a, b) =>
+            new Date(b.lastMessage).getTime() -
+            new Date(a.lastMessage).getTime(),
+        ),
       unreadCount,
     });
   } catch (error) {

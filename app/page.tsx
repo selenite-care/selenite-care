@@ -146,7 +146,7 @@ export default async function Home() {
       `}</style>
 
       {/* Hero Section */}
-      <section className="relative h-[45svh] min-h-[350px] overflow-hidden sm:h-auto sm:min-h-[85vh]">
+      <section className="relative h-[50svh] min-h-[350px] overflow-hidden sm:h-auto sm:min-h-[85vh]">
         <HeroSlider />
         {showProductDiscountBanner ? (
           <>

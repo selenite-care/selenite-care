@@ -2,6 +2,7 @@ import NextAuth from "next-auth";
 import { authConfig } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getPaginationMeta, getPaginationParams } from "@/lib/apiPagination";
+import { expirePastActiveMemberships } from "@/lib/membershipStatus";
 import type { MembershipStatus, Prisma } from "@prisma/client";
 
 const { auth } = NextAuth(authConfig);
@@ -16,6 +17,8 @@ export async function GET(request: Request) {
   if (session.user.role !== "CRM") {
     return Response.json({ error: "Forbidden." }, { status: 403 });
   }
+
+  await expirePastActiveMemberships();
 
   const { searchParams } = new URL(request.url);
   const { page, limit, skip, take } = getPaginationParams(searchParams);
