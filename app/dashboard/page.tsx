@@ -6,6 +6,7 @@ import { authConfig } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { isMembershipAvailable } from "@/lib/membershipAvailability";
 import { MEMBERSHIP_PRICES } from "@/lib/membershipDiscounts";
+import { expirePastActiveMemberships } from "@/lib/membershipStatus";
 
 const { auth } = NextAuth(authConfig);
 
@@ -64,6 +65,8 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
+  await expirePastActiveMemberships();
+
   const [totalBookings, lastBooking, membership] = await Promise.all([
     db.booking.count({
       where: {
@@ -97,17 +100,18 @@ export default async function DashboardPage() {
     }),
   ]);
 
+  const currentTime = new Date().getTime();
   const hasActiveMembership =
     membership?.status === "ACTIVE" &&
     membership.expiresAt &&
-    membership.expiresAt.getTime() > Date.now();
+    membership.expiresAt.getTime() > currentTime;
 
   const isExpiredMembership =
     !!membership &&
     (membership.status === "EXPIRED" ||
       membership.status === "CANCELLED" ||
       (membership.status === "ACTIVE" &&
-        (!membership.expiresAt || membership.expiresAt.getTime() <= Date.now())));
+        (!membership.expiresAt || membership.expiresAt.getTime() <= currentTime)));
 
   const upgradeOptions =
     membership?.tier && membership.status === "ACTIVE"

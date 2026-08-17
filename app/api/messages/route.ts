@@ -161,8 +161,6 @@ export async function POST(request: Request) {
   }
 
   try {
-    const now = new Date();
-
     if (session.user.role === "CLIENT") {
       const conversation = await findOrCreateClientConversation(session.user.id);
       const message = await db.message.create({
@@ -180,7 +178,7 @@ export async function POST(request: Request) {
           id: conversation.id,
         },
         data: {
-          lastMessage: now,
+          lastMessage: message.createdAt,
           isRead: false,
         },
       });
@@ -242,7 +240,7 @@ export async function POST(request: Request) {
         id: conversation.id,
       },
       data: {
-        lastMessage: now,
+        lastMessage: message.createdAt,
         isRead: true,
       },
     });

@@ -1,6 +1,7 @@
 import NextAuth from "next-auth";
 import { authConfig } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { expirePastActiveMemberships } from "@/lib/membershipStatus";
 
 const { auth } = NextAuth(authConfig);
 
@@ -40,6 +41,8 @@ export async function GET() {
     return Response.json({ error: "Unauthorized." }, { status: 401 });
   }
 
+  await expirePastActiveMemberships();
+
   const membership = await db.membership.findFirst({
     where: {
       userId: session.user.id,
@@ -50,25 +53,6 @@ export async function GET() {
     },
     select: membershipSelect,
   });
-
-  if (
-    membership &&
-    membership.status === "ACTIVE" &&
-    membership.expiresAt &&
-    membership.expiresAt.getTime() < Date.now()
-  ) {
-    const updatedMembership = await db.membership.update({
-      where: {
-        id: membership.id,
-      },
-      data: {
-        status: "EXPIRED",
-      },
-      select: membershipSelect,
-    });
-
-    return Response.json({ membership: updatedMembership });
-  }
 
   return Response.json({ membership });
 }

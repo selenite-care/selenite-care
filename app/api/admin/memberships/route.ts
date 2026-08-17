@@ -2,6 +2,7 @@ import NextAuth from "next-auth";
 import { authConfig } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getPaginationMeta, getPaginationParams } from "@/lib/apiPagination";
+import { expirePastActiveMemberships } from "@/lib/membershipStatus";
 import type { MembershipStatus, MembershipTier, PaymentStatus, Prisma } from "@prisma/client";
 
 const { auth } = NextAuth(authConfig);
@@ -26,6 +27,8 @@ export async function GET(request: Request) {
   if (adminError) {
     return adminError;
   }
+
+  await expirePastActiveMemberships();
 
   const { searchParams } = new URL(request.url);
   const { page, limit, skip, take } = getPaginationParams(searchParams);

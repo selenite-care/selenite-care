@@ -76,6 +76,15 @@ function getConversationTimestamp(conversation: InboxConversation) {
     : "No messages";
 }
 
+function sortConversationsByLatest(conversations: InboxConversation[]) {
+  return [...conversations].sort((a, b) => {
+    const timeA = a.lastMessage ? new Date(a.lastMessage).getTime() : 0;
+    const timeB = b.lastMessage ? new Date(b.lastMessage).getTime() : 0;
+
+    return timeB - timeA;
+  });
+}
+
 function getRoleBadgeClasses(role: string) {
   switch (role) {
     case "ADMIN":
@@ -187,7 +196,7 @@ export default function AdminMessagesPage() {
         throw new Error(data?.error ?? "Unable to load inbox.");
       }
 
-      setConversations(data?.conversations ?? []);
+      setConversations(sortConversationsByLatest(data?.conversations ?? []));
       setError("");
     } catch (loadError) {
       const message =
@@ -286,7 +295,9 @@ export default function AdminMessagesPage() {
   }
 
   useEffect(() => {
-    void loadInbox({ showLoading: true });
+    const initialLoad = window.setTimeout(() => {
+      void loadInbox({ showLoading: true });
+    }, 0);
 
     const interval = window.setInterval(() => {
       if (document.visibilityState === "visible") {
@@ -294,7 +305,10 @@ export default function AdminMessagesPage() {
       }
     }, INBOX_POLL_INTERVAL_MS);
 
-    return () => window.clearInterval(interval);
+    return () => {
+      window.clearTimeout(initialLoad);
+      window.clearInterval(interval);
+    };
   }, []);
 
   useEffect(() => {
@@ -310,7 +324,9 @@ export default function AdminMessagesPage() {
       return;
     }
 
-    void loadConversation(selectedConversationId, { showLoading: true });
+    const initialLoad = window.setTimeout(() => {
+      void loadConversation(selectedConversationId, { showLoading: true });
+    }, 0);
 
     const interval = window.setInterval(() => {
       if (document.visibilityState === "visible") {
@@ -318,7 +334,10 @@ export default function AdminMessagesPage() {
       }
     }, MESSAGES_POLL_INTERVAL_MS);
 
-    return () => window.clearInterval(interval);
+    return () => {
+      window.clearTimeout(initialLoad);
+      window.clearInterval(interval);
+    };
   }, [selectedConversationId]);
 
   useEffect(() => {
@@ -371,7 +390,7 @@ export default function AdminMessagesPage() {
           (conversation) => conversation.id !== data.conversation!.id,
         );
 
-        return [data.conversation!, ...withoutCurrent];
+        return sortConversationsByLatest([data.conversation!, ...withoutCurrent]);
       });
       setClientSearchQuery("");
       setClientSearchResults([]);

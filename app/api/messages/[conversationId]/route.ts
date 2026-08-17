@@ -220,7 +220,7 @@ export async function POST(request: Request, context: RouteContext) {
         id: conversation.id,
       },
       data: {
-        lastMessage: new Date(),
+        lastMessage: message.createdAt,
         isRead: true,
       },
     });
