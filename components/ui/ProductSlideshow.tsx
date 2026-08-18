@@ -14,6 +14,8 @@ type ProductSlide = {
 
 type ProductSlideshowProps = {
   products: ProductSlide[];
+  discountEnabled?: boolean;
+  discountPercent?: number;
 };
 
 function formatBdt(amount: number) {
@@ -29,11 +31,20 @@ function getInitials(name: string) {
     .toUpperCase();
 }
 
-export default function ProductSlideshow({ products }: ProductSlideshowProps) {
+function getDiscountedPrice(price: number, discountPercent: number) {
+  return Math.round(price * (1 - discountPercent / 100));
+}
+
+export default function ProductSlideshow({
+  products,
+  discountEnabled = false,
+  discountPercent = 0,
+}: ProductSlideshowProps) {
   if (products.length === 0) {
     return null;
   }
 
+  const hasDiscount = discountEnabled && discountPercent > 0;
   const slideshowProducts =
     products.length >= 5 ? [...products, ...products] : products;
   const animationDuration = `${Math.max(products.length * 4.5, 28)}s`;
@@ -72,62 +83,89 @@ export default function ProductSlideshow({ products }: ProductSlideshowProps) {
                   : undefined,
             }}
           >
-            {slideshowProducts.map((product, index) => (
-              <Link
-                key={`${product.id}-${index}`}
-                href={`/products?search=${encodeURIComponent(product.name)}`}
-                className="group flex w-[230px] shrink-0 flex-col overflow-hidden rounded-2xl border border-[#EADDCD] bg-white shadow-[0_10px_28px_rgba(43,43,43,0.06)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_18px_42px_rgba(184,123,104,0.16)] dark:border-[#3D3530] dark:bg-[#242220] sm:w-[250px]"
-              >
-                <div className="relative h-40 bg-[#EFE7DC] dark:bg-[#1A1814]">
-                  {product.image ? (
-                    <Image
-                      src={product.image}
-                      alt={product.name}
-                      fill
-                      sizes="250px"
-                      className="object-contain p-3"
-                    />
-                  ) : (
-                    <div className="flex h-full items-center justify-center">
-                      <span
-                        className="text-3xl font-bold text-[#B87B68]"
+            {slideshowProducts.map((product, index) => {
+              const discountedPrice = getDiscountedPrice(
+                product.price,
+                discountPercent,
+              );
+
+              return (
+                <Link
+                  key={`${product.id}-${index}`}
+                  href={`/products?search=${encodeURIComponent(product.name)}`}
+                  className="group flex w-[230px] shrink-0 flex-col overflow-hidden rounded-2xl border border-[#EADDCD] bg-white shadow-[0_10px_28px_rgba(43,43,43,0.06)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_18px_42px_rgba(184,123,104,0.16)] dark:border-[#3D3530] dark:bg-[#242220] sm:w-[250px]"
+                >
+                  <div className="relative h-40 bg-[#EFE7DC] dark:bg-[#1A1814]">
+                    {product.image ? (
+                      <Image
+                        src={product.image}
+                        alt={product.name}
+                        fill
+                        sizes="250px"
+                        className="object-contain p-3"
+                      />
+                    ) : (
+                      <div className="flex h-full items-center justify-center">
+                        <span
+                          className="text-3xl font-bold text-[#B87B68]"
+                          style={{ fontFamily: "Playfair Display, serif" }}
+                        >
+                          {getInitials(product.name)}
+                        </span>
+                      </div>
+                    )}
+
+                    <span className="absolute left-3 top-3 rounded-full bg-white/95 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-[#8C7355] shadow-sm dark:bg-[#1A1814]/90 dark:text-[#D4B47A]">
+                      {product.type}
+                    </span>
+
+                    {hasDiscount ? (
+                      <span className="absolute right-3 top-3 rounded-full bg-red-100 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-red-600 shadow-sm dark:bg-red-950/40 dark:text-red-300">
+                        {discountPercent}% OFF
+                      </span>
+                    ) : null}
+                  </div>
+
+                  <div className="flex flex-1 flex-col p-4">
+                    <h3
+                      className="line-clamp-2 min-h-[3rem] text-base font-bold leading-6 text-[#2B2B2B] dark:text-[#F0EDE8]"
+                      style={{ fontFamily: "Playfair Display, serif" }}
+                    >
+                      {product.name}
+                    </h3>
+
+                    {product.skinType ? (
+                      <p className="mt-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#A8916F] dark:text-[#8A7D75]">
+                        For {product.skinType} Skin
+                      </p>
+                    ) : (
+                      <div className="mt-2 h-4" />
+                    )}
+
+                    {hasDiscount ? (
+                      <div className="mt-4 flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                        <span className="text-sm font-semibold text-[#8C7967] line-through decoration-[#8C7967]/70 dark:text-[#8A7D75]">
+                          {formatBdt(product.price)}
+                        </span>
+                        <span
+                          className="text-xl font-extrabold text-[#B87B68] dark:text-[#D4B47A]"
+                          style={{ fontFamily: "Playfair Display, serif" }}
+                        >
+                          {formatBdt(discountedPrice)}
+                        </span>
+                      </div>
+                    ) : (
+                      <p
+                        className="mt-4 text-xl font-extrabold text-[#B87B68]"
                         style={{ fontFamily: "Playfair Display, serif" }}
                       >
-                        {getInitials(product.name)}
-                      </span>
-                    </div>
-                  )}
-
-                  <span className="absolute left-3 top-3 rounded-full bg-white/95 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-[#8C7355] shadow-sm dark:bg-[#1A1814]/90 dark:text-[#D4B47A]">
-                    {product.type}
-                  </span>
-                </div>
-
-                <div className="flex flex-1 flex-col p-4">
-                  <h3
-                    className="line-clamp-2 min-h-[3rem] text-base font-bold leading-6 text-[#2B2B2B] dark:text-[#F0EDE8]"
-                    style={{ fontFamily: "Playfair Display, serif" }}
-                  >
-                    {product.name}
-                  </h3>
-
-                  {product.skinType ? (
-                    <p className="mt-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#A8916F] dark:text-[#8A7D75]">
-                      For {product.skinType} Skin
-                    </p>
-                  ) : (
-                    <div className="mt-2 h-4" />
-                  )}
-
-                  <p
-                    className="mt-4 text-xl font-extrabold text-[#B87B68]"
-                    style={{ fontFamily: "Playfair Display, serif" }}
-                  >
-                    {formatBdt(product.price)}
-                  </p>
-                </div>
-              </Link>
-            ))}
+                        {formatBdt(product.price)}
+                      </p>
+                    )}
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         </div>
       </div>
