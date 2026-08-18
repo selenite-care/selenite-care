@@ -7,26 +7,12 @@ import MembershipSection from "@/components/ui/MembershipSection";
 import BlogCarousel from "@/components/ui/BlogCarousel";
 import ProductSlideshow from "@/components/ui/ProductSlideshow";
 import { db } from "@/lib/db";
+import WhyChooseUsSection from "@/components/layout/WhyChooseUsSection";
+import IngredientSpotlight from "@/components/layout/IngredientSpotlight";
+import FloatingSkincareComposition from "@/components/layout/FloatingSkincareComposition";
+import AMomentForYou from "@/components/layout/AMomentForYou";
 
 export const revalidate = 3600;
-
-const features = [
-  { title: "Personalized Care",  description: "Support shaped around your needs, schedule, and goals.", icon: "✦" },
-  { title: "Simple Booking",     description: "Choose a service, reserve a time, and get clear next steps.", icon: "◈" },
-  { title: "Trusted Guidance",   description: "Thoughtful consultations focused on practical wellness.", icon: "❋" },
-];
-
-const reassurancePoints = [
-  "Professional guidance that feels personal",
-  "Calm, easy-to-follow booking experience",
-  "Support designed for steady long-term progress",
-];
-
-const trustHighlights = [
-  { label: "Client-first", value: "Tailored care" },
-  { label: "Clear process", value: "No guesswork" },
-  { label: "Thoughtful follow-up", value: "Steady support" },
-];
 
 type PublicDiscountSettings = {
   discountEnabled: boolean;
@@ -143,6 +129,27 @@ export default async function Home() {
           0%, 100% { box-shadow: 0 20px 55px rgba(0,0,0,0.22), 0 0 0 1px rgba(255,255,255,0.36); }
           50%      { box-shadow: 0 28px 70px rgba(0,0,0,0.30), 0 0 0 1px rgba(255,255,255,0.62), 0 0 34px rgba(198,165,107,0.38); }
         }
+        @keyframes heroClickCueNudge {
+          0%, 100% { transform: translateX(0); }
+          50%      { transform: translateX(8px); }
+        }
+        @keyframes heroClickCueGlow {
+          0%, 100% {
+            text-shadow:
+              0 0 8px rgba(212, 180, 122, 0.42),
+              0 0 18px rgba(184, 123, 104, 0.32);
+          }
+          50% {
+            text-shadow:
+              0 0 12px rgba(255, 255, 255, 0.72),
+              0 0 26px rgba(212, 180, 122, 0.68),
+              0 0 40px rgba(184, 123, 104, 0.42);
+          }
+        }
+        @keyframes heroClickCueSparkle {
+          0%, 100% { opacity: 0.35; transform: scale(0.75) rotate(0deg); }
+          50%      { opacity: 1; transform: scale(1.16) rotate(35deg); }
+        }
       `}</style>
 
       {/* Hero Section */}
@@ -163,11 +170,11 @@ export default async function Home() {
                 style={{ animation: "productDiscountShimmer 3.6s ease-in-out infinite" }}
               />
               <span
-                className="pointer-events-none absolute right-5 top-4 h-2 w-2 rounded-full bg-[#B87B68]"
+                className="pointer-events-none absolute right-5 top-4 h-2 w-2 rounded-full bg-[#FFFFF0]"
                 style={{ animation: "productDiscountSparkle 1.9s ease-in-out infinite" }}
               />
               <span
-                className="pointer-events-none absolute bottom-5 left-7 h-1.5 w-1.5 rounded-full bg-[#B87B68]"
+                className="pointer-events-none absolute bottom-5 left-7 h-1.5 w-1.5 rounded-full bg-[#FFFFF0]"
                 style={{ animation: "productDiscountSparkle 2.4s ease-in-out infinite" }}
               />
 
@@ -196,6 +203,16 @@ export default async function Home() {
                   <p className="mt-2 text-sm font-medium leading-5 text-white/85">
                     See all our products
                   </p>
+                  <p
+                    className="relative mt-3 inline-flex items-center gap-1 text-2xl font-black tracking-[0.18em] text-[#D4B47A]"
+                    style={{
+                      animation:
+                        "heroClickCueNudge 1.4s ease-in-out infinite, heroClickCueGlow 1.8s ease-in-out infinite",
+                    }}
+                    aria-hidden="true"
+                  >
+                    <span>{">>>"}</span>
+                  </p>
                 </div>
               </div>
             </Link>
@@ -211,6 +228,20 @@ export default async function Home() {
               />
               <Gift className="relative h-4 w-4 text-[#B87B68]" aria-hidden="true" />
               <span className="relative">{discountSettings.discountPercent}% OFF Products</span>
+              <span
+                className="relative inline-flex items-center text-sm font-black tracking-[0.12em] text-[#D4B47A]"
+                style={{
+                  animation:
+                    "heroClickCueNudge 1.4s ease-in-out infinite, heroClickCueGlow 1.8s ease-in-out infinite",
+                }}
+                aria-hidden="true"
+              >
+                <span
+                  className="absolute -right-1 -top-1 h-1.5 w-1.5 rounded-full bg-white"
+                  style={{ animation: "heroClickCueSparkle 1.7s ease-in-out infinite" }}
+                />
+                {">>>"}
+              </span>
             </Link>
           </>
         ) : null}
@@ -251,7 +282,11 @@ export default async function Home() {
         </div>
       </section>
 
-      <ProductSlideshow products={featuredProducts} />
+      <ProductSlideshow
+        products={featuredProducts}
+        discountEnabled={showProductDiscountBanner}
+        discountPercent={discountSettings.discountPercent}
+      />
 
       {showProductDiscountBanner ? (
         <section className="relative overflow-hidden bg-[#B87B68] px-6 py-12 text-[#2B2B2B] dark:bg-[#D4B47A] dark:text-[#141210]">
@@ -293,87 +328,10 @@ export default async function Home() {
 
       {/* ── Our Memberships ── */}
       <MembershipSection />
-
-      {/* ── Why Choose Us ── */}
-      <section
-        style={{ position: "relative", overflow: "hidden" }}
-        className="bg-card px-6 py-16 sm:py-20"
-      >
-        <div
-          className="absolute -left-12 top-10 h-40 w-40 rounded-full blur-3xl"
-          style={{ backgroundColor: "rgba(198,165,107,0.11)" }}
-        />
-        <div
-          className="absolute bottom-0 right-0 h-56 w-56 rounded-full blur-3xl"
-          style={{ backgroundColor: "rgba(216,199,181,0.16)" }}
-        />
-        <div style={{
-          position: "absolute", inset: 0, pointerEvents: "none",
-          backgroundImage: `
-            linear-gradient(rgba(198,165,107,0.04) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(198,165,107,0.04) 1px, transparent 1px)
-          `,
-          backgroundSize: "48px 48px",
-        }} />
-
-        <div className="relative mx-auto w-full max-w-6xl">
-          <div className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr] lg:items-end">
-            <div className="max-w-3xl">
-              <span className="inline-flex rounded-full border border-[#884F38] bg-white/80 px-4 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#B87B68] dark:border-[#3D3530] dark:bg-[#242220] dark:text-[#D4B47A]">
-                Why Clients Stay With Us
-              </span>
-              <h2
-                style={{ fontFamily: "Playfair Display, serif" }}
-                className="horizontal-nudge text-page mt-5 text-3xl font-bold tracking-tight sm:text-4xl"
-              >
-                Why Choose Us
-              </h2>
-              <p className="text-muted mt-4 max-w-2xl text-base leading-7 sm:text-lg text-[#884F38] dark:text-[#8A7D75]">
-                We&apos;re building a skincare and wellness experience that feels warm, structured, and genuinely supportive from the first click to ongoing care.
-              </p>
-            </div>
-
-            <div className="border-themed bg-page rounded-3xl border p-5 shadow-[0_18px_40px_rgba(43,43,43,0.06)] dark:shadow-none">
-              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#B87B68] dark:text-[#D4B47A]">
-                What You Can Expect
-              </p>
-              <ul className="mt-4 space-y-3">
-                {reassurancePoints.map((point) => (
-                  <li key={point} className="text-page flex items-start gap-3 text-sm leading-6">
-                    <span className="mt-2 h-2 w-2 rounded-full bg-[#B87B68] dark:bg-[#D4B47A]" />
-                    <span className="text-[#884F38] dark:text-[#8A7D75]">{point}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-
-          <ViewportAnimatedSection className="feature-card-trigger mt-12 grid grid-cols-1 gap-5 md:grid-cols-3">
-            {features.map((feature, index) => (
-              <FeatureCard key={feature.title} feature={feature} index={index} total={features.length} />
-            ))}
-          </ViewportAnimatedSection>
-
-          <div className="mt-8 grid gap-4 rounded-[28px] border border-[#EADDCD] bg-white/75 p-4 shadow-[0_16px_34px_rgba(43,43,43,0.05)] dark:border-[#3D3530] dark:bg-[#242220]/90 dark:shadow-none md:grid-cols-3 md:p-5">
-            {trustHighlights.map((item) => (
-              <div
-                key={item.label}
-                className="border-themed rounded-2xl border bg-[#F8F5F0]/75 px-4 py-4 dark:bg-[#1A1814]/80"
-              >
-                <p className="text-muted text-xs font-semibold uppercase tracking-[0.16em] text-[#884F38] dark:text-[#8A7D75]">
-                  {item.label}
-                </p>
-                <p
-                  style={{ fontFamily: "Playfair Display, serif" }}
-                  className="text-page mt-2 text-lg font-semibold"
-                >
-                  {item.value}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <AMomentForYou />
+      <IngredientSpotlight />
+      <FloatingSkincareComposition />
+      <WhyChooseUsSection />
 
       {/* ── Our Blogs & Articles ── */}
       <BlogCarousel />
