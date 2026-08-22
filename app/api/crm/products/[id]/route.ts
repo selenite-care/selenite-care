@@ -134,9 +134,15 @@ export async function DELETE(_request: Request, context: RouteContext) {
     return Response.json({ error: "Product ID is required." }, { status: 400 });
   }
 
-  await db.product.delete({
+  await db.product.update({
     where: { id },
+    data: {
+      isVisible: false,
+    },
   });
 
-  return Response.json({ success: true });
+  return Response.json({
+    success: true,
+    message: "Product hidden successfully",
+  });
 }

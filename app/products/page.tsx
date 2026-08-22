@@ -853,7 +853,7 @@ export default function ProductsPage() {
                       </span>
                     ) : null}
 
-                    <div className="product-card-media relative flex h-52 w-full shrink-0 items-center justify-center bg-[#F8F5F0] dark:bg-[#1A1814]">
+                    <div className="product-card-media relative flex aspect-square w-full shrink-0 items-center justify-center bg-[#F8F5F0] dark:bg-[#1A1814]">
                       {product.image ? (
                         <div className="relative h-full w-full">
                           <Image
@@ -861,7 +861,7 @@ export default function ProductsPage() {
                             alt={product.name}
                             fill
                             sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 25vw"
-                            className="object-contain p-5"
+                            className="object-contain"
                           />
                         </div>
                       ) : (
@@ -1161,7 +1161,7 @@ export default function ProductsPage() {
                   alt={selectedProduct.name}
                   fill
                   sizes="500px"
-                  className="object-contain p-6"
+                  className="object-contain p-4"
                 />
               ) : (
                 <div className="flex h-full items-center justify-center">
@@ -1272,10 +1272,6 @@ export default function ProductsPage() {
         @media (max-width: 639px) {
           .product-card {
             border-radius: 14px !important;
-          }
-
-          .product-card-media {
-            height: 92px !important;
           }
 
           .product-card-body {
