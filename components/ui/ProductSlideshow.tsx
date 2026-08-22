@@ -95,7 +95,7 @@ export default function ProductSlideshow({
                   href={`/products?search=${encodeURIComponent(product.name)}`}
                   className="group flex w-[230px] shrink-0 flex-col overflow-hidden rounded-2xl border border-[#EADDCD] bg-white shadow-[0_10px_28px_rgba(43,43,43,0.06)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_18px_42px_rgba(184,123,104,0.16)] dark:border-[#3D3530] dark:bg-[#242220] sm:w-[250px]"
                 >
-                  <div className="relative flex h-52 items-center justify-center bg-[#F8F5F0] dark:bg-[#1A1814]">
+                  <div className="relative flex aspect-square items-center justify-center bg-[#F8F5F0] dark:bg-[#1A1814]">
                     {product.image ? (
                       <div className="relative h-full w-full">
                         <Image
@@ -103,7 +103,7 @@ export default function ProductSlideshow({
                           alt={product.name}
                           fill
                           sizes="250px"
-                          className="object-contain p-6"
+                          className="object-contain"
                         />
                       </div>
                     ) : (

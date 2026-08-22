@@ -29,6 +29,7 @@ type ProductResponse = {
     totalCount: number;
     totalPages: number;
   };
+  message?: string;
   error?: string;
 };
 
@@ -480,18 +481,18 @@ export default function CrmProductsPage() {
       const data = (await response.json().catch(() => null)) as ProductResponse | null;
 
       if (!response.ok) {
-        throw new Error(data?.error ?? "Unable to delete product.");
+        throw new Error(data?.error ?? "Unable to hide product.");
       }
 
       const nextPage = products.length === 1 && page > 1 ? page - 1 : page;
       setPage(nextPage);
       await loadProducts(nextPage, searchQuery, stockFilter);
-      toast.success("Product deleted.");
+      toast.success(data?.message ?? "Product hidden successfully");
     } catch (deleteError) {
       const message =
-        deleteError instanceof Error ? deleteError.message : "Unable to delete product.";
+        deleteError instanceof Error ? deleteError.message : "Unable to hide product.";
       setError(message);
-      toast.error("Unable to delete product.", {
+      toast.error("Unable to hide product.", {
         description: message,
       });
     }
@@ -656,7 +657,7 @@ export default function CrmProductsPage() {
                                 onClick={() => handleDelete(product.id)}
                                 className="inline-flex h-9 items-center justify-center rounded-md border border-red-200 px-3 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 dark:border-red-900/60 dark:hover:bg-red-950/30"
                               >
-                                Delete
+                                Hide
                               </button>
                             </div>
                             <span className="mt-2 block text-xs text-muted">
@@ -763,7 +764,7 @@ export default function CrmProductsPage() {
                           onClick={() => handleDelete(product.id)}
                           className="inline-flex h-10 items-center justify-center rounded-md border border-red-200 px-3 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 dark:border-red-900/60 dark:hover:bg-red-950/30"
                         >
-                          Delete
+                          Hide
                         </button>
                       </div>
 
