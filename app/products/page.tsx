@@ -1154,14 +1154,14 @@ export default function ProductsPage() {
               <X className="h-5 w-5" />
             </button>
 
-            <div className="relative h-64 w-full bg-[#F8F5F0]">
+            <div className="relative mx-auto aspect-square w-full max-w-[360px] bg-[#F8F5F0] dark:bg-[#1A1814]">
               {selectedProduct.image ? (
                 <Image
                   src={selectedProduct.image}
                   alt={selectedProduct.name}
                   fill
                   sizes="500px"
-                  className="object-contain p-4"
+                  className="object-contain"
                 />
               ) : (
                 <div className="flex h-full items-center justify-center">
