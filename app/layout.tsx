@@ -11,6 +11,7 @@ import { Toaster } from "sonner";
 import AppChrome from "@/components/layout/AppChrome";
 import PWAInstallPrompt from "@/components/ui/PWAInstallPrompt";
 import PWAServiceWorkerRegister from "@/components/ui/PWAServiceWorkerRegister";
+import SiteEntryPopup from "@/components/ui/SiteEntryPopup";
 import Script from "next/script";
 import "./globals.css";
 
@@ -147,6 +148,7 @@ export default function RootLayout({
                 <SessionGuard>
                   <AppChrome>{children}</AppChrome>
                 </SessionGuard>
+                <SiteEntryPopup />
                 <PWAInstallPrompt />
               </ThemeProvider>
             </CartProvider>
