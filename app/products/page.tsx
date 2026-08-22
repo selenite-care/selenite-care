@@ -853,24 +853,17 @@ export default function ProductsPage() {
                       </span>
                     ) : null}
 
-                    <div
-                      style={{
-                        position: "relative",
-                        height: 240,
-                        width: "100%",
-                        flexShrink: 0,
-                        background: "#F2EBDF",
-                      }}
-                      className="product-card-media dark:bg-[#1A1814]"
-                    >
+                    <div className="product-card-media relative flex h-52 w-full shrink-0 items-center justify-center bg-[#F8F5F0] dark:bg-[#1A1814]">
                       {product.image ? (
-                        <Image
-                          src={product.image}
-                          alt={product.name}
-                          fill
-                          sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 25vw"
-                          style={{ objectFit: "contain", padding: 12 }}
-                        />
+                        <div className="relative h-full w-full">
+                          <Image
+                            src={product.image}
+                            alt={product.name}
+                            fill
+                            sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 25vw"
+                            className="object-contain p-5"
+                          />
+                        </div>
                       ) : (
                         <div
                           style={{
@@ -1161,14 +1154,14 @@ export default function ProductsPage() {
               <X className="h-5 w-5" />
             </button>
 
-            <div className="relative h-72 w-full bg-[#F2EBDF] dark:bg-[#1A1814]">
+            <div className="relative h-64 w-full bg-[#F8F5F0]">
               {selectedProduct.image ? (
                 <Image
                   src={selectedProduct.image}
                   alt={selectedProduct.name}
                   fill
                   sizes="500px"
-                  className="object-contain p-4"
+                  className="object-contain p-6"
                 />
               ) : (
                 <div className="flex h-full items-center justify-center">

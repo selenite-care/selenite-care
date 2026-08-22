@@ -945,6 +945,11 @@ export default function AdminProductsPage() {
                   accept="image/*"
                   currentPreviewUrl={form.image || undefined}
                 />
+                <p className="mt-2 text-xs leading-5 text-[#884F38] dark:text-[#8A7D75]">
+                  For best results, use square images (800×800px) with a white
+                  or light background. Images will be displayed consistently
+                  regardless of size.
+                </p>
               </div>
             </div>
 
@@ -1151,6 +1156,11 @@ export default function AdminProductsPage() {
                     accept="image/*"
                     currentPreviewUrl={editForm.image || undefined}
                   />
+                  <p className="mt-2 text-xs leading-5 text-[#884F38] dark:text-[#8A7D75]">
+                    For best results, use square images (800×800px) with a white
+                    or light background. Images will be displayed consistently
+                    regardless of size.
+                  </p>
                 </div>
               </div>
 
