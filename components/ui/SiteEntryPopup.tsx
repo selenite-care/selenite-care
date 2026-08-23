@@ -35,7 +35,7 @@ export default function SiteEntryPopup() {
 
         <div className="relative w-full">
           <Image
-            src="/offers/2ya.jpeg"
+            src="/offers/7days.jpeg"
             alt="Selenite Care announcement"
             width={420}
             height={420}
