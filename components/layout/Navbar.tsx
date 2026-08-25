@@ -20,6 +20,9 @@ const navLinks = [
   { href: "/contact", label: "Contact" },
 ];
 
+const desktopNavLinkClass =
+  "relative inline-flex py-2 transition-colors duration-200 after:absolute after:bottom-0 after:left-0 after:h-px after:w-0 after:bg-[#B87B68] after:transition-all after:duration-200 hover:text-[#B87B68] hover:after:w-full";
+
 function NavbarContent() {
   const { data: session, status } = useSession();
   const pathname = usePathname();
@@ -93,13 +96,9 @@ function NavbarContent() {
 
   return (
     <header
-      style={{
-        borderBottom: "1px solid var(--gold)",
-        backgroundColor: "var(--background)",
-      }}
-      className="px-6 py-4 transition-colors duration-200"
+      className="sticky top-0 z-50 border-b border-[#B87B68] bg-[#F8F5F0]/90 px-6 backdrop-blur-md transition-colors duration-200 dark:bg-[#1A1814]/90"
     >
-      <nav className="mx-auto flex w-full max-w-screen-2xl items-center justify-between">
+      <nav className="mx-auto flex h-16 w-full max-w-screen-2xl items-center justify-between">
         {/* Logo */}
         <Link
         href="/"
@@ -118,7 +117,7 @@ function NavbarContent() {
     style={{
       fontFamily: "Playfair Display, serif",
     }}
-    className="text-3xl font-semibold text-[var(--foreground)]"
+    className="text-xl font-semibold tracking-[0.03em] text-[var(--foreground)] sm:text-2xl"
   >
     Selenite Care
   </span>
@@ -175,7 +174,7 @@ function NavbarContent() {
               key={link.href}
               href={link.href}
               style={{ color: "var(--muted)" }}
-              className="transition-colors duration-200 hover:text-[#B87B68]"
+              className={desktopNavLinkClass}
             >
               {link.label}
             </Link>
@@ -186,7 +185,7 @@ function NavbarContent() {
             style={{
               color: isActiveLink("/products") ? "var(--gold)" : "var(--muted)",
             }}
-            className="rounded-full px-3 py-2 transition-colors duration-200 hover:bg-[#B87B68]/10 hover:text-[#B87B68]"
+            className={`${desktopNavLinkClass} rounded-full px-3 hover:bg-[#B87B68]/10`}
           >
             Products
           </Link>
@@ -204,7 +203,7 @@ function NavbarContent() {
             className="h-4 w-px"
           />
 
-          <CartIcon className="inline-flex items-center justify-center text-[#B87B68] transition-opacity duration-200 hover:opacity-80" />
+          <CartIcon className="inline-flex items-center justify-center text-[#B87B68] transition-transform duration-200 hover:scale-110" />
 
           {renderThemeToggle("inline-flex items-center justify-center")}
 
@@ -218,14 +217,14 @@ function NavbarContent() {
               <Link
                 href="/login"
                 style={{ color: "var(--foreground)" }}
-                className="font-medium transition-colors duration-200 hover:text-[#B87B68]"
+                className={`${desktopNavLinkClass} font-medium`}
               >
                 Login
               </Link>
               <Link
                 href="/register"
                 style={{ color: "var(--foreground)" }}
-                className="font-medium transition-colors duration-200 hover:text-[#B87B68]"
+                className={`${desktopNavLinkClass} font-medium`}
               >
                 Register
               </Link>
@@ -241,7 +240,7 @@ function NavbarContent() {
               <Link
                 href={dashboardHref}
                 style={{ color: "var(--foreground)" }}
-                className="font-medium transition-colors duration-200 hover:text-[#B87B68]"
+                className={`${desktopNavLinkClass} font-medium`}
               >
                 Dashboard
               </Link>
@@ -249,7 +248,7 @@ function NavbarContent() {
                 type="button"
                 onClick={handleLogout}
                 style={{ color: "var(--foreground)" }}
-                className="font-medium transition-colors duration-200 hover:text-[#B87B68]"
+                className={`${desktopNavLinkClass} font-medium`}
               >
                 Logout
               </button>
@@ -262,7 +261,7 @@ function NavbarContent() {
       {mobileMenuOpen && (
         <nav
           style={{ backgroundColor: "#2B2B2B" }}
-          className="mt-4 flex w-full flex-col gap-1 border-t border-[#B87B68] px-4 py-4 md:hidden"
+          className="mobile-menu-slide mt-4 flex w-full flex-col gap-1 border-t border-[#B87B68] px-4 py-4 md:hidden"
         >
           {navLinks.map((link) => (
             <Link
@@ -304,7 +303,7 @@ function NavbarContent() {
             <div className="mb-3 flex items-center justify-start gap-2">
               <CartIcon
                 onClick={closeMobileMenu}
-                className="inline-flex items-center gap-2 rounded-md px-3 py-3 text-sm font-medium text-[#EADDCD] transition-colors duration-200 hover:bg-[#884F38]/20 hover:text-[#B87B68]"
+                className="inline-flex items-center gap-2 rounded-md px-3 py-3 text-sm font-medium text-[#EADDCD] transition-transform duration-200 hover:scale-110 hover:bg-[#884F38]/20 hover:text-[#B87B68]"
               />
               {renderThemeToggle(
                 "inline-flex items-center gap-2 rounded-md px-3 py-3 text-sm font-medium",

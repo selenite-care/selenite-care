@@ -1,15 +1,12 @@
 import Link from "next/link";
-import { Gift } from "lucide-react";
-import ViewportAnimatedSection from "@/components/ui/ViewportAnimatedSection";
+import { Award, ClipboardCheck, Gift, Headphones } from "lucide-react";
 import HeroSlider from "@/components/ui/HeroSlider";
-import { FeatureCard } from "@/components/ui/MembershipCards";
 import MembershipSection from "@/components/ui/MembershipSection";
-import BlogCarousel from "@/components/ui/BlogCarousel";
+import BlogCarousel, { type BlogPost } from "@/components/ui/BlogCarousel";
 import ProductSlideshow from "@/components/ui/ProductSlideshow";
 import { db } from "@/lib/db";
 import WhyChooseUsSection from "@/components/layout/WhyChooseUsSection";
 import IngredientSpotlight from "@/components/layout/IngredientSpotlight";
-import FloatingSkincareComposition from "@/components/layout/FloatingSkincareComposition";
 import AMomentForYou from "@/components/layout/AMomentForYou";
 
 export const revalidate = 3600;
@@ -44,6 +41,45 @@ async function getFeaturedProducts() {
     },
     take: 10,
   });
+}
+
+async function getFeaturedBlogPosts(): Promise<BlogPost[]> {
+  try {
+    const posts = await db.blogPost.findMany({
+      where: {
+        status: "PUBLISHED",
+      },
+      select: {
+        slug: true,
+        title: true,
+        excerpt: true,
+        coverImage: true,
+        category: true,
+        publishedAt: true,
+        author: {
+          select: {
+            name: true,
+          },
+        },
+      },
+      orderBy: {
+        publishedAt: "desc",
+      },
+      take: 8,
+    });
+
+    return posts.map((post) => ({
+      slug: post.slug,
+      title: post.title,
+      excerpt: post.excerpt,
+      category: post.category,
+      date: post.publishedAt?.toISOString() ?? null,
+      image: post.coverImage,
+      author: post.author.name ?? "Selenite Care",
+    }));
+  } catch {
+    return [];
+  }
 }
 
 async function getPublicDiscountSettings(): Promise<PublicDiscountSettings> {
@@ -85,8 +121,9 @@ async function getPublicDiscountSettings(): Promise<PublicDiscountSettings> {
 }
 
 export default async function Home() {
-  const [featuredProducts, discountSettings] = await Promise.all([
+  const [featuredProducts, featuredBlogPosts, discountSettings] = await Promise.all([
     getFeaturedProducts(),
+    getFeaturedBlogPosts(),
     getPublicDiscountSettings(),
   ]);
   const showProductDiscountBanner =
@@ -184,7 +221,7 @@ export default async function Home() {
                 </div>
                 <div>
                   <p 
-  className="text-xs font-bold uppercase tracking-[0.18em] text-[#FFFFFF]"
+  className="text-xs font-bold uppercase tracking-[0.25em] text-[#FFFFFF]"
   style={{
     WebkitTextStroke: "1.5px rgba(0, 0, 0, 0.5)",
     paintOrder: "stroke",
@@ -245,14 +282,14 @@ export default async function Home() {
             </Link>
           </>
         ) : null}
-        <div className="relative z-10 px-4 py-20 sm:px-6 sm:py-32">
+        <div className="relative z-10 px-4 py-20 sm:px-6 sm:py-24">
           <div className="mx-auto w-full max-w-6xl">
             <div className="max-w-2xl">
 {/* ── Headline — glitter-text class kept, with stronger shadow for image-bg contrast ── */}
 <h1
   style={{
     fontFamily: "Playfair Display, serif",
-    textShadow: "0 4px 24px rgba(0,0,0,.5), 0 1px 4px rgba(0,0,0,.5)",
+    textShadow: "0 6px 30px rgba(0,0,0,.42), 0 1px 6px rgba(0,0,0,.35)",
   }}
   className="glitter-text text-4xl font-bold tracking-tight md:text-6xl [-webkit-text-stroke:0.2px_white] leading-[1.1]"
 >
@@ -272,7 +309,7 @@ export default async function Home() {
               <div className="mt-10 flex flex-col gap-4 sm:flex-row">
                 <Link
                   href="/services"
-                  className="mt-2 inline-flex h-12 w-full items-center justify-center rounded-md border border-white bg-[var(--sidebar)] px-6 text-sm font-medium text-[var(--sidebar-text)] animate-pulse transition-all duration-300 hover:animate-none hover:scale-105 hover:opacity-90 sm:mt-8 sm:w-auto"
+                  className="mt-2 inline-flex min-h-14 w-full items-center justify-center rounded-full border border-white bg-[var(--sidebar)] px-10 py-4 text-sm font-semibold text-[var(--sidebar-text)] animate-pulse transition-all duration-300 hover:animate-none hover:scale-105 hover:opacity-90 sm:mt-8 sm:w-auto"
                 >
                   Book Appointment
                 </Link>
@@ -282,11 +319,38 @@ export default async function Home() {
         </div>
       </section>
 
+      <section className="border-y border-[#D8C7B5] bg-[#B87B68] px-6 py-4 text-[#2B2B2B] dark:border-[#3D3530] dark:bg-[#242220] dark:text-[#F0EDE8]">
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-center gap-3 text-center text-sm font-semibold sm:flex-row sm:gap-5">
+          <span className="inline-flex items-center gap-2">
+            <Award className="h-4 w-4 text-[#D8C7B5] dark:text-[#D4B47A]" aria-hidden="true" />
+            Certified Aestheticians
+          </span>
+          <span className="hidden text-[#D8C7B5] dark:text-[#8A7D75] sm:inline">
+            {"·"}
+          </span>
+          <span className="inline-flex items-center gap-2">
+            <ClipboardCheck className="h-4 w-4 text-[#D8C7B5] dark:text-[#D4B47A]" aria-hidden="true" />
+            Personalized Plans
+          </span>
+          <span className="hidden text-[#D8C7B5] dark:text-[#8A7D75] sm:inline">
+            {"·"}
+          </span>
+          <span className="inline-flex items-center gap-2">
+            <Headphones className="h-4 w-4 text-[#D8C7B5] dark:text-[#D4B47A]" aria-hidden="true" />
+            Online & Offline Support
+          </span>
+        </div>
+      </section>
+
+      <div className="h-px w-full bg-[#D8C7B5] dark:bg-[#3D3530]" />
+
       <ProductSlideshow
         products={featuredProducts}
         discountEnabled={showProductDiscountBanner}
         discountPercent={discountSettings.discountPercent}
       />
+
+      <div className="h-px w-full bg-[#D8C7B5] dark:bg-[#3D3530]" />
 
       {showProductDiscountBanner ? (
         <section className="relative overflow-hidden bg-[#B87B68] px-6 py-12 text-[#2B2B2B] dark:bg-[#D4B47A] dark:text-[#141210]">
@@ -327,18 +391,25 @@ export default async function Home() {
       ) : null}
 
       {/* ── Our Memberships ── */}
+      {showProductDiscountBanner ? (
+        <div className="h-px w-full bg-[#D8C7B5] dark:bg-[#3D3530]" />
+      ) : null}
+
       <MembershipSection />
+      <div className="h-px w-full bg-[#D8C7B5] dark:bg-[#3D3530]" />
       <AMomentForYou />
+      <div className="h-px w-full bg-[#D8C7B5] dark:bg-[#3D3530]" />
       <IngredientSpotlight />
-      <FloatingSkincareComposition />
+      <div className="h-px w-full bg-[#D8C7B5] dark:bg-[#3D3530]" />
       <WhyChooseUsSection />
 
       {/* ── Our Blogs & Articles ── */}
-      <BlogCarousel />
-      <section className="px-6 py-20 bg-white dark:bg-[#242220]">
+      <BlogCarousel posts={featuredBlogPosts} />
+      <div className="h-px w-full bg-[#D8C7B5] dark:bg-[#3D3530]" />
+      <section className="bg-white px-6 py-20 dark:bg-[#242220] lg:py-24">
       <div className="mx-auto max-w-5xl text-center">
     <span
-      className="text-sm font-medium uppercase tracking-[0.2em] text-[#B87B68] dark:text-[#D4B47A]"
+      className="text-sm font-medium uppercase tracking-[0.25em] text-[#B87B68] dark:text-[#D4B47A]"
     >
       Client Community
     </span>

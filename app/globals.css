@@ -15,6 +15,10 @@
 }
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
   :root {
     --background: #F8F5F0;
     --foreground: #2B2B2B;
@@ -44,6 +48,10 @@
   body {
     background-color: var(--background);
     color: var(--foreground);
+    letter-spacing: 0.01em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
 
   .dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),
@@ -66,10 +74,41 @@
 
   h1, h2, h3 {
     font-family: var(--font-playfair);
+    line-height: 1.15;
+    letter-spacing: 0;
+  }
+
+  a, button {
+    transition: all 0.2s ease;
+  }
+
+  *:focus-visible {
+    outline: 2px solid #B87B68;
+    outline-offset: 2px;
+  }
+
+  button:active {
+    transform: scale(0.98);
+  }
+
+  main {
+    animation: fadeIn 0.3s ease;
   }
 }
 
 @layer components {
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
   @keyframes horizontal-nudge {
     0%,
     100% {
@@ -84,6 +123,36 @@
   .horizontal-nudge {
     display: inline-block;
     animation: horizontal-nudge 1.8s ease-in-out;
+  }
+
+  @keyframes mobile-menu-slide-in {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .mobile-menu-slide {
+    animation: mobile-menu-slide-in 220ms ease-out both;
+  }
+
+  .btn-primary:active {
+    transform: scale(0.98);
+  }
+
+  .product-image-container img,
+  .product-card-media img {
+    transition: transform 0.4s ease;
+  }
+
+  .product-image-container:hover img,
+  .product-card-media:hover img {
+    transform: scale(1.03);
   }
 
   @keyframes marquee {

@@ -11,10 +11,10 @@ import { formatDateOnly } from "@/lib/dateUtils";
 export type BlogPost = {
   slug: string;
   title: string;
-  excerpt: string;
-  category: string;
-  date: string;         // e.g. "2025-07-11"
-  image: string;        // URL
+  excerpt: string | null;
+  category: string | null;
+  date: string | null;         // e.g. "2025-07-11"
+  image: string | null;        // URL
   author: string;
 };
 
@@ -87,7 +87,7 @@ function formatDate(iso: string) {
 // ── Card ──────────────────────────────────────────────────────────────────────
 
 function BlogCard({ post }: { post: BlogPost }) {
-  const { day, month } = formatDate(post.date);
+  const { day, month } = formatDate(post.date ?? new Date().toISOString());
 
   return (
     <Link
@@ -115,7 +115,7 @@ function BlogCard({ post }: { post: BlogPost }) {
       {/* Image + date badge */}
       <div style={{ position: "relative", flexShrink: 0 }}>
         <Image
-          src={post.image}
+          src={post.image ?? "/hero/blog1.png"}
           alt={post.title}
           width={800}
           height={440}
@@ -158,7 +158,7 @@ function BlogCard({ post }: { post: BlogPost }) {
             whiteSpace: "nowrap",
           }}
         >
-          {post.category}
+          {post.category ?? "Skin Care"}
         </div>
       </div>
 
@@ -198,7 +198,7 @@ function BlogCard({ post }: { post: BlogPost }) {
             overflow: "hidden",
           }}
         >
-          {post.excerpt}
+        {post.excerpt ?? "Explore skincare insights and expert guidance from Selenite Care."}
         </p>
 
         {/* Divider */}
@@ -228,7 +228,11 @@ function BlogCard({ post }: { post: BlogPost }) {
 
 // ── Main carousel component ───────────────────────────────────────────────────
 
-export default function BlogCarousel() {
+export default function BlogCarousel({ posts = BLOG_POSTS }: { posts?: BlogPost[] }) {
+  const visiblePosts = posts.length > 0 ? posts : BLOG_POSTS;
+  const carouselPosts =
+    visiblePosts.length > 3 ? visiblePosts : [...visiblePosts, ...visiblePosts];
+
   const [emblaRef, emblaApi] = useEmblaCarousel({
     loop: true,
     align: "start",
@@ -251,10 +255,11 @@ export default function BlogCarousel() {
 
   useEffect(() => {
     if (!emblaApi) return;
-    onSelect();
+    const animationFrame = window.requestAnimationFrame(onSelect);
     emblaApi.on("select", onSelect);
     emblaApi.on("reInit", onSelect);
     return () => {
+      window.cancelAnimationFrame(animationFrame);
       emblaApi.off("select", onSelect);
       emblaApi.off("reInit", onSelect);
     };
@@ -347,11 +352,11 @@ export default function BlogCarousel() {
         {/* Carousel viewport */}
         <div className="mt-8 overflow-hidden" ref={emblaRef}>
           <div className="flex gap-5">
-            {BLOG_POSTS.map((post) => (
+            {carouselPosts.map((post, index) => (
               <div
-                key={post.slug}
-                style={{ flex: "0 0 calc(33.333% - 14px)", minWidth: 0 }}
-                className="max-[768px]:!flex-[0_0_calc(85%-14px)] max-[480px]:!flex-[0_0_calc(92%-14px)]"
+                key={`${post.slug}-${index}`}
+                style={{ flex: "0 0 calc(36% - 14px)", minWidth: 0 }}
+                className="max-[1024px]:!flex-[0_0_calc(48%-14px)] max-[768px]:!flex-[0_0_calc(85%-14px)] max-[480px]:!flex-[0_0_calc(92%-14px)]"
               >
                 <BlogCard post={post} />
               </div>
@@ -361,7 +366,7 @@ export default function BlogCarousel() {
 
         {/* Dot indicators */}
         <div className="mt-6 flex justify-center gap-2">
-          {BLOG_POSTS.map((_, i) => (
+          {carouselPosts.map((_, i) => (
             <button
               key={i}
               onClick={() => emblaApi?.scrollTo(i)}

@@ -149,30 +149,52 @@ export function MembershipCard({
   footerText?: string;
 }) {
   const cfg = tierConfig[step.tier as keyof typeof tierConfig];
+  const isSignature = step.tier === "signature";
 
   return (
     <article
       style={{
         background: cfg.bg,
-        border: cfg.border,
-        boxShadow: cfg.shadow,
+        border: isSignature ? "2px solid #B87B68" : cfg.border,
+        boxShadow: isSignature
+          ? "0 14px 44px rgba(184,123,104,0.22)"
+          : cfg.shadow,
         borderRadius: 20,
-        padding: "28px 24px 24px",
+        minHeight: isSignature ? 330 : undefined,
+        padding: isSignature ? "34px 26px 28px" : "30px 24px 24px",
         position: "relative",
         overflow: "hidden",
-        transition: "box-shadow 0.3s ease, transform 0.3s ease",
+        transition: "all 0.3s ease",
         animationDelay: `${index * 400}ms`,
       }}
       className="step-card-slide-in"
       onMouseEnter={(e) => {
-        (e.currentTarget as HTMLElement).style.boxShadow = cfg.hoverShadow;
+        (e.currentTarget as HTMLElement).style.boxShadow = isSignature
+          ? "0 22px 60px rgba(184,123,104,0.32)"
+          : cfg.hoverShadow;
         (e.currentTarget as HTMLElement).style.transform = "translateY(-4px)";
       }}
       onMouseLeave={(e) => {
-        (e.currentTarget as HTMLElement).style.boxShadow = cfg.shadow;
+        (e.currentTarget as HTMLElement).style.boxShadow = isSignature
+          ? "0 14px 44px rgba(184,123,104,0.22)"
+          : cfg.shadow;
         (e.currentTarget as HTMLElement).style.transform = "translateY(0)";
       }}
     >
+      <div
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          inset: "0 0 auto",
+          height: 96,
+          background:
+            step.tier === "platinum"
+              ? "linear-gradient(135deg, rgba(184,123,104,0.24) 0%, rgba(234,221,205,0.08) 100%)"
+              : "linear-gradient(135deg, #F8F5F0 0%, #EADDCD 100%)",
+          opacity: step.tier === "platinum" ? 0.75 : 0.92,
+          pointerEvents: "none",
+        }}
+      />
       {cfg.decoration}
 
       {cfg.shimmer && (
@@ -259,13 +281,21 @@ export function MembershipCard({
 
       <div
         style={{
-          position: "absolute", top: 18, right: 18,
-          background: cfg.badgeBg, color: cfg.badgeText,
-          fontSize: 10, fontWeight: 700, letterSpacing: "0.1em",
-          textTransform: "uppercase", padding: "3px 10px", borderRadius: 99,
+          position: "absolute",
+          top: isSignature ? 0 : 18,
+          right: isSignature ? 0 : 18,
+          background: isSignature ? "#2B2B2B" : cfg.badgeBg,
+          color: isSignature ? "#F8F5F0" : cfg.badgeText,
+          fontSize: 10,
+          fontWeight: 800,
+          letterSpacing: "0.1em",
+          textTransform: "uppercase",
+          padding: isSignature ? "8px 14px" : "3px 10px",
+          borderRadius: isSignature ? "0 20px 0 14px" : 99,
+          zIndex: 2,
         }}
       >
-        {cfg.label}
+        {isSignature ? "Most Popular" : cfg.label}
       </div>
 
       {step.statusBadge ? (
@@ -293,6 +323,7 @@ export function MembershipCard({
           width: 44, height: 44, background: cfg.badgeBg, borderRadius: "50%",
           display: "flex", alignItems: "center", justifyContent: "center",
           color: cfg.badgeText, fontSize: 18, fontWeight: 800,
+          position: "relative", zIndex: 1,
         }}
       >
         {index + 1}
@@ -302,20 +333,21 @@ export function MembershipCard({
         style={{
           color: cfg.titleColor, marginTop: 16, fontSize: 18, fontWeight: 700,
           fontFamily: "Playfair Display, Georgia, serif", lineHeight: 1.3,
+          position: "relative", zIndex: 1,
         }}
       >
         {step.title}
       </h3>
 
-      <div style={{ height: 1.5, width: 40, background: cfg.badgeBg, borderRadius: 99, margin: "12px 0" }} />
+      <div style={{ height: 1.5, width: 40, background: cfg.badgeBg, borderRadius: 99, margin: "16px 0 18px", position: "relative", zIndex: 1 }} />
 
       {step.originalCost ? (
-        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "baseline", gap: 10 }}>
+        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "baseline", gap: 12, marginBottom: 4, position: "relative", zIndex: 1 }}>
           <p
             style={{
               color: "#B87B68",
-              fontSize: 24,
-              fontWeight: 800,
+              fontSize: isSignature ? 34 : 30,
+              fontWeight: 900,
               fontFamily: "Playfair Display, serif",
               letterSpacing: "-0.01em",
             }}
@@ -335,7 +367,7 @@ export function MembershipCard({
           </span>
         </div>
       ) : (
-        <p style={{ color: step.tier === "signature" ? "#B87B68" : cfg.costColor, fontSize: 22, fontWeight: 800, fontFamily: "Playfair Display, serif", letterSpacing: "-0.01em" }}>
+        <p style={{ color: step.tier === "signature" ? "#B87B68" : cfg.costColor, fontSize: isSignature ? 34 : 30, fontWeight: 900, fontFamily: "Playfair Display, serif", letterSpacing: "-0.01em", marginBottom: 4, position: "relative", zIndex: 1 }}>
           {step.cost}
         </p>
       )}
@@ -352,12 +384,14 @@ export function MembershipCard({
             textTransform: "uppercase",
             padding: "5px 10px",
             marginTop: 10,
+            position: "relative",
+            zIndex: 1,
           }}
         >
           {step.discountBadge}
         </div>
       ) : null}
-      <p style={{ color: cfg.validityColor, fontSize: 12, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase", marginTop: 4 }}>
+      <p style={{ color: cfg.validityColor, fontSize: 12, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", marginTop: 8, position: "relative", zIndex: 1 }}>
         {step.validity}
       </p>
       {step.priceNote ? (
@@ -367,12 +401,14 @@ export function MembershipCard({
             fontSize: 11,
             lineHeight: 1.5,
             marginTop: 8,
+            position: "relative",
+            zIndex: 1,
           }}
         >
           {step.priceNote}
         </p>
       ) : null}
-      <p style={{ color: cfg.descColor, fontSize: 13, lineHeight: 1.65, marginTop: 14 }}>
+      <p style={{ color: cfg.descColor, fontSize: 13, lineHeight: 1.65, marginTop: 18, position: "relative", zIndex: 1 }}>
         {step.description}
       </p>
 
@@ -383,6 +419,8 @@ export function MembershipCard({
             fontSize: 12,
             fontWeight: 600,
             marginTop: 18,
+            position: "relative",
+            zIndex: 1,
           }}
         >
           {footerText}
