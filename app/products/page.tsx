@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ShoppingBag, X } from "lucide-react";
 import { useCart } from "@/components/cart/CartProvider";
 import { Skeleton, SkeletonCard } from "@/components/ui/Skeleton";
@@ -108,8 +109,12 @@ function getDiscountedPrice(price: number, percent: number) {
   return Math.round(price * (1 - percent / 100));
 }
 
-export default function ProductsPage() {
+function ProductsPageContent() {
   const { addItem } = useCart();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const initialPage = Math.max(1, Number(searchParams.get("page")) || 1);
   const [searchInput, setSearchInput] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [selectedType, setSelectedType] = useState("");
@@ -119,7 +124,7 @@ export default function ProductsPage() {
   );
   const [discountMembership, setDiscountMembership] =
     useState<ClientMembership | null>(null);
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(initialPage);
   const [products, setProducts] = useState<Product[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [types, setTypes] = useState<string[]>([]);
@@ -148,14 +153,40 @@ export default function ProductsPage() {
     globalProductDiscount.label.trim() ||
     `${globalDiscountPercent}% OFF - Limited Time Offer on All Products!`;
 
+  const updatePage = useCallback((nextPage: number) => {
+    const normalizedPage = Math.max(1, nextPage);
+    const params = new URLSearchParams(searchParams.toString());
+
+    if (normalizedPage === 1) {
+      params.delete("page");
+    } else {
+      params.set("page", String(normalizedPage));
+    }
+
+    const queryString = params.toString();
+    router.replace(queryString ? `${pathname}?${queryString}` : pathname, {
+      scroll: false,
+    });
+    setPage(normalizedPage);
+  }, [pathname, router, searchParams]);
+
+  useEffect(() => {
+    const nextPage = Math.max(1, Number(searchParams.get("page")) || 1);
+    const animationFrame = window.requestAnimationFrame(() => {
+      setPage(nextPage);
+    });
+
+    return () => window.cancelAnimationFrame(animationFrame);
+  }, [searchParams]);
+
   useEffect(() => {
     const timeout = window.setTimeout(() => {
       setDebouncedSearch(searchInput.trim());
-      setPage(1);
+      updatePage(1);
     }, 300);
 
     return () => window.clearTimeout(timeout);
-  }, [searchInput]);
+  }, [searchInput, updatePage]);
 
   useEffect(() => {
     let isMounted = true;
@@ -591,7 +622,7 @@ export default function ProductsPage() {
                 value={selectedType}
                 onChange={(event) => {
                   setSelectedType(event.target.value);
-                  setPage(1);
+                  updatePage(1);
                 }}
                 style={{
                   height: 46,
@@ -629,7 +660,7 @@ export default function ProductsPage() {
                 type="button"
                 onClick={() => {
                   setShowDoctorRecommended((current) => !current);
-                  setPage(1);
+                  updatePage(1);
                 }}
                 style={{
                   height: 46,
@@ -762,26 +793,26 @@ export default function ProductsPage() {
                       display: "flex",
                       flexDirection: "column",
                       height: "100%",
-                      borderRadius: 22,
-                      border: "1px solid #E8DDD0",
+                      borderRadius: 16,
+                      border: "0.5px solid rgba(184, 123, 104, 0.28)",
                       background: "#FFFFFF",
                       overflow: "hidden",
-                      boxShadow: "0 2px 12px rgba(198,165,107,0.06)",
+                      boxShadow: "0 10px 28px rgba(43,43,43,0.06)",
                       opacity: 1,
-                      transition: "transform 0.25s ease, box-shadow 0.25s ease",
+                      transition: "all 0.3s ease",
                       cursor: "pointer",
                     }}
-                    className="product-card cursor-pointer dark:border-[#3D3530] dark:bg-[#242220]"
+                    className="product-card cursor-pointer transition-all duration-300 dark:bg-[#242220]"
                     onClick={() => setSelectedProduct(product)}
                     onMouseEnter={(event) => {
-                      event.currentTarget.style.transform = "translateY(-6px)";
+                      event.currentTarget.style.transform = "translateY(-4px)";
                       event.currentTarget.style.boxShadow =
-                        "0 16px 40px rgba(198,165,107,0.22)";
+                        "0 18px 46px rgba(43,43,43,0.12), 0 10px 26px rgba(184,123,104,0.16)";
                     }}
                     onMouseLeave={(event) => {
                       event.currentTarget.style.transform = "translateY(0)";
                       event.currentTarget.style.boxShadow =
-                        "0 2px 12px rgba(198,165,107,0.06)";
+                        "0 10px 28px rgba(43,43,43,0.06)";
                     }}
                   >
                     {isDoctorRecommended ? (
@@ -957,7 +988,8 @@ export default function ProductsPage() {
                           fontFamily: "Playfair Display, serif",
                           color: "#2B2B2B",
                           fontSize: 18,
-                          fontWeight: 700,
+                          fontWeight: 600,
+                          letterSpacing: "0.01em",
                           lineHeight: 1.35,
                           marginBottom: 8,
                           minHeight: "calc(1.35em * 2)",
@@ -1019,12 +1051,12 @@ export default function ProductsPage() {
                         <p
                           style={{
                             fontSize: 24,
-                            fontWeight: 800,
+                            fontWeight: 900,
                             color: "#B87B68",
                             fontFamily: "Playfair Display, serif",
                             margin: 0,
                           }}
-                          className="product-card-price"
+                          className="product-card-price text-lg sm:text-2xl"
                         >
                           {formatBdt(
                             hasGlobalProductDiscount
@@ -1043,16 +1075,16 @@ export default function ProductsPage() {
                         style={{
                           height: 46,
                           width: "100%",
-                          borderRadius: 10,
+                          borderRadius: 999,
                           fontSize: 14,
-                          fontWeight: 600,
+                          fontWeight: 700,
                           border: "none",
                           cursor: "pointer",
                           transition: "all 0.2s ease",
                           background:
                             recentlyAddedId === product.id
                               ? "#EADDCD"
-                              : "#2B2B2B",
+                              : "#B87B68",
                           color:
                             recentlyAddedId === product.id
                               ? "#2B2B2B"
@@ -1064,14 +1096,14 @@ export default function ProductsPage() {
                             return;
                           }
 
-                          event.currentTarget.style.background = "#B87B68";
+                          event.currentTarget.style.background = "#2B2B2B";
                         }}
                         onMouseLeave={(event) => {
                           if (recentlyAddedId === product.id) {
                             return;
                           }
 
-                          event.currentTarget.style.background = "#2B2B2B";
+                          event.currentTarget.style.background = "#B87B68";
                         }}
                       >
                         {recentlyAddedId === product.id
@@ -1093,7 +1125,7 @@ export default function ProductsPage() {
                 <div className="flex flex-wrap items-center justify-center gap-2">
                   <button
                     type="button"
-                    onClick={() => setPage((current) => Math.max(1, current - 1))}
+                    onClick={() => updatePage(page - 1)}
                     disabled={page === 1}
                     className="inline-flex h-10 items-center justify-center rounded-full border border-[#E8DDD0] bg-white px-4 text-sm font-medium text-[#2B2B2B] transition-colors hover:bg-[#F8F5F0] disabled:cursor-not-allowed disabled:opacity-50 dark:border-[#3D3530] dark:bg-[#242220] dark:text-[#F0EDE8] dark:hover:bg-[#1A1814]"
                   >
@@ -1104,7 +1136,7 @@ export default function ProductsPage() {
                     <button
                       key={pageNumber}
                       type="button"
-                      onClick={() => setPage(pageNumber)}
+                      onClick={() => updatePage(pageNumber)}
                       className={`inline-flex h-10 w-10 items-center justify-center rounded-full border text-sm font-medium transition-colors ${
                         pageNumber === page
                           ? "border-[#B87B68] bg-[#B87B68] text-[#141210]"
@@ -1117,9 +1149,7 @@ export default function ProductsPage() {
 
                   <button
                     type="button"
-                    onClick={() =>
-                      setPage((current) => Math.min(totalPages, current + 1))
-                    }
+                    onClick={() => updatePage(Math.min(totalPages, page + 1))}
                     disabled={page === totalPages}
                     className="inline-flex h-10 items-center justify-center rounded-full border border-[#E8DDD0] bg-white px-4 text-sm font-medium text-[#2B2B2B] transition-colors hover:bg-[#F8F5F0] disabled:cursor-not-allowed disabled:opacity-50 dark:border-[#3D3530] dark:bg-[#242220] dark:text-[#F0EDE8] dark:hover:bg-[#1A1814]"
                   >
@@ -1154,15 +1184,41 @@ export default function ProductsPage() {
               <X className="h-5 w-5" />
             </button>
 
-            <div className="relative mx-auto aspect-square w-full max-w-[360px] bg-[#F8F5F0] dark:bg-[#1A1814]">
+            <div className="relative h-[320px] w-full overflow-hidden bg-[#F8F5F0] dark:bg-[#1A1814] sm:h-[360px]">
               {selectedProduct.image ? (
-                <Image
-                  src={selectedProduct.image}
-                  alt={selectedProduct.name}
-                  fill
-                  sizes="500px"
-                  className="object-contain"
-                />
+                <>
+                  <div
+                    aria-hidden="true"
+                    className="absolute inset-y-0 left-0 w-1/3 opacity-95 dark:opacity-70"
+                    style={{
+                      background:
+                        "radial-gradient(circle at 50% 50%, rgba(184,123,104,0.20) 0 4px, transparent 5px 18px, rgba(184,123,104,0.42) 19px 21px, transparent 22px 34px, rgba(184,123,104,0.30) 35px 37px, transparent 38px 48px), repeating-conic-gradient(from 0deg at 50% 50%, rgba(184,123,104,0.30) 0deg 7deg, transparent 7deg 15deg), radial-gradient(circle at 50% 50%, transparent 0 56px, rgba(184,123,104,0.22) 57px 58px, transparent 59px)",
+                      backgroundSize: "118px 118px, 118px 118px, 118px 118px",
+                      backgroundPosition: "center",
+                    }}
+                  />
+                  <div
+                    aria-hidden="true"
+                    className="absolute inset-y-0 right-0 w-1/3 opacity-95 dark:opacity-70"
+                    style={{
+                      background:
+                        "radial-gradient(circle at 50% 50%, rgba(184,123,104,0.20) 0 4px, transparent 5px 18px, rgba(184,123,104,0.42) 19px 21px, transparent 22px 34px, rgba(184,123,104,0.30) 35px 37px, transparent 38px 48px), repeating-conic-gradient(from 0deg at 50% 50%, rgba(184,123,104,0.30) 0deg 7deg, transparent 7deg 15deg), radial-gradient(circle at 50% 50%, transparent 0 56px, rgba(184,123,104,0.22) 57px 58px, transparent 59px)",
+                      backgroundSize: "118px 118px, 118px 118px, 118px 118px",
+                      backgroundPosition: "center",
+                    }}
+                  />
+                  <div
+                    aria-hidden="true"
+                    className="absolute inset-0 bg-[linear-gradient(90deg,rgba(248,245,240,0.48),transparent_25%,transparent_75%,rgba(248,245,240,0.48))] dark:bg-[linear-gradient(90deg,rgba(26,24,20,0.52),transparent_25%,transparent_75%,rgba(26,24,20,0.52))]"
+                  />
+                  <Image
+                    src={selectedProduct.image}
+                    alt={selectedProduct.name}
+                    fill
+                    sizes="500px"
+                    className="relative z-[1] object-contain"
+                  />
+                </>
               ) : (
                 <div className="flex h-full items-center justify-center">
                   <span
@@ -1373,5 +1429,26 @@ export default function ProductsPage() {
         }
       `}</style>
     </main>
+  );
+}
+
+export default function ProductsPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="min-h-screen bg-[#F8F5F0] px-6 py-12 dark:bg-[#141210]">
+          <div className="mx-auto w-full max-w-7xl">
+            <Skeleton className="h-10 w-64" />
+            <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
+              {Array.from({ length: 8 }).map((_, index) => (
+                <SkeletonCard key={index} className="h-[420px]" />
+              ))}
+            </div>
+          </div>
+        </main>
+      }
+    >
+      <ProductsPageContent />
+    </Suspense>
   );
 }

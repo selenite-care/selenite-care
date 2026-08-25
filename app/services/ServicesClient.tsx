@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { Check } from "lucide-react";
 import {
   getMembershipAvailabilityLabel,
   isMembershipAvailable,
@@ -417,18 +418,18 @@ function MembershipModal({
         </div>
 
         <div className="min-h-0 flex-1 overflow-y-auto px-4 py-5 sm:px-8 sm:py-6">
-          <div className="space-y-4 pb-2 sm:space-y-5">
-            {membership.benefits.map((benefit, index) => (
+          <div className="space-y-5 pb-2 sm:space-y-6">
+            {membership.benefits.map((benefit) => (
               <div key={`${membership.key}-${benefit.heading}`}>
-                <div className="flex gap-3">
+                <div className="flex gap-4">
                   <div
-                    className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold"
+                    className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
                     style={{
                       background: "linear-gradient(135deg, #B87B68 0%, #A8864D 100%)",
                       color: "#FFF8EE",
                     }}
                   >
-                    {index + 1}
+                    <Check className="h-5 w-5" aria-hidden="true" />
                   </div>
                   <div>
                     <p
@@ -437,13 +438,13 @@ function MembershipModal({
                       {benefit.heading}
                     </p>
                     {benefit.points.length > 0 ? (
-                      <ul className="mt-2 space-y-1.5">
+                      <ul className="mt-3 space-y-2.5">
                         {benefit.points.map((point) => (
                           <li
                             key={point}
-                            className="flex gap-2 text-sm leading-6 text-[#6E6257] dark:text-[#8A7D75]"
+                            className="flex gap-3 text-sm leading-6 text-[#6E6257] dark:text-[#8A7D75]"
                           >
-                            <span className="text-[#B87B68] dark:text-[#D4B47A]">{"\u2022"}</span>
+                            <Check className="mt-1 h-4 w-4 shrink-0 text-[#B87B68] dark:text-[#D4B47A]" aria-hidden="true" />
                             <span>{point}</span>
                           </li>
                         ))}
@@ -776,7 +777,9 @@ export default function ServicesClient({
                   key={membership.key}
                   type="button"
                   onClick={() => setSelectedMembership(membership)}
-                  className="block w-full cursor-pointer border-0 bg-transparent p-0 text-left"
+                  className={`block w-full cursor-pointer border-0 bg-transparent p-0 text-left transition-transform duration-300 ${
+                    membership.key === "signature" ? "lg:scale-[1.03]" : ""
+                  }`}
                   style={{ borderRadius: 20 }}
                 >
                   <MembershipCard
