@@ -1,6 +1,11 @@
 import Link from "next/link";
 import NextAuth from "next-auth";
 import { redirect } from "next/navigation";
+import { Sparkles } from "lucide-react";
+import DashboardWelcome from "./DashboardWelcome";
+import LatestSkinAssessmentCard from "./LatestSkinAssessmentCard";
+import NextAppointmentCard from "./NextAppointmentCard";
+import QuickActions from "./QuickActions";
 import MembershipCountdown from "@/components/membership/MembershipCountdown";
 import { authConfig } from "@/lib/auth";
 import { db } from "@/lib/db";
@@ -67,38 +72,60 @@ export default async function DashboardPage() {
 
   await expirePastActiveMemberships();
 
-  const [totalBookings, lastBooking, membership] = await Promise.all([
-    db.booking.count({
-      where: {
-        userId: session.user.id,
-      },
-    }),
-    db.booking.findFirst({
-      where: {
-        userId: session.user.id,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-      select: {
-        status: true,
-      },
-    }),
-    db.membership.findFirst({
-      where: {
-        userId: session.user.id,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-      select: {
-        membershipId: true,
-        tier: true,
-        status: true,
-        expiresAt: true,
-      },
-    }),
-  ]);
+  const [totalBookings, lastBooking, membership, completedDiagnosedBookings] =
+    await Promise.all([
+      db.booking.count({
+        where: {
+          userId: session.user.id,
+        },
+      }),
+      db.booking.findFirst({
+        where: {
+          userId: session.user.id,
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+        select: {
+          status: true,
+        },
+      }),
+      db.membership.findFirst({
+        where: {
+          userId: session.user.id,
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+        select: {
+          membershipId: true,
+          tier: true,
+          status: true,
+          createdAt: true,
+          expiresAt: true,
+        },
+      }),
+      db.booking.findMany({
+        where: {
+          userId: session.user.id,
+          status: "COMPLETED",
+          diagnosis: {
+            isNot: null,
+          },
+        },
+        select: {
+          diagnosis: {
+            select: {
+              recommendations: {
+                select: {
+                  id: true,
+                },
+              },
+            },
+          },
+        },
+      }),
+    ]);
 
   const currentTime = new Date().getTime();
   const hasActiveMembership =
@@ -118,182 +145,153 @@ export default async function DashboardPage() {
       ? getUpgradeOptions(membership.tier)
       : [];
   const appointmentCtaHref = hasActiveMembership ? "/appointment" : "/services";
+  const totalRecommendedProducts = completedDiagnosedBookings.reduce(
+    (total, booking) => total + (booking.diagnosis?.recommendations.length ?? 0),
+    0,
+  );
   const appointmentCtaSubtext = hasActiveMembership
     ? "Your membership is active — book now"
     : "Get a membership to book appointments";
 
   return (
-    <section>
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="text-muted text-sm font-medium uppercase">
-            Client Dashboard
-          </p>
-          <h1 className="text-page mt-2 text-3xl font-semibold tracking-tight" style={{ fontFamily: "Playfair Display, serif" }}>
-            Welcome, {session.user.name ?? "Client"}
-          </h1>
-          <p className="text-muted mt-3 text-sm leading-6">
-            Here is a quick look at your recent booking activity.
-          </p>
-        </div>
+    <section className="flex flex-col gap-6 pb-24 md:pb-6">
+      <DashboardWelcome name={session.user.name} />
 
-        <div className="sm:text-right">
-          <Link
-            href={appointmentCtaHref}
-            className="inline-flex h-11 items-center justify-center rounded-md bg-[var(--sidebar)] px-5 text-sm font-medium text-[var(--sidebar-text)] transition-colors hover:opacity-90 dark:bg-[#EADDCD] dark:text-[#2B2B2B]"
-          >
-            Book New Appointment
-          </Link>
-          <p className="text-muted mt-2 text-xs">
-            {appointmentCtaSubtext}
-          </p>
-        </div>
-      </div>
+      <QuickActions appointmentHref={appointmentCtaHref} />
 
-      <div className="mt-8 grid gap-5 md:grid-cols-3">
-        <div className="md:col-span-3">
-          {hasActiveMembership && membership?.expiresAt ? (
-            <div className="space-y-4">
-              <MembershipCountdown
-                expiresAt={membership.expiresAt}
-                membershipId={membership.membershipId}
-                tier={membership.tier}
-              />
-
-              {membership.tier !== "PLATINUM" && upgradeOptions.length > 0 ? (
-                <article
-                  className="bg-card border-themed rounded-lg border border-l-4 border-l-[var(--gold)] p-6"
-                >
-                  <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                    <div>
-                      <p className="text-muted text-sm font-medium">
-                        Upgrade Membership
-                      </p>
-                      <p className="text-page mt-3 text-lg font-semibold">
-                        Unlock more support with a higher tier
-                      </p>
-                      <p className="text-muted mt-2 text-sm leading-6">
-                        Your current tier is {membership.tier}. You can upgrade at
-                        any time for an expanded care experience.
-                      </p>
-                    </div>
-
-                    <div className="flex w-full flex-col gap-3 sm:w-auto">
-                      {upgradeOptions.map((option) => (
-                        <Link
-                          key={option.tier}
-                          href={`/membership/payment?tier=${option.tier}`}
-                          className="inline-flex min-h-[44px] items-center justify-center rounded-md bg-[var(--sidebar)] px-5 py-3 text-sm font-medium text-[var(--sidebar-text)] transition-colors hover:opacity-90"
-                        >
-                          {option.label}
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                </article>
+      <article
+        className={`overflow-hidden rounded-2xl border border-[#EADDCD] p-5 shadow-sm dark:border-[#3D3530] ${
+          totalBookings === 0
+            ? "bg-[linear-gradient(135deg,#F8F5F0_0%,#EFE1D2_54%,rgba(184,123,104,0.16)_100%)] dark:bg-[linear-gradient(135deg,#242220_0%,#1A1814_58%,rgba(212,180,122,0.16)_100%)]"
+            : "bg-white dark:bg-[#242220]"
+        }`}
+      >
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-start gap-4">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#B87B68]/15 text-[#B87B68] dark:bg-[#D4B47A]/15 dark:text-[#D4B47A]">
+              <Sparkles className="h-6 w-6" aria-hidden="true" />
+            </div>
+            <div>
+              <h2
+                className="text-2xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]"
+                style={{ fontFamily: "Playfair Display, serif" }}
+              >
+                My Skin Journey
+              </h2>
+              <p className="mt-2 text-sm leading-6 text-[#884F38] dark:text-[#8A7D75]">
+                {totalBookings > 0
+                  ? `You have had ${totalBookings} ${
+                      totalBookings === 1 ? "consultation" : "consultations"
+                    } with us`
+                  : "Your journey of transformation starts here"}
+              </p>
+              {totalRecommendedProducts > 0 ? (
+                <p className="mt-3 inline-flex rounded-full bg-[#B87B68]/15 px-3 py-1 text-xs font-semibold text-[#8A6A2F] dark:bg-[#D4B47A]/15 dark:text-[#D4B47A]">
+                  {totalRecommendedProducts} products recommended across your
+                  journey
+                </p>
               ) : null}
             </div>
-          ) : isExpiredMembership ? (
-            <article
-              className="bg-card border-themed rounded-lg border border-l-4 border-l-[var(--gold)] p-6"
-            >
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                <div>
-                  <p className="text-muted text-sm font-medium">
-                    Membership Status
-                  </p>
-                  <p
-                    className="mt-3 text-2xl font-semibold tracking-tight text-red-600"
-                  >
-                    Membership Expired
-                  </p>
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    <span
-                      className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] ${getTierClasses(
-                        membership.tier,
-                      )}`}
-                    >
-                      {membership.tier}
-                    </span>
-                    <span
-                      className="inline-flex rounded-full bg-red-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-red-600 dark:bg-red-950/40 dark:text-red-300"
-                    >
-                      {membership.status}
-                    </span>
-                  </div>
-                  <p className="text-muted mt-4 text-sm leading-6">
-                    Your membership is no longer active. Renew to continue your
-                    consultation journey and unlock appointment access again.
-                  </p>
-                </div>
+          </div>
 
-                <Link
-                  href="/services"
-                  className="inline-flex h-11 items-center justify-center rounded-md bg-[var(--sidebar)] px-5 text-sm font-medium text-[var(--sidebar-text)] transition-colors hover:opacity-90"
-                >
-                  Get Membership
-                </Link>
-              </div>
-            </article>
-          ) : (
-            <article
-              className="bg-card border-themed rounded-lg border border-l-4 border-l-[var(--gold)] p-6"
-            >
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                <div>
-                  <p className="text-muted text-sm font-medium">
-                    Membership Status
-                  </p>
-                  <p className="text-page mt-3 text-2xl font-semibold tracking-tight">
-                    No Membership Yet
-                  </p>
-                  <p className="text-muted mt-4 text-sm leading-6">
-                    Get started with a membership to access guided skin care,
-                    ongoing support, and appointment booking.
-                  </p>
-                </div>
-
-                <Link
-                  href="/services"
-                  className="inline-flex h-11 items-center justify-center rounded-md bg-[var(--sidebar)] px-5 text-sm font-medium text-[var(--sidebar-text)] transition-colors hover:opacity-90"
-                >
-                  Get Membership
-                </Link>
-              </div>
-            </article>
-          )}
+          <Link
+            href="/dashboard/journey"
+            className="inline-flex h-11 shrink-0 items-center justify-center rounded-md bg-[var(--sidebar)] px-5 text-sm font-medium text-[var(--sidebar-text)] transition-colors hover:opacity-90"
+          >
+            View My Journey
+          </Link>
         </div>
+      </article>
 
-        <article
-          className="bg-card border-themed rounded-lg border border-l-4 border-l-[var(--gold)] p-6"
-        >
-          <p className="text-muted text-sm font-medium">
-            Logged-in Client
-          </p>
-          <p className="text-page mt-4 text-2xl font-semibold tracking-tight">
-            {session.user.name ?? "Client"}
+      {hasActiveMembership && membership?.expiresAt ? (
+        <div className="flex flex-col gap-4">
+          <MembershipCountdown
+            createdAt={membership.createdAt}
+            expiresAt={membership.expiresAt}
+            membershipId={membership.membershipId}
+            tier={membership.tier}
+          />
+          {membership.tier !== "PLATINUM" && upgradeOptions.length > 0 ? (
+            <article className="bg-card border-themed rounded-xl border border-l-4 border-l-[var(--gold)] p-5">
+              <p className="text-muted text-xs font-semibold uppercase tracking-widest">
+                Upgrade Available
+              </p>
+              <p className="text-page mt-2 text-base font-semibold">
+                Unlock more with a higher tier
+              </p>
+              <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+                {upgradeOptions.map((option) => (
+                  <Link
+                    key={option.tier}
+                    href={`/membership/payment?tier=${option.tier}`}
+                    className="inline-flex h-10 items-center justify-center rounded-md bg-[var(--sidebar)] px-4 text-sm font-medium text-[var(--sidebar-text)] transition-colors hover:opacity-90"
+                  >
+                    {option.label}
+                  </Link>
+                ))}
+              </div>
+            </article>
+          ) : null}
+        </div>
+      ) : isExpiredMembership ? (
+        <article className="rounded-xl border border-red-300 border-l-4 border-l-red-600 bg-red-50 p-5 dark:border-red-900/60 dark:border-l-red-500 dark:bg-red-950/20">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm font-semibold text-red-700 dark:text-red-300">
+                Membership Expired
+              </p>
+              <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                Renew to book your next consultation.
+              </p>
+            </div>
+            <Link
+              href="/services"
+              className="inline-flex h-10 items-center justify-center whitespace-nowrap rounded-md bg-red-600 px-5 text-sm font-semibold text-white transition-colors hover:bg-red-700"
+            >
+              Renew Now
+            </Link>
+          </div>
+        </article>
+      ) : (
+        <article className="rounded-xl border border-[#EADDCD] border-l-4 border-l-[#B87B68] bg-[#F8F5F0] p-5 dark:border-[#3D3530] dark:bg-[#242220]">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-page text-base font-semibold">
+                No Membership Yet
+              </p>
+              <p className="text-muted mt-1 text-sm">
+                Get your first membership to unlock consultations.
+              </p>
+            </div>
+            <Link
+              href="/services"
+              className="inline-flex h-10 items-center justify-center whitespace-nowrap rounded-md bg-[var(--sidebar)] px-5 text-sm font-medium text-[var(--sidebar-text)] transition-colors hover:opacity-90"
+            >
+              Get Membership
+            </Link>
+          </div>
+        </article>
+      )}
+
+      <NextAppointmentCard hasActiveMembership={Boolean(hasActiveMembership)} />
+
+      <LatestSkinAssessmentCard />
+
+      <div className="grid grid-cols-3 gap-3">
+        <article className="bg-card border-themed rounded-xl border p-4 text-center">
+          <p className="text-muted text-xs font-medium">Total Bookings</p>
+          <p className="text-page mt-2 text-2xl font-bold">{totalBookings}</p>
+        </article>
+        <article className="bg-card border-themed rounded-xl border p-4 text-center">
+          <p className="text-muted text-xs font-medium">Last Status</p>
+          <p className="text-page mt-2 truncate text-sm font-semibold">
+            {lastBooking?.status ?? "—"}
           </p>
         </article>
-
-        <article
-          className="bg-card border-themed rounded-lg border border-l-4 border-l-[var(--gold)] p-6"
-        >
-          <p className="text-muted text-sm font-medium">
-            Total Bookings
-          </p>
-          <p className="text-page mt-4 text-2xl font-semibold tracking-tight">
-            {totalBookings}
-          </p>
-        </article>
-
-        <article
-          className="bg-card border-themed rounded-lg border border-l-4 border-l-[var(--gold)] p-6"
-        >
-          <p className="text-muted text-sm font-medium">
-            Last Booking Status
-          </p>
-          <p className="text-page mt-4 text-2xl font-semibold tracking-tight">
-            {lastBooking?.status ?? "No bookings yet"}
+        <article className="bg-card border-themed rounded-xl border p-4 text-center">
+          <p className="text-muted text-xs font-medium">Membership</p>
+          <p className="text-page mt-2 truncate text-sm font-semibold">
+            {membership?.tier ?? "None"}
           </p>
         </article>
       </div>

@@ -1,10 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
 type MembershipTier = "SIGNATURE" | "CRYSTAL" | "PLATINUM" | string;
 
 type MembershipCountdownProps = {
+  createdAt: Date;
   expiresAt: Date;
   membershipId: string;
   tier: MembershipTier;
@@ -63,11 +65,25 @@ function pad(value: number) {
   return value.toString().padStart(2, "0");
 }
 
+function getProgressBarColor(usedPercentage: number) {
+  if (usedPercentage > 80) {
+    return "bg-red-500";
+  }
+
+  if (usedPercentage >= 50) {
+    return "bg-amber-500";
+  }
+
+  return "bg-[#B87B68]";
+}
+
 export default function MembershipCountdown({
+  createdAt,
   expiresAt,
   membershipId,
   tier,
 }: MembershipCountdownProps) {
+  const startDate = useMemo(() => new Date(createdAt), [createdAt]);
   const targetDate = useMemo(() => new Date(expiresAt), [expiresAt]);
   const [now, setNow] = useState<number | null>(null);
 
@@ -84,6 +100,18 @@ export default function MembershipCountdown({
   }, []);
 
   const remaining = now === null ? null : getTimeRemaining(targetDate, now);
+  const totalMembershipMs = Math.max(
+    targetDate.getTime() - startDate.getTime(),
+    1,
+  );
+  const usedMembershipMs =
+    now === null ? 0 : Math.max(now - startDate.getTime(), 0);
+  const usedPercentage = Math.min(
+    Math.max((usedMembershipMs / totalMembershipMs) * 100, 0),
+    100,
+  );
+  const daysRemaining = remaining?.days ?? 0;
+  const shouldShowRenewButton = !remaining?.expired && daysRemaining < 14;
 
   return (
     <article className="rounded-lg border border-[#EADDCD] border-l-4 border-l-[#B87B68] bg-white p-6 dark:border-[#3D3530] dark:bg-[#242220]">
@@ -148,6 +176,35 @@ export default function MembershipCountdown({
               ))}
             </div>
           )}
+        </div>
+      </div>
+
+      <div className="mt-6 border-t border-[#EADDCD] pt-5 dark:border-[#3D3530]">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0 flex-1">
+            <div className="h-2.5 overflow-hidden rounded-full bg-[#EFE7DC] dark:bg-[#1A1814]">
+              <div
+                className={`h-full rounded-full transition-all duration-500 ${getProgressBarColor(
+                  usedPercentage,
+                )}`}
+                style={{ width: `${usedPercentage}%` }}
+              />
+            </div>
+            <p className="mt-3 text-sm font-medium text-[#884F38] dark:text-[#8A7D75]">
+              {remaining?.expired
+                ? "0 days remaining"
+                : `${daysRemaining} days remaining`}
+            </p>
+          </div>
+
+          {shouldShowRenewButton ? (
+            <Link
+              href="/services"
+              className="inline-flex h-11 shrink-0 items-center justify-center rounded-md bg-[#B87B68] px-5 text-sm font-semibold text-[#F8F5F0] transition-colors hover:bg-[#D4B47A] hover:text-[#141210]"
+            >
+              Renew Membership
+            </Link>
+          ) : null}
         </div>
       </div>
     </article>

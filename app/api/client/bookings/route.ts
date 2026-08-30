@@ -28,6 +28,7 @@ export async function GET() {
       },
       diagnosis: {
         select: {
+          problemIdentification: true,
           recommendations: {
             select: {
               productId: true,
