@@ -6,6 +6,7 @@ import {
   CalendarCheck,
   CreditCard,
   LayoutDashboard,
+  Map,
   MessageCircle,
   Package,
   ScanFace,
@@ -19,6 +20,7 @@ const dashboardLinks = [
   { href: "/dashboard/payments", label: "Payments", icon: CreditCard },
   { href: "/dashboard/orders", label: "Orders", icon: Package },
   { href: "/dashboard/survey", label: "Skin", icon: ScanFace },
+  { href: "/dashboard/journey", label: "Journey", icon: Map },
   { href: "/dashboard/messages", label: "Messages", icon: MessageCircle },
   { href: "/dashboard/profile", label: "Profile", icon: UserRound },
 ];
@@ -71,7 +73,7 @@ export function DashboardMobileNav() {
 
   return (
     <nav
-      className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-7 border-t px-1 py-2 md:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-4 border-t px-1 py-2 md:hidden"
       style={{
         backgroundColor: "var(--sidebar)",
         borderColor: "var(--gold)",
