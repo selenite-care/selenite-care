@@ -17,6 +17,7 @@ import { FormEvent, useEffect, useState } from "react";
 import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
 import InAppBrowserWarning from "@/components/ui/InAppBrowserWarning";
 import LandingLeadCaptureSection from "@/components/landing/LandingLeadCaptureSection";
+import SkinQuiz from "@/components/landing/SkinQuiz";
 import { FAQS } from "@/lib/faq";
 import {
   getMembershipAvailabilityLabel,
@@ -159,6 +160,11 @@ const CONTENT = {
           desc: "Follow your personalized plan and see results.",
         },
       ],
+    },
+    quiz: {
+      heading: "Discover Your Skin Type",
+      subtext:
+        "Take our 4-question skin quiz to get a personalized membership recommendation — free, no sign-up required.",
     },
     video: {
       heading: "See How We Work",
@@ -429,6 +435,11 @@ const CONTENT = {
             "\u09ac\u09cd\u09af\u0995\u09cd\u09a4\u09bf\u0997\u09a4\u0995\u09c3\u09a4 \u09aa\u09b0\u09bf\u0995\u09b2\u09cd\u09aa\u09a8\u09be \u0985\u09a8\u09c1\u09b8\u09b0\u09a3 \u0995\u09b0\u09c1\u09a8 \u098f\u09ac\u0982 \u09ab\u09b2\u09be\u09ab\u09b2 \u09a6\u09c7\u0996\u09c1\u09a8\u0964",
         },
       ],
+    },
+    quiz: {
+      heading: "\u0986\u09aa\u09a8\u09be\u09b0 \u09b8\u09cd\u0995\u09bf\u09a8 \u099f\u09be\u0987\u09aa \u099c\u09be\u09a8\u09c1\u09a8",
+      subtext:
+        "\u09ae\u09be\u09a4\u09cd\u09b0 \u09ea\u099f\u09bf \u09aa\u09cd\u09b0\u09b6\u09cd\u09a8\u09c7\u09b0 \u09b8\u09cd\u0995\u09bf\u09a8 \u0995\u09c1\u0987\u099c \u09a8\u09bf\u09df\u09c7 \u09ab\u09cd\u09b0\u09bf\u09a4\u09c7 \u0986\u09aa\u09a8\u09be\u09b0 \u099c\u09a8\u09cd\u09af \u09aa\u09be\u09b0\u09cd\u09b8\u09cb\u09a8\u09be\u09b2\u09be\u0987\u099c\u09a1 \u09ae\u09c7\u09ae\u09cd\u09ac\u09be\u09b0\u09b6\u09bf\u09aa \u09b0\u09c7\u0995\u09ae\u09c7\u09a8\u09cd\u09a1\u09c7\u09b6\u09a8 \u09aa\u09be\u09a8\u0964 \u0995\u09cb\u09a8\u09cb \u09b8\u09be\u0987\u09a8-\u0986\u09aa \u09b2\u09be\u0997\u09ac\u09c7 \u09a8\u09be\u0964",
     },
     video: {
       heading:
@@ -745,6 +756,7 @@ export default function LandingPage() {
   const aboutContent = CONTENT[language].about;
   const membershipContent = CONTENT[language].membership;
   const howItWorksContent = CONTENT[language].howItWorks;
+  const quizContent = CONTENT[language].quiz;
   const videoContent = CONTENT[language].video;
   const doctorsContent = CONTENT[language].doctors;
   const testimonialsContent = CONTENT[language].testimonials;
@@ -1113,21 +1125,31 @@ export default function LandingPage() {
         }
       `}</style>
 
-      <header className="sticky top-0 z-50 border-b border-[#EADDCD] bg-[#F8F5F0] px-4 py-3 dark:border-[#3D3530] dark:bg-[#141210]">
-        <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-2 sm:gap-3">
+      <header className="fixed inset-x-0 top-0 z-50 border-b border-[#EADDCD]/80 bg-[#F8F5F0]/90 px-4 backdrop-blur-md transition-colors duration-200 dark:border-[#3D3530]/80 dark:bg-[#141210]/90">
+        <div className="mx-auto flex h-16 w-full max-w-screen-2xl items-center justify-between gap-2 sm:gap-4">
           <Link
             href="/landing"
-            className="min-w-0 shrink-0 transition-opacity hover:opacity-85"
+            className="flex min-w-0 shrink-0 items-center gap-2 transition-opacity hover:opacity-85"
           >
-            <p
-              className="text-lg font-bold text-[#2B2B2B] dark:text-[#F0EDE8] sm:text-2xl"
-              style={{ fontFamily: "Playfair Display, serif" }}
-            >
-              Selenite Care
-            </p>
-            <p className="mt-1 text-xs text-[#884F38] dark:text-[#8A7D75]">
-              {headerContent.tagline}
-            </p>
+            <Image
+              src="/final_logo.png"
+              alt="Selenite Care Logo"
+              width={40}
+              height={40}
+              priority
+              className="h-10 w-10 object-contain"
+            />
+            <div className="min-w-0">
+              <p
+                className="truncate text-xl font-semibold tracking-[0.03em] text-[#2B2B2B] dark:text-[#F0EDE8] sm:text-2xl"
+                style={{ fontFamily: "Playfair Display, serif" }}
+              >
+                Selenite Care
+              </p>
+              <p className="hidden text-xs text-[#884F38] dark:text-[#8A7D75] sm:block">
+                {headerContent.tagline}
+              </p>
+            </div>
           </Link>
 
           <button
@@ -1135,7 +1157,7 @@ export default function LandingPage() {
             onClick={() =>
               setLanguage((current) => (current === "en" ? "bn" : "en"))
             }
-            className="inline-flex h-10 shrink-0 items-center justify-center rounded-full border border-[#B87B68] bg-[#EADDCD] px-4 text-sm font-medium text-[#2B2B2B] transition-colors hover:bg-[#E3D5C7] dark:bg-[#221d1a] dark:text-[#F0EDE8] dark:hover:bg-[#2A241F]"
+            className="inline-flex h-10 shrink-0 items-center justify-center rounded-full border border-[#B87B68] bg-[#EADDCD]/85 px-3 text-sm font-medium text-[#2B2B2B] shadow-sm transition-colors hover:bg-[#E3D5C7] dark:bg-[#221d1a]/90 dark:text-[#F0EDE8] dark:hover:bg-[#2A241F] sm:px-4"
             aria-label={`Switch language to ${getInactiveLanguageLabel(language)}`}
           >
             {getInactiveLanguageLabel(language)}
@@ -1144,7 +1166,7 @@ export default function LandingPage() {
           <div className="flex shrink-0 items-center gap-2">
             <a
               href="tel:+8801647660300"
-              className="inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-md border border-[#B87B68] px-3 text-sm font-medium text-[#B87B68] transition-colors hover:bg-[#B87B68]/8 dark:text-[#D4B47A] dark:hover:bg-[#D4B47A]/10 sm:px-4"
+              className="inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-md border border-[#B87B68] px-3 text-sm font-medium text-[#B87B68] transition-colors hover:bg-[#B87B68]/10 dark:text-[#D4B47A] dark:hover:bg-[#D4B47A]/10 sm:px-4"
             >
               <Phone className="h-4 w-4" />
               <span className="hidden sm:inline">{headerContent.callButton}</span>
@@ -1152,7 +1174,7 @@ export default function LandingPage() {
 
             <Link
               href="/services"
-              className="inline-flex h-10 shrink-0 items-center justify-center rounded-md bg-[#2B2B2B] px-3 text-sm font-medium text-[#F8F5F0] transition-colors hover:bg-[#3A3734] dark:bg-[#B87B68] dark:text-[#141210] dark:hover:bg-[#D4B47A] sm:px-4"
+              className="inline-flex h-10 shrink-0 items-center justify-center rounded-md bg-[#2B2B2B] px-3 text-sm font-medium text-[#F8F5F0] shadow-sm transition-colors hover:bg-[#3A3734] dark:bg-[#B87B68] dark:text-[#141210] dark:hover:bg-[#D4B47A] sm:px-4"
             >
               <span className="sm:hidden">{headerContent.joinButtonMobile}</span>
               <span className="hidden sm:inline">{headerContent.joinButton}</span>
@@ -1161,14 +1183,14 @@ export default function LandingPage() {
         </div>
       </header>
 
-      <main>
+      <main className="pt-16">
         <section className="bg-[#F8F5F0] px-4 py-6 dark:bg-[#141210] sm:px-6 sm:py-8">
           <div className="mx-auto max-w-7xl rounded-[32px] border border-[#EADDCD] bg-[radial-gradient(circle_at_top_right,_rgba(198,165,107,0.16),_transparent_35%),linear-gradient(180deg,#F3EEE6_0%,#ECF1E6_100%)] p-4 shadow-[0_24px_70px_rgba(43,43,43,0.10)] dark:border-[#3D3530] dark:bg-[radial-gradient(circle_at_top_right,_rgba(198,165,107,0.12),_transparent_30%),linear-gradient(180deg,#171411_0%,#1C1916_100%)] sm:p-5 lg:p-6">
             <div className="grid items-center gap-8 lg:grid-cols-[1fr_1fr]">
               <div className="space-y-3">
                 <div className="relative h-[280px] overflow-hidden rounded-[24px] border-2 border-white/80 bg-[#E6D8C8] shadow-[0_16px_50px_rgba(43,43,43,0.12)] dark:border-[#F0EDE8]/10 sm:h-[360px] lg:h-[440px] xl:h-auto xl:min-h-[520px]">
                   <Image
-                    src="https://res.cloudinary.com/dwokjn6zk/image/upload/v1782471237/WhatsApp_Image_2026-06-26_at_4.52.20_PM_paxatd.jpg"
+                    src="/images/land.jpeg"
                     alt="Selenite Care online skincare consultation"
                     fill
                     priority
@@ -1341,118 +1363,6 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section className="bg-[#EADDCD] px-6 py-12 dark:bg-[#221d1a]">
-          <div className="mx-auto w-full max-w-6xl">
-            <div className="mx-auto max-w-3xl text-center">
-              <h2
-                className="text-3xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8] sm:text-4xl"
-                style={{ fontFamily: "Playfair Display, serif" }}
-              >
-                {membershipContent.heading}
-              </h2>
-              <p className="mt-4 text-base leading-7 text-[#6E6257] dark:text-[#8A7D75]">
-                {membershipContent.subtext}
-              </p>
-            </div>
-
-            <div className="mt-10 grid gap-6 md:grid-cols-3">
-              {membershipPlans.map((plan) => {
-                const isPlanAvailable = isMembershipAvailable(plan.tier);
-                const planButtonLabel = isPlanAvailable
-                  ? plan.button
-                  : getMembershipAvailabilityLabel(plan.tier);
-
-                return (
-                  <article
-                    key={plan.title}
-                    className="flex h-full flex-col rounded-2xl border border-[#EADDCD] bg-white p-6 shadow-sm dark:border-[#3D3530] dark:bg-[#242220]"
-                  >
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <h3
-                      className="text-2xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]"
-                      style={{ fontFamily: "Playfair Display, serif" }}
-                    >
-                      {plan.title}
-                    </h3>
-
-                    <span className="rounded-full border border-[#EADDCD] bg-[#F8F5F0] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#8C7967] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#8A7D75]">
-                      {plan.duration}
-                    </span>
-                  </div>
-
-                  <div className="mt-5 flex flex-wrap items-baseline gap-3">
-                    {"price" in plan ? (
-                      <p
-                        className="text-3xl font-bold text-[#B87B68]"
-                        style={{ fontFamily: "Playfair Display, serif" }}
-                      >
-                        {plan.price}
-                      </p>
-                    ) : null}
-
-                    {"original" in plan && plan.original ? (
-                      <span className="text-sm font-semibold text-[#884F38] line-through decoration-[1.5px] dark:text-[#8A7D75]">
-                        {plan.original}
-                      </span>
-                    ) : null}
-                  </div>
-
-                  <div className="mt-3 space-y-2">
-                    {"badge" in plan && plan.badge ? (
-                      <span
-                        className={`inline-flex rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] ${
-                          String(plan.badge).includes("OFF on All Products")
-                            ? "bg-green-100 text-green-700 dark:bg-green-950/30 dark:text-green-300"
-                            : "bg-red-100 text-red-600 dark:bg-red-950/30 dark:text-red-300"
-                        }`}
-                      >
-                        {plan.badge}
-                      </span>
-                    ) : null}
-                    {"priceNote" in plan && plan.priceNote ? (
-                      <p className="text-xs leading-6 text-[#884F38] dark:text-[#8A7D75]">
-                        {plan.priceNote}
-                      </p>
-                    ) : null}
-                  </div>
-
-                  <ul className="mt-6 space-y-3">
-                    {plan.benefits.map((benefit) => (
-                      <li
-                        key={benefit}
-                        className="flex items-start gap-3 text-sm leading-6 text-[#6E6257] dark:text-[#8A7D75]"
-                      >
-                        <Check className="mt-1 h-4 w-4 shrink-0 text-[#B87B68]" />
-                        <span>{benefit}</span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  <div className="mt-8 flex-1" />
-
-                  {isPlanAvailable ? (
-                    <Link
-                      href={plan.link}
-                      className="inline-flex h-12 w-full items-center justify-center rounded-md bg-[#2B2B2B] px-5 text-sm font-medium text-[#F8F5F0] transition-colors hover:bg-[#3A3734] dark:bg-[#B87B68] dark:text-[#141210] dark:hover:bg-[#D4B47A]"
-                    >
-                      {planButtonLabel}
-                    </Link>
-                  ) : (
-                    <button
-                      type="button"
-                      disabled
-                      className="inline-flex h-12 w-full cursor-not-allowed items-center justify-center rounded-md border border-[#EADDCD] bg-[#F4EFE8] px-5 text-sm font-medium text-[#8C7967] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#8A7D75]"
-                    >
-                      {planButtonLabel}
-                    </button>
-                  )}
-                  </article>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-
         <section className="bg-[#F8F5F0] px-6 py-12 dark:bg-[#141210]">
           <div className="mx-auto w-full max-w-6xl">
             <div className="mx-auto max-w-3xl text-center">
@@ -1499,6 +1409,138 @@ export default function LandingPage() {
                   ) : null}
                 </div>
               ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="bg-[#F8F5F0] px-6 py-12 dark:bg-[#141210]">
+          <div className="mx-auto w-full max-w-6xl">
+            <div className="mx-auto max-w-3xl text-center">
+              <h2
+                className="text-3xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8] sm:text-4xl"
+                style={{ fontFamily: "Playfair Display, serif" }}
+              >
+                {quizContent.heading}
+              </h2>
+              <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-[#6E6257] dark:text-[#8A7D75]">
+                {quizContent.subtext}
+              </p>
+            </div>
+
+            <div className="mx-auto mt-10 w-full max-w-2xl">
+              <SkinQuiz />
+            </div>
+          </div>
+        </section>
+
+        <section className="bg-[#EADDCD] px-6 py-12 dark:bg-[#221d1a]">
+          <div className="mx-auto w-full max-w-6xl">
+            <div className="mx-auto max-w-3xl text-center">
+              <h2
+                className="text-3xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8] sm:text-4xl"
+                style={{ fontFamily: "Playfair Display, serif" }}
+              >
+                {membershipContent.heading}
+              </h2>
+              <p className="mt-4 text-base leading-7 text-[#6E6257] dark:text-[#8A7D75]">
+                {membershipContent.subtext}
+              </p>
+            </div>
+
+            <div className="mt-10 grid gap-6 md:grid-cols-3">
+              {membershipPlans.map((plan) => {
+                const isPlanAvailable = isMembershipAvailable(plan.tier);
+                const planButtonLabel = isPlanAvailable
+                  ? plan.button
+                  : getMembershipAvailabilityLabel(plan.tier);
+
+                return (
+                  <article
+                    key={plan.title}
+                    className="flex h-full flex-col rounded-2xl border border-[#EADDCD] bg-white p-6 shadow-sm dark:border-[#3D3530] dark:bg-[#242220]"
+                  >
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <h3
+                        className="text-2xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]"
+                        style={{ fontFamily: "Playfair Display, serif" }}
+                      >
+                        {plan.title}
+                      </h3>
+
+                      <span className="rounded-full border border-[#EADDCD] bg-[#F8F5F0] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#8C7967] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#8A7D75]">
+                        {plan.duration}
+                      </span>
+                    </div>
+
+                    <div className="mt-5 flex flex-wrap items-baseline gap-3">
+                      {"price" in plan ? (
+                        <p
+                          className="text-3xl font-bold text-[#B87B68]"
+                          style={{ fontFamily: "Playfair Display, serif" }}
+                        >
+                          {plan.price}
+                        </p>
+                      ) : null}
+
+                      {"original" in plan && plan.original ? (
+                        <span className="text-sm font-semibold text-[#884F38] line-through decoration-[1.5px] dark:text-[#8A7D75]">
+                          {plan.original}
+                        </span>
+                      ) : null}
+                    </div>
+
+                    <div className="mt-3 space-y-2">
+                      {"badge" in plan && plan.badge ? (
+                        <span
+                          className={`inline-flex rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] ${
+                            String(plan.badge).includes("OFF on All Products")
+                              ? "bg-green-100 text-green-700 dark:bg-green-950/30 dark:text-green-300"
+                              : "bg-red-100 text-red-600 dark:bg-red-950/30 dark:text-red-300"
+                          }`}
+                        >
+                          {plan.badge}
+                        </span>
+                      ) : null}
+                      {"priceNote" in plan && plan.priceNote ? (
+                        <p className="text-xs leading-6 text-[#884F38] dark:text-[#8A7D75]">
+                          {plan.priceNote}
+                        </p>
+                      ) : null}
+                    </div>
+
+                    <ul className="mt-6 space-y-3">
+                      {plan.benefits.map((benefit) => (
+                        <li
+                          key={benefit}
+                          className="flex items-start gap-3 text-sm leading-6 text-[#6E6257] dark:text-[#8A7D75]"
+                        >
+                          <Check className="mt-1 h-4 w-4 shrink-0 text-[#B87B68]" />
+                          <span>{benefit}</span>
+                        </li>
+                      ))}
+                    </ul>
+
+                    <div className="mt-8 flex-1" />
+
+                    {isPlanAvailable ? (
+                      <Link
+                        href={plan.link}
+                        className="inline-flex h-12 w-full items-center justify-center rounded-md bg-[#2B2B2B] px-5 text-sm font-medium text-[#F8F5F0] transition-colors hover:bg-[#3A3734] dark:bg-[#B87B68] dark:text-[#141210] dark:hover:bg-[#D4B47A]"
+                      >
+                        {planButtonLabel}
+                      </Link>
+                    ) : (
+                      <button
+                        type="button"
+                        disabled
+                        className="inline-flex h-12 w-full cursor-not-allowed items-center justify-center rounded-md border border-[#EADDCD] bg-[#F4EFE8] px-5 text-sm font-medium text-[#8C7967] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#8A7D75]"
+                      >
+                        {planButtonLabel}
+                      </button>
+                    )}
+                  </article>
+                );
+              })}
             </div>
           </div>
         </section>

@@ -144,7 +144,6 @@ export default async function DashboardPage() {
     membership?.tier && membership.status === "ACTIVE"
       ? getUpgradeOptions(membership.tier)
       : [];
-  const appointmentCtaHref = hasActiveMembership ? "/appointment" : "/services";
   const totalRecommendedProducts = completedDiagnosedBookings.reduce(
     (total, booking) => total + (booking.diagnosis?.recommendations.length ?? 0),
     0,
@@ -157,7 +156,7 @@ export default async function DashboardPage() {
     <section className="flex flex-col gap-6 pb-24 md:pb-6">
       <DashboardWelcome name={session.user.name} />
 
-      <QuickActions appointmentHref={appointmentCtaHref} />
+      <QuickActions />
 
       <article
         className={`overflow-hidden rounded-2xl border border-[#EADDCD] p-5 shadow-sm dark:border-[#3D3530] ${
