@@ -113,7 +113,7 @@ export default function CompleteProfilePage() {
           needsProfileCompletion: false,
         },
       });
-      window.location.replace("/dashboard");
+      window.location.replace("/dashboard/setup-skin-profile");
     } catch (saveError) {
       setError(
         saveError instanceof Error
@@ -161,6 +161,9 @@ export default function CompleteProfilePage() {
                 Welcome, {session.user.name}
               </p>
             ) : null}
+            <div className="mb-4 inline-flex rounded-full border border-[#B87B68]/30 bg-[#F8F5F0] px-4 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#B87B68] dark:border-[#B87B68]/40 dark:bg-[#1E1C1A] dark:text-[#D4B47A]">
+              Step 1 of 2 - Basic Profile
+            </div>
             <div className="mx-auto mb-5 h-1 w-16 rounded-full bg-[#B87B68]" />
             <h1
               className="text-page text-3xl font-semibold tracking-tight sm:text-4xl"
@@ -250,7 +253,7 @@ export default function CompleteProfilePage() {
                   : "bg-[#2B2B2B] text-[#F8F5F0] hover:bg-[#3A3734] dark:bg-[#B87B68] dark:text-[#141210] dark:hover:bg-[#D4B47A]"
               }`}
             >
-              {isSubmitting ? "Saving..." : "Save"}
+              {isSubmitting ? "Saving..." : "Continue to Skin Profile"}
             </button>
           </form>
         </div>

@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { Suspense, useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 type VerifyState = "loading" | "success" | "error";
 
 function VerifyEmailContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
   const [state, setState] = useState<VerifyState>("loading");
@@ -45,7 +46,13 @@ function VerifyEmailContent() {
         if (!isMounted) return;
 
         setState("success");
-        setMessage(data?.message ?? "Email verified! You can now login.");
+        setMessage(
+          data?.message ??
+            "Email verified! Redirecting you to set up your skin profile.",
+        );
+        window.setTimeout(() => {
+          router.replace("/dashboard/setup-skin-profile");
+        }, 900);
       } catch (error) {
         if (!isMounted) return;
 
@@ -63,7 +70,7 @@ function VerifyEmailContent() {
     return () => {
       isMounted = false;
     };
-  }, [token]);
+  }, [router, token]);
 
   const isSuccess = state === "success";
 
@@ -98,10 +105,10 @@ function VerifyEmailContent() {
             />
           ) : isSuccess ? (
             <Link
-              href="/login"
+              href="/dashboard/setup-skin-profile"
               className="inline-flex h-11 items-center justify-center rounded-md bg-[#2B2B2B] px-6 text-sm font-medium text-[#F8F5F0] transition-colors hover:opacity-90"
             >
-              Go to Login
+              Continue to Skin Profile
             </Link>
           ) : (
             <Link

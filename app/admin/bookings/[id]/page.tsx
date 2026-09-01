@@ -58,6 +58,7 @@ export default async function BookingDetailsPage({
           bio: true,
         },
       },
+      surveyResponse: true,
     },
   });
 
@@ -183,7 +184,7 @@ export default async function BookingDetailsPage({
           Survey Profile Responses
         </h2>
         <SurveyProfileDetails
-          profile={booking.user.surveyProfile}
+          profile={booking.surveyResponse ?? booking.user.surveyProfile}
           emptyMessage="No skin profile is available for this client."
         />
       </section>

@@ -149,6 +149,20 @@ export async function PUT(request: Request) {
   }
 
   const body = (await request.json()) as SurveyProfilePayload;
+  const userRecord = await db.user.findUnique({
+    where: { id: session.user.id },
+    select: {
+      name: true,
+      email: true,
+      phone: true,
+      age: true,
+    },
+  });
+
+  if (!userRecord) {
+    return Response.json({ error: "User not found." }, { status: 404 });
+  }
+
   const data = {
     name: asOptionalString(body.name),
     age: asOptionalString(body.age),
@@ -170,15 +184,22 @@ export async function PUT(request: Request) {
     regularPeriodCycle: asBoolean(body.regularPeriodCycle),
     usedSteroidBasedNightCream: asBoolean(body.usedSteroidBasedNightCream),
     note: asOptionalString(body.note),
-    skinImages: asStringArray(body.skinImages).slice(0, 4),
+    skinImages: asStringArray(body.skinImages).slice(0, 2),
+  };
+  const dataWithUserDefaults = {
+    ...data,
+    name: userRecord.name ?? data.name ?? null,
+    email: userRecord.email ?? data.email ?? null,
+    phone: userRecord.phone ?? data.phone ?? null,
+    age: userRecord.age ?? data.age ?? null,
   };
 
   const surveyProfile = await db.surveyProfile.upsert({
     where: { userId: session.user.id },
-    update: data,
+    update: dataWithUserDefaults,
     create: {
       userId: session.user.id,
-      ...data,
+      ...dataWithUserDefaults,
     },
   });
 

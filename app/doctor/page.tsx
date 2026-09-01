@@ -43,8 +43,20 @@ export default function DoctorDashboardPage() {
     <section className="flex min-h-screen flex-col bg-zinc-50 px-6 py-16 dark:bg-black">
       <div className="mx-auto w-full max-w-6xl">
         <div className="rounded-3xl border border-black/10 bg-background p-8 shadow-sm dark:border-white/10">
-          <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-            Welcome back{stats?.doctorName ? `, ${stats.doctorName}` : ""}.
+          <h1
+            className="max-w-3xl text-4xl font-semibold leading-tight tracking-tight text-[#2B2B2B] dark:text-[#F0EDE8] sm:text-5xl"
+            style={{ fontFamily: "Playfair Display, serif" }}
+          >
+            Welcome back
+            {stats?.doctorName ? (
+              <>
+                ,{" "}
+                <span className="bg-gradient-to-r from-[#B87B68] via-[#C6A56B] to-[#884F38] bg-clip-text text-transparent dark:from-[#D4B47A] dark:via-[#B87B68] dark:to-[#EADDCD]">
+                  {stats.doctorName}
+                </span>
+              </>
+            ) : null}
+            .
           </h1>
           <p className="mt-3 text-sm leading-6 text-foreground/70">
             Here’s a quick look at your bookings.

@@ -87,6 +87,7 @@ export default async function CrmBookingDetailsPage({
           bio: true,
         },
       },
+      surveyResponse: true,
     },
   });
 
@@ -195,7 +196,7 @@ export default async function CrmBookingDetailsPage({
       <section className="mt-6 rounded-lg border border-black/10 bg-background p-6 dark:border-white/10">
         <h2 className="text-lg font-semibold text-foreground">Survey Profile Responses</h2>
         <SurveyProfileDetails
-          profile={booking.user.surveyProfile}
+          profile={booking.surveyResponse ?? booking.user.surveyProfile}
           emptyMessage="No skin profile is available for this client."
         />
       </section>

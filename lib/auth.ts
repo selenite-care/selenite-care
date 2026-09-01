@@ -27,6 +27,7 @@ declare module "next-auth" {
       phone?: string | null;
       image?: string | null;
       needsProfileCompletion?: boolean;
+      skinProfileComplete?: boolean;
       rememberMe?: boolean;
     } & DefaultSession["user"];
   }
@@ -46,6 +47,7 @@ declare module "@auth/core/jwt" {
     phone?: string | null;
     image?: string | null;
     needsProfileCompletion?: boolean;
+    skinProfileComplete?: boolean;
     rememberMe?: boolean;
   }
 }
@@ -82,6 +84,15 @@ async function getGoogleOAuthSource() {
   } catch {
     return "website";
   }
+}
+
+async function hasSurveyProfile(userId: string) {
+  const surveyProfile = await db.surveyProfile.findUnique({
+    where: { userId },
+    select: { id: true },
+  });
+
+  return Boolean(surveyProfile);
 }
 
 async function resolveRememberMe(request?: NextRequest) {
@@ -264,14 +275,20 @@ function createAuthConfig(sessionMaxAge: number): NextAuthConfig {
         return true;
       },
       async jwt({ token, user, account, trigger, session }) {
-        if (trigger === "update" && session?.user) {
-          const updatedUser = session.user as {
-            phone?: unknown;
-            image?: unknown;
-            needsProfileCompletion?: unknown;
+        if (trigger === "update" && session) {
+          const updatedUser = session.user as
+            | {
+                phone?: unknown;
+                image?: unknown;
+                needsProfileCompletion?: unknown;
+                skinProfileComplete?: unknown;
+              }
+            | undefined;
+          const updatedSession = session as {
+            skinProfileComplete?: unknown;
           };
 
-          if ("phone" in updatedUser) {
+          if (updatedUser && "phone" in updatedUser) {
             const phone =
               typeof updatedUser.phone === "string" ? updatedUser.phone : null;
 
@@ -279,13 +296,29 @@ function createAuthConfig(sessionMaxAge: number): NextAuthConfig {
             token.needsProfileCompletion = !phone?.trim();
           }
 
-          if ("image" in updatedUser) {
+          if (updatedUser && "image" in updatedUser) {
             token.image =
               typeof updatedUser.image === "string" ? updatedUser.image : null;
           }
 
-          if (typeof updatedUser.needsProfileCompletion === "boolean") {
+          if (typeof updatedUser?.needsProfileCompletion === "boolean") {
             token.needsProfileCompletion = updatedUser.needsProfileCompletion;
+          }
+
+          if (typeof updatedUser?.skinProfileComplete === "boolean") {
+            token.skinProfileComplete = updatedUser.skinProfileComplete;
+          }
+
+          if (typeof updatedSession.skinProfileComplete === "boolean") {
+            token.skinProfileComplete = updatedSession.skinProfileComplete;
+          }
+
+          if (token.id && token.skinProfileComplete !== true) {
+            try {
+              token.skinProfileComplete = await hasSurveyProfile(token.id);
+            } catch (error) {
+              console.error("Skin profile completion update sync failed:", error);
+            }
           }
         }
 
@@ -337,6 +370,15 @@ function createAuthConfig(sessionMaxAge: number): NextAuthConfig {
 
           token.needsProfileCompletion =
             account?.provider === "google" && !token.phone?.trim();
+
+          if (user.id) {
+            try {
+              token.skinProfileComplete = await hasSurveyProfile(user.id);
+            } catch (error) {
+              console.error("Skin profile completion sync failed:", error);
+              token.skinProfileComplete = false;
+            }
+          }
         }
 
         if (token.id && !token.image) {
@@ -361,6 +403,7 @@ function createAuthConfig(sessionMaxAge: number): NextAuthConfig {
         session.user.image = token.image ?? null;
         session.user.needsProfileCompletion =
           token.needsProfileCompletion === true;
+        session.user.skinProfileComplete = token.skinProfileComplete === true;
         session.user.rememberMe = token.rememberMe === true;
 
         return session;
