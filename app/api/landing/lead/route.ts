@@ -58,6 +58,13 @@ function genericSuccessResponse() {
   });
 }
 
+function isDevelopmentEnvironment() {
+  return (
+    process.env.NODE_ENV === "development" ||
+    process.env.NEXTAUTH_URL?.includes("localhost") === true
+  );
+}
+
 function escapeHtml(value: string) {
   return value
     .replaceAll("&", "&amp;")
@@ -306,25 +313,27 @@ export async function POST(request: Request) {
   const recaptchaToken =
     typeof body?.recaptchaToken === "string" ? body.recaptchaToken.trim() : "";
 
-  if (!recaptchaToken) {
-    return genericSuccessResponse();
-  }
+  let recaptchaScore = isDevelopmentEnvironment() ? 1 : 0;
 
-  let recaptchaScore = 0;
-
-  try {
-    const verification = await verifyRecaptchaToken(recaptchaToken);
-    recaptchaScore = verification.score;
-
-    if (!verification.isHuman) {
+  if (!isDevelopmentEnvironment()) {
+    if (!recaptchaToken) {
       return genericSuccessResponse();
     }
-  } catch (error) {
-    console.error("Landing lead reCAPTCHA verification failed:", error);
-    return Response.json(
-      { error: "Unable to verify security check. Please try again." },
-      { status: 500 },
-    );
+
+    try {
+      const verification = await verifyRecaptchaToken(recaptchaToken);
+      recaptchaScore = verification.score;
+
+      if (!verification.isHuman) {
+        return genericSuccessResponse();
+      }
+    } catch (error) {
+      console.error("Landing lead reCAPTCHA verification failed:", error);
+      return Response.json(
+        { error: "Unable to verify security check. Please try again." },
+        { status: 500 },
+      );
+    }
   }
 
   const lead = await db.leadCapture.create({

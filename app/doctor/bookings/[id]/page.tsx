@@ -64,6 +64,7 @@ export default async function BookingDetailsPage({ params }: BookingDetailsPageP
         },
       },
       doctor: { select: { id: true, name: true, designation: true, availability: true, bio: true } },
+      surveyResponse: true,
     },
   });
 
@@ -157,7 +158,7 @@ export default async function BookingDetailsPage({ params }: BookingDetailsPageP
       <section className="mt-6 rounded-lg border border-black/10 bg-background p-6 dark:border-white/10">
         <h2 className="text-lg font-semibold text-foreground">Survey Profile Responses</h2>
         <SurveyProfileDetails
-          profile={surveyProfile}
+          profile={booking.surveyResponse ?? surveyProfile}
           emptyMessage="No skin profile is available for this client."
         />
       </section>

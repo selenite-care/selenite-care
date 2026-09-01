@@ -1,5 +1,5 @@
-import Image from "next/image";
 import { formatDateTime } from "@/lib/dateUtils";
+import SurveyPhoto from "@/components/survey/SurveyPhoto";
 
 type SurveyProfileDetailsData = {
   name: string | null;
@@ -169,12 +169,10 @@ export default function SurveyProfileDetails({
             rel="noreferrer"
             className="mt-4 inline-block overflow-hidden rounded-lg border border-themed bg-card transition-opacity hover:opacity-90"
           >
-            <Image
+            <SurveyPhoto
               src={profile.currentProductsImage}
               alt="Current skincare products"
-              width={200}
-              height={150}
-              className="h-auto w-[200px] object-cover"
+              className="h-auto w-[200px] rounded-lg object-cover"
             />
           </a>
         </div>
@@ -194,13 +192,11 @@ export default function SurveyProfileDetails({
                 rel="noreferrer"
                 className="bg-card border-themed block overflow-hidden rounded-lg border transition-opacity hover:opacity-90"
               >
-                <div className="relative aspect-[4/3] w-full">
-                  <Image
+                <div className="aspect-[4/3] w-full">
+                  <SurveyPhoto
                     src={imageUrl}
-                    alt={`Client skin profile photo ${index + 1}`}
-                    fill
-                    sizes="(min-width: 1280px) 25vw, (min-width: 640px) 50vw, 100vw"
-                    className="object-cover"
+                    alt="Skin photo"
+                    className="h-full w-full rounded-lg object-cover"
                   />
                 </div>
               </a>

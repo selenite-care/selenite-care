@@ -45,6 +45,13 @@ type ClientBookingsResponse = {
   error?: string;
 };
 
+type SurveyProfileResponse = {
+  surveyProfile?: {
+    skinType?: string | null;
+  } | null;
+  error?: string;
+};
+
 const specializationOrder = [
   "AESTHETICIAN",
   "NUTRITIONIST",
@@ -109,15 +116,18 @@ export default function AppointmentPage() {
   const [error, setError] = useState("");
   const [showMembershipModal, setShowMembershipModal] = useState(false);
   const [activeBooking, setActiveBooking] = useState<ClientBooking | null>(null);
+  const [needsSkinProfileNudge, setNeedsSkinProfileNudge] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
 
     async function loadPageData() {
       try {
-        const [membershipResponse, bookingsResponse] = await Promise.all([
+        const [membershipResponse, bookingsResponse, surveyProfileResponse] =
+          await Promise.all([
           fetch("/api/client/membership"),
           fetch("/api/client/bookings"),
+          fetch("/api/client/survey-profile"),
         ]);
         const membershipData =
           (await membershipResponse.json().catch(() => null)) as
@@ -127,8 +137,13 @@ export default function AppointmentPage() {
           (await bookingsResponse.json().catch(() => null)) as
             | ClientBookingsResponse
             | null;
+        const surveyProfileData =
+          (await surveyProfileResponse.json().catch(() => null)) as
+            | SurveyProfileResponse
+            | null;
 
         const membership = membershipData?.membership;
+        const surveyProfile = surveyProfileData?.surveyProfile;
         const activeClientBooking =
           bookingsResponse.ok
             ? (bookingsData?.bookings ?? []).find(
@@ -148,6 +163,9 @@ export default function AppointmentPage() {
         }
 
         setActiveBooking(activeClientBooking);
+        setNeedsSkinProfileNudge(
+          !surveyProfileResponse.ok || !surveyProfile?.skinType,
+        );
 
         if (hasActiveMembership) {
           setMembershipStatus("active");
@@ -341,6 +359,24 @@ export default function AppointmentPage() {
             >
               Get Membership
             </Link>
+          </section>
+        ) : null}
+
+        {membershipStatus !== "loading" &&
+        !activeBooking &&
+        needsSkinProfileNudge ? (
+          <section className="mt-10 rounded-2xl border border-[#C6A56B] border-l-4 border-l-[#B87B68] bg-[#FFF8EE] p-5 shadow-[0_14px_36px_rgba(184,123,104,0.10)] dark:border-[#8A6A2F] dark:border-l-[#D4B47A] dark:bg-[#2A241D]">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-sm leading-6 text-[#6E6257] dark:text-[#EADDCD]">
+                Complete your skin profile before booking for the best consultation experience. Your doctor will use this information to prepare for your session.
+              </p>
+              <Link
+                href="/dashboard/survey"
+                className="inline-flex h-10 shrink-0 items-center justify-center rounded-md bg-[#2B2B2B] px-4 text-sm font-semibold text-[#F8F5F0] transition-colors hover:bg-[#3A3734] dark:bg-[#B87B68] dark:text-[#141210] dark:hover:bg-[#D4B47A]"
+              >
+                Complete Skin Profile -&gt;
+              </Link>
+            </div>
           </section>
         ) : null}
 

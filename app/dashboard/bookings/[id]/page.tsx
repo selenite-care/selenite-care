@@ -70,6 +70,7 @@ export default async function BookingDetailsPage({ params }: BookingDetailsPageP
           surveyProfile: true,
         },
       },
+      surveyResponse: true,
     },
   });
 
@@ -152,7 +153,7 @@ export default async function BookingDetailsPage({ params }: BookingDetailsPageP
           Survey Profile Summary
         </h2>
         <SurveyProfileDetails
-          profile={booking.user.surveyProfile}
+          profile={booking.surveyResponse ?? booking.user.surveyProfile}
           emptyMessage="No survey profile is available for your account."
         />
       </section>

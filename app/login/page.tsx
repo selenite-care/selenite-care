@@ -129,11 +129,19 @@ function LoginPageContent() {
     const session = (await getSession()) as UserSession | null;
     const role = session?.user?.role;
 
-    if (callbackUrl?.startsWith("/")) router.push(callbackUrl);
-    else if (role === "ADMIN") router.push("/admin");
-    else if (role === "DOCTOR") router.push("/doctor");
-    else if (role === "CRM") router.push("/crm");
-    else router.push("/dashboard");
+    if (role === "ADMIN") {
+      router.push(callbackUrl?.startsWith("/admin") ? callbackUrl : "/admin");
+    } else if (role === "DOCTOR") {
+      router.push(callbackUrl?.startsWith("/doctor") ? callbackUrl : "/doctor");
+    } else if (role === "CRM") {
+      router.push(callbackUrl?.startsWith("/crm") ? callbackUrl : "/crm");
+    } else {
+      if (callbackUrl?.startsWith("/")) {
+        router.push(callbackUrl);
+      } else {
+        router.push("/dashboard");
+      }
+    }
   }
 
   async function handleResendVerification() {

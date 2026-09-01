@@ -288,7 +288,7 @@ export async function POST(request: Request) {
   const skinIssues = asStringArray(body.skinIssues);
   const skinIssueDuration = asOptionalString(body.skinIssueDuration);
   const currentProducts = asStringArray(body.currentProducts);
-  const currentProductsImage = asOptionalString(body.currentProductsImage);
+  const currentProductsImage = asOptionalString(body.currentProductsImage) ?? null;
   const previousConsultation = asNullableBoolean(body.previousConsultation);
   const allergicIngredients = asStringArray(body.allergicIngredients);
   const doubleCleansePreference = asOptionalString(body.doubleCleansePreference);
@@ -296,25 +296,44 @@ export async function POST(request: Request) {
   const appliesSunscreen = asBoolean(body.appliesSunscreen);
   const regularPeriodCycle = asBoolean(body.regularPeriodCycle);
   const usedSteroidBasedNightCream = asBoolean(body.usedSteroidBasedNightCream);
-  const note = asOptionalString(body.note);
+  const note = asOptionalString(body.note) ?? null;
   const waterIntake = asOptionalString(body.waterIntake);
-  const skinImages = asStringArray(body.skinImages).slice(0, 4);
+  const skinImages =
+    typeof body.skinImages === "undefined"
+      ? []
+      : asStringArray(body.skinImages).slice(0, 2);
   const preferredDateLabel = preferredDate
     ? formatPreferredDate(preferredDate)
     : "Not selected";
 
   try {
-    const activeBooking = await db.booking.findFirst({
-      where: {
-        userId: session.user.id,
-        status: {
-          notIn: ["COMPLETED", "CANCELLED"],
+    const [activeBooking, surveyProfile, userRecord] = await Promise.all([
+      db.booking.findFirst({
+        where: {
+          userId: session.user.id,
+          status: {
+            notIn: ["COMPLETED", "CANCELLED"],
+          },
         },
-      },
-      select: {
-        id: true,
-      },
-    });
+        select: {
+          id: true,
+        },
+      }),
+      db.surveyProfile.findUnique({
+        where: {
+          userId: session.user.id,
+        },
+      }),
+      db.user.findUnique({
+        where: { id: session.user.id },
+        select: {
+          name: true,
+          email: true,
+          phone: true,
+          age: true,
+        },
+      }),
+    ]);
 
     if (activeBooking) {
       return Response.json(
@@ -325,6 +344,77 @@ export async function POST(request: Request) {
         { status: 409 },
       );
     }
+
+    if (!userRecord) {
+      return Response.json({ error: "User not found." }, { status: 404 });
+    }
+
+    const mergedName = userRecord.name ?? name ?? surveyProfile?.name ?? "";
+    const mergedAge = userRecord.age ?? age ?? surveyProfile?.age ?? "";
+    const mergedPhone = userRecord.phone ?? phone ?? surveyProfile?.phone ?? "";
+    const mergedEmail = userRecord.email ?? email ?? surveyProfile?.email ?? "";
+    const mergedSkinType = skinType ?? surveyProfile?.skinType ?? "";
+    const mergedUsesKoreanProducts =
+      typeof body.usesKoreanProducts === "undefined"
+        ? (surveyProfile?.usesKoreanProducts ?? false)
+        : usesKoreanProducts;
+    const mergedFacingSkinIssues =
+      typeof body.facingSkinIssues === "undefined"
+        ? (surveyProfile?.facingSkinIssues ?? false)
+        : facingSkinIssues;
+    const mergedSkinIssues =
+      skinIssues.length > 0 ? skinIssues : (surveyProfile?.skinIssues ?? []);
+    const mergedSkinIssueDuration =
+      skinIssueDuration ?? surveyProfile?.skinIssueDuration ?? null;
+    const mergedCurrentProducts =
+      currentProducts.length > 0
+        ? currentProducts
+        : (surveyProfile?.currentProducts ?? []);
+    const mergedAllergicIngredients =
+      allergicIngredients.length > 0
+        ? allergicIngredients
+        : (surveyProfile?.allergicIngredients ?? []);
+    const mergedDoubleCleansePreference =
+      doubleCleansePreference ?? surveyProfile?.doubleCleansePreference ?? "";
+    const mergedSleepHours = sleepHours ?? surveyProfile?.sleepHours ?? "";
+    const mergedWaterIntake = waterIntake ?? surveyProfile?.waterIntake ?? "";
+    const mergedAppliesSunscreen =
+      typeof body.appliesSunscreen === "undefined"
+        ? (surveyProfile?.appliesSunscreen ?? false)
+        : appliesSunscreen;
+    const mergedRegularPeriodCycle =
+      typeof body.regularPeriodCycle === "undefined"
+        ? (surveyProfile?.regularPeriodCycle ?? false)
+        : regularPeriodCycle;
+    const mergedUsedSteroidBasedNightCream =
+      typeof body.usedSteroidBasedNightCream === "undefined"
+        ? (surveyProfile?.usedSteroidBasedNightCream ?? false)
+        : usedSteroidBasedNightCream;
+    const mergedPreviousConsultation =
+      previousConsultation ?? surveyProfile?.previousConsultation ?? null;
+    const surveyProfileData = {
+      name: userRecord.name ?? name ?? surveyProfile?.name ?? null,
+      age: userRecord.age ?? age ?? surveyProfile?.age ?? null,
+      phone: userRecord.phone ?? phone ?? surveyProfile?.phone ?? null,
+      email: userRecord.email ?? email ?? surveyProfile?.email ?? null,
+      skinType: mergedSkinType || null,
+      usesKoreanProducts: mergedUsesKoreanProducts,
+      facingSkinIssues: mergedFacingSkinIssues,
+      skinIssues: mergedSkinIssues,
+      skinIssueDuration: mergedSkinIssueDuration,
+      currentProducts: mergedCurrentProducts,
+      currentProductsImage,
+      previousConsultation: mergedPreviousConsultation,
+      allergicIngredients: mergedAllergicIngredients,
+      doubleCleansePreference: mergedDoubleCleansePreference || null,
+      sleepHours: mergedSleepHours || null,
+      waterIntake: mergedWaterIntake || null,
+      appliesSunscreen: mergedAppliesSunscreen,
+      regularPeriodCycle: mergedRegularPeriodCycle,
+      usedSteroidBasedNightCream: mergedUsedSteroidBasedNightCream,
+      note,
+      skinImages,
+    };
 
     const { booking, survey } = await db.$transaction(async (tx) => {
       const existingTokens = await tx.booking.findMany({
@@ -356,89 +446,45 @@ export async function POST(request: Request) {
         data: {
           bookingId: booking.id,
           codeId: doctorId,
-          name: name ?? "",
-          age: age ?? "",
-          phone: phone ?? "",
-          email: email ?? "",
-          skinType: skinType ?? "",
-          usesKoreanProducts,
-          facingSkinIssues,
-          skinIssues,
-          skinIssueDuration,
-          currentProducts,
+          name: mergedName,
+          age: mergedAge,
+          phone: mergedPhone,
+          email: mergedEmail,
+          skinType: mergedSkinType,
+          usesKoreanProducts: mergedUsesKoreanProducts,
+          facingSkinIssues: mergedFacingSkinIssues,
+          skinIssues: mergedSkinIssues,
+          skinIssueDuration: mergedSkinIssueDuration,
+          currentProducts: mergedCurrentProducts,
           currentProductsImage,
-          previousConsultation,
-          allergicIngredients,
-          doubleCleansePreference: doubleCleansePreference ?? "",
-          sleepHours: sleepHours ?? "",
-          waterIntake: waterIntake ?? "",
-          appliesSunscreen,
-          regularPeriodCycle,
-          usedSteroidBasedNightCream,
+          previousConsultation: mergedPreviousConsultation,
+          allergicIngredients: mergedAllergicIngredients,
+          doubleCleansePreference: mergedDoubleCleansePreference,
+          sleepHours: mergedSleepHours,
+          waterIntake: mergedWaterIntake,
+          appliesSunscreen: mergedAppliesSunscreen,
+          regularPeriodCycle: mergedRegularPeriodCycle,
+          usedSteroidBasedNightCream: mergedUsedSteroidBasedNightCream,
           note,
           skinImages,
         },
       });
 
       await tx.surveyProfile.upsert({
-        where: {
-          userId: session.user.id,
-        },
-        update: {
-          name,
-          age,
-          phone,
-          email,
-          skinType,
-          usesKoreanProducts,
-          facingSkinIssues,
-          skinIssues,
-          skinIssueDuration,
-          currentProducts,
-          currentProductsImage,
-          previousConsultation,
-          allergicIngredients,
-          doubleCleansePreference,
-          sleepHours,
-          waterIntake,
-          appliesSunscreen,
-          regularPeriodCycle,
-          usedSteroidBasedNightCream,
-          note,
-          skinImages,
-        },
+        where: { userId: session.user.id },
+        update: surveyProfileData,
         create: {
           userId: session.user.id,
-          name,
-          age,
-          phone,
-          email,
-          skinType,
-          usesKoreanProducts,
-          facingSkinIssues,
-          skinIssues,
-          skinIssueDuration,
-          currentProducts,
-          currentProductsImage,
-          previousConsultation,
-          allergicIngredients,
-          doubleCleansePreference,
-          sleepHours,
-          waterIntake,
-          appliesSunscreen,
-          regularPeriodCycle,
-          usedSteroidBasedNightCream,
-          note,
-          skinImages,
+          ...surveyProfileData,
         },
       });
 
       return { booking, survey };
     });
 
-    const clientName = name ?? "Not provided";
-    const clientPhone = phone ?? "Not provided";
-    const clientEmail = email ?? "Not provided";
+    const clientName = mergedName || "Not provided";
+    const clientPhone = mergedPhone || "Not provided";
+    const clientEmail = mergedEmail || "Not provided";
     const doctorName = doctor
       ? `${doctor.name} (${doctor.designation})`
       : "Not selected";
@@ -498,10 +544,10 @@ export async function POST(request: Request) {
       );
     }
 
-    if (email) {
+    if (mergedEmail) {
       emailPromises.push(
         sendEmail({
-          to: email,
+          to: mergedEmail,
           subject: "Appointment Request Confirmed - Selenite Care",
           html: clientEmailHtml,
         }),

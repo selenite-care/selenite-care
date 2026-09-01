@@ -36,6 +36,13 @@ function registrationFailedResponse() {
   );
 }
 
+function isDevelopmentEnvironment() {
+  return (
+    process.env.NODE_ENV === "development" ||
+    process.env.NEXTAUTH_URL?.includes("localhost") === true
+  );
+}
+
 function hasValidPhoneFormat(value: string) {
   const digits = value.replace(/\D/g, "");
 
@@ -157,19 +164,21 @@ export async function POST(request: Request) {
   const recaptchaToken =
     typeof body.recaptchaToken === "string" ? body.recaptchaToken.trim() : "";
 
-  if (!recaptchaToken) {
-    return registrationFailedResponse();
-  }
-
-  try {
-    const isHuman = await verifyRecaptchaToken(recaptchaToken);
-
-    if (!isHuman) {
+  if (!isDevelopmentEnvironment()) {
+    if (!recaptchaToken) {
       return registrationFailedResponse();
     }
-  } catch (error) {
-    console.error("Register reCAPTCHA verification failed:", error);
-    return registrationFailedResponse();
+
+    try {
+      const isHuman = await verifyRecaptchaToken(recaptchaToken);
+
+      if (!isHuman) {
+        return registrationFailedResponse();
+      }
+    } catch (error) {
+      console.error("Register reCAPTCHA verification failed:", error);
+      return registrationFailedResponse();
+    }
   }
 
   const existingUser = await db.user.findUnique({

@@ -4,6 +4,7 @@ import Image from "next/image";
 import { FormEvent, useEffect, useState } from "react";
 import { toast } from "sonner";
 import FileUploadButton from "@/components/ui/FileUploadButton";
+import { formatDate } from "@/lib/dateUtils";
 
 const skinIssuesOptions = [
   "Excess Sebum",
@@ -92,6 +93,7 @@ type SurveyProfileResponse = {
     usedSteroidBasedNightCream?: boolean;
     note?: string | null;
     skinImages?: string[];
+    updatedAt?: string | null;
   };
   error?: string;
 };
@@ -138,10 +140,10 @@ export default function DashboardSurveyPage() {
   const [formState, setFormState] = useState<SurveyFormState>(buildInitialState);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isUploadingSkinImage, setIsUploadingSkinImage] = useState(false);
   const [isUploadingProductImage, setIsUploadingProductImage] = useState(false);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [lastUpdatedAt, setLastUpdatedAt] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadSurveyProfile() {
@@ -188,6 +190,7 @@ export default function DashboardSurveyPage() {
           note: data.surveyProfile.note ?? "",
           skinImages: data.surveyProfile.skinImages ?? [],
         });
+        setLastUpdatedAt(data.surveyProfile.updatedAt ?? null);
       } catch (loadError) {
         setError(
           loadError instanceof Error
@@ -223,69 +226,6 @@ export default function DashboardSurveyPage() {
       return { ...current, [field]: nextValues };
     });
     setSuccessMessage("");
-  }
-
-  async function handleSkinImageUpload(files: FileList | null) {
-    if (!files?.length) {
-      return;
-    }
-
-    setError("");
-    setSuccessMessage("");
-    setIsUploadingSkinImage(true);
-
-    const remainingSlots = 4 - formState.skinImages.length;
-    const filesToUpload = Array.from(files).slice(0, remainingSlots);
-
-    try {
-      for (const file of filesToUpload) {
-        const formData = new FormData();
-        formData.append("file", file);
-
-        const response = await fetch("/api/booking/upload-skin-image", {
-          method: "POST",
-          body: formData,
-        });
-        const data = (await response.json().catch(() => null)) as
-          | { secure_url?: string; error?: string }
-          | null;
-
-        if (!response.ok || !data?.secure_url) {
-          throw new Error(data?.error ?? "Failed to upload skin image.");
-        }
-
-        setFormState((current) => ({
-          ...current,
-          skinImages: [...current.skinImages, data.secure_url as string].slice(0, 4),
-        }));
-      }
-      toast.success(
-        filesToUpload.length === 1
-          ? "Skin photo uploaded."
-          : `${filesToUpload.length} skin photos uploaded.`,
-      );
-    } catch (uploadError) {
-      const message =
-        uploadError instanceof Error
-          ? uploadError.message
-          : "Failed to upload skin image.";
-
-      setError(message);
-      toast.error("Failed to upload skin image.", {
-        description: message,
-      });
-    } finally {
-      setIsUploadingSkinImage(false);
-    }
-  }
-
-  function removeSkinImage(url: string) {
-    setFormState((current) => ({
-      ...current,
-      skinImages: current.skinImages.filter((imageUrl) => imageUrl !== url),
-    }));
-    setSuccessMessage("");
-    toast.success("Skin photo removed.");
   }
 
   async function handleCurrentProductsImageUpload(file: File) {
@@ -391,7 +331,7 @@ export default function DashboardSurveyPage() {
       });
 
       const data = (await response.json().catch(() => null)) as
-        | { error?: string }
+        | { error?: string; surveyProfile?: { updatedAt?: string | null } }
         | null;
 
       if (!response.ok) {
@@ -399,6 +339,7 @@ export default function DashboardSurveyPage() {
       }
 
       setSuccessMessage("Skin profile updated successfully.");
+      setLastUpdatedAt(data?.surveyProfile?.updatedAt ?? new Date().toISOString());
       toast.success("Skin profile updated successfully.");
     } catch (submitError) {
       const message =
@@ -428,25 +369,24 @@ export default function DashboardSurveyPage() {
   return (
     <section>
       <div>
-        <p className="text-muted text-sm font-medium uppercase">
-          Client Dashboard
-        </p>
         <h1
-          className="text-page mt-2 text-3xl font-semibold tracking-tight"
+          className="text-page text-3xl font-semibold tracking-tight"
           style={{ fontFamily: "Playfair Display, serif" }}
         >
           My Skin Profile
         </h1>
         <p className="text-muted mt-3 text-sm leading-6">
-          Keep your consultation details up to date so our team can support you better.
+          Your saved skin information. Doctors use this during your consultations - keep it updated for the best advice.
+        </p>
+        <p className="text-muted mt-2 text-xs font-medium uppercase tracking-[0.16em]">
+          Last updated: {lastUpdatedAt ? formatDate(lastUpdatedAt) : "Not saved yet"}
         </p>
       </div>
 
       <div
         className="bg-card border-themed text-muted mt-6 rounded-lg border p-4 text-sm leading-6"
       >
-        Your skin profile is automatically updated when you submit an appointment
-        survey. You can also update it manually anytime.
+        Skin photos are now uploaded during appointment booking only. This page stores your ongoing skin details.
       </div>
 
       <form
@@ -884,70 +824,6 @@ export default function DashboardSurveyPage() {
             rows={4}
             className="border-themed bg-card text-page mt-2 rounded-md border px-3 py-2 focus:border-[var(--gold)] focus:outline-none focus:ring-1 focus:ring-[var(--gold)]"
           />
-        </div>
-
-        <div
-          className="bg-card border-themed rounded-lg border p-4"
-        >
-          <label className="text-page block text-sm font-medium">
-            Skin Photos
-          </label>
-          <p className="text-muted mt-2 text-sm leading-6">
-            Uploading photos is optional. Add up to 4 images to keep your skin profile current.
-          </p>
-
-          <div className="mt-4">
-            <FileUploadButton
-              onFileSelected={(file) => {
-                if (isUploadingSkinImage || formState.skinImages.length >= 4) {
-                  return;
-                }
-
-                const dataTransfer = new DataTransfer();
-                dataTransfer.items.add(file);
-                void handleSkinImageUpload(dataTransfer.files);
-              }}
-              label={isUploadingSkinImage ? "Uploading..." : "Upload Skin Photo"}
-              accept="image/*,.heic,.heif"
-            />
-          </div>
-
-          <div className="mt-3 flex items-center justify-between gap-3 text-sm">
-            <span className="text-muted">
-              {formState.skinImages.length}/4 images uploaded
-            </span>
-            {isUploadingSkinImage ? (
-              <span className="text-[var(--gold)]">Uploading...</span>
-            ) : null}
-          </div>
-
-          {formState.skinImages.length > 0 ? (
-            <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              {formState.skinImages.map((imageUrl) => (
-                <div
-                  key={imageUrl}
-                  className="bg-card border-themed overflow-hidden rounded-lg border"
-                >
-                  <div className="relative h-40 w-full">
-                    <Image
-                      src={imageUrl}
-                      alt="Uploaded skin concern"
-                      fill
-                      sizes="(min-width: 640px) 50vw, 100vw"
-                      className="object-cover"
-                    />
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => removeSkinImage(imageUrl)}
-                    className="text-page w-full px-3 py-2 text-sm font-medium hover:bg-black/5 dark:hover:bg-white/5"
-                  >
-                    Remove
-                  </button>
-                </div>
-              ))}
-            </div>
-          ) : null}
         </div>
 
         <div className="flex flex-col gap-3 pt-4 sm:flex-row">

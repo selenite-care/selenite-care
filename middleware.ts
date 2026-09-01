@@ -26,8 +26,10 @@ const AUTH_CONTENT_ENCRYPTION_ALG = "A256CBC-HS512"
 type SessionPayload = JWTPayload & {
   role?: SessionRole
   needsProfileCompletion?: boolean
+  skinProfileComplete?: boolean
   user?: {
     needsProfileCompletion?: boolean
+    skinProfileComplete?: boolean
   }
 }
 
@@ -135,9 +137,33 @@ export default async function middleware(request: NextRequest) {
   const needsProfileCompletion =
     session?.needsProfileCompletion === true ||
     session?.user?.needsProfileCompletion === true
+  const skinProfileComplete =
+    session?.skinProfileComplete ?? session?.user?.skinProfileComplete
+  const shouldRedirectToCompleteProfile =
+    needsProfileCompletion &&
+    pathname !== "/dashboard/complete-profile" &&
+    !pathname.startsWith("/api/")
+  const shouldRedirectToSkinProfile =
+    role === "CLIENT" &&
+    skinProfileComplete === false &&
+    pathname !== "/dashboard/setup-skin-profile" &&
+    pathname !== "/dashboard/complete-profile" &&
+    !pathname.startsWith("/api/")
 
   if (AUTH_PAGES.includes(pathname as (typeof AUTH_PAGES)[number])) {
     if (isAuthenticated) {
+      if (shouldRedirectToCompleteProfile) {
+        return NextResponse.redirect(
+          new URL("/dashboard/complete-profile", request.url),
+        )
+      }
+
+      if (shouldRedirectToSkinProfile) {
+        return NextResponse.redirect(
+          new URL("/dashboard/setup-skin-profile", request.url),
+        )
+      }
+
       return NextResponse.redirect(new URL(getRedirectForRole(role), request.url))
     }
 
@@ -150,13 +176,15 @@ export default async function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl)
   }
 
-  if (
-    needsProfileCompletion &&
-    pathname !== "/dashboard/complete-profile" &&
-    !pathname.startsWith("/api/")
-  ) {
+  if (shouldRedirectToCompleteProfile) {
     return NextResponse.redirect(
       new URL("/dashboard/complete-profile", request.url),
+    )
+  }
+
+  if (shouldRedirectToSkinProfile) {
+    return NextResponse.redirect(
+      new URL("/dashboard/setup-skin-profile", request.url),
     )
   }
 
