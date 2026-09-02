@@ -1,7 +1,6 @@
 "use client";
 
 import { FormEvent, KeyboardEvent, useState } from "react";
-import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Check, ChevronDown, Sparkles, X } from "lucide-react";
 import { toast } from "sonner";
@@ -189,10 +188,10 @@ function TagInput({
 }
 
 export default function SetupSkinProfilePage() {
-  const router = useRouter();
   const { update } = useSession();
   const [formState, setFormState] = useState<FormState>(initialFormState);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitIntent, setSubmitIntent] = useState<"save" | "skip" | null>(null);
+  const isSubmitting = submitIntent !== null;
 
   function updateField<K extends keyof FormState>(field: K, value: FormState[K]) {
     setFormState((current) => ({ ...current, [field]: value }));
@@ -227,8 +226,12 @@ export default function SetupSkinProfilePage() {
     }));
   }
 
-  async function saveSkinProfile(nextFormState: FormState) {
-    setIsSubmitting(true);
+  async function saveSkinProfile(
+    nextFormState: FormState,
+    intent: "save" | "skip",
+  ) {
+    setSubmitIntent(intent);
+    let isRedirecting = false;
 
     try {
       const response = await fetch("/api/client/survey-profile", {
@@ -273,7 +276,8 @@ export default function SetupSkinProfilePage() {
         },
         skinProfileComplete: true,
       });
-      router.replace("/dashboard");
+      isRedirecting = true;
+      window.location.assign("/dashboard");
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Unable to save your skin profile.";
@@ -281,13 +285,15 @@ export default function SetupSkinProfilePage() {
         description: message,
       });
     } finally {
-      setIsSubmitting(false);
+      if (!isRedirecting) {
+        setSubmitIntent(null);
+      }
     }
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    await saveSkinProfile(formState);
+    await saveSkinProfile(formState, "save");
   }
 
   return (
@@ -423,18 +429,18 @@ export default function SetupSkinProfilePage() {
         <footer className="flex flex-col-reverse gap-3 border-t border-[#EADDCD] bg-[#FCFAF7] px-5 py-5 dark:border-[#3D3530] dark:bg-[#1A1814] sm:flex-row sm:justify-end sm:px-8">
           <button
             type="button"
-            onClick={() => void saveSkinProfile(initialFormState)}
+            onClick={() => void saveSkinProfile(initialFormState, "skip")}
             disabled={isSubmitting}
             className="inline-flex h-12 items-center justify-center rounded-full border border-[#D8C7B5] px-6 text-sm font-semibold text-[#884F38] transition-colors hover:border-[#B87B68] hover:text-[#B87B68] dark:border-[#3D3530] dark:text-[#8A7D75] dark:hover:text-[#D4B47A]"
           >
-            Skip for Now
+            {submitIntent === "skip" ? "Skipping..." : "Skip for Now"}
           </button>
           <button
             type="submit"
             disabled={isSubmitting}
             className="inline-flex h-12 items-center justify-center rounded-full bg-[#2B2B2B] px-7 text-sm font-semibold text-[#F8F5F0] transition-colors hover:bg-[#3A3734] disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#B87B68] dark:text-[#141210] dark:hover:bg-[#D4B47A]"
           >
-            {isSubmitting ? "Saving..." : "Save & Continue"}
+            {submitIntent === "save" ? "Saving..." : "Save & Continue"}
           </button>
         </footer>
       </form>

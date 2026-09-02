@@ -1,9 +1,9 @@
 "use client";
 
-import Image from "next/image";
 import { AlertCircle } from "lucide-react";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import DoctorPhoto from "@/components/ui/DoctorPhoto";
 import { formatDateOnly } from "@/lib/dateUtils";
 
 type AppointmentDoctor = {
@@ -337,13 +337,11 @@ function AppointmentDatePageContent() {
               }}
             >
               {doctor.image ? (
-                <div className="relative h-72 w-full bg-[#EFE7DC]">
-                  <Image
+                <div className="h-72 w-full bg-[#EFE7DC]">
+                  <DoctorPhoto
                     src={doctor.image}
                     alt={doctor.name}
-                    fill
-                    sizes="(max-width: 1024px) 100vw, 320px"
-                    className="object-cover"
+                    className="h-full w-full object-cover"
                   />
                 </div>
               ) : (
