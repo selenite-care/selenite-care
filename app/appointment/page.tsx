@@ -1,10 +1,10 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { CalendarDays } from "lucide-react";
+import DoctorPhoto from "@/components/ui/DoctorPhoto";
 import { SkeletonCard } from "@/components/ui/Skeleton";
 
 export const dynamic = "force-dynamic";
@@ -450,13 +450,11 @@ export default function AppointmentPage() {
                             }}
                           >
                             {doctor.image ? (
-                              <div className="relative h-64 w-full bg-[#EFE7DC]">
-                                <Image
+                              <div className="h-64 w-full bg-[#EFE7DC]">
+                                <DoctorPhoto
                                   src={doctor.image}
                                   alt={doctor.name}
-                                  fill
-                                  sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
-                                  className="object-cover"
+                                  className="h-full w-full object-cover"
                                 />
                               </div>
                             ) : (

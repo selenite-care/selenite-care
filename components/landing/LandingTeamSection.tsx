@@ -1,7 +1,7 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useState } from "react";
+import DoctorPhoto from "@/components/ui/DoctorPhoto";
 
 type LandingDoctor = {
   id: string;
@@ -115,13 +115,11 @@ export default function LandingTeamSection() {
                 className="rounded-2xl border border-[#EADDCD] bg-white px-4 py-6 text-center dark:border-[#3D3530] dark:bg-[#242220]"
               >
                 {doctor.image ? (
-                  <div className="relative mx-auto h-[100px] w-[100px] overflow-hidden rounded-full">
-                    <Image
+                  <div className="mx-auto h-[100px] w-[100px] overflow-hidden rounded-full">
+                    <DoctorPhoto
                       src={doctor.image}
                       alt={doctor.name}
-                      fill
-                      sizes="100px"
-                      className="object-cover"
+                      className="h-full w-full object-cover"
                     />
                   </div>
                 ) : (

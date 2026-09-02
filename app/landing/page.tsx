@@ -16,6 +16,7 @@ import {
 import { FormEvent, useEffect, useState } from "react";
 import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
 import InAppBrowserWarning from "@/components/ui/InAppBrowserWarning";
+import DoctorPhoto from "@/components/ui/DoctorPhoto";
 import LandingLeadCaptureSection from "@/components/landing/LandingLeadCaptureSection";
 import SkinQuiz from "@/components/landing/SkinQuiz";
 import { FAQS } from "@/lib/faq";
@@ -1612,13 +1613,11 @@ export default function LandingPage() {
                     className="rounded-2xl border border-[#EADDCD] bg-white px-4 py-6 text-center dark:border-[#3D3530] dark:bg-[#242220]"
                   >
                     {doctor.image ? (
-                      <div className="relative mx-auto h-[120px] w-[120px] overflow-hidden rounded-full border-2 border-[#B87B68]">
-                        <Image
+                      <div className="mx-auto h-[120px] w-[120px] overflow-hidden rounded-full border-2 border-[#B87B68]">
+                        <DoctorPhoto
                           src={doctor.image}
                           alt={doctor.name}
-                          fill
-                          sizes="120px"
-                          className="object-cover"
+                          className="h-full w-full object-cover"
                         />
                       </div>
                     ) : (
