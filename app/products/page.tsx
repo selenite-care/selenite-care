@@ -115,9 +115,10 @@ function ProductsPageContent() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const initialPage = Math.max(1, Number(searchParams.get("page")) || 1);
+  const initialType = searchParams.get("type")?.trim() ?? "";
   const [searchInput, setSearchInput] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [selectedType, setSelectedType] = useState("");
+  const [selectedType, setSelectedType] = useState(initialType);
   const [showDoctorRecommended, setShowDoctorRecommended] = useState(false);
   const [recommendedProductIds, setRecommendedProductIds] = useState<Set<string>>(
     () => new Set(),
@@ -170,10 +171,31 @@ function ProductsPageContent() {
     setPage(normalizedPage);
   }, [pathname, router, searchParams]);
 
+  const updateSelectedType = useCallback((nextType: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+
+    if (nextType) {
+      params.set("type", nextType);
+    } else {
+      params.delete("type");
+    }
+
+    params.delete("page");
+
+    const queryString = params.toString();
+    router.replace(queryString ? `${pathname}?${queryString}` : pathname, {
+      scroll: false,
+    });
+    setSelectedType(nextType);
+    setPage(1);
+  }, [pathname, router, searchParams]);
+
   useEffect(() => {
     const nextPage = Math.max(1, Number(searchParams.get("page")) || 1);
+    const nextType = searchParams.get("type")?.trim() ?? "";
     const animationFrame = window.requestAnimationFrame(() => {
       setPage(nextPage);
+      setSelectedType((current) => (current === nextType ? current : nextType));
     });
 
     return () => window.cancelAnimationFrame(animationFrame);
@@ -621,8 +643,7 @@ function ProductsPageContent() {
                 id="product-type"
                 value={selectedType}
                 onChange={(event) => {
-                  setSelectedType(event.target.value);
-                  updatePage(1);
+                  updateSelectedType(event.target.value);
                 }}
                 style={{
                   height: 46,
