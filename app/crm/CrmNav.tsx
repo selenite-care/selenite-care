@@ -8,6 +8,7 @@ import MessagesBadge from "@/components/ui/MessagesBadge";
 
 const crmLinks = [
   { href: "/crm", label: "Overview" },
+  { href: "/crm/leads", label: "Leads" },
   { href: "/crm/clients", label: "All Clients" },
   { href: "/crm/bookings", label: "All Bookings" },
   { href: "/crm/memberships", label: "Memberships" },

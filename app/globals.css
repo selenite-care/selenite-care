@@ -141,6 +141,66 @@
     animation: mobile-menu-slide-in 220ms ease-out both;
   }
 
+  @keyframes mobile-drawer-slide-in {
+    from {
+      opacity: 0;
+      transform: translateX(-100%);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .mobile-drawer-slide {
+    animation: mobile-drawer-slide-in 240ms ease-out both;
+  }
+
+  @keyframes mobile-drawer-slide-out {
+    from {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    to {
+      opacity: 0;
+      transform: translateX(-100%);
+    }
+  }
+
+  .mobile-drawer-slide-out {
+    animation: mobile-drawer-slide-out 220ms ease-in both;
+  }
+
+  @keyframes mobile-drawer-overlay-in {
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes mobile-drawer-overlay-out {
+    from {
+      opacity: 1;
+    }
+
+    to {
+      opacity: 0;
+    }
+  }
+
+  .mobile-drawer-overlay-in {
+    animation: mobile-drawer-overlay-in 200ms ease-out both;
+  }
+
+  .mobile-drawer-overlay-out {
+    animation: mobile-drawer-overlay-out 220ms ease-in both;
+  }
+
   .btn-primary:active {
     transform: scale(0.98);
   }

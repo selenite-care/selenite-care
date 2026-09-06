@@ -18,6 +18,7 @@ function LoginPageContent() {
   const { data: session, status } = useSession();
   const callbackUrl = searchParams.get("callbackUrl");
   const authError = searchParams.get("error");
+  const isAppointmentRedirect = callbackUrl?.startsWith("/appointment") ?? false;
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [email, setEmail] = useState("");
@@ -31,7 +32,9 @@ function LoginPageContent() {
   function handleGoogleLogin() {
     document.cookie =
       "selenite_google_oauth_intent=login; path=/; max-age=300; samesite=lax";
-    void signIn("google", { callbackUrl: "/dashboard" });
+    void signIn("google", {
+      callbackUrl: callbackUrl?.startsWith("/") ? callbackUrl : "/dashboard",
+    });
   }
 
   useEffect(() => {
@@ -207,6 +210,13 @@ function LoginPageContent() {
           onSubmit={handleSubmit}
           className="border-themed bg-card flex w-full flex-col gap-5 rounded-xl border p-5 shadow-[0_16px_34px_rgba(43,43,43,0.06)] dark:shadow-none"
         >
+          {isAppointmentRedirect ? (
+            <div className="flex items-center justify-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-center text-sm font-medium leading-6 text-red-700 dark:border-red-900/50 dark:bg-red-950/20 dark:text-red-300">
+              <span aria-hidden="true">⚠</span>
+              <span>To book an appointment, You need to login first.</span>
+            </div>
+          ) : null}
+
           {isUsingInAppBrowser ? (
             <div className="rounded-lg border border-[#B87B68] bg-[#F8F5F0] px-4 py-3 text-sm leading-6 text-[#2B2B2B] dark:bg-[#242220] dark:text-[#F0EDE8]">
               Google Sign-In is not available in this browser. Please open in
