@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ShoppingBag, X } from "lucide-react";
 import { useCart } from "@/components/cart/CartProvider";
@@ -134,6 +134,7 @@ function ProductsPageContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [recentlyAddedId, setRecentlyAddedId] = useState<string | null>(null);
+  const previousSearchInputRef = useRef(searchInput);
   const [globalProductDiscount, setGlobalProductDiscount] = useState({
     enabled: false,
     percent: 0,
@@ -202,6 +203,12 @@ function ProductsPageContent() {
   }, [searchParams]);
 
   useEffect(() => {
+    if (previousSearchInputRef.current === searchInput) {
+      return;
+    }
+
+    previousSearchInputRef.current = searchInput;
+
     const timeout = window.setTimeout(() => {
       setDebouncedSearch(searchInput.trim());
       updatePage(1);
