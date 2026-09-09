@@ -148,6 +148,7 @@ function ProductImage({
       fill
       sizes={sizes}
       className={className}
+      unoptimized
       onError={() => setHasImageError(true)}
     />
   );
