@@ -104,6 +104,7 @@ export default function ProductSlideshow({
                           fill
                           sizes="250px"
                           className="object-contain"
+                          unoptimized
                         />
                       </div>
                     ) : (
