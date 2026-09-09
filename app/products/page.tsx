@@ -109,6 +109,50 @@ function getDiscountedPrice(price: number, percent: number) {
   return Math.round(price * (1 - percent / 100));
 }
 
+function ProductImage({
+  src,
+  alt,
+  sizes,
+  initials,
+  className = "object-contain",
+}: {
+  src: string | null;
+  alt: string;
+  sizes: string;
+  initials: string;
+  className?: string;
+}) {
+  const [hasImageError, setHasImageError] = useState(false);
+
+  useEffect(() => {
+    setHasImageError(false);
+  }, [src]);
+
+  if (!src || hasImageError) {
+    return (
+      <div className="flex h-full w-full items-center justify-center">
+        <span
+          className="text-3xl font-bold text-[#B87B68]"
+          style={{ fontFamily: "Playfair Display, serif" }}
+        >
+          {initials}
+        </span>
+      </div>
+    );
+  }
+
+  return (
+    <Image
+      src={src}
+      alt={alt}
+      fill
+      sizes={sizes}
+      className={className}
+      onError={() => setHasImageError(true)}
+    />
+  );
+}
+
 function ProductsPageContent() {
   const { addItem } = useCart();
   const router = useRouter();
@@ -913,37 +957,12 @@ function ProductsPageContent() {
                     ) : null}
 
                     <div className="product-card-media relative flex aspect-square w-full shrink-0 items-center justify-center bg-[#F8F5F0] dark:bg-[#1A1814]">
-                      {product.image ? (
-                        <div className="relative h-full w-full">
-                          <Image
-                            src={product.image}
-                            alt={product.name}
-                            fill
-                            sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 25vw"
-                            className="object-contain"
-                          />
-                        </div>
-                      ) : (
-                        <div
-                          style={{
-                            display: "flex",
-                            height: "100%",
-                            alignItems: "center",
-                            justifyContent: "center",
-                          }}
-                        >
-                          <span
-                            style={{
-                              fontSize: 30,
-                              fontWeight: 700,
-                              color: "#B87B68",
-                              letterSpacing: "0.02em",
-                            }}
-                          >
-                            {getInitials(product.name)}
-                          </span>
-                        </div>
-                      )}
+                      <ProductImage
+                        src={product.image}
+                        alt={product.name}
+                        sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 25vw"
+                        initials={getInitials(product.name)}
+                      />
 
                       <span
                         style={{
@@ -1239,11 +1258,11 @@ function ProductsPageContent() {
                     aria-hidden="true"
                     className="absolute inset-0 bg-[linear-gradient(90deg,rgba(248,245,240,0.48),transparent_25%,transparent_75%,rgba(248,245,240,0.48))] dark:bg-[linear-gradient(90deg,rgba(26,24,20,0.52),transparent_25%,transparent_75%,rgba(26,24,20,0.52))]"
                   />
-                  <Image
+                  <ProductImage
                     src={selectedProduct.image}
                     alt={selectedProduct.name}
-                    fill
                     sizes="500px"
+                    initials={getInitials(selectedProduct.name)}
                     className="relative z-[1] object-contain"
                   />
                 </>
