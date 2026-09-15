@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import Pagination from "@/components/ui/Pagination";
 import { SkeletonTable } from "@/components/ui/Skeleton";
 import { formatDateOnly } from "@/lib/dateUtils";
+import { generateReferralCode } from "@/lib/referralCode";
 
 type AdminUser = {
   id: string;
@@ -41,7 +42,14 @@ type AdminUsersResponse = {
 };
 
 const ROLES = ["CLIENT", "DOCTOR", "CRM", "ADMIN"];
-const ROLE_FILTERS = ["All", "CLIENT", "DOCTOR", "CRM", "ADMIN"] as const;
+const ROLE_FILTERS = [
+  "All",
+  "CLIENT",
+  "DOCTOR",
+  "CRM",
+  "INFLUENCER",
+  "ADMIN",
+] as const;
 const STATUS_FILTERS = [
   { value: "all", label: "All" },
   { value: "VERIFIED", label: "Verified" },
@@ -71,6 +79,10 @@ const roleColors: Record<string, { badge: string; text: string }> = {
   CRM: {
     badge: "bg-emerald-100 dark:bg-emerald-900/20",
     text: "text-emerald-800 dark:text-emerald-300",
+  },
+  INFLUENCER: {
+    badge: "bg-pink-100 dark:bg-pink-900/20",
+    text: "text-pink-800 dark:text-pink-300",
   },
   ADMIN: {
     badge: "bg-red-100 dark:bg-red-900/20",
@@ -236,6 +248,11 @@ export default function AdminUsersPage() {
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [isDeletingSuspicious, setIsDeletingSuspicious] = useState(false);
   const [updateError, setUpdateError] = useState<string | null>(null);
+  const [influencerUser, setInfluencerUser] =
+    useState<AdminUserWithQuality | null>(null);
+  const [referralCode, setReferralCode] = useState("");
+  const [commissionRate, setCommissionRate] = useState("10");
+  const [isMakingInfluencer, setIsMakingInfluencer] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const totalPages = Math.max(1, Math.ceil(totalCount / ITEMS_PER_PAGE));
@@ -319,6 +336,77 @@ export default function AdminUsersPage() {
       );
     } finally {
       setUpdatingId(null);
+    }
+  }
+
+  function openInfluencerModal(user: AdminUserWithQuality) {
+    const nameForCode = user.name?.trim() || user.email.split("@")[0] || "";
+
+    setInfluencerUser(user);
+    setReferralCode(generateReferralCode(nameForCode));
+    setCommissionRate("10");
+    setUpdateError(null);
+  }
+
+  function closeInfluencerModal() {
+    if (isMakingInfluencer) {
+      return;
+    }
+
+    setInfluencerUser(null);
+    setReferralCode("");
+    setCommissionRate("10");
+  }
+
+  async function handleMakeInfluencer() {
+    if (!influencerUser || isMakingInfluencer) {
+      return;
+    }
+
+    setIsMakingInfluencer(true);
+    setUpdateError(null);
+
+    try {
+      const response = await fetch(
+        `/api/admin/users/${influencerUser.id}/make-influencer`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            referralCode,
+            commissionRate: Number(commissionRate),
+          }),
+        },
+      );
+      const data = (await response.json().catch(() => null)) as
+        | { user?: AdminUser; error?: string }
+        | null;
+
+      if (!response.ok) {
+        throw new Error(data?.error ?? "Failed to make user an influencer.");
+      }
+
+      if (data?.user) {
+        setUsers((prevUsers) =>
+          prevUsers.map((user) =>
+            user.id === influencerUser.id ? data.user! : user,
+          ),
+        );
+      }
+
+      setInfluencerUser(null);
+      setReferralCode("");
+      setCommissionRate("10");
+    } catch (err) {
+      setUpdateError(
+        err instanceof Error
+          ? err.message
+          : "Failed to make user an influencer.",
+      );
+    } finally {
+      setIsMakingInfluencer(false);
     }
   }
 
@@ -615,13 +703,14 @@ export default function AdminUsersPage() {
                     <th className="px-4 py-3 font-medium">Registration Date</th>
                     <th className="px-4 py-3 font-medium">Total Bookings</th>
                     <th className="px-4 py-3 font-medium">Total Orders</th>
+                    <th className="px-4 py-3 font-medium">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredUsers.length === 0 ? (
                     <tr>
                       <td
-                        colSpan={9}
+                        colSpan={10}
                         className="cell-muted px-4 py-8 text-center text-sm"
                       >
                         No users match the selected filters.
@@ -646,20 +735,28 @@ export default function AdminUsersPage() {
                             {user.phone ?? "Not set"}
                           </td>
                           <td className="px-4 py-4">
-                            <select
-                              value={user.role}
-                              onChange={(event) =>
-                                handleRoleChange(user.id, event.target.value)
-                              }
-                              disabled={updatingId === user.id}
-                              className={`rounded-lg px-3 py-2 text-sm font-medium outline-none transition-colors ${colors.badge} ${colors.text} disabled:cursor-not-allowed disabled:opacity-50`}
-                            >
-                              {ROLES.map((role) => (
-                                <option key={role} value={role}>
-                                  {role}
-                                </option>
-                              ))}
-                            </select>
+                            {user.role === "INFLUENCER" ? (
+                              <span
+                                className={`inline-flex rounded-lg px-3 py-2 text-sm font-medium ${colors.badge} ${colors.text}`}
+                              >
+                                INFLUENCER
+                              </span>
+                            ) : (
+                              <select
+                                value={user.role}
+                                onChange={(event) =>
+                                  handleRoleChange(user.id, event.target.value)
+                                }
+                                disabled={updatingId === user.id}
+                                className={`rounded-lg px-3 py-2 text-sm font-medium outline-none transition-colors ${colors.badge} ${colors.text} disabled:cursor-not-allowed disabled:opacity-50`}
+                              >
+                                {ROLES.map((role) => (
+                                  <option key={role} value={role}>
+                                    {role}
+                                  </option>
+                                ))}
+                              </select>
+                            )}
                           </td>
                           <td className="px-4 py-4">
                             <span
@@ -688,6 +785,22 @@ export default function AdminUsersPage() {
                           <td className="cell-muted px-4 py-4">
                             {user._count.orders}
                           </td>
+                          <td className="px-4 py-4">
+                            {user.role === "CLIENT" ? (
+                              <button
+                                type="button"
+                                onClick={() => openInfluencerModal(user)}
+                                disabled={
+                                  updatingId === user.id || isMakingInfluencer
+                                }
+                                className="inline-flex h-9 items-center justify-center rounded-md border border-[#B87B68] px-3 text-xs font-semibold text-[#884F38] transition-colors hover:bg-[#F8F5F0] disabled:cursor-not-allowed disabled:opacity-50 dark:border-[#8A7D75] dark:text-[#F0EDE8] dark:hover:bg-[#242220]"
+                              >
+                                Make Influencer
+                              </button>
+                            ) : (
+                              <span className="text-xs text-muted">-</span>
+                            )}
+                          </td>
                         </tr>
                       );
                     })
@@ -708,6 +821,81 @@ export default function AdminUsersPage() {
             itemsPerPage={ITEMS_PER_PAGE}
           />
         </>
+      ) : null}
+
+      {influencerUser ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 px-4">
+          <form
+            onSubmit={(event) => {
+              event.preventDefault();
+              void handleMakeInfluencer();
+            }}
+            className="w-full max-w-md rounded-lg border border-[#EADDCD] bg-white p-6 shadow-xl dark:border-[#3D3530] dark:bg-[#242220]"
+          >
+            <h2 className="text-lg font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]">
+              Assign Influencer Role to {influencerUser.name ?? "this user"}
+            </h2>
+
+            <div className="mt-5 space-y-4">
+              <div>
+                <label
+                  htmlFor="referral-code"
+                  className="text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]"
+                >
+                  Referral Code
+                </label>
+                <input
+                  id="referral-code"
+                  type="text"
+                  value={referralCode}
+                  onChange={(event) =>
+                    setReferralCode(event.target.value.toUpperCase())
+                  }
+                  className="mt-2 h-11 w-full rounded-md border border-[#EADDCD] bg-white px-3 text-sm font-semibold uppercase tracking-wide text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#F0EDE8]"
+                  required
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="commission-rate"
+                  className="text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]"
+                >
+                  Commission Rate (%)
+                </label>
+                <input
+                  id="commission-rate"
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="0.01"
+                  value={commissionRate}
+                  onChange={(event) => setCommissionRate(event.target.value)}
+                  className="mt-2 h-11 w-full rounded-md border border-[#EADDCD] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#F0EDE8]"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={closeInfluencerModal}
+                disabled={isMakingInfluencer}
+                className="inline-flex h-10 items-center justify-center rounded-md border border-[#EADDCD] px-4 text-sm font-medium text-[#884F38] transition-colors hover:bg-[#F8F5F0] disabled:cursor-not-allowed disabled:opacity-50 dark:border-[#3D3530] dark:text-[#F0EDE8] dark:hover:bg-[#1A1814]"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={isMakingInfluencer}
+                className="inline-flex h-10 items-center justify-center rounded-md bg-[#2B2B2B] px-4 text-sm font-medium text-[#F8F5F0] transition-colors hover:bg-[#884F38] disabled:cursor-not-allowed disabled:opacity-50 dark:bg-[#F0EDE8] dark:text-[#1A1814]"
+              >
+                {isMakingInfluencer ? "Assigning..." : "Confirm"}
+              </button>
+            </div>
+          </form>
+        </div>
       ) : null}
     </section>
   );

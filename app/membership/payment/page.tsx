@@ -3,7 +3,7 @@
 import "react-phone-number-input/style.css";
 
 import Image from "next/image";
-import { FormEvent, Suspense, useEffect, useMemo, useState } from "react";
+import { FormEvent, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
 import { toast } from "sonner";
@@ -24,6 +24,20 @@ type MembershipTierDetails = {
 type EpsInitiateResponse = {
   redirectUrl?: string;
   error?: string;
+};
+
+type ReferralValidateResponse = {
+  valid?: boolean;
+  influencerName?: string;
+  discountPercent?: number;
+  referralCode?: string;
+  error?: string;
+};
+
+type AppliedReferral = {
+  code: string;
+  influencerName: string;
+  discountPercent: number;
 };
 
 type ManualPaymentResponse = {
@@ -87,6 +101,27 @@ const MEMBERSHIPS: Record<MembershipTier, MembershipTierDetails> = {
 
 function formatBdt(amount: number) {
   return `${Math.round(amount)} BDT`;
+}
+
+function calculateDiscountedPrice(price: number, discountPercent: number) {
+  return Math.max(0, Math.round(price * (1 - discountPercent / 100)));
+}
+
+function getCookieValue(name: string) {
+  if (typeof document === "undefined") {
+    return "";
+  }
+
+  return (
+    document.cookie
+      .split("; ")
+      .find((cookie) => cookie.startsWith(`${name}=`))
+      ?.split("=")[1] ?? ""
+  );
+}
+
+function clearReferralCookie() {
+  document.cookie = "sc_ref_code=; path=/; max-age=0; samesite=lax";
 }
 
 function getPaymentErrorMessage(error: string | null, message: string | null) {
@@ -185,6 +220,17 @@ function EpsPaymentSection({
 }) {
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isReferralExpanded, setIsReferralExpanded] = useState(false);
+  const [referralCodeInput, setReferralCodeInput] = useState("");
+  const [appliedReferral, setAppliedReferral] =
+    useState<AppliedReferral | null>(null);
+  const [referralError, setReferralError] = useState("");
+  const [isApplyingReferral, setIsApplyingReferral] = useState(false);
+  const [isCookieReferralApplied, setIsCookieReferralApplied] = useState(false);
+  const hasCheckedReferralCookie = useRef(false);
+  const amountDue = appliedReferral
+    ? calculateDiscountedPrice(membership.price, appliedReferral.discountPercent)
+    : membership.price;
 
   useEffect(() => {
     function resetRedirectingState() {
@@ -206,6 +252,23 @@ function EpsPaymentSection({
     };
   }, []);
 
+  useEffect(() => {
+    if (hasCheckedReferralCookie.current) {
+      return;
+    }
+
+    hasCheckedReferralCookie.current = true;
+    const cookieCode = decodeURIComponent(getCookieValue("sc_ref_code")).trim();
+
+    if (!cookieCode) {
+      return;
+    }
+
+    setReferralCodeInput(cookieCode.toUpperCase());
+    void applyReferralCode(cookieCode, { fromCookie: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   async function handleEpsPayment() {
     if (isSubmitting) {
       return;
@@ -221,7 +284,10 @@ function EpsPaymentSection({
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ tier }),
+        body: JSON.stringify({
+          tier,
+          referralCode: appliedReferral?.code,
+        }),
       });
 
       const data = (await response.json().catch(() => null)) as
@@ -249,6 +315,67 @@ function EpsPaymentSection({
     }
   }
 
+  async function applyReferralCode(
+    code: string,
+    options: { fromCookie?: boolean } = {},
+  ) {
+    if (isApplyingReferral || !code) {
+      return;
+    }
+
+    setReferralError("");
+    setAppliedReferral(null);
+    setIsApplyingReferral(true);
+
+    try {
+      const response = await fetch(
+        `/api/referral/validate?code=${encodeURIComponent(code)}`,
+        {
+          cache: "no-store",
+        },
+      );
+      const data = (await response.json().catch(() => null)) as
+        | ReferralValidateResponse
+        | null;
+
+      if (!response.ok || !data?.valid) {
+        throw new Error(data?.error ?? "Invalid or expired referral code");
+      }
+
+      setAppliedReferral({
+        code: data.referralCode ?? code.toUpperCase(),
+        influencerName: data.influencerName ?? "An influencer",
+        discountPercent:
+          typeof data.discountPercent === "number" &&
+          Number.isFinite(data.discountPercent)
+            ? data.discountPercent
+            : 10,
+      });
+      setIsCookieReferralApplied(Boolean(options.fromCookie));
+    } catch {
+      setReferralError("Invalid or expired referral code");
+      setIsCookieReferralApplied(false);
+
+      if (options.fromCookie) {
+        clearReferralCookie();
+      }
+    } finally {
+      setIsApplyingReferral(false);
+    }
+  }
+
+  async function handleApplyReferral() {
+    await applyReferralCode(referralCodeInput.trim());
+  }
+
+  function handleRemoveReferral() {
+    setAppliedReferral(null);
+    setReferralCodeInput("");
+    setReferralError("");
+    setIsCookieReferralApplied(false);
+    clearReferralCookie();
+  }
+
   return (
     <section className="rounded-2xl border border-[#EADDCD] bg-white p-6 shadow-sm dark:border-[#3D3530] dark:bg-[#242220]">
       <h2
@@ -269,17 +396,127 @@ function EpsPaymentSection({
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#8C7967] dark:text-[#8A7D75]">
               Amount
             </p>
-            <p
-              className="mt-2 text-3xl font-semibold text-[#B87B68] sm:text-4xl"
-              style={{ fontFamily: "Playfair Display, serif" }}
-            >
-              {formatBdt(membership.price)}
-            </p>
+            {appliedReferral ? (
+              <div className="mt-2 flex flex-wrap items-baseline gap-3">
+                <span className="text-base font-semibold text-[#8C7967] line-through decoration-[1.5px] dark:text-[#8A7D75]">
+                  {formatBdt(membership.price)}
+                </span>
+                <p
+                  className="text-3xl font-semibold text-[#D4B47A] sm:text-4xl"
+                  style={{ fontFamily: "Playfair Display, serif" }}
+                >
+                  {formatBdt(amountDue)}
+                </p>
+              </div>
+            ) : (
+              <p
+                className="mt-2 text-3xl font-semibold text-[#B87B68] sm:text-4xl"
+                style={{ fontFamily: "Playfair Display, serif" }}
+              >
+                {formatBdt(membership.price)}
+              </p>
+            )}
           </div>
           <p className="text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
             {membership.name}
           </p>
         </div>
+      </div>
+
+      {appliedReferral && isCookieReferralApplied ? (
+        <div className="mt-5 rounded-2xl border border-[#D4B47A] bg-[rgba(212,180,122,0.14)] px-5 py-4 dark:bg-[rgba(212,180,122,0.12)]">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm font-semibold leading-6 text-[#2B2B2B] dark:text-[#F0EDE8]">
+              {"\u2728"} Referral discount applied! You save 10% on your
+              membership.
+            </p>
+            <button
+              type="button"
+              onClick={handleRemoveReferral}
+              className="inline-flex h-9 items-center justify-center rounded-md border border-[#B87B68] px-3 text-xs font-semibold text-[#884F38] transition-colors hover:bg-white/50 dark:text-[#D4B47A] dark:hover:bg-[#242220]"
+            >
+              Remove code
+            </button>
+          </div>
+        </div>
+      ) : null}
+
+      <div className="mt-5 rounded-2xl border border-[#EADDCD] bg-[#FCFAF7] dark:border-[#3D3530] dark:bg-[#1A1814]">
+        <button
+          type="button"
+          onClick={() => setIsReferralExpanded((current) => !current)}
+          className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left text-sm font-medium text-[#884F38] transition-colors hover:text-[#B87B68] dark:text-[#D4B47A]"
+        >
+          <span>Have a referral code? Click to apply</span>
+          <span>{isReferralExpanded ? "Hide" : "Apply"}</span>
+        </button>
+
+        {isReferralExpanded ? (
+          <div className="border-t border-[#EADDCD] px-5 py-5 dark:border-[#3D3530]">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+              <div className="flex-1">
+                <label
+                  htmlFor="membership-referral-code"
+                  className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]"
+                >
+                  Referral Code
+                </label>
+                <input
+                  id="membership-referral-code"
+                  type="text"
+                  value={referralCodeInput}
+                  onChange={(event) => {
+                    setReferralCodeInput(event.target.value.toUpperCase());
+                    setReferralError("");
+                    setAppliedReferral(null);
+                    setIsCookieReferralApplied(false);
+                  }}
+                  className="mt-2 h-11 w-full rounded-md border border-[#EADDCD] bg-white px-3 text-sm font-semibold uppercase tracking-wide text-[#2B2B2B] outline-none transition-colors placeholder:text-[#884F38] focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68] dark:border-[#3D3530] dark:bg-[#242220] dark:text-[#F0EDE8] dark:placeholder:text-[#8A7D75]"
+                  placeholder="Enter code"
+                />
+              </div>
+              <button
+                type="button"
+                onClick={() => void handleApplyReferral()}
+                disabled={isApplyingReferral || !referralCodeInput.trim()}
+                className="inline-flex h-11 items-center justify-center rounded-md bg-[#2B2B2B] px-5 text-sm font-medium text-[#F8F5F0] transition-colors hover:bg-[#884F38] disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#B87B68] dark:text-[#141210]"
+              >
+                {isApplyingReferral ? "Applying..." : "Apply"}
+              </button>
+            </div>
+
+            {appliedReferral ? (
+              <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm leading-6 text-emerald-700 dark:border-emerald-900/60 dark:bg-emerald-950/25 dark:text-emerald-300">
+                <p>
+                  {"\u2713"} Code applied! You get {appliedReferral.discountPercent}% off.{" "}
+                  {appliedReferral.influencerName} referred you.
+                </p>
+                <div className="mt-2 flex flex-wrap items-baseline gap-3">
+                  <span className="font-semibold line-through">
+                    {formatBdt(membership.price)}
+                  </span>
+                  <span
+                    className="text-2xl font-semibold text-[#D4B47A]"
+                    style={{ fontFamily: "Playfair Display, serif" }}
+                  >
+                    {formatBdt(amountDue)}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleRemoveReferral}
+                  className="mt-3 text-xs font-semibold text-emerald-800 underline dark:text-emerald-300"
+                >
+                  Remove code
+                </button>
+              </div>
+            ) : null}
+
+            {referralError ? (
+              <p className="mt-3 text-sm text-red-600">{referralError}</p>
+            ) : null}
+          </div>
+        ) : null}
       </div>
 
       {error ? (

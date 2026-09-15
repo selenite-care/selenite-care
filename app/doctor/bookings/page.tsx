@@ -50,6 +50,7 @@ function getStatusBadgeClasses(status: string) {
 
 export default function DoctorBookingsPage() {
   const [bookings, setBookings] = useState<DoctorBooking[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] =
     useState<(typeof bookingStatuses)[number]>("All");
   const [error, setError] = useState("");
@@ -61,7 +62,7 @@ export default function DoctorBookingsPage() {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [statusFilter]);
+  }, [searchQuery, statusFilter]);
 
   useEffect(() => {
     async function loadBookings() {
@@ -72,6 +73,9 @@ export default function DoctorBookingsPage() {
         const searchParams = new URLSearchParams();
         searchParams.set("page", String(currentPage));
         searchParams.set("limit", String(ITEMS_PER_PAGE));
+        if (searchQuery.trim()) {
+          searchParams.set("search", searchQuery.trim());
+        }
         if (statusFilter !== "All") {
           searchParams.set("statusFilter", statusFilter);
         }
@@ -97,9 +101,10 @@ export default function DoctorBookingsPage() {
     }
 
     loadBookings();
-  }, [currentPage, statusFilter]);
+  }, [currentPage, searchQuery, statusFilter]);
 
   const isInitialLoading = isLoading && !hasLoaded;
+  const hasActiveFilters = searchQuery.trim().length > 0 || statusFilter !== "All";
 
   function formatAppointmentTime(value: string | null) {
     return value ? formatDateOnly(value) : "Not scheduled";
@@ -128,38 +133,57 @@ export default function DoctorBookingsPage() {
         </p>
       ) : null}
 
-      {!isInitialLoading && !error && statusFilter === "All" && totalCount === 0 ? (
+      {!isInitialLoading && !error && !hasActiveFilters && totalCount === 0 ? (
         <p className="mt-8 text-sm text-foreground/70">
           No bookings have been assigned to you yet.
         </p>
       ) : null}
 
-      {!isInitialLoading && !error && (bookings.length > 0 || statusFilter !== "All") ? (
+      {!isInitialLoading && !error && (bookings.length > 0 || hasActiveFilters) ? (
         <>
           <div className="mt-8 rounded-lg border border-black/10 bg-background p-4 dark:border-white/10">
-            <div className="max-w-xs">
-              <label
-                htmlFor="booking-status-filter"
-                className="text-sm font-medium text-foreground"
-              >
-                Filter by status
-              </label>
-              <select
-                id="booking-status-filter"
-                value={statusFilter}
-                onChange={(event) =>
-                  setStatusFilter(
-                    event.target.value as (typeof bookingStatuses)[number],
-                  )
-                }
-                className="mt-2 h-11 w-full rounded-md border border-black/10 bg-background px-3 text-sm text-foreground outline-none transition-colors focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68] dark:border-white/10"
-              >
-                {bookingStatuses.map((status) => (
-                  <option key={status} value={status}>
-                    {status}
-                  </option>
-                ))}
-              </select>
+            <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_220px] md:items-end">
+              <div>
+                <label
+                  htmlFor="doctor-booking-search"
+                  className="text-sm font-medium text-foreground"
+                >
+                  Search bookings
+                </label>
+                <input
+                  id="doctor-booking-search"
+                  type="search"
+                  value={searchQuery}
+                  onChange={(event) => setSearchQuery(event.target.value)}
+                  placeholder="Client name, booking token, phone, email, or service"
+                  className="mt-2 h-11 w-full rounded-md border border-black/10 bg-background px-3 text-sm text-foreground outline-none transition-colors placeholder:text-foreground/50 focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68] dark:border-white/10"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="booking-status-filter"
+                  className="text-sm font-medium text-foreground"
+                >
+                  Filter by status
+                </label>
+                <select
+                  id="booking-status-filter"
+                  value={statusFilter}
+                  onChange={(event) =>
+                    setStatusFilter(
+                      event.target.value as (typeof bookingStatuses)[number],
+                    )
+                  }
+                  className="mt-2 h-11 w-full rounded-md border border-black/10 bg-background px-3 text-sm text-foreground outline-none transition-colors focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68] dark:border-white/10"
+                >
+                  {bookingStatuses.map((status) => (
+                    <option key={status} value={status}>
+                      {status}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
 
             <p className="mt-4 text-sm text-foreground/70">
@@ -192,7 +216,7 @@ export default function DoctorBookingsPage() {
                         colSpan={5}
                         className="px-4 py-8 text-center text-sm text-foreground/70"
                       >
-                        No bookings match this status.
+                        No bookings match your filters.
                       </td>
                     </tr>
                   ) : (

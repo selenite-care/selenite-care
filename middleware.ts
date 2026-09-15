@@ -2,7 +2,7 @@ import { hkdf } from "@panva/hkdf"
 import { base64url, calculateJwkThumbprint, jwtDecrypt, type JWTPayload } from "jose"
 import { NextResponse, type NextRequest } from "next/server"
 
-type SessionRole = "ADMIN" | "DOCTOR" | "CRM" | "CLIENT"
+type SessionRole = "ADMIN" | "DOCTOR" | "CRM" | "INFLUENCER" | "CLIENT"
 
 const SESSION_COOKIE_NAMES = [
   "__Secure-authjs.session-token",
@@ -16,6 +16,7 @@ const DEFAULT_REDIRECT_BY_ROLE: Record<SessionRole, string> = {
   ADMIN: "/admin",
   DOCTOR: "/doctor",
   CRM: "/crm",
+  INFLUENCER: "/influencer",
   CLIENT: "/dashboard",
 }
 
@@ -112,7 +113,12 @@ async function getSessionFromRequest(request: NextRequest) {
 }
 
 function getRedirectForRole(role?: string) {
-  if (role === "ADMIN" || role === "DOCTOR" || role === "CRM") {
+  if (
+    role === "ADMIN" ||
+    role === "DOCTOR" ||
+    role === "CRM" ||
+    role === "INFLUENCER"
+  ) {
     return DEFAULT_REDIRECT_BY_ROLE[role]
   }
 
@@ -192,6 +198,23 @@ export default async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL(getRedirectForRole(role), request.url))
   }
 
+  if (
+    pathname.startsWith("/influencer") &&
+    role !== "INFLUENCER" &&
+    role !== "ADMIN"
+  ) {
+    return NextResponse.redirect(new URL("/dashboard", request.url))
+  }
+
+  if (
+    role === "INFLUENCER" &&
+    (pathname.startsWith("/admin") ||
+      pathname.startsWith("/doctor") ||
+      pathname.startsWith("/crm"))
+  ) {
+    return NextResponse.redirect(new URL("/influencer", request.url))
+  }
+
   if (pathname.startsWith("/admin") && role !== "ADMIN") {
     return NextResponse.redirect(new URL("/dashboard", request.url))
   }
@@ -217,5 +240,6 @@ export const config = {
     "/admin/:path*",
     "/doctor/:path*",
     "/crm/:path*",
+    "/influencer/:path*",
   ],
 }

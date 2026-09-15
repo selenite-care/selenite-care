@@ -184,6 +184,93 @@ function buildAdminEmailHtml(input: {
   `;
 }
 
+async function recordReferralSale(input: {
+  membershipId: string;
+  clientId: string;
+  tier: MembershipTier;
+  referralCode: string | null;
+}) {
+  if (!input.referralCode) {
+    return;
+  }
+
+  try {
+    const influencer = await db.influencer.findUnique({
+      where: {
+        referralCode: input.referralCode,
+      },
+      select: {
+        id: true,
+        user: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
+
+    if (!influencer) {
+      return;
+    }
+
+    const originalAmount = MEMBERSHIP_PRICES[input.tier].price;
+    const discountAmount = originalAmount * 0.1;
+    const clientPaid = originalAmount - discountAmount;
+    const commissionAmount = originalAmount * 0.1;
+    const companyReceives = clientPaid - commissionAmount;
+    const influencerName = influencer.user.name || "Unknown influencer";
+
+    await db.$transaction([
+      db.influencerReferral.create({
+        data: {
+          influencerId: influencer.id,
+          clientId: input.clientId,
+          membershipId: input.membershipId,
+          originalAmount,
+          discountAmount,
+          clientPaid,
+          commissionAmount,
+          companyReceives,
+          status: "PENDING",
+        },
+      }),
+      db.influencer.update({
+        where: {
+          id: influencer.id,
+        },
+        data: {
+          totalEarned: {
+            increment: commissionAmount,
+          },
+        },
+      }),
+    ]);
+
+    const adminUsers = await db.user.findMany({
+      where: {
+        role: "ADMIN",
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    await Promise.all(
+      adminUsers.map((admin) =>
+        createNotification(
+          admin.id,
+          "New referral sale",
+          `New referral sale by ${influencerName} — commission: ${formatBdt(commissionAmount)} pending`,
+          NOTIFICATION_TYPES.MEMBERSHIP,
+          "/admin/memberships",
+        ),
+      ),
+    );
+  } catch (error) {
+    console.error("Referral sale recording failed:", error);
+  }
+}
+
 export async function GET(request: Request) {
   const merchantTransactionId = getMerchantTransactionId(request);
 
@@ -341,6 +428,13 @@ export async function GET(request: Request) {
         payment: updatedPayment,
         membership: updatedMembership,
       };
+    });
+
+    await recordReferralSale({
+      membershipId: membership.id,
+      clientId: membership.userId,
+      tier: membership.tier,
+      referralCode: membership.referralCode,
     });
 
     const clientEmail = membership.user.email;

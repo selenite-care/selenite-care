@@ -1,0 +1,148 @@
+import NextAuth from "next-auth";
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import ChangePasswordForm from "@/components/dashboard/ChangePasswordForm";
+import ProfilePhotoSection from "@/components/dashboard/ProfilePhotoSection";
+import { authConfig } from "@/lib/auth";
+import { db } from "@/lib/db";
+import { formatDateOnly } from "@/lib/dateUtils";
+import InfluencerProfileEditForm from "./InfluencerProfileEditForm";
+
+const { auth } = NextAuth(authConfig);
+
+export default async function InfluencerProfilePage() {
+  const session = await auth();
+
+  if (!session?.user?.id) {
+    redirect("/login");
+  }
+
+  if (session.user.role !== "INFLUENCER") {
+    redirect("/dashboard");
+  }
+
+  const user = await db.user.findUnique({
+    where: { id: session.user.id },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      phone: true,
+      image: true,
+      createdAt: true,
+      influencer: {
+        select: {
+          referralCode: true,
+        },
+      },
+    },
+  });
+
+  if (!user?.influencer) {
+    redirect("/dashboard");
+  }
+
+  const googleAccount = await db.account.findFirst({
+    where: {
+      userId: session.user.id,
+      provider: "google",
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  return (
+    <section>
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <h1
+            className="text-page text-3xl font-semibold tracking-tight"
+            style={{ fontFamily: "Playfair Display, serif" }}
+          >
+            Your Profile
+          </h1>
+          <p className="text-muted mt-2 text-sm">
+            View and update your influencer account information.
+          </p>
+        </div>
+        <Link
+          href="/influencer"
+          className="border-themed text-page inline-flex h-9 items-center justify-center rounded-md border px-3 text-sm font-medium transition-colors hover:bg-black/5 dark:hover:bg-white/5"
+        >
+          Back
+        </Link>
+      </div>
+
+      <div className="mt-6 grid gap-6 md:grid-cols-2">
+        <div className="md:col-span-2">
+          <ProfilePhotoSection
+            initialImage={user.image}
+            name={user.name}
+            hasGoogleAccount={Boolean(googleAccount)}
+          />
+        </div>
+
+        <section className="bg-card border-themed rounded-lg border p-6">
+          <h2
+            className="text-page text-lg font-semibold"
+            style={{ fontFamily: "Playfair Display, serif" }}
+          >
+            Account
+          </h2>
+          <div className="text-muted mt-4 grid gap-2 text-sm">
+            <div>
+              <p className="text-muted font-medium">Name</p>
+              <p className="text-page mt-1">{user.name ?? "Not set"}</p>
+            </div>
+            <div>
+              <p className="text-muted font-medium">Email</p>
+              <p className="text-page mt-1">{user.email}</p>
+            </div>
+            <div>
+              <p className="text-muted font-medium">Phone</p>
+              <p className="text-page mt-1">{user.phone ?? "Not set"}</p>
+            </div>
+            <div>
+              <p className="text-muted font-medium">Referral Code</p>
+              <p className="mt-1 font-mono text-lg font-semibold tracking-[0.08em] text-[#D4B47A]">
+                {user.influencer.referralCode}
+              </p>
+            </div>
+            <div>
+              <p className="text-muted font-medium">Account Created</p>
+              <p className="text-page mt-1">{formatDateOnly(user.createdAt)}</p>
+            </div>
+          </div>
+        </section>
+
+        <section className="bg-card border-themed rounded-lg border p-6">
+          <h2
+            className="text-page text-lg font-semibold"
+            style={{ fontFamily: "Playfair Display, serif" }}
+          >
+            Edit Profile
+          </h2>
+          <div className="mt-4">
+            <InfluencerProfileEditForm
+              currentName={user.name ?? ""}
+              currentPhone={user.phone ?? ""}
+            />
+          </div>
+        </section>
+
+        <section className="bg-card border-themed md:col-span-2 rounded-lg border p-6">
+          <h2
+            className="text-page text-lg font-semibold"
+            style={{ fontFamily: "Playfair Display, serif" }}
+          >
+            Change Password
+          </h2>
+          <div className="mt-4">
+            <ChangePasswordForm />
+          </div>
+        </section>
+      </div>
+    </section>
+  );
+}

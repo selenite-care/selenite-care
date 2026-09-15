@@ -4,6 +4,7 @@ import "react-phone-number-input/style.css";
 
 import Image from "next/image";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import {
   Check,
@@ -13,7 +14,7 @@ import {
   Phone,
   Star,
 } from "lucide-react";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, Suspense, useEffect, useState } from "react";
 import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
 import InAppBrowserWarning from "@/components/ui/InAppBrowserWarning";
 import DoctorPhoto from "@/components/ui/DoctorPhoto";
@@ -585,7 +586,7 @@ const CONTENT = {
 } as const;
 
 const LANDING_VIDEO_URL =
-  "https://res.cloudinary.com/dwokjn6zk/video/upload/v1783502224/Untitled_design_6_cjca8z.mp4"; // PLACEHOLDER - replace with real video URL
+  "/images/hww.mp4";
 
 const LANDING_FAQ_TRANSLATIONS: Record<
   string,
@@ -707,6 +708,7 @@ function ReviewCard({ image, index }: { image: string; index: number }) {
           fill
           sizes="(max-width: 480px) 92vw, (max-width: 768px) 85vw, 33vw"
           className="object-contain p-3 transition-transform duration-300 group-hover:scale-[1.015]"
+          unoptimized
         />
       </div>
     </article>
@@ -749,9 +751,15 @@ function ReviewsCarousel({ heading }: { heading: string }) {
   );
 }
 
-export default function LandingPage() {
+function LandingPageContent() {
+  const searchParams = useSearchParams();
   const [language, setLanguage] = useState<Language>("en");
   const [openFaqId, setOpenFaqId] = useState<string | null>("1");
+  const referralCode = searchParams.get("ref")?.trim().toUpperCase() ?? "";
+  const invitedBy = searchParams.get("invitedBy")?.trim() ?? "";
+  const [showReferralBanner, setShowReferralBanner] = useState(
+    Boolean(referralCode && invitedBy),
+  );
   const headerContent = CONTENT[language].header;
   const heroContent = CONTENT[language].hero;
   const aboutContent = CONTENT[language].about;
@@ -1015,6 +1023,26 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen overflow-x-hidden bg-[#F8F5F0] font-sans text-[#2B2B2B] dark:bg-[#141210] dark:text-[#F0EDE8]">
       <InAppBrowserWarning />
+      {showReferralBanner && referralCode && invitedBy ? (
+        <div className="fixed inset-x-0 top-0 z-50 border-b border-[#D4B47A] bg-[#2B2B2B] px-4 py-3 text-[#F8F5F0] shadow-lg">
+          <div className="mx-auto flex max-w-7xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm font-medium leading-6">
+              {"\u2728"} {invitedBy} invited you! Use code{" "}
+              <span className="font-mono font-semibold text-[#D4B47A]">
+                {referralCode}
+              </span>{" "}
+              at checkout for 10% off your membership.
+            </p>
+            <button
+              type="button"
+              onClick={() => setShowReferralBanner(false)}
+              className="inline-flex h-8 items-center justify-center rounded-md border border-[#D4B47A] px-3 text-xs font-semibold text-[#D4B47A] transition-colors hover:bg-[#D4B47A] hover:text-[#141210]"
+            >
+              Dismiss
+            </button>
+          </div>
+        </div>
+      ) : null}
       <style>{`
         html {
           scroll-behavior: smooth;
@@ -1197,6 +1225,7 @@ export default function LandingPage() {
                     priority
                     className="object-cover"
                     sizes="(max-width: 1280px) 100vw, 55vw"
+                    unoptimized
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[rgba(43,43,43,0.10)] to-transparent" />
                 </div>
@@ -1379,25 +1408,25 @@ export default function LandingPage() {
               {howItWorksContent.steps.map((step, index) => (
                 <div
                   key={step.n}
-                  className="relative flex flex-col pl-8 lg:min-w-0 lg:flex-1 lg:pl-0"
+                  className="relative flex flex-col lg:min-w-0 lg:flex-1"
                 >
                   {index < howItWorksContent.steps.length - 1 ? (
                     <div className="absolute bottom-0 left-[18px] top-12 w-px bg-[#B87B68] lg:hidden" />
                   ) : null}
 
-                  <article className="relative pb-8 lg:pb-0">
-                    <div className="absolute left-0 top-0 flex h-9 w-9 items-center justify-center rounded-full bg-[#B87B68] text-sm font-semibold text-[#2B2B2B] lg:static lg:mx-auto lg:h-12 lg:w-12 lg:text-base">
+                  <article className="relative grid grid-cols-[36px_minmax(0,1fr)] gap-4 pb-8 lg:block lg:pb-0">
+                    <div className="relative z-[1] flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#B87B68] text-sm font-semibold text-[#2B2B2B] lg:mx-auto lg:h-12 lg:w-12 lg:text-base">
                       {step.n}
                     </div>
 
-                    <div className="lg:px-4 lg:text-center">
+                    <div className="min-w-0 lg:px-4 lg:text-center">
                       <h3
-                        className="ml-2 text-lg font-semibold text-[#2B2B2B] dark:text-[#F0EDE8] lg:ml-0 lg:mt-5"
+                        className="text-lg font-semibold leading-7 text-[#2B2B2B] dark:text-[#F0EDE8] lg:mt-5"
                         style={{ fontFamily: "Playfair Display, serif" }}
                       >
                         {step.title}
                       </h3>
-                      <p className="ml-2 mt-3 text-sm leading-7 text-[#884F38] dark:text-[#8A7D75] lg:ml-0">
+                      <p className="mt-3 text-sm leading-7 text-[#884F38] dark:text-[#8A7D75]">
                         {step.desc}
                       </p>
                     </div>
@@ -2208,5 +2237,17 @@ export default function LandingPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function LandingPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-[#F8F5F0] dark:bg-[#141210]" />
+      }
+    >
+      <LandingPageContent />
+    </Suspense>
   );
 }

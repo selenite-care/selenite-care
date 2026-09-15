@@ -58,7 +58,17 @@ export async function PATCH(request: Request, context: RouteContext) {
         email: true,
         phone: true,
         role: true,
+        emailVerified: true,
         createdAt: true,
+        accounts: {
+          where: {
+            provider: "google",
+          },
+          take: 1,
+          select: {
+            provider: true,
+          },
+        },
         memberships: {
           orderBy: {
             createdAt: "desc",
@@ -74,6 +84,8 @@ export async function PATCH(request: Request, context: RouteContext) {
         _count: {
           select: {
             bookings: true,
+            memberships: true,
+            orders: true,
           },
         },
       },
