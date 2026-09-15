@@ -2,7 +2,7 @@ import NextAuth from "next-auth";
 import { authConfig } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { createNotification, NOTIFICATION_TYPES } from "@/lib/notifications";
-import { sanitizeHtml, sanitizeText } from "@/lib/sanitize";
+import { sanitizeHtml } from "@/lib/sanitize";
 
 const { auth } = NextAuth(authConfig);
 
@@ -14,22 +14,9 @@ type RouteContext = {
 
 type PutPayload = {
   feedback?: unknown;
-  images?: unknown;
 };
 
 const privilegedRoles = new Set(["ADMIN", "DOCTOR", "CRM"]);
-
-function normalizeImages(input: unknown) {
-  if (!Array.isArray(input)) {
-    return [] as string[];
-  }
-
-  return input
-    .filter((item): item is string => typeof item === "string")
-    .map((item) => sanitizeText(item))
-    .filter(Boolean)
-    .slice(0, 2);
-}
 
 export async function GET(_request: Request, context: RouteContext) {
   const session = await auth();
@@ -105,14 +92,6 @@ export async function PUT(request: Request, context: RouteContext) {
   const body = (await request.json().catch(() => ({}))) as PutPayload;
   const feedback =
     typeof body.feedback === "string" ? sanitizeHtml(body.feedback) || null : null;
-  const images = normalizeImages(body.images);
-
-  if (Array.isArray(body.images) && body.images.length > 2) {
-    return Response.json(
-      { error: "A maximum of 2 image URLs is allowed." },
-      { status: 400 },
-    );
-  }
 
   const customerFeedback = await db.customerFeedback.upsert({
     where: {
@@ -120,12 +99,12 @@ export async function PUT(request: Request, context: RouteContext) {
     },
     update: {
       feedback,
-      images,
+      images: [],
     },
     create: {
       bookingId,
       feedback,
-      images,
+      images: [],
     },
   });
 
