@@ -1,8 +1,6 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useState } from "react";
-import FileUploadButton from "@/components/ui/FileUploadButton";
 import { formatDateTime } from "@/lib/dateUtils";
 
 type FeedbackEditorProps = {
@@ -15,7 +13,7 @@ type CustomerFeedbackResponse = {
     id: string;
     bookingId: string;
     feedback: string | null;
-    images: string[];
+    images?: string[];
     createdAt: string;
     updatedAt: string;
   } | null;
@@ -31,11 +29,9 @@ export default function FeedbackEditor({
   canEdit,
 }: FeedbackEditorProps) {
   const [feedback, setFeedback] = useState("");
-  const [images, setImages] = useState<string[]>([]);
   const [lastSavedAt, setLastSavedAt] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -60,7 +56,6 @@ export default function FeedbackEditor({
         if (!isMounted) return;
 
         setFeedback(data?.customerFeedback?.feedback ?? "");
-        setImages(data?.customerFeedback?.images ?? []);
         setLastSavedAt(data?.customerFeedback?.updatedAt ?? null);
       } catch (loadError) {
         if (!isMounted) return;
@@ -81,51 +76,6 @@ export default function FeedbackEditor({
     };
   }, [bookingId]);
 
-  async function handleUpload(file: File) {
-    if (images.length >= 2) {
-      setError("You can upload a maximum of 2 images.");
-      return;
-    }
-
-    setIsUploading(true);
-    setError("");
-
-    try {
-      const uploadedUrls: string[] = [];
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const response = await fetch("/api/feedback/upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      const data = (await response.json().catch(() => null)) as
-        | { secure_url?: string; error?: string }
-        | null;
-
-      if (!response.ok || !data?.secure_url) {
-        throw new Error(data?.error ?? "Unable to upload image.");
-      }
-
-      uploadedUrls.push(data.secure_url);
-
-      setImages((currentImages) => [...currentImages, ...uploadedUrls].slice(0, 2));
-    } catch (uploadError) {
-      setError(
-        uploadError instanceof Error ? uploadError.message : "Unable to upload image.",
-      );
-    } finally {
-      setIsUploading(false);
-    }
-  }
-
-  function handleRemoveImage(imageUrl: string) {
-    setImages((currentImages) =>
-      currentImages.filter((currentImage) => currentImage !== imageUrl),
-    );
-  }
-
   async function handleSave() {
     if (!canEdit) return;
 
@@ -140,7 +90,6 @@ export default function FeedbackEditor({
         },
         body: JSON.stringify({
           feedback,
-          images,
         }),
       });
 
@@ -153,7 +102,6 @@ export default function FeedbackEditor({
       }
 
       setFeedback(data?.customerFeedback?.feedback ?? "");
-      setImages(data?.customerFeedback?.images ?? []);
       setLastSavedAt(data?.customerFeedback?.updatedAt ?? new Date().toString());
     } catch (saveError) {
       setError(
@@ -164,7 +112,7 @@ export default function FeedbackEditor({
     }
   }
 
-  const isEmpty = !feedback.trim() && images.length === 0;
+  const isEmpty = !feedback.trim();
 
   if (isLoading) {
     return (
@@ -219,66 +167,14 @@ export default function FeedbackEditor({
             />
           </div>
 
-          <div>
-            <label
-              htmlFor={`feedback-images-${bookingId}`}
-              className="block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]"
-            >
-              Upload Images
-            </label>
-            <p className="mt-1 text-sm text-[#6E6257] dark:text-[#8A7D75]">
-              You can upload up to 2 images.
-            </p>
-            <div className="mt-3">
-              <FileUploadButton
-                onFileSelected={(file) => {
-                  if (isUploading || images.length >= 2) {
-                    return;
-                  }
-
-                  void handleUpload(file);
-                }}
-                label={isUploading ? "Uploading..." : "Upload Image"}
-                accept="image/*"
-              />
-            </div>
-          </div>
-
-          {images.length > 0 ? (
-            <div className="grid gap-4 sm:grid-cols-2">
-              {images.map((imageUrl) => (
-                <div
-                  key={imageUrl}
-                  className="rounded-2xl border bg-white p-3 dark:bg-[#242220] dark:border-[#3D3530]"
-                >
-                  <div className="relative aspect-[4/3] overflow-hidden rounded-xl">
-                    <Image
-                      src={imageUrl}
-                      alt="Feedback upload preview"
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveImage(imageUrl)}
-                    className="mt-3 inline-flex h-10 items-center justify-center rounded-md border px-4 text-sm font-medium text-[#2B2B2B] transition-colors hover:bg-[#F8F5F0] dark:border-[#3D3530] dark:text-[#F0EDE8] dark:hover:bg-[#1A1814]"
-                  >
-                    Remove
-                  </button>
-                </div>
-              ))}
-            </div>
-          ) : null}
-
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <button
               type="button"
               onClick={() => void handleSave()}
-              disabled={isSaving || isUploading}
+              disabled={isSaving}
               className="inline-flex h-11 items-center justify-center rounded-md bg-[#2B2B2B] px-5 text-sm font-medium text-[#F8F5F0] transition-colors hover:bg-[#884F38] disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {isUploading ? "Uploading..." : isSaving ? "Saving..." : "Save"}
+              {isSaving ? "Saving..." : "Save"}
             </button>
 
             {error ? (
@@ -301,29 +197,6 @@ export default function FeedbackEditor({
           >
             {feedback || "No feedback submitted yet"}
           </div>
-
-          {images.length > 0 ? (
-            <div className="grid gap-4 sm:grid-cols-2">
-              {images.map((imageUrl) => (
-                <a
-                  key={imageUrl}
-                  href={imageUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="block overflow-hidden rounded-2xl border bg-white p-3 dark:bg-[#242220] dark:border-[#3D3530]"
-                >
-                  <div className="relative aspect-[4/3] overflow-hidden rounded-xl">
-                    <Image
-                      src={imageUrl}
-                      alt="Feedback image"
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                </a>
-              ))}
-            </div>
-          ) : null}
         </div>
       )}
     </section>
