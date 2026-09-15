@@ -29,6 +29,7 @@ const adminSections = [
     heading: "Marketing",
     links: [
       { href: "/admin/leads", label: "Leads" },
+      { href: "/admin/influencers", label: "Influencers" },
       { href: "/admin/blog", label: "Blog Posts" },
     ],
   },

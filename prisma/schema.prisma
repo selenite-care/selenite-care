@@ -37,6 +37,8 @@ model User {
   blogPosts            BlogPost[]
   conversation         Conversation?
   sentMessages         Message[]      @relation("SentMessages")
+  influencer         Influencer?
+  influencerReferrals InfluencerReferral[] @relation("ClientReferrals")
 
   @@index([role])
   @@index([createdAt(sort: Desc)])
@@ -103,6 +105,8 @@ model Membership {
   payment      MembershipPayment?
   createdAt    DateTime           @default(now())
   expiresAt    DateTime?
+  referral    InfluencerReferral?
+  referralCode String?
 
   @@index([userId])
   @@index([status])
@@ -410,10 +414,64 @@ model AppSetting {
   updatedBy   String?
 }
 
+model Influencer {
+  id             String              @id @default(cuid())
+  userId         String              @unique
+  user           User                @relation(fields: [userId], references: [id])
+  referralCode   String              @unique
+  commissionRate Float               @default(10)
+  isActive       Boolean             @default(true)
+  totalEarned    Float               @default(0)
+  totalPaid      Float               @default(0)
+  referrals      InfluencerReferral[]
+  payments       InfluencerPayment[]
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  @@index([referralCode])
+  @@index([userId])
+}
+
+model InfluencerReferral {
+  id              String      @id @default(cuid())
+  influencerId    String
+  influencer      Influencer  @relation(fields: [influencerId], references: [id])
+  clientId        String
+  client          User        @relation("ClientReferrals", fields: [clientId], references: [id])
+  membershipId    String      @unique
+  membership      Membership  @relation(fields: [membershipId], references: [id])
+  originalAmount  Float
+  discountAmount  Float
+  clientPaid      Float
+  commissionAmount Float
+  companyReceives Float
+  status          ReferralStatus @default(PENDING)
+  createdAt       DateTime    @default(now())
+
+  @@index([influencerId])
+  @@index([clientId])
+  @@index([createdAt(sort: Desc)])
+}
+
+model InfluencerPayment {
+  id           String      @id @default(cuid())
+  influencerId String
+  influencer   Influencer  @relation(fields: [influencerId], references: [id])
+  amount       Float
+  method       String      @default("BKASH")
+  note         String?
+  paidBy       String?
+  paidAt       DateTime    @default(now())
+  createdAt    DateTime    @default(now())
+
+  @@index([influencerId])
+}
+
 enum Role {
   CLIENT
   DOCTOR
   CRM
+  INFLUENCER
   ADMIN
 }
 
@@ -487,4 +545,10 @@ enum MessageType {
   TEXT
   LINK
   IMAGE
+}
+
+enum ReferralStatus {
+  PENDING
+  PAID
+  CANCELLED
 }

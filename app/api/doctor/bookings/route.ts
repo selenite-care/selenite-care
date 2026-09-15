@@ -21,6 +21,7 @@ export async function GET(request: Request) {
 
   const { searchParams } = new URL(request.url);
   const { page, limit, skip, take } = getPaginationParams(searchParams);
+  const search = searchParams.get("search")?.trim() || searchParams.get("q")?.trim() || "";
   const statusFilter = searchParams.get("statusFilter")?.trim().toUpperCase() ?? "ALL";
   const bookingStatus: BookingStatus | undefined =
     statusFilter === "PENDING" ||
@@ -51,6 +52,17 @@ export async function GET(request: Request) {
 
   const where: Prisma.BookingWhereInput = {
     doctorId: doctor.id,
+    ...(search
+      ? {
+          OR: [
+            { token: { contains: search, mode: "insensitive" as const } },
+            { user: { is: { name: { contains: search, mode: "insensitive" as const } } } },
+            { user: { is: { email: { contains: search, mode: "insensitive" as const } } } },
+            { user: { is: { phone: { contains: search, mode: "insensitive" as const } } } },
+            { service: { is: { name: { contains: search, mode: "insensitive" as const } } } },
+          ],
+        }
+      : {}),
     ...(bookingStatus ? { status: bookingStatus } : {}),
   };
 

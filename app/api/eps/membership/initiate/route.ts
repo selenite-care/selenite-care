@@ -6,6 +6,7 @@ import {
 } from "@/lib/eps";
 import { db } from "@/lib/db";
 import { getMembershipPrice } from "@/lib/membershipDiscounts";
+import { getReferralDiscount, validateReferralCode } from "@/lib/referralCode";
 import {
   getSettings,
   MEMBERSHIP_CRYSTAL_PRICE,
@@ -18,6 +19,7 @@ export const runtime = "nodejs";
 
 type InitiateMembershipPayload = {
   tier?: unknown;
+  referralCode?: unknown;
 };
 
 function parseTier(value: unknown): MembershipTier | null {
@@ -98,6 +100,10 @@ export async function POST(request: Request) {
       | InitiateMembershipPayload
       | null;
     const tier = parseTier(body?.tier);
+    const requestedReferralCode =
+      typeof body?.referralCode === "string"
+        ? validateReferralCode(body.referralCode)
+        : "";
 
     if (!tier) {
       return Response.json(
@@ -123,7 +129,24 @@ export async function POST(request: Request) {
       return Response.json({ error: "User not found." }, { status: 404 });
     }
 
-    const amount = await getCurrentMembershipPrice(tier);
+    const originalAmount = await getCurrentMembershipPrice(tier);
+    const referralDiscount = requestedReferralCode
+      ? await getReferralDiscount(requestedReferralCode)
+      : null;
+
+    if (requestedReferralCode && !referralDiscount) {
+      return Response.json(
+        { error: "Invalid or expired referral code." },
+        { status: 400 },
+      );
+    }
+
+    const discountPercent = referralDiscount?.discountPercent ?? 0;
+    const amount = Math.max(
+      0,
+      Math.round(originalAmount * (1 - discountPercent / 100)),
+    );
+    const discountAmount = originalAmount - amount;
     const membershipId = await generateMembershipId();
     const merchantTransactionId = generateTransactionId();
 
@@ -145,7 +168,7 @@ export async function POST(request: Request) {
       customerAddress: user.address || "Dhaka",
       productName: `${tier} Membership - Selenite Care`,
       valueA: membershipId,
-      valueB: session.user.id,
+      valueB: referralDiscount ? requestedReferralCode : "",
     });
 
     if (!payment.redirectUrl) {
@@ -195,6 +218,7 @@ export async function POST(request: Request) {
           userId: user.id,
           tier,
           status: "PENDING",
+          referralCode: referralDiscount ? requestedReferralCode : null,
         },
         select: {
           id: true,

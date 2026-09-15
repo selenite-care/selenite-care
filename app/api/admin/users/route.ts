@@ -36,7 +36,7 @@ export async function GET(request: Request) {
       email?: { contains: string; mode: "insensitive" };
       phone?: { contains: string; mode: "insensitive" };
     }>;
-    role?: "CLIENT" | "DOCTOR" | "CRM" | "ADMIN";
+    role?: "CLIENT" | "DOCTOR" | "CRM" | "INFLUENCER" | "ADMIN";
     memberships?:
       | { none: Record<string, never> }
       | {
@@ -54,7 +54,13 @@ export async function GET(request: Request) {
     ];
   }
 
-  if (roleFilter === "CLIENT" || roleFilter === "DOCTOR" || roleFilter === "CRM" || roleFilter === "ADMIN") {
+  if (
+    roleFilter === "CLIENT" ||
+    roleFilter === "DOCTOR" ||
+    roleFilter === "CRM" ||
+    roleFilter === "INFLUENCER" ||
+    roleFilter === "ADMIN"
+  ) {
     where.role = roleFilter;
   }
 
