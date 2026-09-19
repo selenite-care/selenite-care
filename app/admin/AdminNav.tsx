@@ -33,6 +33,12 @@ const adminSections = [
       { href: "/admin/blog", label: "Blog Posts" },
     ],
   },
+  {
+    heading: "AI Tools",
+    links: [
+      { href: "/admin/skin-analysis", label: "Skin Analysis" },
+    ],
+  },
 ] as const;
 
 function isActiveLink(pathname: string, href: string) {

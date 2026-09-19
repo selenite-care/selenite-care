@@ -142,7 +142,7 @@ const memberships: MembershipTier[] = [
       { heading: "Personalized Product Recommendation List", points: [] },
       { heading: "Skin Report Card", points: [] },
       {
-        heading: "Personalized Morning & Night Skincare Routine",
+        heading: "Personalized Morning & Night Skincare Routine (after purchasing products from Selenite)",
         points: [],
       },
       { heading: "Before & After Consultation Support", points: [] },
@@ -188,7 +188,7 @@ const memberships: MembershipTier[] = [
         points: [
           "Personalized Product Recommendation List",
           "Skin Report Card",
-          "Personalized Morning & Night Skincare Routine",
+          "Personalized Morning & Night Skincare Routine (after purchasing products from Selenite)",
         ],
       },
     ],
@@ -245,7 +245,7 @@ const memberships: MembershipTier[] = [
         points: [
           "Personalized Product Recommendation List",
           "Skin Report Card",
-          "Personalized Morning & Night Skincare Routine",
+          "Personalized Morning & Night Skincare Routine (after purchasing products from Selenite)",
         ],
       },
       {
