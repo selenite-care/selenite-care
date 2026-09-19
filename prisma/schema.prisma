@@ -37,8 +37,10 @@ model User {
   blogPosts            BlogPost[]
   conversation         Conversation?
   sentMessages         Message[]      @relation("SentMessages")
-  influencer         Influencer?
-  influencerReferrals InfluencerReferral[] @relation("ClientReferrals")
+  influencer           Influencer?
+  influencerReferrals  InfluencerReferral[] @relation("ClientReferrals")
+  skinAnalyses         SkinAnalysis[]
+  analysisCredits      SkinAnalysisCredit?
 
   @@index([role])
   @@index([createdAt(sort: Desc)])
@@ -465,6 +467,38 @@ model InfluencerPayment {
   createdAt    DateTime    @default(now())
 
   @@index([influencerId])
+}
+
+model SkinAnalysis {
+  id               String   @id @default(cuid())
+  userId           String?
+  user             User?    @relation(fields: [userId], references: [id])
+  imageUrl         String[]
+  imageHash        String
+  skinType         String?
+  concerns         String[]
+  fullAnalysis     String   @db.Text
+  pdfUrl           String?
+  isPaid           Boolean  @default(false)
+  paymentAmount    Float?
+  epsMerchantTxnId String?  @unique
+  createdAt        DateTime @default(now())
+
+  @@index([userId])
+  @@index([imageHash])
+  @@index([createdAt(sort: Desc)])
+}
+
+model SkinAnalysisCredit {
+  id                 String   @id @default(cuid())
+  userId             String   @unique
+  user               User     @relation(fields: [userId], references: [id])
+  paidCredits        Int      @default(0)
+  freeCreditsUsed    Int      @default(0)
+  lastMembershipTier String?
+  lastMembershipId   String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 }
 
 enum Role {

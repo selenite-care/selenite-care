@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ChevronRight, Headphones, Moon, Sun, UserRound, X } from "lucide-react";
 import CartIcon from "@/components/cart/CartIcon";
 import { useTheme } from "@/components/providers/ThemeProvider";
@@ -29,6 +29,7 @@ type ProductsResponse = {
 
 const mobileMenuLinks = [
   { href: "/products", label: "Products", hasArrow: true },
+  // { href: "/skin-analysis", label: "Skin Analysis", hasArrow: false },
   { href: "/appointment", label: "Appointment", hasArrow: false },
   { href: "/services", label: "Membership", hasArrow: false },
   { href: "/about", label: "About", hasArrow: false },
@@ -97,7 +98,7 @@ function NavbarContent() {
     return pathname === href || pathname.startsWith(`${href}/`);
   }
 
-  function closeMobileMenu() {
+  const closeMobileMenu = useCallback(() => {
     if (!shouldRenderMobileMenu) {
       return;
     }
@@ -106,7 +107,7 @@ function NavbarContent() {
     setMobileMenuOpen(false);
     setMobileMenuClosing(true);
     setMobileProductCategoriesOpen(false);
-  }
+  }, [shouldRenderMobileMenu]);
 
   function openMobileMenu() {
     setMobileMenuActive(false);
@@ -384,6 +385,18 @@ function NavbarContent() {
               aria-hidden="true"
             />
           </button>
+
+          {/* <Link
+            href="/skin-analysis"
+            style={{
+              color: isActiveLink("/skin-analysis")
+                ? "var(--gold)"
+                : "var(--muted)",
+            }}
+            className={desktopNavLinkClass}
+          >
+            Skin Analysis
+          </Link> */}
 
           <Link
             href="/services"

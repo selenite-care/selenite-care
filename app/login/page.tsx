@@ -12,6 +12,30 @@ type UserSession = {
   };
 };
 
+function getAuthErrorMessage(authError: string | null) {
+  if (!authError) {
+    return "";
+  }
+
+  if (authError === "GoogleProfileNotFound") {
+    return "No Selenite Care profile exists for this Google account. Please use the email registered with Selenite Care or create your account first.";
+  }
+
+  if (authError === "AccountInactive") {
+    return "This account has been deactivated. Please contact the admin.";
+  }
+
+  if (authError === "OAuthAccountNotLinked") {
+    return "This email is registered with another sign-in method. Please log in with your password first, then connect Google from your profile.";
+  }
+
+  if (authError === "AccessDenied") {
+    return "Google sign-in was not allowed for this account.";
+  }
+
+  return "Unable to sign in with Google. Please try again or contact support.";
+}
+
 function LoginPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -27,7 +51,8 @@ function LoginPageContent() {
   const [resendCountdown, setResendCountdown] = useState(0);
   const [resendMessage, setResendMessage] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
-  const [isUsingInAppBrowser, setIsUsingInAppBrowser] = useState(false);
+  const [isUsingInAppBrowser] = useState(isInAppBrowser);
+  const authErrorMessage = getAuthErrorMessage(authError);
 
   function handleGoogleLogin() {
     document.cookie =
@@ -38,45 +63,25 @@ function LoginPageContent() {
   }
 
   useEffect(() => {
-    setIsUsingInAppBrowser(isInAppBrowser());
-  }, []);
-
-  useEffect(() => {
     if (status !== "authenticated") {
       return;
     }
 
     const role = session?.user?.role;
+    const safeCallbackUrl = callbackUrl?.startsWith("/") ? callbackUrl : "";
 
-    if (role === "ADMIN") router.replace("/admin");
-    else if (role === "DOCTOR") router.replace("/doctor");
-    else if (role === "CRM") router.replace("/crm");
-    else router.replace("/dashboard");
-  }, [router, session?.user?.role, status]);
-
-  useEffect(() => {
-    if (!authError) {
-      return;
-    }
-
-    if (authError === "GoogleProfileNotFound") {
-      setError(
-        "No Selenite Care profile exists for this Google account. Please use the email registered with Selenite Care or create your account first.",
+    if (role === "ADMIN") {
+      router.replace(safeCallbackUrl.startsWith("/admin") ? safeCallbackUrl : "/admin");
+    } else if (role === "DOCTOR") {
+      router.replace(
+        safeCallbackUrl.startsWith("/doctor") ? safeCallbackUrl : "/doctor",
       );
-    } else if (authError === "AccountInactive") {
-      setError("This account has been deactivated. Please contact the admin.");
-    } else if (authError === "OAuthAccountNotLinked") {
-      setError(
-        "This email is registered with another sign-in method. Please log in with your password first, then connect Google from your profile.",
-      );
-    } else if (authError === "AccessDenied") {
-      setError("Google sign-in was not allowed for this account.");
+    } else if (role === "CRM") {
+      router.replace(safeCallbackUrl.startsWith("/crm") ? safeCallbackUrl : "/crm");
     } else {
-      setError("Unable to sign in with Google. Please try again or contact support.");
+      router.replace(safeCallbackUrl || "/dashboard");
     }
-
-    router.replace("/login", { scroll: false });
-  }, [authError, router]);
+  }, [callbackUrl, router, session?.user?.role, status]);
 
   useEffect(() => {
     if (resendCountdown <= 0) {
@@ -329,8 +334,10 @@ function LoginPageContent() {
             <span className="text-muted">Remember me</span>
           </label>
 
-          {error ? (
-            <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+          {error || authErrorMessage ? (
+            <p className="text-sm text-red-600 dark:text-red-400">
+              {error || authErrorMessage}
+            </p>
           ) : null}
 
           {showResendVerification ? (

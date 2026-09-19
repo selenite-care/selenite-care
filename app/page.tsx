@@ -1,5 +1,12 @@
 import Link from "next/link";
-import { Award, ClipboardCheck, Gift, Headphones } from "lucide-react";
+import {
+  ArrowRight,
+  Award,
+  ClipboardCheck,
+  Gift,
+  Headphones,
+  Sparkles,
+} from "lucide-react";
 import HeroSlider from "@/components/ui/HeroSlider";
 import MembershipSection from "@/components/ui/MembershipSection";
 import BlogCarousel, { type BlogPost } from "@/components/ui/BlogCarousel";
@@ -396,10 +403,45 @@ export default async function Home() {
       ) : null}
 
       <MembershipSection />
+            {/* <section className="bg-[#F8F5F0] px-6 py-20 text-center dark:bg-[#1A1814] lg:py-24">
+        <div className="mx-auto flex max-w-4xl flex-col items-center">
+          <div className="inline-flex h-14 w-14 items-center justify-center rounded-full border border-[#D4B47A]/60 bg-[#FFF8E6] text-[#C4A56B] shadow-sm dark:bg-[#33291C]">
+            <Sparkles className="h-7 w-7" aria-hidden="true" />
+          </div>
+          <h2
+            className="mt-5 text-4xl font-bold leading-tight text-[#2B2B2B] dark:text-[#F0EDE8]"
+            style={{ fontFamily: "Playfair Display, serif" }}
+          >
+            Discover Your Skin Type Instantly
+          </h2>
+          <p className="mx-auto mt-5 max-w-2xl text-base leading-8 text-[#884F38] dark:text-[#8A7D75] sm:text-lg">
+            Our AI analyzes your skin photo in seconds - identifying your skin
+            type and concerns accurately. No signup required to try.
+          </p>
+
+          <div className="mt-8 flex flex-col items-center gap-3 text-sm font-semibold text-[#2B2B2B] dark:text-[#F0EDE8] sm:flex-row sm:gap-5">
+            <span className="rounded-full border border-[#EADDCD] bg-white px-4 py-2 dark:border-[#3D3530] dark:bg-[#242220]">
+              AI-Powered Analysis
+            </span>
+            <span className="rounded-full border border-[#EADDCD] bg-white px-4 py-2 dark:border-[#3D3530] dark:bg-[#242220]">
+              Results in seconds
+            </span>
+          </div>
+
+          <Link
+            href="/skin-analysis"
+            className="mt-9 inline-flex h-12 items-center justify-center gap-2 rounded-md bg-[#2B2B2B] px-7 text-sm font-semibold text-[#F8F5F0] transition-transform hover:-translate-y-0.5 hover:bg-[#884F38]"
+          >
+            Try Free Skin Analysis
+            <ArrowRight className="h-4 w-4" aria-hidden="true" />
+          </Link>
+        </div>
+      </section> */}
+      <div className="h-px w-full bg-[#D8C7B5] dark:bg-[#3D3530]" />
       <div className="h-px w-full bg-[#D8C7B5] dark:bg-[#3D3530]" />
       <AMomentForYou />
       <div className="h-px w-full bg-[#D8C7B5] dark:bg-[#3D3530]" />
-      <IngredientSpotlight />
+      {/* <IngredientSpotlight /> */}
       <div className="h-px w-full bg-[#D8C7B5] dark:bg-[#3D3530]" />
       <WhyChooseUsSection />
 

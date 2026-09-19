@@ -28,7 +28,7 @@ const MEMBERSHIP_BENEFITS: Record<MembershipTier, string[]> = {
     "Online and Offline Consultation with Skin Doctor / Aestheticians",
     "Personalized Product Recommendation List",
     "Skin Report Card",
-    "Personalized Morning & Night Skincare Routine",
+    "Personalized Morning & Night Skincare Routine (after purchasing products from Selenite)",
     "Before & After Consultation Support",
   ],
   CRYSTAL: [
@@ -37,7 +37,7 @@ const MEMBERSHIP_BENEFITS: Record<MembershipTier, string[]> = {
     "Personalized Support: 12 Months of Online Support",
     "Advanced Skin, Body & Hair Problem Assessment: Detailed Skin Analysis, Problem Identification & Concern Mapping covering Acne, Pigmentation, Dehydration, Sensitivity, Dullness, Other Skin Concerns",
     "Lifestyle Evaluation: Lifestyle & Skincare Habit Review",
-    "Customized Care Plan: Personalized Product Recommendation List, Skin Report Card, Personalized Morning & Night Skincare Routine",
+    "Customized Care Plan: Personalized Product Recommendation List, Skin Report Card, Personalized Morning & Night Skincare Routine (after purchasing products from Selenite)",
   ],
   PLATINUM: [
     "3 Years Specialist Support on both Online & Offline",
@@ -47,7 +47,7 @@ const MEMBERSHIP_BENEFITS: Record<MembershipTier, string[]> = {
     "Advanced Skin, Body & Hair Problem Mapping & Analysis: Deep Skin Concern Analysis, Trigger Identification, Skin Barrier Assessment",
     "Psychological Wellness Review: Stress Level Assessment, Lifestyle Impact Analysis",
     "Nutritional Assessment: Nutritional Value Analysis, Diet & Skin Health Evaluation",
-    "Customized Care Plan: Personalized Product Recommendation List, Skin Report Card, Personalized Morning & Night Skincare Routine",
+    "Customized Care Plan: Personalized Product Recommendation List, Skin Report Card, Personalized Morning & Night Skincare Routine (after purchasing products from Selenite)",
     "Skin Transformation Program: Skin Transformation Roadmap every 60 Days, Product Layering Strategy, Seasonal Skincare Adjustments",
     "Progress Monitoring: Professional Before-and-After Documentation, Monthly Skin Scoring, Routine Modifications Based on Skin Progress, Continuous Improvement Tracking",
   ],
