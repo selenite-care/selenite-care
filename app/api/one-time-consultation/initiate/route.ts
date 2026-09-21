@@ -100,6 +100,19 @@ export async function POST(request: Request) {
 
     const merchantTransactionId = generateTransactionId();
     const booking = await db.$transaction(async (tx) => {
+      await tx.booking.deleteMany({
+        where: {
+          userId: user.id,
+          status: "PENDING",
+          isOneTimeConsultation: true,
+          oneTimeConsultation: {
+            is: {
+              paymentStatus: "UNPAID",
+            },
+          },
+        },
+      });
+
       const activeBooking = await tx.booking.findFirst({
         where: {
           userId: user.id,
@@ -165,13 +178,22 @@ export async function POST(request: Request) {
     bookingId = booking.id;
 
     const appBaseUrl = getAppBaseUrl(request);
+    const successUrl = `${appBaseUrl}/api/one-time-consultation/success`;
+    const failUrl = `${appBaseUrl}/api/one-time-consultation/fail`;
+    const cancelUrl = `${appBaseUrl}/api/one-time-consultation/cancel`;
+    console.log("EPS callback URLs:", {
+      successUrl,
+      failUrl,
+      cancelUrl,
+      NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
+    });
     const payment = await initializeEPSPayment({
       merchantTransactionId,
       customerOrderId: `CONSULTATION-${booking.id}`,
       totalAmount: packagePrice,
-      successUrl: `${appBaseUrl}/api/one-time-consultation/success`,
-      failUrl: `${appBaseUrl}/api/one-time-consultation/fail`,
-      cancelUrl: `${appBaseUrl}/api/one-time-consultation/cancel`,
+      successUrl,
+      failUrl,
+      cancelUrl,
       customerName: user.name || "Selenite Care Client",
       customerEmail: user.email || "",
       customerPhone: normalizeCustomerPhone(user.phone),

@@ -204,10 +204,10 @@ function OneTimeConsultationContent() {
   return (
     <main className="min-h-screen bg-[#F8F5F0] px-4 py-10 text-[#2B2B2B] dark:bg-[#141210] dark:text-[#F0EDE8] sm:px-6 lg:px-8">
       <div className="mx-auto w-full max-w-6xl">
-        <section className="overflow-hidden rounded-lg border border-[#D4B47A] bg-gradient-to-br from-[#FFFDF8] via-[#FFF8E6] to-[#EAD7A5] p-4 shadow-sm dark:from-[#1F1B18] dark:via-[#33291C] dark:to-[#4A3B25] sm:p-5">
+        <section className="overflow-hidden rounded-lg border border-[#B87B68] bg-gradient-to-br from-[#FFF8F6] via-[#F4E3DE] to-[#D9ADA0] p-4 shadow-sm dark:from-[#1F1B18] dark:via-[#30231F] dark:to-[#4A2F28] sm:p-5">
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
-              <div className="flex items-center gap-2 text-[#8A641D] dark:text-[#F3DFA6]">
+              <div className="flex items-center gap-2 text-[#884F38] dark:text-[#D9A694]">
                 <ShieldCheck className="h-4 w-4 shrink-0" aria-hidden="true" />
                 <span className="text-[11px] font-semibold uppercase">
                   One-Time Consultation
@@ -225,17 +225,17 @@ function OneTimeConsultationContent() {
               <p className="text-[10px] font-semibold uppercase text-[#8C7967] dark:text-[#B8AAA0]">
                 One-time
               </p>
-              <p className="mt-1 text-2xl font-semibold text-[#8A641D] dark:text-[#F3DFA6] sm:text-3xl">
+              <p className="mt-1 text-2xl font-semibold text-[#884F38] dark:text-[#D9A694] sm:text-3xl">
                 {PACKAGE_PRICE} BDT
               </p>
             </div>
           </div>
 
-          <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2 border-t border-[#D4B47A]/50 pt-4">
+          <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2 border-t border-[#B87B68]/50 pt-4">
             {PACKAGE_BENEFITS.map((benefit) => (
               <div key={benefit} className="flex min-w-0 items-start gap-2">
                 <Check
-                  className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#8A641D] dark:text-[#F3DFA6]"
+                  className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#884F38] dark:text-[#D9A694]"
                   aria-hidden="true"
                 />
                 <p className="text-xs leading-5 text-[#5F524A] dark:text-[#D9C9BD]">
@@ -388,7 +388,7 @@ function OneTimeConsultationContent() {
           type="button"
           onClick={() => void handlePayment()}
           disabled={!selectedDoctorId || !preferredDate || isSubmitting}
-          className="mt-8 inline-flex h-13 w-full items-center justify-center gap-2 rounded-md bg-[#D4B47A] px-6 text-base font-semibold text-[#2B2B2B] transition-colors hover:bg-[#C4A56B] disabled:cursor-not-allowed disabled:opacity-50"
+          className="mt-8 inline-flex h-13 w-full items-center justify-center gap-2 rounded-md bg-[#B87B68] px-6 text-base font-semibold text-[#2B2B2B] transition-colors hover:bg-[#C4A56B] disabled:cursor-not-allowed disabled:opacity-50"
         >
           {isSubmitting ? (
             <>

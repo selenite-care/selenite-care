@@ -34,6 +34,7 @@ export async function GET(request: Request) {
 
     const todayCount = await db.oneTimeConsultation.count({
       where: {
+        paymentStatus: "PAID",
         createdAt: {
           gte: start,
           lt: end,
@@ -46,6 +47,9 @@ export async function GET(request: Request) {
     }
 
     const consultations = await db.oneTimeConsultation.findMany({
+      where: {
+        paymentStatus: "PAID",
+      },
       orderBy: {
         createdAt: "desc",
       },

@@ -17,6 +17,7 @@ export async function GET() {
   try {
     const consultations = await db.oneTimeConsultation.findMany({
       where: {
+        paymentStatus: "PAID",
         booking: {
           doctor: {
             is: {

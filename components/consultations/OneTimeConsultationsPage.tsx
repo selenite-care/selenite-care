@@ -34,7 +34,6 @@ type ConsultationsResponse = {
 const FILTERS = [
   "All",
   "Paid",
-  "Unpaid",
   "Follow-up Used",
   "Follow-up Available",
 ] as const;
@@ -117,8 +116,6 @@ export default function OneTimeConsultationsPage({
       switch (filter) {
         case "Paid":
           return consultation.paymentStatus === "PAID";
-        case "Unpaid":
-          return consultation.paymentStatus === "UNPAID";
         case "Follow-up Used":
           return consultation.followUpUsed;
         case "Follow-up Available":
@@ -411,4 +408,3 @@ export default function OneTimeConsultationsPage({
     </section>
   );
 }
-

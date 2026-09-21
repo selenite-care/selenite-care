@@ -26,17 +26,22 @@ function getMerchantTransactionId(request: Request) {
     "merchantTransactionId",
     "MerchantTransactionId",
     "MerchantTransactionID",
+    "merchantTransactionID",
     "merchant_transaction_id",
+    "merchantTxnId",
+    "MerchantTxnId",
   ]);
 }
 
 function isEPSSuccess(data: Record<string, unknown>) {
+  const status = String(
+    data.status ?? data.Status ?? data.transactionStatus ?? data.TransactionStatus ?? "",
+  ).toLowerCase();
+
   return (
-    data.status === "Success" ||
-    data.Status === "Success" ||
-    data.transactionStatus === "Success" ||
-    data.TransactionStatus === "Success" ||
+    status === "success" ||
     data.statusCode === "200" ||
+    data.statusCode === 200 ||
     data.isSuccess === true
   );
 }
@@ -101,7 +106,14 @@ export async function GET(request: Request) {
   const bookingId = getSearchValue(request, ["valueA", "ValueA", "bookingId"]);
   const userId = getSearchValue(request, ["valueB", "ValueB", "userId"]);
 
-  if (!merchantTransactionId || !bookingId || !userId) {
+  console.log("EPS one-time consultation callback:", {
+    merchantTransactionId: merchantTransactionId || null,
+    bookingId: bookingId || null,
+    userId: userId || null,
+    callbackUrl: request.url,
+  });
+
+  if (!merchantTransactionId) {
     return buildRedirect(
       request,
       "/one-time-consultation?error=payment_failed",
@@ -122,11 +134,11 @@ export async function GET(request: Request) {
 
     const consultation = await db.oneTimeConsultation.findFirst({
       where: {
-        bookingId,
         epsMerchantTxnId: merchantTransactionId,
+        ...(bookingId ? { bookingId } : {}),
         booking: {
-          userId,
           isOneTimeConsultation: true,
+          ...(userId ? { userId } : {}),
         },
       },
       select: {
@@ -163,7 +175,7 @@ export async function GET(request: Request) {
     if (consultation.paymentStatus !== "PAID") {
       await db.oneTimeConsultation.update({
         where: {
-          bookingId,
+          bookingId: consultation.booking.id,
         },
         data: {
           paymentStatus: "PAID",
@@ -221,7 +233,7 @@ export async function GET(request: Request) {
 
     return buildRedirect(
       request,
-      `/one-time-consultation/confirmation?bookingId=${encodeURIComponent(bookingId)}`,
+      `/one-time-consultation/confirmation?bookingId=${encodeURIComponent(consultation.booking.id)}`,
     );
   } catch (error) {
     console.error("One-time consultation success callback failed:", error);

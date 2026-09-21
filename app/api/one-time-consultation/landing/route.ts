@@ -252,13 +252,22 @@ export async function POST(request: Request) {
     });
     bookingId = booking.id;
 
+    const successUrl = `${appBaseUrl}/api/one-time-consultation/success`;
+    const failUrl = `${appBaseUrl}/api/one-time-consultation/fail`;
+    const cancelUrl = `${appBaseUrl}/api/one-time-consultation/cancel`;
+    console.log("EPS callback URLs:", {
+      successUrl,
+      failUrl,
+      cancelUrl,
+      NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
+    });
     const payment = await initializeEPSPayment({
       merchantTransactionId,
       customerOrderId: `CONSULTATION-${booking.id}`,
       totalAmount: packagePrice,
-      successUrl: `${appBaseUrl}/api/one-time-consultation/success`,
-      failUrl: `${appBaseUrl}/api/one-time-consultation/fail`,
-      cancelUrl: `${appBaseUrl}/api/one-time-consultation/cancel`,
+      successUrl,
+      failUrl,
+      cancelUrl,
       customerName: name,
       customerEmail: email,
       customerPhone: phone,
