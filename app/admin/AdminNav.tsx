@@ -12,6 +12,7 @@ const adminSections = [
     links: [
       { href: "/admin", label: "Dashboard Overview" },
       { href: "/admin/bookings", label: "All Bookings" },
+      { href: "/admin/one-time-consultations", label: "One-Time Consultations" },
       { href: "/admin/memberships", label: "Memberships" },
       { href: "/admin/memberships/manual", label: "Add Manual Membership" },
       { href: "/admin/memberships/pending", label: "Pending Verifications" },
@@ -51,6 +52,11 @@ function isActiveLink(pathname: string, href: string) {
 
 type PendingMembershipCountResponse = {
   memberships?: Array<{ id: string }>;
+  error?: string;
+};
+
+type TodayConsultationCountResponse = {
+  todayCount?: number;
   error?: string;
 };
 
@@ -97,9 +103,45 @@ function usePendingVerificationCount() {
   return pendingCount;
 }
 
+function useTodayConsultationCount() {
+  const [todayCount, setTodayCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadTodayCount() {
+      try {
+        const response = await fetch(
+          "/api/admin/one-time-consultations?summaryOnly=true",
+          { cache: "no-store" },
+        );
+        const data = (await response.json().catch(() => null)) as
+          | TodayConsultationCountResponse
+          | null;
+
+        if (!response.ok) {
+          throw new Error(data?.error ?? "Unable to load consultation count.");
+        }
+
+        if (isMounted) setTodayCount(data?.todayCount ?? 0);
+      } catch {
+        if (isMounted) setTodayCount(null);
+      }
+    }
+
+    void loadTodayCount();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  return todayCount;
+}
+
 export function AdminSidebarNav() {
   const pathname = usePathname();
   const pendingCount = usePendingVerificationCount();
+  const todayConsultationCount = useTodayConsultationCount();
 
   return (
     <nav className="mt-8 space-y-6">
@@ -115,6 +157,10 @@ export function AdminSidebarNav() {
                 link.href === "/admin/memberships/pending" &&
                 pendingCount !== null &&
                 pendingCount > 0;
+              const showConsultationBadge =
+                link.href === "/admin/one-time-consultations" &&
+                todayConsultationCount !== null &&
+                todayConsultationCount > 0;
 
               return (
                 <Link
@@ -132,6 +178,11 @@ export function AdminSidebarNav() {
                       {pendingCount}
                     </span>
                   ) : null}
+                  {showConsultationBadge ? (
+                    <span className="inline-flex min-w-6 items-center justify-center rounded-full bg-[var(--gold)] px-2 py-0.5 text-[11px] font-semibold text-[var(--sidebar)]">
+                      {todayConsultationCount}
+                    </span>
+                  ) : null}
                   {link.href === "/admin/messages" ? <MessagesBadge /> : null}
                 </Link>
               );
@@ -147,6 +198,7 @@ export function AdminMobileNav() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const pendingCount = usePendingVerificationCount();
+  const todayConsultationCount = useTodayConsultationCount();
 
   return (
     <>
@@ -203,6 +255,10 @@ export function AdminMobileNav() {
                         link.href === "/admin/memberships/pending" &&
                         pendingCount !== null &&
                         pendingCount > 0;
+                      const showConsultationBadge =
+                        link.href === "/admin/one-time-consultations" &&
+                        todayConsultationCount !== null &&
+                        todayConsultationCount > 0;
 
                       return (
                         <Link
@@ -219,6 +275,11 @@ export function AdminMobileNav() {
                           {showPendingBadge ? (
                             <span className="inline-flex min-w-6 items-center justify-center rounded-full bg-[var(--gold)] px-2 py-0.5 text-[11px] font-semibold text-[var(--sidebar)]">
                               {pendingCount}
+                            </span>
+                          ) : null}
+                          {showConsultationBadge ? (
+                            <span className="inline-flex min-w-6 items-center justify-center rounded-full bg-[var(--gold)] px-2 py-0.5 text-[11px] font-semibold text-[var(--sidebar)]">
+                              {todayConsultationCount}
                             </span>
                           ) : null}
                           {link.href === "/admin/messages" ? (

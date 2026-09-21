@@ -9,6 +9,7 @@ import MessagesBadge from "@/components/ui/MessagesBadge";
 const doctorLinks = [
   { href: "/doctor", label: "Overview" },
   { href: "/doctor/bookings", label: "My Bookings" },
+  { href: "/doctor/one-time-consultations", label: "One-Time Consultations" },
   { href: "/doctor/messages", label: "Messages" },
   { href: "/doctor/profile", label: "My Profile" },
 ];
