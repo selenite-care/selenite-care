@@ -19,6 +19,7 @@ import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
 import InAppBrowserWarning from "@/components/ui/InAppBrowserWarning";
 import DoctorPhoto from "@/components/ui/DoctorPhoto";
 import LandingLeadCaptureSection from "@/components/landing/LandingLeadCaptureSection";
+import OneTimeConsultationForm from "@/components/landing/OneTimeConsultationForm";
 import SkinQuiz from "@/components/landing/SkinQuiz";
 import { FAQS } from "@/lib/faq";
 import {
@@ -161,6 +162,20 @@ const CONTENT = {
           title: "Transform Your Skin",
           desc: "Follow your personalized plan and see results.",
         },
+      ],
+    },
+    oneTimeConsultation: {
+      badge: "NEW \u2014 SPECIAL OFFER",
+      heading: "Not Ready for Membership? Try a Direct Consultation",
+      urgency: "Limited slots available daily",
+      packageTitle: "Direct Consultation",
+      price: "99 BDT",
+      value: "Value: 500+ BDT",
+      benefits: [
+        "Direct online doctor consultation",
+        "Root cause identification and guidance",
+        "Personalized product recommendations",
+        "One complimentary follow-up session",
       ],
     },
     quiz: {
@@ -436,6 +451,22 @@ const CONTENT = {
           desc:
             "\u09ac\u09cd\u09af\u0995\u09cd\u09a4\u09bf\u0997\u09a4\u0995\u09c3\u09a4 \u09aa\u09b0\u09bf\u0995\u09b2\u09cd\u09aa\u09a8\u09be \u0985\u09a8\u09c1\u09b8\u09b0\u09a3 \u0995\u09b0\u09c1\u09a8 \u098f\u09ac\u0982 \u09ab\u09b2\u09be\u09ab\u09b2 \u09a6\u09c7\u0996\u09c1\u09a8\u0964",
         },
+      ],
+    },
+    oneTimeConsultation: {
+      badge: "\u09a8\u09a4\u09c1\u09a8 \u2014 \u09ac\u09bf\u09b6\u09c7\u09b7 \u0985\u09ab\u09be\u09b0",
+      heading:
+        "\u09ae\u09c7\u09ae\u09cd\u09ac\u09be\u09b0\u09b6\u09bf\u09aa \u0995\u09bf\u09a8\u09a4\u09c7 \u09aa\u09cd\u09b0\u09b8\u09cd\u09a4\u09c1\u09a4 \u09a8\u09a8? \u09b8\u09b0\u09be\u09b8\u09b0\u09bf \u0995\u09a8\u09b8\u09be\u09b2\u099f\u09c7\u09b6\u09a8 \u09a8\u09bf\u09a8",
+      urgency:
+        "\u09aa\u09cd\u09b0\u09a4\u09bf\u09a6\u09bf\u09a8 \u09b8\u09c0\u09ae\u09bf\u09a4 \u09b8\u0982\u0996\u09cd\u09af\u0995 \u09b8\u09cd\u09b2\u099f",
+      packageTitle: "\u09b8\u09b0\u09be\u09b8\u09b0\u09bf \u0995\u09a8\u09b8\u09be\u09b2\u099f\u09c7\u09b6\u09a8",
+      price: "\u09ef\u09ef \u099f\u09be\u0995\u09be",
+      value: "\u09ae\u09c2\u09b2\u09cd\u09af: \u09eb\u09e6\u09e6+ \u099f\u09be\u0995\u09be",
+      benefits: [
+        "\u09a1\u09be\u0995\u09cd\u09a4\u09be\u09b0\u09c7\u09b0 \u09b8\u0999\u09cd\u0997\u09c7 \u09b8\u09b0\u09be\u09b8\u09b0\u09bf \u0985\u09a8\u09b2\u09be\u0987\u09a8 \u0995\u09a8\u09b8\u09be\u09b2\u099f\u09c7\u09b6\u09a8",
+        "\u09b8\u09ae\u09b8\u09cd\u09af\u09be\u09b0 \u09ae\u09c2\u09b2 \u0995\u09be\u09b0\u09a3 \u09b6\u09a8\u09be\u0995\u09cd\u09a4\u0995\u09b0\u09a3 \u0993 \u09a8\u09bf\u09b0\u09cd\u09a6\u09c7\u09b6\u09a8\u09be",
+        "\u09ac\u09cd\u09af\u0995\u09cd\u09a4\u09bf\u0997\u09a4 \u09aa\u09cd\u09b0\u09df\u09cb\u099c\u09a8 \u0985\u09a8\u09c1\u09af\u09be\u09df\u09c0 \u09aa\u09a3\u09cd\u09af\u09c7\u09b0 \u09aa\u09b0\u09be\u09ae\u09b0\u09cd\u09b6",
+        "\u098f\u0995\u099f\u09bf \u09ab\u09cd\u09b0\u09bf \u09ab\u09b2\u09cb-\u0986\u09aa \u09b8\u09c7\u09b6\u09a8",
       ],
     },
     quiz: {
@@ -765,6 +796,7 @@ function LandingPageContent() {
   const aboutContent = CONTENT[language].about;
   const membershipContent = CONTENT[language].membership;
   const howItWorksContent = CONTENT[language].howItWorks;
+  const oneTimeConsultationContent = CONTENT[language].oneTimeConsultation;
   const quizContent = CONTENT[language].quiz;
   const videoContent = CONTENT[language].video;
   const doctorsContent = CONTENT[language].doctors;
@@ -1152,6 +1184,30 @@ function LandingPageContent() {
             transform: translateX(calc(-50% - 10px));
           }
         }
+
+        .one-time-consultation-offer {
+          animation: one-time-consultation-glow 2.8s ease-in-out infinite;
+        }
+
+        @keyframes one-time-consultation-glow {
+          0%, 100% {
+            border-color: rgba(196, 165, 107, 0.72);
+            box-shadow: 0 12px 32px rgba(196, 165, 107, 0.12);
+          }
+
+          50% {
+            border-color: rgba(212, 180, 122, 1);
+            box-shadow:
+              0 18px 42px rgba(196, 165, 107, 0.24),
+              0 0 0 3px rgba(212, 180, 122, 0.1);
+          }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .one-time-consultation-offer {
+            animation: none;
+          }
+        }
       `}</style>
 
       <header className="fixed inset-x-0 top-0 z-50 border-b border-[#EADDCD]/80 bg-[#F8F5F0]/90 px-4 backdrop-blur-md transition-colors duration-200 dark:border-[#3D3530]/80 dark:bg-[#141210]/90">
@@ -1439,6 +1495,63 @@ function LandingPageContent() {
                   ) : null}
                 </div>
               ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="border-y border-[#EADDCD] bg-[#FFFDF8] px-6 py-14 dark:border-[#3D3530] dark:bg-[#181512]">
+          <div className="mx-auto w-full max-w-6xl">
+            <div className="mx-auto max-w-4xl text-center">
+              <span className="inline-flex rounded-full border border-red-200 bg-red-50 px-3 py-1 text-xs font-bold text-red-700 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-300">
+                {oneTimeConsultationContent.badge}
+              </span>
+              <h2
+                className="mt-4 text-3xl font-semibold leading-tight text-[#2B2B2B] dark:text-[#F0EDE8] sm:text-4xl"
+                style={{ fontFamily: "Playfair Display, serif" }}
+              >
+                {oneTimeConsultationContent.heading}
+              </h2>
+              <span className="mt-4 inline-flex rounded-full border border-amber-300 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-800 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-300">
+                {oneTimeConsultationContent.urgency}
+              </span>
+            </div>
+
+            <div className="mt-10 grid gap-8 lg:grid-cols-2 lg:items-stretch">
+              <article className="one-time-consultation-offer flex min-w-0 flex-col justify-center rounded-lg border-2 bg-white p-6 dark:bg-[#1F1B18] sm:p-8">
+                <p className="text-xs font-semibold uppercase text-[#884F38] dark:text-[#D4B47A]">
+                  {oneTimeConsultationContent.packageTitle}
+                </p>
+
+                <div className="mt-4 flex flex-wrap items-end gap-3">
+                  <p
+                    className="text-5xl font-semibold leading-none text-[#B89047] sm:text-6xl"
+                    style={{ fontFamily: "Playfair Display, serif" }}
+                  >
+                    {oneTimeConsultationContent.price}
+                  </p>
+                  <span className="rounded-full border border-[#D4B47A] bg-[#FFF8E8] px-3 py-1 text-xs font-semibold text-[#765A27] dark:bg-[#2A241A] dark:text-[#E4C98D]">
+                    {oneTimeConsultationContent.value}
+                  </span>
+                </div>
+
+                <ul className="mt-8 space-y-4">
+                  {oneTimeConsultationContent.benefits.map((benefit) => (
+                    <li
+                      key={benefit}
+                      className="flex min-w-0 items-start gap-3 text-sm leading-6 text-[#5F554C] dark:text-[#CBBEB3]"
+                    >
+                      <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#FFF4D6] text-[#B89047] dark:bg-[#30281B] dark:text-[#D4B47A]">
+                        <Check className="h-4 w-4" aria-hidden="true" />
+                      </span>
+                      <span className="min-w-0">{benefit}</span>
+                    </li>
+                  ))}
+                </ul>
+              </article>
+
+              <div className="min-w-0 lg:[&>section]:max-w-none">
+                <OneTimeConsultationForm showPackageSummary={false} />
+              </div>
             </div>
           </div>
         </section>

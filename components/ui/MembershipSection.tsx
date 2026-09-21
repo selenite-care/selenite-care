@@ -8,11 +8,11 @@ import {
   isMembershipAvailable,
 } from "@/lib/membershipAvailability";
 import {
-  getProductDiscount,
   isSignatureOfferValid,
   MEMBERSHIP_PRICES,
 } from "@/lib/membershipDiscounts";
 import TermsAndConditionsModal from "@/components/membership/TermsAndConditionsModal";
+import DirectConsultationCard from "@/components/ui/DirectConsultationCard";
 import ViewportAnimatedSection from "@/components/ui/ViewportAnimatedSection";
 import { MembershipCard } from "@/components/ui/MembershipCards";
 
@@ -548,6 +548,15 @@ export default function MembershipSection() {
     null,
   );
   const [isMembershipLoading, setIsMembershipLoading] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+
+  useEffect(() => {
+    const timeout = window.setTimeout(() => {
+      setCurrentTime(Date.now());
+    }, 0);
+
+    return () => window.clearTimeout(timeout);
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
@@ -629,7 +638,7 @@ export default function MembershipSection() {
     const hasActiveMembership =
       clientMembership?.status === "ACTIVE" &&
       !!clientMembership.expiresAt &&
-      new Date(clientMembership.expiresAt).getTime() > Date.now();
+      new Date(clientMembership.expiresAt).getTime() > currentTime;
 
     if (!hasActiveMembership || !clientMembership) {
       return {
@@ -714,6 +723,7 @@ export default function MembershipSection() {
           </div>
 
           <ViewportAnimatedSection className="step-card-trigger mt-10 grid grid-cols-1 gap-6 md:grid-cols-3">
+            <DirectConsultationCard />
             {steps.map((step, index) => {
               const membership = memberships[index];
 

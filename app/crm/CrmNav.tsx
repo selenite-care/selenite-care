@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import MessagesBadge from "@/components/ui/MessagesBadge";
 
 const crmSections = [
@@ -14,6 +14,7 @@ const crmSections = [
       { href: "/crm/leads", label: "Leads" },
       { href: "/crm/clients", label: "All Clients" },
       { href: "/crm/bookings", label: "All Bookings" },
+      { href: "/crm/one-time-consultations", label: "One-Time Consultations" },
       { href: "/crm/memberships", label: "Memberships" },
       { href: "/crm/products", label: "Products" },
       { href: "/crm/messages", label: "Messages" },
@@ -37,8 +38,49 @@ function isActiveLink(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
+type TodayConsultationCountResponse = {
+  todayCount?: number;
+  error?: string;
+};
+
+function useTodayConsultationCount() {
+  const [todayCount, setTodayCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadTodayCount() {
+      try {
+        const response = await fetch(
+          "/api/crm/one-time-consultations?summaryOnly=true",
+          { cache: "no-store" },
+        );
+        const data = (await response.json().catch(() => null)) as
+          | TodayConsultationCountResponse
+          | null;
+
+        if (!response.ok) {
+          throw new Error(data?.error ?? "Unable to load consultation count.");
+        }
+
+        if (isMounted) setTodayCount(data?.todayCount ?? 0);
+      } catch {
+        if (isMounted) setTodayCount(null);
+      }
+    }
+
+    void loadTodayCount();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  return todayCount;
+}
+
 export function CrmSidebarNav() {
   const pathname = usePathname();
+  const todayConsultationCount = useTodayConsultationCount();
 
   return (
     <nav className="mt-8 space-y-6">
@@ -50,6 +92,10 @@ export function CrmSidebarNav() {
           <div className="space-y-2">
             {section.links.map((link) => {
               const isActive = isActiveLink(pathname, link.href);
+              const showConsultationBadge =
+                link.href === "/crm/one-time-consultations" &&
+                todayConsultationCount !== null &&
+                todayConsultationCount > 0;
 
               return (
                 <Link
@@ -62,6 +108,11 @@ export function CrmSidebarNav() {
                   }`}
                 >
                   <span>{link.label}</span>
+                  {showConsultationBadge ? (
+                    <span className="inline-flex min-w-6 items-center justify-center rounded-full bg-[var(--gold)] px-2 py-0.5 text-[11px] font-semibold text-[var(--sidebar)]">
+                      {todayConsultationCount}
+                    </span>
+                  ) : null}
                   {link.href === "/crm/messages" ? <MessagesBadge /> : null}
                 </Link>
               );
@@ -76,6 +127,7 @@ export function CrmSidebarNav() {
 export function CrmMobileNav() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+  const todayConsultationCount = useTodayConsultationCount();
 
   return (
     <>
@@ -128,6 +180,10 @@ export function CrmMobileNav() {
                   <div className="space-y-2">
                     {section.links.map((link) => {
                       const isActive = isActiveLink(pathname, link.href);
+                      const showConsultationBadge =
+                        link.href === "/crm/one-time-consultations" &&
+                        todayConsultationCount !== null &&
+                        todayConsultationCount > 0;
 
                       return (
                         <Link
@@ -141,6 +197,11 @@ export function CrmMobileNav() {
                           }`}
                         >
                           <span>{link.label}</span>
+                          {showConsultationBadge ? (
+                            <span className="inline-flex min-w-6 items-center justify-center rounded-full bg-[var(--gold)] px-2 py-0.5 text-[11px] font-semibold text-[var(--sidebar)]">
+                              {todayConsultationCount}
+                            </span>
+                          ) : null}
                           {link.href === "/crm/messages" ? <MessagesBadge /> : null}
                         </Link>
                       );

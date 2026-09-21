@@ -181,6 +181,8 @@ model Booking {
   diagnosis        Diagnosis?
   routineGuideline RoutineGuideline?
   customerFeedback CustomerFeedback?
+  isOneTimeConsultation Boolean              @default(false)
+  oneTimeConsultation   OneTimeConsultation?
 
   @@index([userId])
   @@index([doctorId])
@@ -499,6 +501,20 @@ model SkinAnalysisCredit {
   lastMembershipId   String?
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
+}
+
+model OneTimeConsultation {
+  id                String        @id @default(cuid())
+  bookingId         String        @unique
+  booking           Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  packagePrice      Float         @default(99)
+  epsMerchantTxnId  String?       @unique
+  paymentStatus     PaymentStatus @default(UNPAID)
+  paidAt            DateTime?
+  includesFollowUp  Boolean       @default(true)
+  followUpUsed      Boolean       @default(false)
+  followUpBookingId String?
+  createdAt         DateTime      @default(now())
 }
 
 enum Role {
