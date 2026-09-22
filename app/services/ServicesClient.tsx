@@ -687,7 +687,7 @@ export default function ServicesClient({
   return (
     <main className="overflow-x-hidden bg-page text-page">
       <section
-        className="relative overflow-hidden px-4 py-14 sm:px-6 sm:py-16 lg:py-20"
+        className="relative overflow-hidden px-4 py-7 sm:px-6 sm:py-8 lg:py-10"
         style={{
           background:
             "linear-gradient(135deg, rgba(248,245,240,0.98) 0%, rgba(239,228,210,0.94) 42%, rgba(198,165,107,0.32) 100%)",
@@ -702,10 +702,10 @@ export default function ServicesClient({
         />
         <div className="relative mx-auto max-w-7xl text-center">
           <h1
-            className="text-page text-3xl font-bold leading-tight sm:text-5xl lg:text-6xl"
+            className="text-page text-3xl font-bold leading-tight sm:text-4xl lg:text-5xl"
             style={{ fontFamily: "Playfair Display, serif" }}
           >
-            Memberships
+            Our SkinCare Programs
           </h1>
         </div>
       </section>
