@@ -715,10 +715,10 @@ export default function MembershipSection() {
               style={{ fontFamily: "Playfair Display, serif" }}
               className="horizontal-nudge text-page text-3xl font-bold tracking-tight"
             >
-              Our Memberships
+              Our SkinCare Programs
             </h2>
             <p className="text-muted mt-4 text-base leading-7 text-[#884F38] dark:text-[#8A7D75]">
-              We have 3 membership plan categories. You can choose your own membership.
+              We have membership plan categories. You can choose your own.
             </p>
           </div>
 
