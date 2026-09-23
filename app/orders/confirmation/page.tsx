@@ -1,25 +1,91 @@
 "use client";
 
 import Link from "next/link";
-import { Suspense, useEffect } from "react";
+import { Suspense, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { useCart } from "@/components/cart/CartProvider";
+import { trackPurchase } from "@/lib/analytics";
+
+type Order = {
+  id: string;
+  totalAmount: number;
+  items: Array<{
+    quantity: number;
+    price: number;
+    product: {
+      id: string;
+      name: string;
+      type: string;
+    };
+  }>;
+};
+
+type OrdersResponse = {
+  orders?: Order[];
+};
 
 function OrdersConfirmationContent() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get("orderId") ?? searchParams.get("id") ?? "";
   const { clearCart } = useCart();
+  const hasTrackedPurchase = useRef(false);
 
   useEffect(() => {
-    if (orderId) {
-      clearCart();
+    if (!orderId) {
+      return;
+    }
 
-      if (typeof window !== "undefined" && typeof gtag !== "undefined") {
-        gtag("event", "conversion", {
-          send_to: "AW-18307861593/order_purchase",
+    clearCart();
+
+    if (typeof window !== "undefined" && typeof gtag !== "undefined") {
+      gtag("event", "conversion", {
+        send_to: "AW-18307861593/order_purchase",
+      });
+    }
+
+    let isCancelled = false;
+
+    async function trackConfirmedOrder() {
+      try {
+        const response = await fetch("/api/client/orders?page=1&limit=50", {
+          cache: "no-store",
         });
+        const data = (await response.json().catch(() => null)) as
+          | OrdersResponse
+          | null;
+
+        if (!response.ok || isCancelled || hasTrackedPurchase.current) {
+          return;
+        }
+
+        const order = data?.orders?.find((candidate) => candidate.id === orderId);
+
+        if (!order) {
+          return;
+        }
+
+        trackPurchase(
+          order.id,
+          order.items.map((item) => ({
+            id: item.product.id,
+            name: item.product.name,
+            price: item.price,
+            category: item.product.type,
+            quantity: item.quantity,
+          })),
+          order.totalAmount,
+        );
+        hasTrackedPurchase.current = true;
+      } catch {
+        // Analytics failures must not affect the confirmation experience.
       }
     }
+
+    void trackConfirmedOrder();
+
+    return () => {
+      isCancelled = true;
+    };
   }, [clearCart, orderId]);
 
   return (

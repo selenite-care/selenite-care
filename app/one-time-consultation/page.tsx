@@ -12,6 +12,7 @@ import {
 import { Suspense, useEffect, useState } from "react";
 import DoctorAvailabilityDatePicker from "@/components/consultations/DoctorAvailabilityDatePicker";
 import DoctorPhoto from "@/components/ui/DoctorPhoto";
+import { trackBeginCheckout } from "@/lib/analytics";
 
 type ConsultationDoctor = {
   id: string;
@@ -153,6 +154,18 @@ function OneTimeConsultationContent() {
   async function handlePayment() {
     if (!selectedDoctorId || !preferredDate || isSubmitting) return;
 
+    trackBeginCheckout(
+      [
+        {
+          id: "ONE_TIME_CONSULTATION",
+          name: "Direct Consultation \u2014 Selenite Care",
+          price: PACKAGE_PRICE,
+          category: "Consultation",
+          quantity: 1,
+        },
+      ],
+      PACKAGE_PRICE,
+    );
     setIsSubmitting(true);
     setError("");
 

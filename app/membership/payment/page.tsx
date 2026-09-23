@@ -7,6 +7,7 @@ import { FormEvent, Suspense, useEffect, useMemo, useRef, useState } from "react
 import { useRouter, useSearchParams } from "next/navigation";
 import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
 import { toast } from "sonner";
+import { trackMembershipCheckout } from "@/lib/analytics";
 import { isMembershipAvailable } from "@/lib/membershipAvailability";
 import { MEMBERSHIP_PRICES } from "@/lib/membershipDiscounts";
 import { BRAC_BANK_DETAILS } from "@/lib/bankDetails";
@@ -176,15 +177,6 @@ function PaymentErrorNotice({
   );
 }
 
-function trackMetaPixelEvent(
-  eventName: string,
-  parameters?: Record<string, unknown>,
-) {
-  if (typeof window !== "undefined" && typeof window.fbq !== "undefined") {
-    window.fbq("track", eventName, parameters);
-  }
-}
-
 function getPendingMembershipRedirectHref(tier: MembershipTier, amount: number) {
   return `/membership/pending?tier=${encodeURIComponent(tier)}&amount=${encodeURIComponent(String(amount))}`;
 }
@@ -274,6 +266,7 @@ function EpsPaymentSection({
       return;
     }
 
+    trackMembershipCheckout(tier, amountDue);
     setError("");
     setIsSubmitting(true);
     const toastId = toast.loading("Redirecting to secure EPS payment...");
@@ -1275,17 +1268,6 @@ function MembershipPaymentPageContent() {
       isMounted = false;
     };
   }, [router]);
-
-  useEffect(() => {
-    if (!tier) {
-      return;
-    }
-
-    trackMetaPixelEvent("InitiateCheckout", {
-      value: MEMBERSHIPS[tier].price,
-      currency: "BDT",
-    });
-  }, [tier]);
 
   useEffect(() => {
     setDismissedPaymentError(false);

@@ -6,6 +6,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ShoppingBag, X } from "lucide-react";
 import { useCart } from "@/components/cart/CartProvider";
 import { Skeleton, SkeletonCard } from "@/components/ui/Skeleton";
+import { trackAddToCart, trackViewItem } from "@/lib/analytics";
 import { getProductDiscount } from "@/lib/membershipDiscounts";
 
 export const dynamic = "force-dynamic";
@@ -517,7 +518,24 @@ function ProductsPageContent() {
       price: product.price,
       type: product.type,
     });
+    trackAddToCart({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      category: product.type,
+      quantity: 1,
+    });
     setRecentlyAddedId(product.id);
+  }
+
+  function handleViewProduct(product: Product) {
+    trackViewItem({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      category: product.type,
+    });
+    setSelectedProduct(product);
   }
 
   function handleModalAddToCart(product: Product) {
@@ -876,7 +894,7 @@ function ProductsPageContent() {
                       cursor: "pointer",
                     }}
                     className="product-card cursor-pointer transition-all duration-300 dark:bg-[#242220]"
-                    onClick={() => setSelectedProduct(product)}
+                    onClick={() => handleViewProduct(product)}
                     onMouseEnter={(event) => {
                       event.currentTarget.style.transform = "translateY(-4px)";
                       event.currentTarget.style.boxShadow =

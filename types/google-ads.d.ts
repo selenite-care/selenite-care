@@ -8,8 +8,4 @@ declare global {
         parameters?: Record<string, unknown>,
       ) => void)
     | undefined;
-
-  interface Window {
-    dataLayer?: unknown[];
-  }
 }

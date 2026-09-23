@@ -9,8 +9,11 @@ import {
   MessageCircle,
   Phone,
 } from "lucide-react";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
+import { trackPurchase } from "@/lib/analytics";
 import { formatDateOnly } from "@/lib/dateUtils";
+
+const PACKAGE_PRICE = 99;
 
 type ConfirmationDetails = {
   bookingId: string;
@@ -27,6 +30,28 @@ function ConfirmationContent() {
   const [details, setDetails] = useState<ConfirmationDetails | null>(null);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const hasTrackedPurchase = useRef(false);
+
+  useEffect(() => {
+    if (!bookingId || hasTrackedPurchase.current) {
+      return;
+    }
+
+    trackPurchase(
+      bookingId,
+      [
+        {
+          id: "ONE_TIME_CONSULTATION",
+          name: "Direct Consultation \u2014 Selenite Care",
+          price: PACKAGE_PRICE,
+          category: "Consultation",
+          quantity: 1,
+        },
+      ],
+      PACKAGE_PRICE,
+    );
+    hasTrackedPurchase.current = true;
+  }, [bookingId]);
 
   useEffect(() => {
     let isMounted = true;
