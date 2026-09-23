@@ -9,6 +9,7 @@ import {
   getMembershipAvailabilityLabel,
   isMembershipAvailable,
 } from "@/lib/membershipAvailability";
+import { trackViewMembership } from "@/lib/analytics";
 import { isSignatureOfferValid } from "@/lib/membershipDiscounts";
 import TermsAndConditionsModal from "@/components/membership/TermsAndConditionsModal";
 import DoctorMascot from "@/components/ui/DoctorMascot";
@@ -68,15 +69,6 @@ const TIER_ORDER = {
   CRYSTAL: 2,
   PLATINUM: 3,
 } as const;
-
-function trackMetaPixelEvent(
-  eventName: string,
-  parameters?: Record<string, unknown>,
-) {
-  if (typeof window !== "undefined" && typeof window.fbq !== "undefined") {
-    window.fbq("track", eventName, parameters);
-  }
-}
 
 function buildMemberships(
   membershipPrices: ServicesMembershipPrices,
@@ -547,11 +539,13 @@ export default function ServicesClient({
   const [currentTime, setCurrentTime] = useState(0);
 
   useEffect(() => {
-    trackMetaPixelEvent("ViewContent", {
-      content_name: "Membership Plans",
-      content_category: "Services",
-    });
-  }, []);
+    const signaturePrice = isSignatureOfferValid()
+      ? membershipPrices.SIGNATURE.price
+      : (membershipPrices.SIGNATURE.originalPrice ??
+        membershipPrices.SIGNATURE.price);
+
+    trackViewMembership("SIGNATURE", signaturePrice);
+  }, [membershipPrices]);
 
   useEffect(() => {
     const timeout = window.setTimeout(() => {

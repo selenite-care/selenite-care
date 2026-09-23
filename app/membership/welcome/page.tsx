@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
+import { trackMembershipPurchase } from "@/lib/analytics";
 import { formatDateOnly } from "@/lib/dateUtils";
 import { MEMBERSHIP_PRICES } from "@/lib/membershipDiscounts";
 
@@ -14,6 +15,9 @@ type MembershipResponse = {
     status: "PENDING" | "ACTIVE" | "EXPIRED" | "CANCELLED";
     createdAt: string;
     expiresAt: string | null;
+    payment?: {
+      amount: number;
+    } | null;
   } | null;
   error?: string;
 };
@@ -23,15 +27,6 @@ const MEMBERSHIP_AMOUNTS: Record<"SIGNATURE" | "CRYSTAL" | "PLATINUM", number> =
   CRYSTAL: MEMBERSHIP_PRICES.CRYSTAL.price,
   PLATINUM: MEMBERSHIP_PRICES.PLATINUM.price,
 };
-
-function trackMetaPixelEvent(
-  eventName: string,
-  parameters?: Record<string, unknown>,
-) {
-  if (typeof window !== "undefined" && typeof window.fbq !== "undefined") {
-    window.fbq("track", eventName, parameters);
-  }
-}
 
 function getTierBadgeStyles(tier: "SIGNATURE" | "CRYSTAL" | "PLATINUM") {
   switch (tier) {
@@ -74,7 +69,7 @@ function MembershipWelcomePageContent() {
   );
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
-  const [hasTrackedPurchase, setHasTrackedPurchase] = useState(false);
+  const hasTrackedPurchase = useRef(false);
 
   useEffect(() => {
     if (typeof window !== "undefined" && typeof gtag !== "undefined") {
@@ -124,16 +119,23 @@ function MembershipWelcomePageContent() {
   }, []);
 
   useEffect(() => {
-    if (!membership || hasTrackedPurchase) {
+    if (!membership || hasTrackedPurchase.current) {
       return;
     }
 
-    trackMetaPixelEvent("Purchase", {
-      value: MEMBERSHIP_AMOUNTS[membership.tier],
-      currency: "BDT",
-    });
-    setHasTrackedPurchase(true);
-  }, [hasTrackedPurchase, membership]);
+    const transactionId = membershipId || membership.membershipId;
+
+    if (!transactionId) {
+      return;
+    }
+
+    trackMembershipPurchase(
+      transactionId,
+      membership.tier,
+      membership.payment?.amount ?? MEMBERSHIP_AMOUNTS[membership.tier],
+    );
+    hasTrackedPurchase.current = true;
+  }, [membership, membershipId]);
 
   const displayMembershipId = membership?.membershipId ?? membershipId;
   const activationDate = membership?.createdAt

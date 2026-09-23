@@ -6,6 +6,7 @@ import { Check, Loader2 } from "lucide-react";
 import { FormEvent, useEffect, useState } from "react";
 import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
 import DoctorAvailabilityDatePicker from "@/components/consultations/DoctorAvailabilityDatePicker";
+import { trackBeginCheckout } from "@/lib/analytics";
 
 type ConsultationDoctor = {
   id: string;
@@ -31,6 +32,7 @@ const BENEFITS = [
   "Personalized product recommendations",
   "One complimentary follow-up session",
 ];
+const PACKAGE_PRICE = 99;
 
 type OneTimeConsultationFormProps = {
   showPackageSummary?: boolean;
@@ -125,6 +127,18 @@ export default function OneTimeConsultationForm({
       return;
     }
 
+    trackBeginCheckout(
+      [
+        {
+          id: "ONE_TIME_CONSULTATION",
+          name: "Direct Consultation \u2014 Selenite Care",
+          price: PACKAGE_PRICE,
+          category: "Consultation",
+          quantity: 1,
+        },
+      ],
+      PACKAGE_PRICE,
+    );
     setIsSubmitting(true);
 
     try {

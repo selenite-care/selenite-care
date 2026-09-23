@@ -1,11 +1,12 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 import { useCart } from "@/components/cart/CartProvider";
+import { trackBeginCheckout } from "@/lib/analytics";
 import {
   calculateOrderTotal,
   getProductDiscount,
@@ -116,6 +117,7 @@ function CartPageContent() {
   const [dismissedPaymentError, setDismissedPaymentError] = useState(false);
   const [discountMembershipTier, setDiscountMembershipTier] =
     useState<MembershipTier | null>(null);
+  const hasTrackedCheckout = useRef(false);
   const paymentError = searchParams.get("error");
   const paymentMessage = searchParams.get("message");
 
@@ -138,6 +140,24 @@ function CartPageContent() {
       ),
     [deliveryCharge, membershipTierForDiscount, totalAmount],
   );
+
+  useEffect(() => {
+    if (hasTrackedCheckout.current || items.length === 0) {
+      return;
+    }
+
+    trackBeginCheckout(
+      items.map((item) => ({
+        id: item.productId,
+        name: item.name,
+        price: item.price,
+        category: item.type,
+        quantity: item.quantity,
+      })),
+      totalAmount,
+    );
+    hasTrackedCheckout.current = true;
+  }, [items, totalAmount]);
 
   useEffect(() => {
     if (status === "unauthenticated") {
