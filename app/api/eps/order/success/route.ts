@@ -3,6 +3,10 @@ import { verifyEPSPayment } from "@/lib/eps";
 import { db } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
 import {
+  sendFacebookCAPIEvent,
+  sendGA4Event,
+} from "@/lib/serverAnalytics";
+import {
   createNotification,
   NOTIFICATION_TYPES,
 } from "@/lib/notifications";
@@ -205,12 +209,14 @@ export async function GET(request: Request) {
             id: true,
             name: true,
             email: true,
+            phone: true,
           },
         },
         items: {
           include: {
             product: {
               select: {
+                id: true,
                 name: true,
                 type: true,
               },
@@ -239,12 +245,14 @@ export async function GET(request: Request) {
             id: true,
             name: true,
             email: true,
+            phone: true,
           },
         },
         items: {
           include: {
             product: {
               select: {
+                id: true,
                 name: true,
                 type: true,
               },
@@ -253,6 +261,35 @@ export async function GET(request: Request) {
         },
       },
     });
+
+    try {
+      await Promise.allSettled([
+        sendFacebookCAPIEvent({
+          eventName: "Purchase",
+          value: order.totalAmount,
+          currency: "BDT",
+          transactionId: order.id,
+          email: order.user.email ?? undefined,
+          phone: order.user.phone ?? undefined,
+          name: order.user.name ?? undefined,
+        }),
+        sendGA4Event({
+          eventName: "purchase",
+          value: order.totalAmount,
+          currency: "BDT",
+          transactionId: order.id,
+          items: order.items.map((item) => ({
+            item_id: item.product.id,
+            item_name: item.product.name,
+            price: item.price,
+            item_category: item.product.type,
+            quantity: item.quantity,
+          })),
+        }),
+      ]);
+    } catch (error) {
+      console.error("Order analytics dispatch failed:", error);
+    }
 
     const adminEmail = process.env.ADMIN_EMAIL?.trim();
     const clientName = order.user.name || "Selenite Care Client";

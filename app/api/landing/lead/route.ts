@@ -2,6 +2,10 @@ import { db } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
 import { appendToSheet } from "@/lib/googleSheets";
 import {
+  sendFacebookCAPIEvent,
+  sendGA4Event,
+} from "@/lib/serverAnalytics";
+import {
   sanitizeEmail,
   sanitizeName,
   sanitizePhone,
@@ -344,6 +348,26 @@ export async function POST(request: Request) {
       interest: interest || null,
     },
   });
+
+  try {
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "");
+
+    await Promise.allSettled([
+      sendFacebookCAPIEvent({
+        eventName: "Lead",
+        email: email || undefined,
+        phone: phone || undefined,
+        name: name || undefined,
+        sourceUrl: appUrl ? `${appUrl}/landing` : undefined,
+      }),
+      sendGA4Event({
+        eventName: "generate_lead",
+        value: 0,
+      }),
+    ]);
+  } catch (error) {
+    console.error("Landing lead analytics dispatch failed:", error);
+  }
 
   if (recaptchaScore > RECAPTCHA_SHEET_MIN_SCORE) {
     void appendToSheet({

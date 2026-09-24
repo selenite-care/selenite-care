@@ -3,6 +3,10 @@ import { db } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
 import { verifyEPSPayment } from "@/lib/eps";
 import { createNotification, NOTIFICATION_TYPES } from "@/lib/notifications";
+import {
+  sendFacebookCAPIEvent,
+  sendGA4Event,
+} from "@/lib/serverAnalytics";
 
 export const runtime = "nodejs";
 
@@ -146,6 +150,7 @@ export async function GET(request: Request) {
         booking: {
           select: {
             id: true,
+            userId: true,
             token: true,
             appointmentTime: true,
             user: {
@@ -182,6 +187,48 @@ export async function GET(request: Request) {
           paidAt: new Date(),
         },
       });
+
+      try {
+        const analyticsUser = await db.user.findUnique({
+          where: {
+            id: consultation.booking.userId,
+          },
+          select: {
+            name: true,
+            email: true,
+            phone: true,
+          },
+        });
+
+        await Promise.allSettled([
+          sendFacebookCAPIEvent({
+            eventName: "Purchase",
+            value: 99,
+            currency: "BDT",
+            transactionId: consultation.booking.id,
+            email: analyticsUser?.email ?? undefined,
+            phone: analyticsUser?.phone ?? undefined,
+            name: analyticsUser?.name ?? undefined,
+          }),
+          sendGA4Event({
+            eventName: "purchase",
+            value: 99,
+            currency: "BDT",
+            transactionId: consultation.booking.id,
+            items: [
+              {
+                item_id: "ONE_TIME_CONSULTATION",
+                item_name: "Direct Consultation - Selenite Care",
+                price: 99,
+                item_category: "Consultation",
+                quantity: 1,
+              },
+            ],
+          }),
+        ]);
+      } catch (error) {
+        console.error("One-time consultation analytics dispatch failed:", error);
+      }
 
       const booking = consultation.booking;
       const clientName = booking.user.name || "Selenite Care Client";

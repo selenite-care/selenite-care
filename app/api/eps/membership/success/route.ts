@@ -3,6 +3,10 @@ import { verifyEPSPayment } from "@/lib/eps";
 import { db } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
 import {
+  sendFacebookCAPIEvent,
+  sendGA4Event,
+} from "@/lib/serverAnalytics";
+import {
   calculateExpiresAt,
   getProductDiscount,
   MEMBERSHIP_PRICES,
@@ -377,6 +381,7 @@ export async function GET(request: Request) {
               id: true,
               name: true,
               email: true,
+              phone: true,
             },
           },
         },
@@ -429,6 +434,37 @@ export async function GET(request: Request) {
         membership: updatedMembership,
       };
     });
+
+    try {
+      await Promise.allSettled([
+        sendFacebookCAPIEvent({
+          eventName: "Purchase",
+          value: payment.amount,
+          currency: "BDT",
+          transactionId: membership.membershipId,
+          email: membership.user.email ?? undefined,
+          phone: membership.user.phone ?? undefined,
+          name: membership.user.name ?? undefined,
+        }),
+        sendGA4Event({
+          eventName: "purchase",
+          value: payment.amount,
+          currency: "BDT",
+          transactionId: membership.membershipId,
+          items: [
+            {
+              item_id: membership.tier,
+              item_name: `${membership.tier} Membership - Selenite Care`,
+              price: payment.amount,
+              item_category: "Membership",
+              quantity: 1,
+            },
+          ],
+        }),
+      ]);
+    } catch (error) {
+      console.error("Membership analytics dispatch failed:", error);
+    }
 
     await recordReferralSale({
       membershipId: membership.id,
