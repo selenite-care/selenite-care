@@ -4,6 +4,10 @@ import { db } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
 import { appendToSheet } from "@/lib/googleSheets";
 import { sanitizeEmail, sanitizeName, sanitizePhone } from "@/lib/sanitize";
+import {
+  sendFacebookCAPIEvent,
+  sendGA4Event,
+} from "@/lib/serverAnalytics";
 
 type RegisterPayload = {
   name?: unknown;
@@ -249,6 +253,22 @@ export async function POST(request: Request) {
       </div>
     `,
   });
+
+  try {
+    await Promise.allSettled([
+      sendFacebookCAPIEvent({
+        eventName: "CompleteRegistration",
+        email,
+        phone,
+        name,
+      }),
+      sendGA4Event({
+        eventName: "sign_up",
+      }),
+    ]);
+  } catch (error) {
+    console.error("Registration analytics dispatch failed:", error);
+  }
 
   return Response.json({ user }, { status: 201 });
 }
