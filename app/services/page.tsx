@@ -1,6 +1,11 @@
 import ServicesClient from "./ServicesClient";
 import { headers } from "next/headers";
 import { MEMBERSHIP_PRICES } from "@/lib/membershipDiscounts";
+import {
+  DEFAULT_ONE_TIME_CONSULTATION_PRICING,
+  normalizeOneTimeConsultationPricing,
+  type OneTimeConsultationPricing,
+} from "@/lib/oneTimeConsultationPricing";
 
 export const revalidate = 3600;
 
@@ -11,6 +16,7 @@ type PublicSettingsResponse = {
     crystalPrice?: number | null;
     platinumPrice?: number | null;
   };
+  oneTimeConsultation?: Partial<OneTimeConsultationPricing>;
 };
 
 const fallbackMembershipPrices = {
@@ -28,7 +34,7 @@ const fallbackMembershipPrices = {
   },
 };
 
-async function getMembershipPrices() {
+async function getServiceSettings() {
   const headerStore = await headers();
   const protocol = headerStore.get("x-forwarded-proto") ?? "http";
   const host = headerStore.get("host");
@@ -39,7 +45,10 @@ async function getMembershipPrices() {
     (host ? `${protocol}://${host}` : "");
 
   if (!baseUrl) {
-    return fallbackMembershipPrices;
+    return {
+      membershipPrices: fallbackMembershipPrices,
+      oneTimeConsultation: DEFAULT_ONE_TIME_CONSULTATION_PRICING,
+    };
   }
 
   try {
@@ -51,35 +60,53 @@ async function getMembershipPrices() {
     });
 
     if (!response.ok) {
-      return fallbackMembershipPrices;
+      return {
+        membershipPrices: fallbackMembershipPrices,
+        oneTimeConsultation: DEFAULT_ONE_TIME_CONSULTATION_PRICING,
+      };
     }
 
     const data = (await response.json()) as PublicSettingsResponse;
     const prices = data.membershipPrices;
 
     return {
-      SIGNATURE: {
-        price: prices?.signaturePrice ?? fallbackMembershipPrices.SIGNATURE.price,
-        originalPrice:
-          prices?.signatureOriginal ??
-          fallbackMembershipPrices.SIGNATURE.originalPrice,
+      membershipPrices: {
+        SIGNATURE: {
+          price:
+            prices?.signaturePrice ?? fallbackMembershipPrices.SIGNATURE.price,
+          originalPrice:
+            prices?.signatureOriginal ??
+            fallbackMembershipPrices.SIGNATURE.originalPrice,
+        },
+        CRYSTAL: {
+          price: prices?.crystalPrice ?? fallbackMembershipPrices.CRYSTAL.price,
+          originalPrice: fallbackMembershipPrices.CRYSTAL.originalPrice,
+        },
+        PLATINUM: {
+          price:
+            prices?.platinumPrice ?? fallbackMembershipPrices.PLATINUM.price,
+          originalPrice: fallbackMembershipPrices.PLATINUM.originalPrice,
+        },
       },
-      CRYSTAL: {
-        price: prices?.crystalPrice ?? fallbackMembershipPrices.CRYSTAL.price,
-        originalPrice: fallbackMembershipPrices.CRYSTAL.originalPrice,
-      },
-      PLATINUM: {
-        price: prices?.platinumPrice ?? fallbackMembershipPrices.PLATINUM.price,
-        originalPrice: fallbackMembershipPrices.PLATINUM.originalPrice,
-      },
+      oneTimeConsultation: normalizeOneTimeConsultationPricing(
+        data.oneTimeConsultation,
+      ),
     };
   } catch {
-    return fallbackMembershipPrices;
+    return {
+      membershipPrices: fallbackMembershipPrices,
+      oneTimeConsultation: DEFAULT_ONE_TIME_CONSULTATION_PRICING,
+    };
   }
 }
 
 export default async function ServicesPage() {
-  const membershipPrices = await getMembershipPrices();
+  const { membershipPrices, oneTimeConsultation } = await getServiceSettings();
 
-  return <ServicesClient membershipPrices={membershipPrices} />;
+  return (
+    <ServicesClient
+      membershipPrices={membershipPrices}
+      oneTimeConsultation={oneTimeConsultation}
+    />
+  );
 }

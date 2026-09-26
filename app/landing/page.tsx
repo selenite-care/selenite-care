@@ -31,6 +31,11 @@ import {
   isSignatureOfferValid,
   MEMBERSHIP_PRICES,
 } from "@/lib/membershipDiscounts";
+import {
+  DEFAULT_ONE_TIME_CONSULTATION_PRICING,
+  normalizeOneTimeConsultationPricing,
+  type OneTimeConsultationPricing,
+} from "@/lib/oneTimeConsultationPricing";
 
 export const dynamic = "force-dynamic";
 
@@ -165,12 +170,9 @@ const CONTENT = {
       ],
     },
     oneTimeConsultation: {
-      badge: "NEW \u2014 SPECIAL OFFER",
       heading: "Not Ready for Membership? Try a Direct Consultation",
       urgency: "Limited slots available daily",
       packageTitle: "Direct Consultation",
-      price: "99 BDT",
-      value: "Value: 500+ BDT",
       benefits: [
         "Direct online doctor consultation",
         "Root cause identification and guidance",
@@ -454,14 +456,11 @@ const CONTENT = {
       ],
     },
     oneTimeConsultation: {
-      badge: "\u09a8\u09a4\u09c1\u09a8 \u2014 \u09ac\u09bf\u09b6\u09c7\u09b7 \u0985\u09ab\u09be\u09b0",
       heading:
         "\u09ae\u09c7\u09ae\u09cd\u09ac\u09be\u09b0\u09b6\u09bf\u09aa \u0995\u09bf\u09a8\u09a4\u09c7 \u09aa\u09cd\u09b0\u09b8\u09cd\u09a4\u09c1\u09a4 \u09a8\u09a8? \u09b8\u09b0\u09be\u09b8\u09b0\u09bf \u0995\u09a8\u09b8\u09be\u09b2\u099f\u09c7\u09b6\u09a8 \u09a8\u09bf\u09a8",
       urgency:
         "\u09aa\u09cd\u09b0\u09a4\u09bf\u09a6\u09bf\u09a8 \u09b8\u09c0\u09ae\u09bf\u09a4 \u09b8\u0982\u0996\u09cd\u09af\u0995 \u09b8\u09cd\u09b2\u099f",
       packageTitle: "\u09b8\u09b0\u09be\u09b8\u09b0\u09bf \u0995\u09a8\u09b8\u09be\u09b2\u099f\u09c7\u09b6\u09a8",
-      price: "\u09ef\u09ef \u099f\u09be\u0995\u09be",
-      value: "\u09ae\u09c2\u09b2\u09cd\u09af: \u09eb\u09e6\u09e6+ \u099f\u09be\u0995\u09be",
       benefits: [
         "\u09a1\u09be\u0995\u09cd\u09a4\u09be\u09b0\u09c7\u09b0 \u09b8\u0999\u09cd\u0997\u09c7 \u09b8\u09b0\u09be\u09b8\u09b0\u09bf \u0985\u09a8\u09b2\u09be\u0987\u09a8 \u0995\u09a8\u09b8\u09be\u09b2\u099f\u09c7\u09b6\u09a8",
         "\u09b8\u09ae\u09b8\u09cd\u09af\u09be\u09b0 \u09ae\u09c2\u09b2 \u0995\u09be\u09b0\u09a3 \u09b6\u09a8\u09be\u0995\u09cd\u09a4\u0995\u09b0\u09a3 \u0993 \u09a8\u09bf\u09b0\u09cd\u09a6\u09c7\u09b6\u09a8\u09be",
@@ -817,6 +816,12 @@ function LandingPageContent() {
   const [resendSuccess, setResendSuccess] = useState("");
   const [isResending, setIsResending] = useState(false);
   const [resendCountdown, setResendCountdown] = useState(0);
+  const [oneTimeConsultationPricing, setOneTimeConsultationPricing] =
+    useState<OneTimeConsultationPricing>(
+      DEFAULT_ONE_TIME_CONSULTATION_PRICING,
+    );
+  const [isConsultationPricingLoading, setIsConsultationPricingLoading] =
+    useState(true);
   const membershipPlans = [
     membershipContent.signature,
     /* CRYSTAL_MEMBERSHIP_START
@@ -884,6 +889,49 @@ function LandingPageContent() {
             "\u0986\u09ae\u09be\u09a6\u09c7\u09b0 Facebook \u0995\u09ae\u09bf\u0989\u09a8\u09bf\u099f\u09bf\u09a4\u09c7 \u09af\u09cb\u0997 \u09a6\u09bf\u09a8",
           button: "\u09af\u09cb\u0997 \u09a6\u09bf\u09a8",
         };
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadConsultationPricing() {
+      try {
+        const response = await fetch("/api/settings/public", {
+          cache: "no-store",
+        });
+        const data = (await response.json().catch(() => null)) as
+          | {
+              oneTimeConsultation?: Partial<OneTimeConsultationPricing>;
+            }
+          | null;
+
+        if (!response.ok) {
+          throw new Error("Unable to load consultation pricing.");
+        }
+
+        if (isMounted) {
+          setOneTimeConsultationPricing(
+            normalizeOneTimeConsultationPricing(data?.oneTimeConsultation),
+          );
+        }
+      } catch {
+        if (isMounted) {
+          setOneTimeConsultationPricing(
+            DEFAULT_ONE_TIME_CONSULTATION_PRICING,
+          );
+        }
+      } finally {
+        if (isMounted) {
+          setIsConsultationPricingLoading(false);
+        }
+      }
+    }
+
+    void loadConsultationPricing();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
@@ -1213,7 +1261,7 @@ function LandingPageContent() {
       <header className="fixed inset-x-0 top-0 z-50 border-b border-[#EADDCD]/80 bg-[#F8F5F0]/90 px-4 backdrop-blur-md transition-colors duration-200 dark:border-[#3D3530]/80 dark:bg-[#141210]/90">
         <div className="mx-auto flex h-16 w-full max-w-screen-2xl items-center justify-between gap-2 sm:gap-4">
           <Link
-            href="/landing"
+            href="/"
             className="flex min-w-0 shrink-0 items-center gap-2 transition-opacity hover:opacity-85"
           >
             <Image
@@ -1397,57 +1445,7 @@ function LandingPageContent() {
           </div>
         </section>
 
-        <section className="bg-[#F8F5F0] px-6 py-12 dark:bg-[#141210]">
-          <div className="mx-auto grid w-full max-w-6xl gap-10 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] lg:items-start">
-            <div>
-              <h1 className="mt-4 text-3xl font-semibold uppercase text-[#B87B68] sm:text-4xl">
-                {aboutContent.label}
-              </h1>
-
-              {/* <h2
-                className="mt-4 text-3xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8] sm:text-4xl"
-                style={{ fontFamily: "Playfair Display, serif" }}
-              >
-                {aboutContent.heading}
-              </h2> */}
-
-              <p className="mt-5 max-w-2xl text-base leading-8 text-[#884F38] dark:text-[#8A7D75]">
-                {aboutContent.body}
-              </p>
-
-              <div className="mt-6 grid gap-3 sm:grid-cols-2">
-                {aboutContent.bullets.map((bullet) => (
-                  <div
-                    key={bullet}
-                    className="flex items-start gap-3 text-sm leading-7 text-[#6E6257] dark:text-[#8A7D75]"
-                  >
-                    <Check className="mt-1 h-4 w-4 shrink-0 text-[#B87B68]" />
-                    <span>{bullet}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              {aboutContent.stats.map((stat) => (
-                <article
-                  key={`${stat.number}-${stat.label}`}
-                  className="rounded-xl border border-[#EADDCD] bg-white px-5 py-6 text-center dark:border-[#3D3530] dark:bg-[#242220]"
-                >
-                  <p
-                    className="text-3xl font-semibold text-[#B87B68] sm:text-4xl"
-                    style={{ fontFamily: "Playfair Display, serif" }}
-                  >
-                    {stat.number}
-                  </p>
-                  <p className="mt-3 text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
-                    {stat.label}
-                  </p>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
+        <ReviewsCarousel heading={testimonialsContent.heading} />
 
         <section className="bg-[#F8F5F0] px-6 py-12 dark:bg-[#141210]">
           <div className="mx-auto w-full max-w-6xl">
@@ -1502,11 +1500,8 @@ function LandingPageContent() {
         <section className="border-y border-[#EADDCD] bg-[#FFFDF8] px-6 py-14 dark:border-[#3D3530] dark:bg-[#181512]">
           <div className="mx-auto w-full max-w-6xl">
             <div className="mx-auto max-w-4xl text-center">
-              <span className="inline-flex rounded-full border border-red-200 bg-red-50 px-3 py-1 text-xs font-bold text-red-700 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-300">
-                {oneTimeConsultationContent.badge}
-              </span>
               <h2
-                className="mt-4 text-3xl font-semibold leading-tight text-[#2B2B2B] dark:text-[#F0EDE8] sm:text-4xl"
+                className="text-3xl font-semibold leading-tight text-[#2B2B2B] dark:text-[#F0EDE8] sm:text-4xl"
                 style={{ fontFamily: "Playfair Display, serif" }}
               >
                 {oneTimeConsultationContent.heading}
@@ -1523,15 +1518,38 @@ function LandingPageContent() {
                 </p>
 
                 <div className="mt-4 flex flex-wrap items-end gap-3">
-                  <p
-                    className="text-5xl font-semibold leading-none text-[#B89047] sm:text-6xl"
-                    style={{ fontFamily: "Playfair Display, serif" }}
-                  >
-                    {oneTimeConsultationContent.price}
-                  </p>
-                  <span className="rounded-full border border-[#D4B47A] bg-[#FFF8E8] px-3 py-1 text-xs font-semibold text-[#765A27] dark:bg-[#2A241A] dark:text-[#E4C98D]">
-                    {oneTimeConsultationContent.value}
-                  </span>
+                  {isConsultationPricingLoading ? (
+                    <div
+                      className="h-14 w-56 animate-pulse rounded-md bg-[#EADDCD] dark:bg-[#3D3530]"
+                      aria-label="Loading consultation price"
+                    />
+                  ) : (
+                    <div>
+                      {oneTimeConsultationPricing.isOfferActive &&
+                      oneTimeConsultationPricing.offerLabel ? (
+                        <span className="mb-3 inline-flex rounded-full bg-[#E63946] px-3 py-1 text-xs font-bold text-white">
+                          {"\u2728"} {oneTimeConsultationPricing.offerLabel}
+                        </span>
+                      ) : null}
+                      <div className="flex flex-wrap items-end gap-3">
+                        <p
+                          className="text-5xl font-semibold leading-none text-[#D4B47A] sm:text-6xl"
+                          style={{ fontFamily: "Playfair Display, serif" }}
+                        >
+                          {oneTimeConsultationPricing.currentPrice.toLocaleString(
+                            "en-US",
+                          )} BDT
+                        </p>
+                        {oneTimeConsultationPricing.isOfferActive ? (
+                          <span className="pb-1 text-sm font-semibold text-[#8C7967] line-through dark:text-[#B8AAA0]">
+                            {oneTimeConsultationPricing.originalPrice.toLocaleString(
+                              "en-US",
+                            )} BDT
+                          </span>
+                        ) : null}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <ul className="mt-8 space-y-4">
@@ -1550,7 +1568,11 @@ function LandingPageContent() {
               </article>
 
               <div className="min-w-0 lg:[&>section]:max-w-none">
-                <OneTimeConsultationForm showPackageSummary={false} />
+                <OneTimeConsultationForm
+                  showPackageSummary={false}
+                  price={oneTimeConsultationPricing.currentPrice}
+                  isPricingLoading={isConsultationPricingLoading}
+                />
               </div>
             </div>
           </div>
@@ -1748,7 +1770,13 @@ function LandingPageContent() {
                 {noDoctorsMessage}
               </p>
             ) : (
-              <div className="mt-10 grid grid-cols-2 gap-5 lg:grid-cols-4">
+              <div
+                className={`mt-10 grid gap-5 ${
+                  doctors.length === 1
+                    ? "mx-auto max-w-sm grid-cols-1"
+                    : "grid-cols-2 lg:grid-cols-4"
+                }`}
+              >
                 {doctors.map((doctor) => (
                   <article
                     key={doctor.id}
@@ -1797,8 +1825,6 @@ function LandingPageContent() {
             )}
           </div>
         </section>
-
-        <ReviewsCarousel heading={testimonialsContent.heading} />
 
         <section className="bg-[#F8F5F0] px-6 py-12 dark:bg-[#141210]">
           <div className="mx-auto w-full max-w-4xl">
@@ -1861,6 +1887,58 @@ function LandingPageContent() {
                   </article>
                 );
               })}
+            </div>
+          </div>
+        </section>
+        
+        <section className="bg-[#F8F5F0] px-6 py-12 dark:bg-[#141210]">
+          <div className="mx-auto grid w-full max-w-6xl gap-10 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] lg:items-start">
+            <div>
+              <h1 className="mt-4 text-3xl font-semibold uppercase text-[#B87B68] sm:text-4xl">
+                {aboutContent.label}
+              </h1>
+
+              {/* <h2
+                className="mt-4 text-3xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8] sm:text-4xl"
+                style={{ fontFamily: "Playfair Display, serif" }}
+              >
+                {aboutContent.heading}
+              </h2> */}
+
+              <p className="mt-5 max-w-2xl text-base leading-8 text-[#884F38] dark:text-[#8A7D75]">
+                {aboutContent.body}
+              </p>
+
+              <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                {aboutContent.bullets.map((bullet) => (
+                  <div
+                    key={bullet}
+                    className="flex items-start gap-3 text-sm leading-7 text-[#6E6257] dark:text-[#8A7D75]"
+                  >
+                    <Check className="mt-1 h-4 w-4 shrink-0 text-[#B87B68]" />
+                    <span>{bullet}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              {aboutContent.stats.map((stat) => (
+                <article
+                  key={`${stat.number}-${stat.label}`}
+                  className="rounded-xl border border-[#EADDCD] bg-white px-5 py-6 text-center dark:border-[#3D3530] dark:bg-[#242220]"
+                >
+                  <p
+                    className="text-3xl font-semibold text-[#B87B68] sm:text-4xl"
+                    style={{ fontFamily: "Playfair Display, serif" }}
+                  >
+                    {stat.number}
+                  </p>
+                  <p className="mt-3 text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
+                    {stat.label}
+                  </p>
+                </article>
+              ))}
             </div>
           </div>
         </section>

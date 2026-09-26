@@ -15,6 +15,7 @@ import TermsAndConditionsModal from "@/components/membership/TermsAndConditionsM
 import DirectConsultationCard from "@/components/ui/DirectConsultationCard";
 import ViewportAnimatedSection from "@/components/ui/ViewportAnimatedSection";
 import { MembershipCard } from "@/components/ui/MembershipCards";
+import type { OneTimeConsultationPricing } from "@/lib/oneTimeConsultationPricing";
 
 function formatBdt(amount: number) {
   return `${amount.toLocaleString("en-US")} BDT`;
@@ -539,7 +540,11 @@ function MembershipModal({
   );
 }
 
-export default function MembershipSection() {
+export default function MembershipSection({
+  oneTimeConsultation,
+}: {
+  oneTimeConsultation: OneTimeConsultationPricing;
+}) {
   const { data: session } = useSession();
   const [selectedMembership, setSelectedMembership] = useState<MembershipTier | null>(
     null,
@@ -723,7 +728,7 @@ export default function MembershipSection() {
           </div>
 
           <ViewportAnimatedSection className="step-card-trigger mt-10 grid grid-cols-1 gap-6 md:grid-cols-3">
-            <DirectConsultationCard />
+            <DirectConsultationCard pricing={oneTimeConsultation} />
             {steps.map((step, index) => {
               const membership = memberships[index];
 

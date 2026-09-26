@@ -32,14 +32,16 @@ const BENEFITS = [
   "Personalized product recommendations",
   "One complimentary follow-up session",
 ];
-const PACKAGE_PRICE = 99;
-
 type OneTimeConsultationFormProps = {
   showPackageSummary?: boolean;
+  price: number;
+  isPricingLoading?: boolean;
 };
 
 export default function OneTimeConsultationForm({
   showPackageSummary = true,
+  price,
+  isPricingLoading = false,
 }: OneTimeConsultationFormProps) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState<string | undefined>();
@@ -132,12 +134,12 @@ export default function OneTimeConsultationForm({
         {
           id: "ONE_TIME_CONSULTATION",
           name: "Direct Consultation \u2014 Selenite Care",
-          price: PACKAGE_PRICE,
+          price,
           category: "Consultation",
           quantity: 1,
         },
       ],
-      PACKAGE_PRICE,
+      price,
     );
     setIsSubmitting(true);
 
@@ -183,7 +185,7 @@ export default function OneTimeConsultationForm({
             className="mt-2 text-2xl font-semibold"
             style={{ fontFamily: "Playfair Display, serif" }}
           >
-            Direct Consultation {"\u2014"} 99 BDT
+            Direct Consultation {"\u2014"} {price.toLocaleString("en-US")} BDT
           </h2>
           <ul className="mt-4 grid gap-2 sm:grid-cols-2">
             {BENEFITS.map((benefit) => (
@@ -336,7 +338,12 @@ export default function OneTimeConsultationForm({
 
         <button
           type="submit"
-          disabled={isSubmitting || isLoadingDoctors || doctors.length === 0}
+          disabled={
+            isSubmitting ||
+            isPricingLoading ||
+            isLoadingDoctors ||
+            doctors.length === 0
+          }
           className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-md bg-[#2B2B2B] px-5 text-sm font-semibold text-[#F8F5F0] transition-colors hover:bg-[#884F38] disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#F0EDE8] dark:text-[#141210] dark:hover:bg-[#D4B47A]"
         >
           {isSubmitting ? (
@@ -344,8 +351,10 @@ export default function OneTimeConsultationForm({
               <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
               Starting Payment...
             </>
+          ) : isPricingLoading ? (
+            <span className="h-4 w-40 animate-pulse rounded bg-white/25" />
           ) : (
-            "Book Now \u2014 99 BDT"
+            `Book Now \u2014 ${price.toLocaleString("en-US")} BDT`
           )}
         </button>
 

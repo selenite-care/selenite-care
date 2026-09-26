@@ -1,11 +1,12 @@
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { generateTransactionId, initializeEPSPayment } from "@/lib/eps";
-import { getSetting } from "@/lib/settings";
+import {
+  getSetting,
+  ONE_TIME_CONSULTATION_PRICE,
+} from "@/lib/settings";
 
 export const runtime = "nodejs";
-
-const DEFAULT_CONSULTATION_PRICE = 99;
 
 type InitiateConsultationPayload = {
   doctorId?: unknown;
@@ -13,11 +14,9 @@ type InitiateConsultationPayload = {
 };
 
 function parsePrice(value: string | null) {
-  const price = Number(value);
+  const price = parseFloat(value ?? "");
 
-  return Number.isFinite(price) && price > 0
-    ? price
-    : DEFAULT_CONSULTATION_PRICE;
+  return Number.isFinite(price) && price > 0 ? price : null;
 }
 
 function parsePreferredDate(value: unknown) {
@@ -84,7 +83,7 @@ export async function POST(request: Request) {
           phone: true,
         },
       }),
-      getSetting("one_time_consultation_price").then(parsePrice),
+      getSetting(ONE_TIME_CONSULTATION_PRICE).then(parsePrice),
     ]);
 
     if (!doctor) {
@@ -96,6 +95,13 @@ export async function POST(request: Request) {
 
     if (!user) {
       return Response.json({ error: "User not found." }, { status: 404 });
+    }
+
+    if (packagePrice === null) {
+      return Response.json(
+        { error: "One-time consultation price is not configured correctly." },
+        { status: 500 },
+      );
     }
 
     const merchantTransactionId = generateTransactionId();

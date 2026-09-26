@@ -3,11 +3,13 @@ import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
 import { generateTransactionId, initializeEPSPayment } from "@/lib/eps";
-import { getSetting } from "@/lib/settings";
+import {
+  getSetting,
+  ONE_TIME_CONSULTATION_PRICE,
+} from "@/lib/settings";
 
 export const runtime = "nodejs";
 
-const DEFAULT_CONSULTATION_PRICE = 99;
 const TEMPORARY_PASSWORD_LENGTH = 8;
 const TEMPORARY_PASSWORD_CHARACTERS =
   "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
@@ -21,10 +23,8 @@ type LandingConsultationPayload = {
 };
 
 function parsePrice(value: string | null) {
-  const price = Number(value);
-  return Number.isFinite(price) && price > 0
-    ? price
-    : DEFAULT_CONSULTATION_PRICE;
+  const price = parseFloat(value ?? "");
+  return Number.isFinite(price) && price > 0 ? price : null;
 }
 
 function generateTemporaryPassword() {
@@ -153,13 +153,20 @@ export async function POST(request: Request) {
           id: true,
         },
       }),
-      getSetting("one_time_consultation_price").then(parsePrice),
+      getSetting(ONE_TIME_CONSULTATION_PRICE).then(parsePrice),
     ]);
 
     if (!doctor) {
       return Response.json(
         { error: "Doctor not found or is not currently active." },
         { status: 404 },
+      );
+    }
+
+    if (packagePrice === null) {
+      return Response.json(
+        { error: "One-time consultation price is not configured correctly." },
+        { status: 500 },
       );
     }
 
