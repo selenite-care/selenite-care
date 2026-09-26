@@ -24,6 +24,15 @@ const MEMBERSHIP_SIGNATURE_PRICE = "membership_signature_price";
 const MEMBERSHIP_SIGNATURE_ORIGINAL = "membership_signature_original";
 const MEMBERSHIP_CRYSTAL_PRICE = "membership_crystal_price";
 const MEMBERSHIP_PLATINUM_PRICE = "membership_platinum_price";
+const ONE_TIME_CONSULTATION_PRICE = "one_time_consultation_price";
+const ONE_TIME_CONSULTATION_ORIGINAL_PRICE =
+  "one_time_consultation_original_price";
+const ONE_TIME_CONSULTATION_OFFER_LABEL =
+  "one_time_consultation_offer_label";
+const ONE_TIME_CONSULTATION_OFFER_ENABLED =
+  "one_time_consultation_offer_enabled";
+const ONE_TIME_CONSULTATION_OFFER_EXPIRY =
+  "one_time_consultation_offer_expiry";
 
 const DEFAULT_VALUES: Record<string, string> = {
   [PRODUCT_DISCOUNT_PERCENT]: "0",
@@ -33,6 +42,11 @@ const DEFAULT_VALUES: Record<string, string> = {
   [MEMBERSHIP_SIGNATURE_ORIGINAL]: "2190",
   [MEMBERSHIP_CRYSTAL_PRICE]: "4500",
   [MEMBERSHIP_PLATINUM_PRICE]: "12500",
+  [ONE_TIME_CONSULTATION_PRICE]: "99",
+  [ONE_TIME_CONSULTATION_ORIGINAL_PRICE]: "500",
+  [ONE_TIME_CONSULTATION_OFFER_LABEL]: "",
+  [ONE_TIME_CONSULTATION_OFFER_ENABLED]: "false",
+  [ONE_TIME_CONSULTATION_OFFER_EXPIRY]: "",
 };
 
 const SETTING_KEYS = Object.keys(DEFAULT_VALUES);
@@ -201,8 +215,8 @@ export default function AdminSettingsPage() {
             Settings
           </h1>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-[#6E6257] dark:text-[#8A7D75]">
-            Manage global discounts and membership package prices from one
-            place.
+            Manage global discounts, membership prices, and consultation offers
+            from one place.
           </p>
         </div>
 
@@ -351,6 +365,90 @@ export default function AdminSettingsPage() {
             </p>
           </div>
         </section>
+
+        <section className="rounded-2xl border border-[#B87B68]/50 bg-white p-6 shadow-sm dark:border-[#B87B68]/40 dark:bg-[#242220] xl:col-span-2">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#B87B68]">
+              Consultation Offer
+            </p>
+            <h2 className="mt-2 text-2xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]">
+              One-Time Consultation Pricing
+            </h2>
+          </div>
+
+          <div className="mt-6 grid gap-5 lg:grid-cols-2">
+            <SettingInput
+              label="Current Price (BDT)"
+              type="number"
+              min={0}
+              value={values[ONE_TIME_CONSULTATION_PRICE] ?? ""}
+              onChange={(value) =>
+                updateValue(ONE_TIME_CONSULTATION_PRICE, value)
+              }
+              updatedAt={formatUpdatedAt(
+                getUpdatedAt(settings, ONE_TIME_CONSULTATION_PRICE),
+              )}
+            />
+
+            <SettingInput
+              label="Original/Regular Price (BDT)"
+              type="number"
+              min={0}
+              value={values[ONE_TIME_CONSULTATION_ORIGINAL_PRICE] ?? ""}
+              note="Shown as strikethrough when offer is active"
+              onChange={(value) =>
+                updateValue(ONE_TIME_CONSULTATION_ORIGINAL_PRICE, value)
+              }
+              updatedAt={formatUpdatedAt(
+                getUpdatedAt(settings, ONE_TIME_CONSULTATION_ORIGINAL_PRICE),
+              )}
+            />
+
+            <SettingInput
+              label="Offer Label"
+              value={values[ONE_TIME_CONSULTATION_OFFER_LABEL] ?? ""}
+              placeholder="e.g. Durga Puja 2026 Special Offer"
+              onChange={(value) =>
+                updateValue(ONE_TIME_CONSULTATION_OFFER_LABEL, value)
+              }
+              updatedAt={formatUpdatedAt(
+                getUpdatedAt(settings, ONE_TIME_CONSULTATION_OFFER_LABEL),
+              )}
+            />
+
+            <SettingToggle
+              label="Show Offer Badge"
+              note="When enabled, shows the strikethrough price and offer label on the card"
+              checked={
+                values[ONE_TIME_CONSULTATION_OFFER_ENABLED] === "true"
+              }
+              onChange={(checked) =>
+                updateValue(
+                  ONE_TIME_CONSULTATION_OFFER_ENABLED,
+                  checked ? "true" : "false",
+                )
+              }
+              updatedAt={formatUpdatedAt(
+                getUpdatedAt(settings, ONE_TIME_CONSULTATION_OFFER_ENABLED),
+              )}
+            />
+
+            <div className="lg:col-span-2">
+              <SettingInput
+                label="Offer Expiry Date"
+                type="date"
+                value={values[ONE_TIME_CONSULTATION_OFFER_EXPIRY] ?? ""}
+                note="Offer badge and strikethrough automatically hide after this date, but price stays unchanged until you update it manually"
+                onChange={(value) =>
+                  updateValue(ONE_TIME_CONSULTATION_OFFER_EXPIRY, value)
+                }
+                updatedAt={formatUpdatedAt(
+                  getUpdatedAt(settings, ONE_TIME_CONSULTATION_OFFER_EXPIRY),
+                )}
+              />
+            </div>
+          </div>
+        </section>
       </div>
     </section>
   );
@@ -365,15 +463,17 @@ function SettingInput({
   min,
   max,
   placeholder,
+  note,
 }: {
   label: string;
   value: string;
   onChange: (value: string) => void;
   updatedAt: string;
-  type?: "text" | "number";
+  type?: "text" | "number" | "date";
   min?: number;
   max?: number;
   placeholder?: string;
+  note?: string;
 }) {
   return (
     <div>
@@ -394,6 +494,59 @@ function SettingInput({
         onChange={(event) => onChange(event.target.value)}
         className="h-11 w-full rounded-md border border-[#EADDCD] bg-[#F8F5F0] px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#F0EDE8]"
       />
+      {note ? (
+        <p className="mt-2 text-xs leading-5 text-[#6E6257] dark:text-[#8A7D75]">
+          {note}
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
+function SettingToggle({
+  label,
+  note,
+  checked,
+  onChange,
+  updatedAt,
+}: {
+  label: string;
+  note: string;
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+  updatedAt: string;
+}) {
+  return (
+    <div className="rounded-lg border border-[#EADDCD] bg-[#F8F5F0] px-4 py-3 dark:border-[#3D3530] dark:bg-[#1A1814]">
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0">
+          <p className="text-sm font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]">
+            {label}
+          </p>
+          <p className="mt-1 text-xs leading-5 text-[#6E6257] dark:text-[#8A7D75]">
+            {note}
+          </p>
+        </div>
+        <button
+          type="button"
+          role="switch"
+          aria-checked={checked}
+          aria-label={label}
+          onClick={() => onChange(!checked)}
+          className={`relative mt-0.5 h-6 w-11 shrink-0 rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B87B68] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#242220] ${
+            checked ? "bg-[#B87B68]" : "bg-[#CFC5BA] dark:bg-[#4A433E]"
+          }`}
+        >
+          <span
+            className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${
+              checked ? "translate-x-5" : "translate-x-0.5"
+            }`}
+          />
+        </button>
+      </div>
+      <p className="mt-2 text-xs text-[#8C7967] dark:text-[#8A7D75]">
+        Last updated: {updatedAt}
+      </p>
     </div>
   );
 }

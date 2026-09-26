@@ -15,6 +15,7 @@ import TermsAndConditionsModal from "@/components/membership/TermsAndConditionsM
 import DoctorMascot from "@/components/ui/DoctorMascot";
 import DirectConsultationCard from "@/components/ui/DirectConsultationCard";
 import { MembershipCard } from "@/components/ui/MembershipCards";
+import type { OneTimeConsultationPricing } from "@/lib/oneTimeConsultationPricing";
 
 type BenefitItem = {
   heading: string;
@@ -512,8 +513,10 @@ function MembershipModal({
 
 export default function ServicesClient({
   membershipPrices,
+  oneTimeConsultation,
 }: {
   membershipPrices: ServicesMembershipPrices;
+  oneTimeConsultation: OneTimeConsultationPricing;
 }) {
   const router = useRouter();
   const { data: session } = useSession();
@@ -767,7 +770,7 @@ export default function ServicesClient({
         <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[minmax(0,1.2fr)_minmax(300px,0.8fr)] lg:items-start">
           <div>
             <div className="grid grid-cols-1 gap-6">
-              <DirectConsultationCard />
+              <DirectConsultationCard pricing={oneTimeConsultation} />
               {memberships.map((membership, index) => (
                 <button
                   key={membership.key}

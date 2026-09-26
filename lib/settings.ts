@@ -7,6 +7,15 @@ export const MEMBERSHIP_SIGNATURE_PRICE = "membership_signature_price";
 export const MEMBERSHIP_SIGNATURE_ORIGINAL = "membership_signature_original";
 export const MEMBERSHIP_CRYSTAL_PRICE = "membership_crystal_price";
 export const MEMBERSHIP_PLATINUM_PRICE = "membership_platinum_price";
+export const ONE_TIME_CONSULTATION_PRICE = "one_time_consultation_price";
+export const ONE_TIME_CONSULTATION_ORIGINAL_PRICE =
+  "one_time_consultation_original_price";
+export const ONE_TIME_CONSULTATION_OFFER_LABEL =
+  "one_time_consultation_offer_label";
+export const ONE_TIME_CONSULTATION_OFFER_ENABLED =
+  "one_time_consultation_offer_enabled";
+export const ONE_TIME_CONSULTATION_OFFER_EXPIRY =
+  "one_time_consultation_offer_expiry";
 
 export async function getSetting(key: string): Promise<string | null> {
   const setting = await db.appSetting.findUnique({

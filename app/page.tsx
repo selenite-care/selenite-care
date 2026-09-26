@@ -15,6 +15,11 @@ import { db } from "@/lib/db";
 import WhyChooseUsSection from "@/components/layout/WhyChooseUsSection";
 import IngredientSpotlight from "@/components/layout/IngredientSpotlight";
 import AMomentForYou from "@/components/layout/AMomentForYou";
+import {
+  DEFAULT_ONE_TIME_CONSULTATION_PRICING,
+  normalizeOneTimeConsultationPricing,
+  type OneTimeConsultationPricing,
+} from "@/lib/oneTimeConsultationPricing";
 
 export const revalidate = 3600;
 
@@ -22,12 +27,14 @@ type PublicDiscountSettings = {
   discountEnabled: boolean;
   discountPercent: number;
   discountLabel: string;
+  oneTimeConsultation: OneTimeConsultationPricing;
 };
 
 const DEFAULT_DISCOUNT_SETTINGS: PublicDiscountSettings = {
   discountEnabled: false,
   discountPercent: 0,
   discountLabel: "",
+  oneTimeConsultation: DEFAULT_ONE_TIME_CONSULTATION_PRICING,
 };
 
 async function getFeaturedProducts() {
@@ -121,6 +128,9 @@ async function getPublicDiscountSettings(): Promise<PublicDiscountSettings> {
       discountPercent,
       discountLabel:
         typeof data.discountLabel === "string" ? data.discountLabel : "",
+      oneTimeConsultation: normalizeOneTimeConsultationPricing(
+        data.oneTimeConsultation,
+      ),
     };
   } catch {
     return DEFAULT_DISCOUNT_SETTINGS;
@@ -402,7 +412,9 @@ export default async function Home() {
         <div className="h-px w-full bg-[#D8C7B5] dark:bg-[#3D3530]" />
       ) : null}
 
-      <MembershipSection />
+      <MembershipSection
+        oneTimeConsultation={discountSettings.oneTimeConsultation}
+      />
             {/* <section className="bg-[#F8F5F0] px-6 py-20 text-center dark:bg-[#1A1814] lg:py-24">
         <div className="mx-auto flex max-w-4xl flex-col items-center">
           <div className="inline-flex h-14 w-14 items-center justify-center rounded-full border border-[#D4B47A]/60 bg-[#FFF8E6] text-[#C4A56B] shadow-sm dark:bg-[#33291C]">
