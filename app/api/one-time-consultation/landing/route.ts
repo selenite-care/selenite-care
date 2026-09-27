@@ -1,4 +1,3 @@
-import { randomInt } from "crypto";
 import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
@@ -9,10 +8,6 @@ import {
 } from "@/lib/settings";
 
 export const runtime = "nodejs";
-
-const TEMPORARY_PASSWORD_LENGTH = 8;
-const TEMPORARY_PASSWORD_CHARACTERS =
-  "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
 
 type LandingConsultationPayload = {
   name?: unknown;
@@ -27,17 +22,8 @@ function parsePrice(value: string | null) {
   return Number.isFinite(price) && price > 0 ? price : null;
 }
 
-function generateTemporaryPassword() {
-  let password = "";
-
-  for (let index = 0; index < TEMPORARY_PASSWORD_LENGTH; index += 1) {
-    password +=
-      TEMPORARY_PASSWORD_CHARACTERS[
-        randomInt(TEMPORARY_PASSWORD_CHARACTERS.length)
-      ];
-  }
-
-  return password;
+function generateTemporaryPassword(phone: string) {
+  return `SC${phone.replace(/\D/g, "")}`;
 }
 
 function escapeHtml(value: string) {
@@ -54,24 +40,41 @@ function escapeHtml(value: string) {
   );
 }
 
-function getWelcomeEmailHtml({
+function formatPreferredDate(date: Date) {
+  return new Intl.DateTimeFormat("en-BD", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    timeZone: "Asia/Dhaka",
+  }).format(date);
+}
+
+function getConsultationEmailHtml({
   name,
   email,
   temporaryPassword,
   loginUrl,
+  bookingToken,
+  doctorName,
+  preferredDate,
 }: {
   name: string;
   email: string;
-  temporaryPassword: string;
+  temporaryPassword: string | null;
   loginUrl: string;
+  bookingToken: string;
+  doctorName: string;
+  preferredDate: string;
 }) {
-  return `
-    <div style="font-family: Arial, sans-serif; color: #2B2B2B; line-height: 1.6;">
-      <h1 style="color: #2B2B2B;">Welcome to Selenite Care</h1>
-      <p>Hello ${escapeHtml(name)},</p>
-      <p>Your client account has been created for your one-time consultation.</p>
-      <p>You can log in using the credentials below:</p>
-      <table style="border-collapse: collapse; margin-top: 16px;">
+  const credentialsHtml = temporaryPassword
+    ? `
+      <h2 style="margin-top: 24px; color: #2B2B2B;">Your Account Details</h2>
+      <p>A Selenite Care client account has been created for you. Use the credentials below to log in:</p>
+      <table style="border-collapse: collapse; margin: 16px 0; width: 100%; max-width: 560px;">
+        <tr>
+          <td style="padding: 8px 12px; border: 1px solid #EADDCD; font-weight: bold;">Login URL</td>
+          <td style="padding: 8px 12px; border: 1px solid #EADDCD;"><a href="${escapeHtml(loginUrl)}" style="color: #884F38;">${escapeHtml(loginUrl)}</a></td>
+        </tr>
         <tr>
           <td style="padding: 8px 12px; border: 1px solid #EADDCD; font-weight: bold;">Email</td>
           <td style="padding: 8px 12px; border: 1px solid #EADDCD;">${escapeHtml(email)}</td>
@@ -81,9 +84,39 @@ function getWelcomeEmailHtml({
           <td style="padding: 8px 12px; border: 1px solid #EADDCD;">${escapeHtml(temporaryPassword)}</td>
         </tr>
       </table>
-      <p style="margin-top: 16px;">Please change your password after logging in.</p>
+      <p><strong>Please change your password after first login.</strong></p>
+    `
+    : `
+      <p>This booking has been linked to your existing Selenite Care account.</p>
+      <p><a href="${escapeHtml(loginUrl)}" style="color: #884F38;">Log in to Selenite Care</a></p>
+    `;
+
+  return `
+    <div style="font-family: Arial, sans-serif; color: #2B2B2B; line-height: 1.6;">
+      <h1 style="color: #2B2B2B;">আপনার কনসালটেশন নিশ্চিত হয়েছে</h1>
+      <p>Hello ${escapeHtml(name)},</p>
+      <p>Your one-time consultation booking has been created successfully.</p>
+      <table style="border-collapse: collapse; margin: 16px 0; width: 100%; max-width: 560px;">
+        <tr>
+          <td style="padding: 8px 12px; border: 1px solid #EADDCD; font-weight: bold;">Booking Token</td>
+          <td style="padding: 8px 12px; border: 1px solid #EADDCD;">${escapeHtml(bookingToken)}</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 12px; border: 1px solid #EADDCD; font-weight: bold;">Doctor</td>
+          <td style="padding: 8px 12px; border: 1px solid #EADDCD;">${escapeHtml(doctorName)}</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 12px; border: 1px solid #EADDCD; font-weight: bold;">Preferred Date</td>
+          <td style="padding: 8px 12px; border: 1px solid #EADDCD;">${escapeHtml(preferredDate)}</td>
+        </tr>
+      </table>
+      ${credentialsHtml}
+      <p>Our team will contact you within 24 hours to confirm your exact consultation time.</p>
       <p>
-        <a href="${escapeHtml(loginUrl)}" style="color: #884F38;">Log in to Selenite Care</a>
+        Need help? Call us at
+        <a href="tel:+8801647660300" style="color: #884F38;">+8801647660300</a>
+        or message us on
+        <a href="https://wa.me/8801647660300" style="color: #884F38;">WhatsApp</a>.
       </p>
     </div>
   `;
@@ -105,6 +138,7 @@ function getAppBaseUrl(request: Request) {
 
 export async function POST(request: Request) {
   let bookingId: string | null = null;
+  let createdUserId: string | null = null;
 
   try {
     const body = (await request.json().catch(() => null)) as
@@ -114,6 +148,7 @@ export async function POST(request: Request) {
     const email =
       typeof body?.email === "string" ? body.email.trim().toLowerCase() : "";
     const phone = typeof body?.phone === "string" ? body.phone.trim() : "";
+    const phoneDigits = phone.replace(/\D/g, "");
     const doctorId =
       typeof body?.doctorId === "string" ? body.doctorId.trim() : "";
     const preferredDate = parsePreferredDate(body?.preferredDate);
@@ -124,6 +159,13 @@ export async function POST(request: Request) {
           error:
             "Name, email, phone, preferred date, and doctor are required.",
         },
+        { status: 400 },
+      );
+    }
+
+    if (!phoneDigits) {
+      return Response.json(
+        { error: "A valid phone number is required." },
         { status: 400 },
       );
     }
@@ -143,6 +185,7 @@ export async function POST(request: Request) {
         },
         select: {
           id: true,
+          name: true,
         },
       }),
       db.user.findUnique({
@@ -172,9 +215,10 @@ export async function POST(request: Request) {
 
     const appBaseUrl = getAppBaseUrl(request);
     let userId = existingUser?.id ?? null;
+    let temporaryPassword: string | null = null;
 
     if (!userId) {
-      const temporaryPassword = generateTemporaryPassword();
+      temporaryPassword = generateTemporaryPassword(phone);
       const hashedPassword = await bcrypt.hash(temporaryPassword, 10);
       const newUser = await db.user.create({
         data: {
@@ -191,22 +235,7 @@ export async function POST(request: Request) {
         },
       });
       userId = newUser.id;
-
-      try {
-        await sendEmail({
-          to: email,
-          subject: "Welcome to Selenite Care - Your Login Credentials",
-          html: getWelcomeEmailHtml({
-            name,
-            email,
-            temporaryPassword,
-            loginUrl: `${appBaseUrl}/login`,
-          }),
-        });
-      } catch (emailError) {
-        await db.user.delete({ where: { id: newUser.id } }).catch(() => undefined);
-        throw emailError;
-      }
+      createdUserId = newUser.id;
     }
 
     const merchantTransactionId = generateTransactionId();
@@ -254,6 +283,7 @@ export async function POST(request: Request) {
         },
         select: {
           id: true,
+          token: true,
         },
       });
     });
@@ -283,6 +313,27 @@ export async function POST(request: Request) {
       valueB: userId,
     });
 
+    try {
+      await sendEmail({
+        to: email,
+        subject: "আপনার কনসালটেশন নিশ্চিত হয়েছে — Selenite Care",
+        html: getConsultationEmailHtml({
+          name,
+          email,
+          temporaryPassword,
+          loginUrl: "https://selenitecare.com/login",
+          bookingToken: booking.token,
+          doctorName: doctor.name,
+          preferredDate: formatPreferredDate(preferredDate),
+        }),
+      });
+    } catch (emailError) {
+      console.error(
+        "Landing consultation confirmation email failed:",
+        emailError,
+      );
+    }
+
     return Response.json({ redirectUrl: payment.redirectUrl });
   } catch (error) {
     if (bookingId) {
@@ -292,6 +343,17 @@ export async function POST(request: Request) {
           cleanupError,
         );
       });
+    }
+
+    if (createdUserId) {
+      await db.user
+        .delete({ where: { id: createdUserId } })
+        .catch((cleanupError) => {
+          console.error(
+            "Failed to clean up landing consultation user:",
+            cleanupError,
+          );
+        });
     }
 
     console.error("Landing consultation EPS initiation failed:", error);

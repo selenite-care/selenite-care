@@ -42,6 +42,7 @@ export async function GET() {
             appointmentTime: true,
             user: {
               select: {
+                id: true,
                 name: true,
                 phone: true,
                 email: true,

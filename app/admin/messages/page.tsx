@@ -1,6 +1,14 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import {
+  FormEvent,
+  Suspense,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { useSearchParams } from "next/navigation";
 import { Search, Send, Video } from "lucide-react";
 import { toast } from "sonner";
 import Avatar from "@/components/ui/Avatar";
@@ -152,7 +160,10 @@ function MessageContent({ content }: { content: string }) {
   return <>{content}</>;
 }
 
-export default function AdminMessagesPage() {
+function StaffMessagesPageContent() {
+  const searchParams = useSearchParams();
+  const requestedConversationId =
+    searchParams.get("conversationId")?.trim() ?? "";
   const messagesContainerRef = useRef<HTMLDivElement | null>(null);
   const [conversations, setConversations] = useState<InboxConversation[]>([]);
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(
@@ -296,6 +307,9 @@ export default function AdminMessagesPage() {
 
   useEffect(() => {
     const initialLoad = window.setTimeout(() => {
+      if (requestedConversationId) {
+        setSelectedConversationId(requestedConversationId);
+      }
       void loadInbox({ showLoading: true });
     }, 0);
 
@@ -309,7 +323,7 @@ export default function AdminMessagesPage() {
       window.clearTimeout(initialLoad);
       window.clearInterval(interval);
     };
-  }, []);
+  }, [requestedConversationId]);
 
   useEffect(() => {
     const timeout = window.setTimeout(() => {
@@ -758,5 +772,13 @@ export default function AdminMessagesPage() {
         </div>
       </div>
     </section>
+  );
+}
+
+export default function StaffMessagesPage() {
+  return (
+    <Suspense fallback={<div className="min-h-[60vh]" aria-hidden="true" />}>
+      <StaffMessagesPageContent />
+    </Suspense>
   );
 }

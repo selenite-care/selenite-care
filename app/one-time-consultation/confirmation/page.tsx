@@ -5,6 +5,8 @@ import { useSearchParams } from "next/navigation";
 import {
   ArrowRight,
   CheckCircle2,
+  Check,
+  Copy,
   KeyRound,
   MessageCircle,
   Phone,
@@ -22,6 +24,7 @@ type ConfirmationDetails = {
   preferredDate: string | null;
   email: string;
   hasTemporaryCredentials: boolean;
+  temporaryPassword: string | null;
 };
 
 function ConfirmationContent() {
@@ -30,7 +33,20 @@ function ConfirmationContent() {
   const [details, setDetails] = useState<ConfirmationDetails | null>(null);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [hasCopiedPassword, setHasCopiedPassword] = useState(false);
   const hasTrackedPurchase = useRef(false);
+
+  async function copyTemporaryPassword() {
+    if (!details?.temporaryPassword) return;
+
+    try {
+      await navigator.clipboard.writeText(details.temporaryPassword);
+      setHasCopiedPassword(true);
+      window.setTimeout(() => setHasCopiedPassword(false), 2000);
+    } catch {
+      setHasCopiedPassword(false);
+    }
+  }
 
   useEffect(() => {
     if (!bookingId || hasTrackedPurchase.current) {
@@ -233,7 +249,7 @@ function ConfirmationContent() {
         </section>
 
         {details.hasTemporaryCredentials ? (
-          <section className="mt-6 rounded-lg border border-[#EADDCD] bg-white p-6 dark:border-[#3D3530] dark:bg-[#1F1B18]">
+          <section className="mt-6 rounded-lg border border-[#D4B47A] bg-[#FFFDF8] p-6 shadow-sm dark:bg-[#1F1B18]">
             <div className="flex items-start gap-4">
               <KeyRound
                 className="mt-0.5 h-6 w-6 shrink-0 text-[#C4A56B]"
@@ -244,22 +260,66 @@ function ConfirmationContent() {
                   className="text-xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]"
                   style={{ fontFamily: "Playfair Display, serif" }}
                 >
-                  We created an account for you
+                  Your Account Has Been Created
                 </h2>
-                <p className="mt-2 break-all text-sm text-[#6E6257] dark:text-[#B8AAA0]">
-                  {details.email}
-                </p>
                 <p className="mt-2 text-sm leading-6 text-[#6E6257] dark:text-[#B8AAA0]">
-                  Your temporary login credentials were sent by email. Set a
-                  private password before signing in.
+                  We created a Selenite Care account for you to track your
+                  consultation.
                 </p>
+
+                <div className="mt-5 grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <p className="text-xs font-semibold uppercase text-[#8C7967] dark:text-[#8A7D75]">
+                      Email
+                    </p>
+                    <div className="mt-2 min-h-11 break-all rounded-md border border-[#EADDCD] bg-white px-3 py-3 text-sm text-[#2B2B2B] dark:border-[#3D3530] dark:bg-[#242220] dark:text-[#F0EDE8]">
+                      {details.email}
+                    </div>
+                  </div>
+
+                  <div>
+                    <p className="text-xs font-semibold uppercase text-[#8C7967] dark:text-[#8A7D75]">
+                      Temporary Password
+                    </p>
+                    <div className="mt-2 flex min-h-11 items-center rounded-md border border-[#EADDCD] bg-white pl-3 dark:border-[#3D3530] dark:bg-[#242220]">
+                      <code className="min-w-0 flex-1 break-all text-sm font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]">
+                        {details.temporaryPassword ??
+                          "SC + your phone number digits"}
+                      </code>
+                      <button
+                        type="button"
+                        onClick={copyTemporaryPassword}
+                        disabled={!details.temporaryPassword}
+                        className="inline-flex h-10 w-10 shrink-0 items-center justify-center text-[#884F38] transition-colors hover:bg-[#FFF8E6] disabled:cursor-not-allowed disabled:opacity-40 dark:text-[#D4B47A] dark:hover:bg-[#33291C]"
+                        aria-label="Copy temporary password"
+                        title={
+                          hasCopiedPassword
+                            ? "Password copied"
+                            : "Copy temporary password"
+                        }
+                      >
+                        {hasCopiedPassword ? (
+                          <Check className="h-4 w-4" aria-hidden="true" />
+                        ) : (
+                          <Copy className="h-4 w-4" aria-hidden="true" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
                 <Link
-                  href="/forgot-password"
-                  className="mt-5 inline-flex h-11 items-center justify-center gap-2 rounded-md border border-[#D4B47A] px-4 text-sm font-semibold text-[#2B2B2B] transition-colors hover:bg-[#FFF8E6] dark:text-[#F0EDE8] dark:hover:bg-[#33291C]"
+                  href="/login"
+                  className="mt-5 inline-flex h-11 items-center justify-center gap-2 rounded-md bg-[#D4B47A] px-4 text-sm font-semibold text-[#2B2B2B] transition-colors hover:bg-[#C4A56B]"
                 >
-                  Set Your Password
+                  Login to Dashboard
                   <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </Link>
+
+                <p className="mt-4 text-xs leading-5 text-[#6E6257] dark:text-[#B8AAA0]">
+                  You can change your password after logging in from your
+                  Profile page.
+                </p>
               </div>
             </div>
           </section>

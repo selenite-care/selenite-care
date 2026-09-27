@@ -14,6 +14,10 @@ function getPreview(content: string | null | undefined) {
   return content.length > 60 ? `${content.slice(0, 60)}...` : content;
 }
 
+type CreateConversationPayload = {
+  clientId?: unknown;
+};
+
 export async function GET() {
   const session = await auth();
 
@@ -94,6 +98,61 @@ export async function GET() {
     console.error("Messages inbox GET failed", error);
     return Response.json(
       { error: "Unable to load message inbox." },
+      { status: 500 },
+    );
+  }
+}
+
+export async function POST(request: Request) {
+  const session = await auth();
+
+  if (!session?.user) {
+    return Response.json({ error: "Unauthorized." }, { status: 401 });
+  }
+
+  if (!allowedRoles.has(session.user.role)) {
+    return Response.json({ error: "Forbidden." }, { status: 403 });
+  }
+
+  const body = (await request.json().catch(() => null)) as
+    | CreateConversationPayload
+    | null;
+  const clientId =
+    typeof body?.clientId === "string" ? body.clientId.trim() : "";
+
+  if (!clientId) {
+    return Response.json({ error: "clientId is required." }, { status: 400 });
+  }
+
+  try {
+    const existingConversation = await db.conversation.findUnique({
+      where: {
+        clientId,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (existingConversation) {
+      return Response.json({ conversationId: existingConversation.id });
+    }
+
+    const conversation = await db.conversation.create({
+      data: {
+        clientId,
+        isRead: true,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    return Response.json({ conversationId: conversation.id });
+  } catch (error) {
+    console.error("Messages inbox POST failed", error);
+    return Response.json(
+      { error: "Unable to open conversation." },
       { status: 500 },
     );
   }
