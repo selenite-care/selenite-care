@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Copy, Download } from "lucide-react";
+import { Copy, Download, MessageCircle } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { SkeletonTable } from "@/components/ui/Skeleton";
 import { formatDateOnly } from "@/lib/dateUtils";
@@ -18,6 +19,7 @@ type Consultation = {
     appointmentTime: string | null;
     doctor: { name: string } | null;
     user: {
+      id: string;
       name: string | null;
       phone: string | null;
       email: string;
@@ -59,14 +61,17 @@ function paymentBadgeClasses(status: Consultation["paymentStatus"]) {
 type OneTimeConsultationsPageProps = {
   apiPath: string;
   bookingBasePath: string;
+  messagesBasePath: string;
   followUpEndpointBase?: string;
 };
 
 export default function OneTimeConsultationsPage({
   apiPath,
   bookingBasePath,
+  messagesBasePath,
   followUpEndpointBase,
 }: OneTimeConsultationsPageProps) {
+  const router = useRouter();
   const [consultations, setConsultations] = useState<Consultation[]>([]);
   const [filter, setFilter] = useState<Filter>("All");
   const [copiedPhone, setCopiedPhone] = useState("");
@@ -74,6 +79,8 @@ export default function OneTimeConsultationsPage({
   const [error, setError] = useState("");
   const [actionError, setActionError] = useState("");
   const [updatingConsultationId, setUpdatingConsultationId] = useState("");
+  const [openingConversationClientId, setOpeningConversationClientId] =
+    useState("");
 
   useEffect(() => {
     const controller = new AbortController();
@@ -176,6 +183,41 @@ export default function OneTimeConsultationsPage({
       );
     } finally {
       setUpdatingConsultationId("");
+    }
+  }
+
+  async function openConversation(clientId: string) {
+    if (openingConversationClientId) return;
+
+    setActionError("");
+    setOpeningConversationClientId(clientId);
+
+    try {
+      const response = await fetch("/api/messages/inbox", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ clientId }),
+      });
+      const data = (await response.json().catch(() => null)) as
+        | { conversationId?: string; error?: string }
+        | null;
+
+      if (!response.ok || !data?.conversationId) {
+        throw new Error(data?.error ?? "Unable to open conversation.");
+      }
+
+      router.push(
+        `${messagesBasePath}?conversationId=${encodeURIComponent(data.conversationId)}`,
+      );
+    } catch (conversationError) {
+      setActionError(
+        conversationError instanceof Error
+          ? conversationError.message
+          : "Unable to open conversation.",
+      );
+      setOpeningConversationClientId("");
     }
   }
 
@@ -373,6 +415,25 @@ export default function OneTimeConsultationsPage({
                       </td>
                       <td className="px-4 py-4">
                         <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              void openConversation(
+                                consultation.booking.user.id,
+                              )
+                            }
+                            disabled={Boolean(openingConversationClientId)}
+                            className="inline-flex h-9 items-center justify-center gap-2 rounded-md border border-[#B87B68] px-3 text-sm font-medium text-[#884F38] transition-colors hover:bg-[#B87B68]/10 disabled:cursor-not-allowed disabled:opacity-60 dark:text-[#D9A694]"
+                          >
+                            <MessageCircle
+                              className="h-4 w-4"
+                              aria-hidden="true"
+                            />
+                            {openingConversationClientId ===
+                            consultation.booking.user.id
+                              ? "Opening..."
+                              : "Send Message"}
+                          </button>
                           {followUpEndpointBase &&
                           consultation.paymentStatus === "PAID" &&
                           !consultation.followUpUsed ? (

@@ -8,6 +8,7 @@ import RoutineEditor from "@/components/routine/RoutineEditor";
 import FeedbackEditor from "@/components/feedback/FeedbackEditor";
 import SurveyProfileDetails from "@/components/survey/SurveyProfileDetails";
 import Avatar from "@/components/ui/Avatar";
+import MessageClientButton from "@/components/messages/MessageClientButton";
 import Link from "next/link";
 
 type BookingDetailsPageProps = {
@@ -100,14 +101,20 @@ export default async function BookingDetailsPage({
             <DetailItem
               label="Name"
               value={
-                <span className="inline-flex items-center gap-3">
-                  <Avatar
-                    imageUrl={booking.user.image}
-                    name={booking.user.name}
-                    size="sm"
+                <div className="flex flex-wrap items-center gap-3">
+                  <span className="inline-flex items-center gap-3">
+                    <Avatar
+                      imageUrl={booking.user.image}
+                      name={booking.user.name}
+                      size="sm"
+                    />
+                    <span>{booking.user.name ?? "Not set"}</span>
+                  </span>
+                  <MessageClientButton
+                    clientId={booking.user.id}
+                    messagesPath="/admin/messages"
                   />
-                  <span>{booking.user.name ?? "Not set"}</span>
-                </span>
+                </div>
               }
             />
             <DetailItem label="Email" value={booking.user.email} />

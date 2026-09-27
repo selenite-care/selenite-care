@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Mail, Phone } from "lucide-react";
+import { Mail, MessageCircle, Phone } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { SkeletonTable } from "@/components/ui/Skeleton";
 import { formatDateOnly } from "@/lib/dateUtils";
@@ -17,6 +18,7 @@ type DoctorConsultation = {
     token: string;
     appointmentTime: string | null;
     user: {
+      id: string;
       name: string | null;
       phone: string | null;
       email: string;
@@ -42,10 +44,14 @@ function paymentBadgeClasses(status: DoctorConsultation["paymentStatus"]) {
 }
 
 export default function DoctorOneTimeConsultationsPage() {
+  const router = useRouter();
   const [consultations, setConsultations] = useState<DoctorConsultation[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [actionError, setActionError] = useState("");
+  const [openingConversationClientId, setOpeningConversationClientId] =
+    useState("");
 
   useEffect(() => {
     const controller = new AbortController();
@@ -96,6 +102,41 @@ export default function DoctorOneTimeConsultationsPage() {
     });
   }, [consultations, searchQuery]);
 
+  async function openConversation(clientId: string) {
+    if (openingConversationClientId) return;
+
+    setActionError("");
+    setOpeningConversationClientId(clientId);
+
+    try {
+      const response = await fetch("/api/messages/inbox", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ clientId }),
+      });
+      const data = (await response.json().catch(() => null)) as
+        | { conversationId?: string; error?: string }
+        | null;
+
+      if (!response.ok || !data?.conversationId) {
+        throw new Error(data?.error ?? "Unable to open conversation.");
+      }
+
+      router.push(
+        `/doctor/messages?conversationId=${encodeURIComponent(data.conversationId)}`,
+      );
+    } catch (conversationError) {
+      setActionError(
+        conversationError instanceof Error
+          ? conversationError.message
+          : "Unable to open conversation.",
+      );
+      setOpeningConversationClientId("");
+    }
+  }
+
   return (
     <section>
       <div>
@@ -137,6 +178,12 @@ export default function DoctorOneTimeConsultationsPage() {
       {error ? (
         <p className="mt-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-200">
           {error}
+        </p>
+      ) : null}
+
+      {actionError ? (
+        <p className="mt-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-200">
+          {actionError}
         </p>
       ) : null}
 
@@ -225,12 +272,33 @@ export default function DoctorOneTimeConsultationsPage() {
                         </span>
                       </td>
                       <td className="px-4 py-4">
-                        <Link
-                          href={`/doctor/bookings/${consultation.booking.id}`}
-                          className="inline-flex h-9 items-center justify-center rounded-md border border-black/10 px-3 text-sm font-medium text-foreground transition-colors hover:bg-zinc-50 dark:border-white/10 dark:hover:bg-white/5"
-                        >
-                          View Booking
-                        </Link>
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              void openConversation(
+                                consultation.booking.user.id,
+                              )
+                            }
+                            disabled={Boolean(openingConversationClientId)}
+                            className="inline-flex h-9 items-center justify-center gap-2 rounded-md border border-[#B87B68] px-3 text-sm font-medium text-[#884F38] transition-colors hover:bg-[#B87B68]/10 disabled:cursor-not-allowed disabled:opacity-60 dark:text-[#D9A694]"
+                          >
+                            <MessageCircle
+                              className="h-4 w-4"
+                              aria-hidden="true"
+                            />
+                            {openingConversationClientId ===
+                            consultation.booking.user.id
+                              ? "Opening..."
+                              : "Send Message"}
+                          </button>
+                          <Link
+                            href={`/doctor/bookings/${consultation.booking.id}`}
+                            className="inline-flex h-9 items-center justify-center rounded-md border border-black/10 px-3 text-sm font-medium text-foreground transition-colors hover:bg-zinc-50 dark:border-white/10 dark:hover:bg-white/5"
+                          >
+                            View Booking
+                          </Link>
+                        </div>
                       </td>
                     </tr>
                   ))

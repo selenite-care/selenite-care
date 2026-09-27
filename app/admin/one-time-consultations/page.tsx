@@ -7,6 +7,7 @@ export default function AdminOneTimeConsultationsPage() {
     <OneTimeConsultationsPage
       apiPath="/api/admin/one-time-consultations"
       bookingBasePath="/admin/bookings"
+      messagesBasePath="/admin/messages"
       followUpEndpointBase="/api/admin/one-time-consultations"
     />
   );

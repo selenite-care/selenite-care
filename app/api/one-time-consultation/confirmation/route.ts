@@ -29,6 +29,7 @@ export async function GET(request: Request) {
       user: {
         select: {
           email: true,
+          phone: true,
           isTemporaryPassword: true,
         },
       },
@@ -49,5 +50,9 @@ export async function GET(request: Request) {
     preferredDate: booking.appointmentTime,
     email: booking.user.email,
     hasTemporaryCredentials: booking.user.isTemporaryPassword,
+    temporaryPassword:
+      booking.user.isTemporaryPassword && booking.user.phone
+        ? `SC${booking.user.phone.replace(/\D/g, "")}`
+        : null,
   });
 }
