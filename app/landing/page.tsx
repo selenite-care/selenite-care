@@ -170,11 +170,11 @@ const CONTENT = {
       ],
     },
     oneTimeConsultation: {
-      heading: "Not Ready for Membership? Try a Direct Consultation",
+      heading: "Not Ready for Membership? Try an Online Video Consultation",
       urgency: "Limited slots available daily",
-      packageTitle: "Direct Consultation",
+      packageTitle: "Online Video Consultation",
       benefits: [
-        "Direct online doctor consultation",
+        "Online video doctor consultation",
         "Root cause identification and guidance",
         "Personalized product recommendations",
         "One complimentary follow-up session",

@@ -36,7 +36,7 @@ type InitiateResponse = {
 
 const PACKAGE_PRICE = 99;
 const PACKAGE_BENEFITS = [
-  "Direct online doctor consultation",
+  "Online video doctor consultation",
   "Root cause identification and guidance",
   "Personalized product recommendations",
   "One complimentary follow-up session",
@@ -158,7 +158,7 @@ function OneTimeConsultationContent() {
       [
         {
           id: "ONE_TIME_CONSULTATION",
-          name: "Direct Consultation \u2014 Selenite Care",
+          name: "Online Video Consultation \u2014 Selenite Care",
           price: PACKAGE_PRICE,
           category: "Consultation",
           quantity: 1,
@@ -230,7 +230,7 @@ function OneTimeConsultationContent() {
                 className="mt-2 text-2xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8] sm:text-3xl"
                 style={{ fontFamily: "Playfair Display, serif" }}
               >
-                Direct Consultation
+                Online Video Consultation
               </h1>
             </div>
 

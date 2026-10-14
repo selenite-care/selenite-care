@@ -3,7 +3,7 @@ import { Check } from "lucide-react";
 import type { OneTimeConsultationPricing } from "@/lib/oneTimeConsultationPricing";
 
 const BENEFITS = [
-  "Direct online doctor consultation",
+  "Online video doctor consultation",
   "Root cause identification and guidance",
   "Personalized product recommendations",
   "One complimentary follow-up session",
@@ -23,7 +23,7 @@ export default function DirectConsultationCard({
           className="text-3xl font-semibold text-[#F8F5F0]"
           style={{ fontFamily: "Playfair Display, serif" }}
         >
-          Direct Consultation
+          Online Video Consultation
         </h3>
 
         <div className="mt-4">

@@ -269,7 +269,7 @@ export default function OneTimeConsultationsPage({
           One-Time Consultations
         </h1>
         <p className="mt-3 text-sm leading-6 text-foreground/70">
-          Review paid and pending direct consultation bookings.
+          Review paid and pending online video consultation bookings.
         </p>
       </div>
 

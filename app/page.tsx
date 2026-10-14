@@ -354,7 +354,7 @@ export default async function Home() {
           </span>
           <span className="inline-flex items-center gap-2">
             <Headphones className="h-4 w-4 text-[#D8C7B5] dark:text-[#D4B47A]" aria-hidden="true" />
-            Online & Offline Support
+            Online Support
           </span>
         </div>
       </section>
