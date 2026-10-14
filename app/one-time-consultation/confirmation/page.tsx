@@ -58,7 +58,7 @@ function ConfirmationContent() {
       [
         {
           id: "ONE_TIME_CONSULTATION",
-          name: "Direct Consultation \u2014 Selenite Care",
+          name: "Online Video Consultation \u2014 Selenite Care",
           price: PACKAGE_PRICE,
           category: "Consultation",
           quantity: 1,

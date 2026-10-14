@@ -27,7 +27,7 @@ type BookingResponse = {
 };
 
 const BENEFITS = [
-  "Direct online doctor consultation",
+  "Online video doctor consultation",
   "Root cause identification and guidance",
   "Personalized product recommendations",
   "One complimentary follow-up session",
@@ -133,7 +133,7 @@ export default function OneTimeConsultationForm({
       [
         {
           id: "ONE_TIME_CONSULTATION",
-          name: "Direct Consultation \u2014 Selenite Care",
+          name: "Online Video Consultation \u2014 Selenite Care",
           price,
           category: "Consultation",
           quantity: 1,
@@ -185,7 +185,8 @@ export default function OneTimeConsultationForm({
             className="mt-2 text-2xl font-semibold"
             style={{ fontFamily: "Playfair Display, serif" }}
           >
-            Direct Consultation {"\u2014"} {price.toLocaleString("en-US")} BDT
+            Online Video Consultation {"\u2014"}{" "}
+            {price.toLocaleString("en-US")} BDT
           </h2>
           <ul className="mt-4 grid gap-2 sm:grid-cols-2">
             {BENEFITS.map((benefit) => (

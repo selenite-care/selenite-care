@@ -33,5 +33,5 @@ DO $$ BEGIN
 END $$;
 INSERT INTO "AppSetting" (id, key, value, description) VALUES
   (gen_random_uuid()::text, 'one_time_consultation_price', '99', 
-   'Price for one-time direct consultation package in BDT')
+   'Price for one-time online video consultation package in BDT')
 ON CONFLICT (key) DO NOTHING;

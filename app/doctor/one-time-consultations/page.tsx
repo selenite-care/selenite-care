@@ -147,7 +147,8 @@ export default function DoctorOneTimeConsultationsPage() {
           One-Time Consultations
         </h1>
         <p className="mt-3 text-sm leading-6 text-foreground/70">
-          View direct consultation clients, preferred dates, and follow-up status.
+          View online video consultation clients, preferred dates, and follow-up
+          status.
         </p>
       </div>
 

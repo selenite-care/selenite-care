@@ -218,7 +218,7 @@ export async function GET(request: Request) {
             items: [
               {
                 item_id: "ONE_TIME_CONSULTATION",
-                item_name: "Direct Consultation - Selenite Care",
+                item_name: "Online Video Consultation - Selenite Care",
                 price: 99,
                 item_category: "Consultation",
                 quantity: 1,
