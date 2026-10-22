@@ -51,6 +51,57 @@ export function formatDateOnly(date: Date | string | null | undefined): string {
   return `${month} ${day}, ${year}`;
 }
 
+export function formatLongDate(
+  date: Date | string | null | undefined,
+): string {
+  const parsedDate = parseDate(date);
+
+  if (!parsedDate) {
+    return "N/A";
+  }
+
+  return new Intl.DateTimeFormat("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "Asia/Dhaka",
+  }).format(parsedDate);
+}
+
+export function formatFullDate(
+  date: Date | string | null | undefined,
+): string {
+  const parsedDate = parseDate(date);
+
+  if (!parsedDate) {
+    return "N/A";
+  }
+
+  return new Intl.DateTimeFormat("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "Asia/Dhaka",
+  }).format(parsedDate);
+}
+
+export function formatShortDate(
+  date: Date | string | null | undefined,
+): string {
+  const parsedDate = parseDate(date);
+
+  if (!parsedDate) {
+    return "N/A";
+  }
+
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    timeZone: "Asia/Dhaka",
+  }).format(parsedDate);
+}
+
 export function formatTimeOnly(date: Date | string | null | undefined): string {
   const parsedDate = parseDate(date);
 

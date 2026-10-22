@@ -19,6 +19,8 @@ type Doctor = {
   bio: string | null;
   image: string | null;
   isActive: boolean;
+  slotDuration: number;
+  slotBuffer: number;
 };
 
 type DoctorFormState = {
@@ -29,6 +31,8 @@ type DoctorFormState = {
   selectedDays: string[];
   startTime: string;
   endTime: string;
+  slotDuration: number;
+  slotBuffer: number;
   bio: string;
 };
 
@@ -46,6 +50,8 @@ const emptyForm: DoctorFormState = {
   selectedDays: ["Wed", "Thu", "Fri"],
   startTime: "1PM",
   endTime: "5PM",
+  slotDuration: 20,
+  slotBuffer: 5,
   bio: "",
 };
 
@@ -162,6 +168,33 @@ function formatStructuredAvailability(form: DoctorFormState) {
   return `${form.selectedDays.join(", ")}, ${form.startTime}\u2013${form.endTime}`;
 }
 
+function parseTimeToMinutes(value: string) {
+  const match = value.match(/^(\d{1,2})(AM|PM)$/i);
+  if (!match) return null;
+
+  const hour = Number.parseInt(match[1], 10);
+  if (hour < 1 || hour > 12) return null;
+
+  return (hour % 12) * 60 + (match[2].toUpperCase() === "PM" ? 720 : 0);
+}
+
+function calculateDailyConsultations(form: DoctorFormState) {
+  const startMinutes = parseTimeToMinutes(form.startTime);
+  const endMinutes = parseTimeToMinutes(form.endTime);
+  const interval = form.slotDuration + form.slotBuffer;
+
+  if (
+    startMinutes === null ||
+    endMinutes === null ||
+    endMinutes <= startMinutes ||
+    interval <= 0
+  ) {
+    return 0;
+  }
+
+  return Math.floor((endMinutes - startMinutes) / interval);
+}
+
 function toggleSelectedDay(selectedDays: string[], dayValue: string) {
   if (selectedDays.includes(dayValue)) {
     return selectedDays.filter((day) => day !== dayValue);
@@ -215,20 +248,28 @@ export default function AdminDoctorsPage() {
   }
 
   useEffect(() => {
-    loadDoctors();
+    const timeout = window.setTimeout(() => {
+      void loadDoctors();
+    }, 0);
+
+    return () => window.clearTimeout(timeout);
   }, []);
 
   useEffect(() => {
-    return () => {
-      if (imagePreviewRef.current) {
-        URL.revokeObjectURL(imagePreviewRef.current);
-      }
+    const previewUrl = imagePreview;
 
-      if (editImagePreviewRef.current) {
-        URL.revokeObjectURL(editImagePreviewRef.current);
-      }
+    return () => {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
     };
-  }, []);
+  }, [imagePreview]);
+
+  useEffect(() => {
+    const previewUrl = editImagePreview;
+
+    return () => {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+    };
+  }, [editImagePreview]);
 
   useEffect(() => {
     if (!successMessage) {
@@ -297,6 +338,8 @@ export default function AdminDoctorsPage() {
       selectedDays: availability.selectedDays,
       startTime: availability.startTime,
       endTime: availability.endTime,
+      slotDuration: doctor.slotDuration ?? 20,
+      slotBuffer: doctor.slotBuffer ?? 5,
       bio: doctor.bio ?? "",
     });
     updateImageFile(null, {
@@ -411,6 +454,20 @@ export default function AdminDoctorsPage() {
       return;
     }
 
+    if (
+      !Number.isInteger(editForm.slotDuration) ||
+      editForm.slotDuration < 15 ||
+      editForm.slotDuration > 60 ||
+      !Number.isInteger(editForm.slotBuffer) ||
+      editForm.slotBuffer < 0 ||
+      editForm.slotBuffer > 30
+    ) {
+      const message = "Please enter valid slot duration and buffer values.";
+      setError(message);
+      toast.error(message);
+      return;
+    }
+
     setIsEditSubmitting(true);
 
     let image = editingDoctor.image ?? "";
@@ -449,6 +506,8 @@ export default function AdminDoctorsPage() {
           designation: editForm.designation,
           specialization: editForm.specialization,
           availability: formatStructuredAvailability(editForm),
+          slotDuration: editForm.slotDuration,
+          slotBuffer: editForm.slotBuffer,
           bio: editForm.bio,
           image,
         }),
@@ -734,6 +793,66 @@ export default function AdminDoctorsPage() {
                 ) : null}
                 <p className="mt-2 text-sm text-[#884F38] dark:text-[#8A7D75]">
                   Preview: {formatStructuredAvailability(editForm)}
+                </p>
+
+                <div className="mt-5 grid gap-5 sm:grid-cols-2">
+                  <div>
+                    <label
+                      htmlFor="edit-slot-duration"
+                      className="block text-sm font-medium text-[#884F38] dark:text-[#8A7D75]"
+                    >
+                      Slot Duration (minutes)
+                    </label>
+                    <input
+                      id="edit-slot-duration"
+                      type="number"
+                      min={15}
+                      max={60}
+                      step={1}
+                      required
+                      value={editForm.slotDuration}
+                      onChange={(event) =>
+                        setEditForm((current) => ({
+                          ...current,
+                          slotDuration: Number(event.target.value),
+                        }))
+                      }
+                      className={inputClassName}
+                    />
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="edit-slot-buffer"
+                      className="block text-sm font-medium text-[#884F38] dark:text-[#8A7D75]"
+                    >
+                      Buffer Between Slots (minutes)
+                    </label>
+                    <input
+                      id="edit-slot-buffer"
+                      type="number"
+                      min={0}
+                      max={30}
+                      step={1}
+                      required
+                      value={editForm.slotBuffer}
+                      onChange={(event) =>
+                        setEditForm((current) => ({
+                          ...current,
+                          slotBuffer: Number(event.target.value),
+                        }))
+                      }
+                      className={inputClassName}
+                    />
+                  </div>
+                </div>
+
+                <p className="mt-3 rounded-md border border-[#EADDCD] bg-[#FFF8F6] px-4 py-3 text-sm leading-6 text-[#6E6257] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#B8AAA0]">
+                  With these settings, this doctor can take{" "}
+                  <span className="font-semibold text-[#884F38] dark:text-[#D9A694]">
+                    {calculateDailyConsultations(editForm)}
+                  </span>{" "}
+                  consultations per day based on their availability hours.
                 </p>
               </div>
 

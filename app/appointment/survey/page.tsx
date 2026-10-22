@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { Info } from "lucide-react";
 import { FormEvent, Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import FileUploadButton from "@/components/ui/FileUploadButton";
@@ -64,6 +65,7 @@ function AppointmentSurveyPageContent() {
   const searchParams = useSearchParams();
   const doctorId = searchParams.get("doctorId") ?? "";
   const preferredDate = searchParams.get("date") ?? "";
+  const timeSlot = searchParams.get("timeSlot") ?? "";
 
   const [formState, setFormState] = useState<SurveyFormState>({
     name: "",
@@ -254,8 +256,8 @@ function AppointmentSurveyPageContent() {
     setError("");
     setIsSubmitting(true);
 
-    if (!doctorId || !preferredDate) {
-      setError("Doctor ID and preferred date are required.");
+    if (!doctorId || !preferredDate || !timeSlot) {
+      setError("Doctor, preferred date, and time slot are required.");
       setIsSubmitting(false);
       return;
     }
@@ -263,6 +265,7 @@ function AppointmentSurveyPageContent() {
     const payload = {
       doctorId,
       preferredDate,
+      timeSlot,
       name: formState.name,
       age: formState.age,
       phone: formState.phone,
@@ -330,11 +333,24 @@ function AppointmentSurveyPageContent() {
             Appointment Survey
           </h1>
           <p className="mt-2 text-sm text-[#884F38] dark:text-[#8A7D75]">
-            Share today's photos and notes so your doctor can prepare for your consultation.
+            Share today&apos;s photos and notes so your doctor can prepare for your consultation.
           </p>
-          <p className="mt-2 text-sm font-medium text-[#B87B68] dark:text-[#D4B47A]">
-            All fields are optional - you can submit without uploading any photos.
-          </p>
+          <div
+            role="note"
+            className="mt-4 flex items-start gap-3 rounded-lg border-2 border-[#B87B68] bg-[#FFF5F1] px-4 py-3 shadow-sm dark:bg-[#2A1F1B]"
+          >
+            <Info
+              className="mt-0.5 h-5 w-5 shrink-0 text-[#B87B68] dark:text-[#D4B47A]"
+              aria-hidden="true"
+            />
+            <p className="text-sm leading-6 text-[#5F4035] dark:text-[#E5D8D1]">
+              <strong className="font-semibold text-[#884F38] dark:text-[#D4B47A]">
+                Photos are optional.
+              </strong>{" "}
+              You can book your appointment without uploading any photos or
+              completing the other survey fields.
+            </p>
+          </div>
         </div>
 
         <form

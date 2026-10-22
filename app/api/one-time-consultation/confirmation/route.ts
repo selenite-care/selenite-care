@@ -21,6 +21,7 @@ export async function GET(request: Request) {
       id: true,
       token: true,
       appointmentTime: true,
+      timeSlot: true,
       doctor: {
         select: {
           name: true,
@@ -48,6 +49,7 @@ export async function GET(request: Request) {
     token: booking.token,
     doctorName: booking.doctor?.name ?? "Selenite Care Doctor",
     preferredDate: booking.appointmentTime,
+    timeSlot: booking.timeSlot,
     email: booking.user.email,
     hasTemporaryCredentials: booking.user.isTemporaryPassword,
     temporaryPassword:

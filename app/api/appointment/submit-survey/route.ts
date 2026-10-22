@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
 import { createNotification, NOTIFICATION_TYPES } from "@/lib/notifications";
 import { sanitizeText } from "@/lib/sanitize";
+import { formatTimeSlot, generateTimeSlots } from "@/lib/slotGenerator";
 
 const { auth } = NextAuth(authConfig);
 const adminEmail = process.env.ADMIN_EMAIL ?? "";
@@ -12,6 +13,7 @@ type SurveyPayload = {
   doctorId?: unknown;
   preferredDate?: unknown;
   date?: unknown;
+  timeSlot?: unknown;
   name?: unknown;
   age?: unknown;
   phone?: unknown;
@@ -34,6 +36,8 @@ type SurveyPayload = {
   note?: unknown;
   skinImages?: unknown;
 };
+
+class SlotUnavailableError extends Error {}
 
 function normalizeAvailabilityText(availability: string) {
   return availability
@@ -103,6 +107,33 @@ function toDateInputValue(date: Date) {
   return `${year}-${month}-${day}`;
 }
 
+function getBookingDateRange(value: string) {
+  const match = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!match) return null;
+
+  const year = Number.parseInt(match[1], 10);
+  const month = Number.parseInt(match[2], 10);
+  const day = Number.parseInt(match[3], 10);
+  const validationDate = new Date(Date.UTC(year, month - 1, day));
+
+  if (
+    validationDate.getUTCFullYear() !== year ||
+    validationDate.getUTCMonth() !== month - 1 ||
+    validationDate.getUTCDate() !== day
+  ) {
+    return null;
+  }
+
+  const dateKey = `${match[1]}-${match[2]}-${match[3]}`;
+  const start = new Date(`${dateKey}T00:00:00+06:00`);
+
+  return {
+    requestedDate: new Date(year, month - 1, day),
+    start,
+    end: new Date(start.getTime() + 24 * 60 * 60 * 1000),
+  };
+}
+
 function asStringArray(value: unknown): string[] {
   if (Array.isArray(value)) {
     return value
@@ -151,6 +182,7 @@ function formatPreferredDate(date: Date) {
     month: "long",
     day: "numeric",
     year: "numeric",
+    timeZone: "Asia/Dhaka",
   });
 }
 
@@ -197,7 +229,7 @@ function buildAppointmentEmailHtml({
             <td style="padding:10px; border:1px solid #EADDCD;">${doctorName}</td>
           </tr>
           <tr>
-            <td style="padding:10px; border:1px solid #EADDCD; font-weight:bold;">Preferred Date</td>
+            <td style="padding:10px; border:1px solid #EADDCD; font-weight:bold;">Appointment Date &amp; Time</td>
             <td style="padding:10px; border:1px solid #EADDCD;">${preferredDate}</td>
           </tr>
         </tbody>
@@ -223,21 +255,32 @@ export async function POST(request: Request) {
       : typeof body.date === "string"
         ? body.date.trim()
         : "";
+  const timeSlot = asOptionalString(body.timeSlot);
   const name = asOptionalString(body.name);
   const age = asOptionalString(body.age);
   const phone = asOptionalString(body.phone);
   const email = asOptionalString(body.email);
   const skinType = asOptionalString(body.skinType);
-  let preferredDate: Date | null = null;
+  const bookingDateRange = getBookingDateRange(preferredDateInput);
 
-  if (preferredDateInput) {
-    const parsedPreferredDate = new Date(preferredDateInput);
+  if (!doctorId || !bookingDateRange || !timeSlot) {
+    return Response.json(
+      { error: "Doctor, preferred date, and time slot are required." },
+      { status: 400 },
+    );
+  }
 
-    if (Number.isNaN(parsedPreferredDate.getTime())) {
-      return Response.json({ error: "Preferred date is invalid." }, { status: 400 });
-    }
+  if (!/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(timeSlot)) {
+    return Response.json(
+      { error: "Time slot must use HH:mm format." },
+      { status: 400 },
+    );
+  }
 
-    preferredDate = parsedPreferredDate;
+  const preferredDate = new Date(`${preferredDateInput}T${timeSlot}:00+06:00`);
+
+  if (Number.isNaN(preferredDate.getTime())) {
+    return Response.json({ error: "Preferred date is invalid." }, { status: 400 });
   }
 
   const doctor = doctorId
@@ -249,6 +292,9 @@ export async function POST(request: Request) {
           designation: true,
           specialization: true,
           availability: true,
+          slotDuration: true,
+          slotBuffer: true,
+          isActive: true,
           user: {
             select: {
               id: true,
@@ -259,8 +305,11 @@ export async function POST(request: Request) {
       })
     : null;
 
-  if (doctorId && !doctor) {
-    return Response.json({ error: "Doctor not found." }, { status: 404 });
+  if (!doctor || !doctor.isActive) {
+    return Response.json(
+      { error: "Doctor not found or inactive." },
+      { status: 404 },
+    );
   }
 
   if (doctor && preferredDateInput === toDateInputValue(new Date())) {
@@ -288,7 +337,8 @@ export async function POST(request: Request) {
   const skinIssues = asStringArray(body.skinIssues);
   const skinIssueDuration = asOptionalString(body.skinIssueDuration);
   const currentProducts = asStringArray(body.currentProducts);
-  const currentProductsImage = asOptionalString(body.currentProductsImage) ?? null;
+  const currentProductsImage =
+    asOptionalString(body.currentProductsImage) ?? null;
   const previousConsultation = asNullableBoolean(body.previousConsultation);
   const allergicIngredients = asStringArray(body.allergicIngredients);
   const doubleCleansePreference = asOptionalString(body.doubleCleansePreference);
@@ -302,44 +352,69 @@ export async function POST(request: Request) {
     typeof body.skinImages === "undefined"
       ? []
       : asStringArray(body.skinImages).slice(0, 2);
-  const preferredDateLabel = preferredDate
-    ? formatPreferredDate(preferredDate)
-    : "Not selected";
+  const preferredDateLabel = `${formatPreferredDate(preferredDate)} at ${formatTimeSlot(timeSlot)}`;
 
   try {
-    const [activeBooking, surveyProfile, userRecord] = await Promise.all([
-      db.booking.findFirst({
-        where: {
-          userId: session.user.id,
-          status: {
-            notIn: ["COMPLETED", "CANCELLED"],
+    const [activeBooking, existingSlotBooking, surveyProfile, userRecord] =
+      await Promise.all([
+        db.booking.findFirst({
+          where: {
+            userId: session.user.id,
+            status: {
+              notIn: ["COMPLETED", "CANCELLED"],
+            },
           },
-        },
-        select: {
-          id: true,
-        },
-      }),
-      db.surveyProfile.findUnique({
-        where: {
-          userId: session.user.id,
-        },
-      }),
-      db.user.findUnique({
-        where: { id: session.user.id },
-        select: {
-          name: true,
-          email: true,
-          phone: true,
-          age: true,
-        },
-      }),
-    ]);
+          select: {
+            id: true,
+          },
+        }),
+        db.booking.findFirst({
+          where: {
+            doctorId,
+            timeSlot,
+            appointmentTime: {
+              gte: bookingDateRange.start,
+              lt: bookingDateRange.end,
+            },
+            status: {
+              notIn: ["CANCELLED"],
+            },
+          },
+          select: {
+            id: true,
+          },
+        }),
+        db.surveyProfile.findUnique({
+          where: {
+            userId: session.user.id,
+          },
+        }),
+        db.user.findUnique({
+          where: { id: session.user.id },
+          select: {
+            name: true,
+            email: true,
+            phone: true,
+            age: true,
+          },
+        }),
+      ]);
 
     if (activeBooking) {
       return Response.json(
         {
           error:
             "You already have an active appointment. Please wait for your current appointment to be completed before booking a new one.",
+        },
+        { status: 409 },
+      );
+    }
+
+    if (existingSlotBooking) {
+      return Response.json(
+        {
+          error:
+            "This time slot is no longer available. Please select another slot.",
         },
         { status: 409 },
       );
@@ -417,6 +492,39 @@ export async function POST(request: Request) {
     };
 
     const { booking, survey } = await db.$transaction(async (tx) => {
+      const existingSlotBookings = await tx.booking.findMany({
+        where: {
+          doctorId: doctor.id,
+          status: {
+            notIn: ["CANCELLED"],
+          },
+          timeSlot: {
+            not: null,
+          },
+          appointmentTime: {
+            gte: bookingDateRange.start,
+            lt: bookingDateRange.end,
+          },
+        },
+        select: {
+          timeSlot: true,
+          slotDuration: true,
+        },
+      });
+      const requestedSlot = generateTimeSlots(
+        doctor.availability,
+        bookingDateRange.requestedDate,
+        existingSlotBookings,
+        doctor.slotDuration,
+        doctor.slotBuffer,
+      ).find((slot) => slot.time === timeSlot);
+
+      if (!requestedSlot?.available) {
+        throw new SlotUnavailableError(
+          "This time slot is no longer available. Please select another slot.",
+        );
+      }
+
       const existingTokens = await tx.booking.findMany({
         select: { token: true },
       });
@@ -437,8 +545,10 @@ export async function POST(request: Request) {
         data: {
           token: bookingToken,
           userId: session.user.id,
-          doctorId: doctor?.id ?? null,
+          doctorId: doctor.id,
           appointmentTime: preferredDate,
+          timeSlot,
+          slotDuration: doctor.slotDuration,
         },
       });
 
@@ -480,6 +590,8 @@ export async function POST(request: Request) {
       });
 
       return { booking, survey };
+    }, {
+      isolationLevel: "Serializable",
     });
 
     const clientName = mergedName || "Not provided";
@@ -577,6 +689,22 @@ export async function POST(request: Request) {
       bookingToken: booking.token,
     });
   } catch (error) {
+    if (
+      error instanceof SlotUnavailableError ||
+      (typeof error === "object" &&
+        error !== null &&
+        "code" in error &&
+        error.code === "P2034")
+    ) {
+      return Response.json(
+        {
+          error:
+            "This time slot is no longer available. Please select another slot.",
+        },
+        { status: 409 },
+      );
+    }
+
     console.error("Appointment survey save error:", error);
     return Response.json(
       { error: "Failed to save survey response." },

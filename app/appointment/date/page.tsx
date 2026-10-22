@@ -1,10 +1,11 @@
 "use client";
 
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, ArrowLeft } from "lucide-react";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import TimeSlotSelector from "@/components/consultations/TimeSlotSelector";
 import DoctorPhoto from "@/components/ui/DoctorPhoto";
-import { formatDateOnly } from "@/lib/dateUtils";
+import { formatFullDate } from "@/lib/dateUtils";
 import {
   dayOrder,
   formatAvailabilityDateLabel,
@@ -43,6 +44,8 @@ function AppointmentDatePageContent() {
 
   const [doctor, setDoctor] = useState<AppointmentDoctor | null>(null);
   const [selectedDate, setSelectedDate] = useState("");
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState("");
+  const [scheduleStep, setScheduleStep] = useState<"date" | "time">("date");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -148,15 +151,29 @@ function AppointmentDatePageContent() {
   }, [availableDays, sameDayCutoff]);
 
   function handleConfirm() {
-    if (!doctorId || !selectedDate) {
+    if (!doctorId || !selectedDate || !selectedTimeSlot) {
       return;
     }
 
     router.push(
       `/appointment/survey?doctorId=${encodeURIComponent(
         doctorId,
-      )}&date=${encodeURIComponent(selectedDate)}`,
+      )}&date=${encodeURIComponent(selectedDate)}&timeSlot=${encodeURIComponent(
+        selectedTimeSlot,
+      )}`,
     );
+  }
+
+  function handleDateSelection(dateValue: string) {
+    setSelectedDate(dateValue);
+    setSelectedTimeSlot("");
+    setScheduleStep("time");
+  }
+
+  function returnToDateStep() {
+    setScheduleStep("date");
+    setSelectedDate("");
+    setSelectedTimeSlot("");
   }
 
   return (
@@ -263,127 +280,121 @@ function AppointmentDatePageContent() {
                 boxShadow: "0 18px 48px rgba(43, 43, 43, 0.06)",
               }}
             >
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <h2
-                    className="text-2xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]"
-                    style={{
-                      fontFamily: "Playfair Display, serif",
-                    }}
-                  >
-                    Available Dates
-                  </h2>
-                  <p className="mt-2 text-sm leading-6 text-[#6E6257] dark:text-[#8A7D75]">
-                    Only the highlighted weekdays can be selected.
+              {scheduleStep === "date" ? (
+                <div className="animate-[fadeIn_0.25s_ease]">
+                  <p className="text-xs font-semibold uppercase text-[#B87B68] dark:text-[#D4B47A]">
+                    Step 1 of 2 {"\u2014"} Select Your Date
                   </p>
-                </div>
+                  <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <h2 className="text-2xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]">
+                        Available Dates
+                      </h2>
+                      <p className="mt-2 text-sm leading-6 text-[#6E6257] dark:text-[#8A7D75]">
+                        Only the highlighted weekdays can be selected.
+                      </p>
+                    </div>
 
-                <div className="flex flex-wrap gap-2">
-                  {dayOrder.map((day, index) => {
-                    const isEnabled = availableDays.has(index);
+                    <div className="flex flex-wrap gap-2">
+                      {dayOrder.map((day, index) => {
+                        const isEnabled = availableDays.has(index);
 
-                    return (
-                      <span
-                        key={day}
-                        className="rounded-full border px-3 py-1 text-xs font-medium"
+                        return (
+                          <span
+                            key={day}
+                            className="rounded-full border px-3 py-1 text-xs font-medium"
+                            style={{
+                              borderColor: isEnabled ? "#B87B68" : "#EADDCD",
+                              backgroundColor: isEnabled ? "#B87B68" : "#F8F5F0",
+                              color: isEnabled ? "#F8F5F0" : "#8C7967",
+                            }}
+                          >
+                            {day}
+                          </span>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-5">
+                    {dateOptions.map((dateOption) => (
+                      <button
+                        key={dateOption.value}
+                        type="button"
+                        disabled={!dateOption.isAvailable}
+                        onClick={() => handleDateSelection(dateOption.value)}
+                        className="min-h-[72px] rounded-xl border px-3 py-4 text-sm font-medium transition-colors"
                         style={{
-                          borderColor: isEnabled ? "#B87B68" : "#EADDCD",
-                          backgroundColor: isEnabled ? "#B87B68" : "#F8F5F0",
-                          color: isEnabled ? "#F8F5F0" : "#8C7967",
-                        }}
-                      >
-                        {day}
-                      </span>
-                    );
-                  })}
-                </div>
-              </div>
-
-              <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-5">
-                {dateOptions.map((dateOption) => {
-                  const isSelected = selectedDate === dateOption.value;
-
-                  return (
-                    <button
-                      key={dateOption.value}
-                      type="button"
-                      disabled={!dateOption.isAvailable}
-                      onClick={() => setSelectedDate(dateOption.value)}
-                      className="min-h-[72px] rounded-xl border px-3 py-4 text-sm font-medium transition-all"
-                      style={{
-                        borderColor: isSelected
-                          ? "#B87B68"
-                          : dateOption.isAvailable
+                          borderColor: dateOption.isAvailable
                             ? "#EADDCD"
                             : "#E8DDD3",
-                        backgroundColor: isSelected
-                          ? "#2B2B2B"
-                          : dateOption.isAvailable
+                          backgroundColor: dateOption.isAvailable
                             ? "#FFFFFF"
                             : "#F8F5F0",
-                        color: isSelected
-                          ? "#F8F5F0"
-                          : dateOption.isAvailable
-                            ? "#2B2B2B"
-                            : "#884F38",
-                        opacity: dateOption.isAvailable ? 1 : 0.55,
-                        cursor: dateOption.isAvailable ? "pointer" : "not-allowed",
-                      }}
-                    >
-                      {dateOption.label}
-                    </button>
-                  );
-                })}
-              </div>
-
-              {sameDayCutoff ? (
-                <div className="mt-5 rounded-xl border border-[#EADDCD] bg-[#F8F5F0] px-4 py-3 dark:border-[#3D3530] dark:bg-[#1A1814]">
-                  <div className="flex items-start gap-3">
-                    <AlertCircle
-                      className="mt-0.5 h-4 w-4 shrink-0 text-[#B87B68]"
-                      aria-hidden="true"
-                    />
-                    <p className="text-sm leading-6 text-[#8C7967] dark:text-[#8A7D75]">
-                      Same-day booking is no longer available for today.{" "}
-                      <span className="font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
-                        {doctor.name}
-                      </span>{" "}
-                      is available until {sameDayCutoff.endTimeLabel} and
-                      bookings close 2 hours before. Please select a future
-                      date.
-                    </p>
+                          color: dateOption.isAvailable ? "#2B2B2B" : "#884F38",
+                          opacity: dateOption.isAvailable ? 1 : 0.55,
+                          cursor: dateOption.isAvailable ? "pointer" : "not-allowed",
+                        }}
+                      >
+                        {dateOption.label}
+                      </button>
+                    ))}
                   </div>
+
+                  {sameDayCutoff ? (
+                    <div className="mt-5 rounded-xl border border-[#EADDCD] bg-[#F8F5F0] px-4 py-3 dark:border-[#3D3530] dark:bg-[#1A1814]">
+                      <div className="flex items-start gap-3">
+                        <AlertCircle
+                          className="mt-0.5 h-4 w-4 shrink-0 text-[#B87B68]"
+                          aria-hidden="true"
+                        />
+                        <p className="text-sm leading-6 text-[#8C7967] dark:text-[#8A7D75]">
+                          Same-day booking is no longer available for today.{" "}
+                          <span className="font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
+                            {doctor.name}
+                          </span>{" "}
+                          is available until {sameDayCutoff.endTimeLabel} and
+                          bookings close 2 hours before. Please select a future
+                          date.
+                        </p>
+                      </div>
+                    </div>
+                  ) : null}
                 </div>
-              ) : null}
+              ) : (
+                <div className="animate-[fadeIn_0.25s_ease]">
+                  <button
+                    type="button"
+                    onClick={returnToDateStep}
+                    className="flex items-center gap-3 text-left text-sm font-medium text-[#2B2B2B] hover:text-[#B87B68] dark:text-[#F0EDE8] dark:hover:text-[#D4B47A]"
+                  >
+                    <span className="flex h-9 w-9 items-center justify-center rounded-full border border-[#EADDCD] bg-white dark:border-[#3D3530] dark:bg-[#1A1814]">
+                      <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+                    </span>
+                    <span>{formatFullDate(selectedDate)}</span>
+                  </button>
+                  <p className="mt-6 text-xs font-semibold uppercase text-[#B87B68] dark:text-[#D4B47A]">
+                    Step 2 of 2 {"\u2014"} Select Your Time
+                  </p>
+                  <TimeSlotSelector
+                    doctorId={doctorId}
+                    date={selectedDate}
+                    value={selectedTimeSlot}
+                    onChange={setSelectedTimeSlot}
+                    showHeading={false}
+                  />
 
-              <div
-                className="mt-8 rounded-xl border px-4 py-3 text-sm dark:bg-[#1A1814] dark:border-[#3D3530] dark:text-[#8A7D75]"
-                style={{
-                  borderColor: "#EADDCD",
-                  backgroundColor: "#F8F5F0",
-                  color: "#6E6257",
-                }}
-              >
-                <span className="font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
-                  Selected Date:
-                </span>{" "}
-                {selectedDate
-                  ? formatDateOnly(selectedDate)
-                  : "No date selected yet"}
-              </div>
-
-              <button
-                type="button"
-                onClick={handleConfirm}
-                disabled={!selectedDate}
-                className="mt-8 inline-flex h-12 w-full items-center justify-center rounded-md px-5 text-sm font-medium transition-colors hover:bg-[#884F38] disabled:cursor-not-allowed disabled:opacity-50"
-                style={{
-                  backgroundColor: "#2B2B2B",
-                  color: "#F8F5F0",
-                }}
-              >
-                Confirm Appointment Date
-              </button>
+                  {selectedTimeSlot ? (
+                    <button
+                      type="button"
+                      onClick={handleConfirm}
+                      className="mt-8 inline-flex h-12 w-full items-center justify-center rounded-md bg-[#2B2B2B] px-5 text-sm font-medium text-[#F8F5F0] hover:bg-[#884F38] dark:bg-[#F0EDE8] dark:text-[#141210] dark:hover:bg-[#D4B47A]"
+                    >
+                      Continue to Appointment Survey
+                    </button>
+                  ) : null}
+                </div>
+              )}
             </section>
           </div>
         ) : null}

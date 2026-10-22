@@ -137,7 +137,7 @@ const memberships: MembershipTier[] = [
         points: ["Self-submitted photo review", "Online skin assessment form"],
       },
       {
-        heading: "Online and Offline Consultation with Skin Doctor / Aestheticians",
+        heading: "Online Consultation with Skin Doctor / Aestheticians",
         points: [],
       },
       { heading: "Personalized Product Recommendation List", points: [] },

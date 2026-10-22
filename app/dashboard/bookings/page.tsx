@@ -3,12 +3,14 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { SkeletonTable } from "@/components/ui/Skeleton";
-import { formatDateOnly } from "@/lib/dateUtils";
+import { formatShortDate } from "@/lib/dateUtils";
+import { formatTimeSlot } from "@/lib/slotGenerator";
 
 type ClientBooking = {
   id: string;
   token: string;
   appointmentTime: string | null;
+  timeSlot: string | null;
   status: string;
   doctor: {
     name: string;
@@ -60,8 +62,13 @@ export default function DashboardBookingsPage() {
     loadBookings();
   }, []);
 
-  function formatAppointmentTime(value: string | null) {
-    return value ? formatDateOnly(value) : "Not scheduled";
+  function formatAppointmentTime(value: string | null, timeSlot: string | null) {
+    if (!value) return "Not scheduled";
+
+    const date = formatShortDate(value);
+    return timeSlot
+      ? `${date} at ${formatTimeSlot(timeSlot)}`
+      : `${date} — Time TBD`;
   }
 
   return (
@@ -116,10 +123,13 @@ export default function DashboardBookingsPage() {
 
                   <div>
                     <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#8C7967] dark:text-[#8A7D75]">
-                      Preferred Date
+                      Date &amp; Time
                     </p>
                     <p className="mt-1 text-sm text-[#2B2B2B] dark:text-[#F0EDE8]">
-                      {formatAppointmentTime(booking.appointmentTime)}
+                      {formatAppointmentTime(
+                        booking.appointmentTime,
+                        booking.timeSlot,
+                      )}
                     </p>
                   </div>
 
@@ -156,7 +166,7 @@ export default function DashboardBookingsPage() {
                   <tr>
                     <th className="px-4 py-3 font-medium">Booking Token</th>
                     <th className="px-4 py-3 font-medium">Doctor Name</th>
-                    <th className="px-4 py-3 font-medium">Preferred Date</th>
+                    <th className="px-4 py-3 font-medium">Date &amp; Time</th>
                     <th className="px-4 py-3 font-medium">Booking Status</th>
                     <th className="px-4 py-3 font-medium">Action</th>
                   </tr>
@@ -171,7 +181,10 @@ export default function DashboardBookingsPage() {
                         {booking.doctor?.name ?? "Not assigned"}
                       </td>
                       <td className="px-4 py-4 text-foreground/70">
-                        {formatAppointmentTime(booking.appointmentTime)}
+                        {formatAppointmentTime(
+                          booking.appointmentTime,
+                          booking.timeSlot,
+                        )}
                       </td>
                       <td className="px-4 py-4">
                         <span

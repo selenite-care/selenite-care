@@ -139,22 +139,6 @@ export function Footer() {
                 +88 01647-660300
               </a>
 
-              {/* Location */}
-              <a
-                href="https://maps.app.goo.gl/pbXp975nt5G1qoSy9"
-                target="_blank"
-                rel="noreferrer"
-                className="group inline-flex w-fit items-start gap-3 text-sm leading-6 text-[#EADDCD] transition-colors duration-200 hover:text-[#B87B68] dark:text-[#F0EDE8]"
-              >
-                <svg className="mt-0.5 shrink-0" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
-                </svg>
-                <span>
-                  Level-6, Building-1, Golden Shower,<br />
-                  Mazar Road, Dhaka-1216, Bangladesh.
-                </span>
-              </a>
             </div>
           </div>
 

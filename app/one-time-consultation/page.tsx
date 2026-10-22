@@ -3,6 +3,7 @@
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
+  ArrowLeft,
   CalendarDays,
   Check,
   CheckCircle2,
@@ -11,8 +12,10 @@ import {
 } from "lucide-react";
 import { Suspense, useEffect, useState } from "react";
 import DoctorAvailabilityDatePicker from "@/components/consultations/DoctorAvailabilityDatePicker";
+import TimeSlotSelector from "@/components/consultations/TimeSlotSelector";
 import DoctorPhoto from "@/components/ui/DoctorPhoto";
 import { trackBeginCheckout } from "@/lib/analytics";
+import { formatFullDate } from "@/lib/dateUtils";
 
 type ConsultationDoctor = {
   id: string;
@@ -67,6 +70,8 @@ function OneTimeConsultationContent() {
   const [doctors, setDoctors] = useState<ConsultationDoctor[]>([]);
   const [selectedDoctorId, setSelectedDoctorId] = useState("");
   const [preferredDate, setPreferredDate] = useState("");
+  const [timeSlot, setTimeSlot] = useState("");
+  const [scheduleStep, setScheduleStep] = useState<"date" | "time">("date");
   const [isLoadingDoctors, setIsLoadingDoctors] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(
@@ -152,7 +157,9 @@ function OneTimeConsultationContent() {
   }, []);
 
   async function handlePayment() {
-    if (!selectedDoctorId || !preferredDate || isSubmitting) return;
+    if (!selectedDoctorId || !preferredDate || !timeSlot || isSubmitting) {
+      return;
+    }
 
     trackBeginCheckout(
       [
@@ -178,6 +185,7 @@ function OneTimeConsultationContent() {
         body: JSON.stringify({
           doctorId: selectedDoctorId,
           preferredDate,
+          timeSlot,
         }),
       });
       const data = (await response.json().catch(() => null)) as
@@ -301,6 +309,8 @@ function OneTimeConsultationContent() {
                     onClick={() => {
                       setSelectedDoctorId(doctor.id);
                       setPreferredDate("");
+                      setTimeSlot("");
+                      setScheduleStep("date");
                       setError("");
                     }}
                     className={`relative flex min-w-0 overflow-hidden rounded-lg border-2 bg-white text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B87B68] dark:bg-[#1F1B18] sm:block ${
@@ -353,42 +363,79 @@ function OneTimeConsultationContent() {
         </section>
 
         <section className="mt-10 border-t border-[#EADDCD] pt-8 dark:border-[#3D3530]">
-          <div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_320px] md:items-end">
-            <div>
-              <h2
-                className="text-2xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8] sm:text-3xl"
-                style={{ fontFamily: "Playfair Display, serif" }}
-              >
-                Preferred Consultation Date
-              </h2>
-              <p className="mt-2 flex items-center gap-2 text-sm text-[#6E6257] dark:text-[#B8AAA0]">
-                <CalendarDays
-                  className="h-4 w-4 text-[#C4A56B]"
-                  aria-hidden="true"
-                />
-                Our team will confirm the exact time via phone.
+          {scheduleStep === "date" ? (
+            <div className="animate-[fadeIn_0.25s_ease]">
+              <p className="text-xs font-semibold uppercase text-[#B87B68] dark:text-[#D4B47A]">
+                Step 1 of 2 {"\u2014"} Select Your Date
               </p>
-            </div>
+              <div className="mt-3 grid gap-6 md:grid-cols-[minmax(0,1fr)_320px] md:items-end">
+                <div>
+                  <h2 className="text-2xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8] sm:text-3xl">
+                    Preferred Consultation Date
+                  </h2>
+                  <p className="mt-2 flex items-center gap-2 text-sm text-[#6E6257] dark:text-[#B8AAA0]">
+                    <CalendarDays
+                      className="h-4 w-4 text-[#B87B68]"
+                      aria-hidden="true"
+                    />
+                    Choose an available date to see consultation times.
+                  </p>
+                </div>
 
-            <div>
-              <label
-                htmlFor="preferred-consultation-date"
-                className="text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]"
-              >
-                Select a date
-              </label>
-              <DoctorAvailabilityDatePicker
-                id="preferred-consultation-date"
-                availability={selectedDoctor?.availability}
-                value={preferredDate}
-                onChange={(date) => {
-                  setPreferredDate(date);
+                <div>
+                  <label
+                    htmlFor="preferred-consultation-date"
+                    className="text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]"
+                  >
+                    Select a date
+                  </label>
+                  <DoctorAvailabilityDatePicker
+                    id="preferred-consultation-date"
+                    availability={selectedDoctor?.availability}
+                    value={preferredDate}
+                    onChange={(date) => {
+                      setPreferredDate(date);
+                      setTimeSlot("");
+                      setScheduleStep("time");
+                      setError("");
+                    }}
+                    className="mt-2"
+                  />
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="mx-auto max-w-3xl animate-[fadeIn_0.25s_ease]">
+              <button
+                type="button"
+                onClick={() => {
+                  setScheduleStep("date");
+                  setPreferredDate("");
+                  setTimeSlot("");
                   setError("");
                 }}
-                className="mt-2"
+                className="flex items-center gap-3 text-left text-sm font-medium text-[#2B2B2B] hover:text-[#B87B68] dark:text-[#F0EDE8] dark:hover:text-[#D4B47A]"
+              >
+                <span className="flex h-9 w-9 items-center justify-center rounded-full border border-[#EADDCD] bg-white dark:border-[#3D3530] dark:bg-[#1A1814]">
+                  <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+                </span>
+                <span>{formatFullDate(preferredDate)}</span>
+              </button>
+              <p className="mt-6 text-xs font-semibold uppercase text-[#B87B68] dark:text-[#D4B47A]">
+                Step 2 of 2 {"\u2014"} Select Your Time
+              </p>
+              <TimeSlotSelector
+                doctorId={selectedDoctorId}
+                date={preferredDate}
+                value={timeSlot}
+                onChange={(value) => {
+                  setTimeSlot(value);
+                  setError("");
+                }}
+                showHeading={false}
               />
             </div>
-          </div>
+          )}
         </section>
 
         {error ? (
@@ -397,21 +444,23 @@ function OneTimeConsultationContent() {
           </p>
         ) : null}
 
-        <button
-          type="button"
-          onClick={() => void handlePayment()}
-          disabled={!selectedDoctorId || !preferredDate || isSubmitting}
-          className="mt-8 inline-flex h-13 w-full items-center justify-center gap-2 rounded-md bg-[#B87B68] px-6 text-base font-semibold text-[#2B2B2B] transition-colors hover:bg-[#C4A56B] disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          {isSubmitting ? (
-            <>
-              <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
-              Starting Payment...
-            </>
-          ) : (
-            `${PACKAGE_PRICE} BDT - Proceed to Payment`
-          )}
-        </button>
+        {scheduleStep === "time" && timeSlot ? (
+          <button
+            type="button"
+            onClick={() => void handlePayment()}
+            disabled={isSubmitting}
+            className="mt-8 inline-flex h-13 w-full items-center justify-center gap-2 rounded-md bg-[#2B2B2B] px-6 text-base font-semibold text-[#F8F5F0] hover:bg-[#884F38] disabled:cursor-not-allowed disabled:opacity-50 dark:bg-[#F0EDE8] dark:text-[#141210] dark:hover:bg-[#D4B47A]"
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
+                Starting Payment...
+              </>
+            ) : (
+              `${PACKAGE_PRICE} BDT - Proceed to Payment`
+            )}
+          </button>
+        ) : null}
       </div>
     </main>
   );
