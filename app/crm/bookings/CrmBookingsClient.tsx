@@ -5,12 +5,14 @@ import Papa from "papaparse";
 import { useEffect, useState } from "react";
 import Pagination from "@/components/ui/Pagination";
 import { SkeletonTable } from "@/components/ui/Skeleton";
-import { formatDateOnly } from "@/lib/dateUtils";
+import { formatShortDate } from "@/lib/dateUtils";
+import { formatTimeSlot } from "@/lib/slotGenerator";
 
 export type CrmBookingListItem = {
   id: string;
   token: string | null;
   appointmentTime: string | null;
+  timeSlot: string | null;
   status: string;
   user: {
     name: string | null;
@@ -57,12 +59,15 @@ function getBookingStatusBadgeClasses(status: string) {
   }
 }
 
-function formatAppointmentTime(value: string | null) {
+function formatAppointmentTime(value: string | null, timeSlot: string | null) {
   if (!value || value === "Not scheduled") {
     return "Not scheduled";
   }
 
-  return formatDateOnly(value);
+  const date = formatShortDate(value);
+  return timeSlot
+    ? `${date} at ${formatTimeSlot(timeSlot)}`
+    : `${date} — Time TBD`;
 }
 
 export default function CrmBookingsClient({ bookings }: CrmBookingsClientProps) {
@@ -75,10 +80,6 @@ export default function CrmBookingsClient({ bookings }: CrmBookingsClientProps) 
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const totalPages = Math.max(1, Math.ceil(totalCount / ITEMS_PER_PAGE));
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchQuery, statusFilter]);
 
   useEffect(() => {
     let isMounted = true;
@@ -142,7 +143,10 @@ export default function CrmBookingsClient({ bookings }: CrmBookingsClientProps) 
         "Client Phone": booking.user.phone ?? "",
         "Service Name": booking.service?.name ?? "No service attached",
         "Doctor Name": booking.doctor?.name ?? "",
-        "Preferred Date": formatAppointmentTime(booking.appointmentTime),
+        "Appointment Date & Time": formatAppointmentTime(
+          booking.appointmentTime,
+          booking.timeSlot,
+        ),
         "Booking Status": booking.status,
       })),
       {
@@ -152,7 +156,7 @@ export default function CrmBookingsClient({ bookings }: CrmBookingsClientProps) 
           "Client Phone",
           "Service Name",
           "Doctor Name",
-          "Preferred Date",
+          "Appointment Date & Time",
           "Booking Status",
         ],
       },
@@ -184,7 +188,10 @@ export default function CrmBookingsClient({ bookings }: CrmBookingsClientProps) 
               id="crm-booking-search"
               type="search"
               value={searchQuery}
-              onChange={(event) => setSearchQuery(event.target.value)}
+              onChange={(event) => {
+                setSearchQuery(event.target.value);
+                setCurrentPage(1);
+              }}
               placeholder="Client name, phone, booking token, or service name"
               className="mt-2 h-11 w-full rounded-md border border-[#EADDCD] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors placeholder:text-[#884F38] focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68]"
             />
@@ -200,11 +207,12 @@ export default function CrmBookingsClient({ bookings }: CrmBookingsClientProps) 
             <select
               id="crm-booking-status-filter"
               value={statusFilter}
-              onChange={(event) =>
+              onChange={(event) => {
                 setStatusFilter(
                   event.target.value as (typeof bookingStatuses)[number],
-                )
-              }
+                );
+                setCurrentPage(1);
+              }}
               className="mt-2 h-11 w-full rounded-md border border-[#EADDCD] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68]"
             >
               {bookingStatuses.map((status) => (
@@ -253,7 +261,7 @@ export default function CrmBookingsClient({ bookings }: CrmBookingsClientProps) 
                     <th className="px-4 py-4">Client Name</th>
                     <th className="px-4 py-4">Client Phone</th>
                     <th className="px-4 py-4">Doctor</th>
-                    <th className="px-4 py-4">Preferred Date</th>
+                    <th className="px-4 py-4">Date &amp; Time</th>
                     <th className="px-4 py-4">Status</th>
                     <th className="px-4 py-4">Action</th>
                   </tr>
@@ -286,7 +294,10 @@ export default function CrmBookingsClient({ bookings }: CrmBookingsClientProps) 
                           {booking.doctor?.name ?? "-"}
                         </td>
                         <td className="cell-muted px-4 py-4">
-                          {formatAppointmentTime(booking.appointmentTime)}
+                          {formatAppointmentTime(
+                            booking.appointmentTime,
+                            booking.timeSlot,
+                          )}
                         </td>
                         <td className="px-4 py-4">
                           <span

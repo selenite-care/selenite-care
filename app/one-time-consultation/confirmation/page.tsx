@@ -14,6 +14,7 @@ import {
 import { Suspense, useEffect, useRef, useState } from "react";
 import { trackPurchase } from "@/lib/analytics";
 import { formatDateOnly } from "@/lib/dateUtils";
+import { formatTimeSlot } from "@/lib/slotGenerator";
 
 const PACKAGE_PRICE = 99;
 
@@ -22,6 +23,7 @@ type ConfirmationDetails = {
   token: string;
   doctorName: string;
   preferredDate: string | null;
+  timeSlot: string | null;
   email: string;
   hasTemporaryCredentials: boolean;
   temporaryPassword: string | null;
@@ -147,12 +149,6 @@ function ConfirmationContent() {
     );
   }
 
-  const nextSteps = [
-    "Our team will call you within 24 hours to confirm your consultation time.",
-    "You will receive a Google Meet link before your consultation.",
-    "Join the consultation at the confirmed time.",
-  ];
-
   return (
     <main className="min-h-screen bg-[#F8F5F0] px-4 py-12 text-[#2B2B2B] dark:bg-[#141210] dark:text-[#F0EDE8] sm:px-6 lg:px-8">
       <div className="mx-auto w-full max-w-3xl">
@@ -169,13 +165,12 @@ function ConfirmationContent() {
             Consultation Booked Successfully!
           </h1>
           <p className="mt-3 text-sm leading-6 text-[#6E6257] dark:text-[#B8AAA0]">
-            Your payment is confirmed. Our team will arrange the exact time with
-            you shortly.
+            Your payment is confirmed!
           </p>
         </header>
 
         <section className="mt-8 border-y border-[#D4B47A]/60 py-6">
-          <div className="grid gap-6 text-center sm:grid-cols-3 sm:text-left">
+          <div className="grid gap-6 text-center sm:grid-cols-2 sm:text-left lg:grid-cols-4">
             <div>
               <p className="text-xs font-semibold uppercase text-[#8C7967] dark:text-[#8A7D75]">
                 Booking Token
@@ -200,28 +195,17 @@ function ConfirmationContent() {
                 {formatDateOnly(details.preferredDate)}
               </p>
             </div>
+            <div>
+              <p className="text-xs font-semibold uppercase text-[#8C7967] dark:text-[#8A7D75]">
+                Preferred Time
+              </p>
+              <p className="mt-2 text-base font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]">
+                {details.timeSlot
+                  ? formatTimeSlot(details.timeSlot)
+                  : "Time TBD"}
+              </p>
+            </div>
           </div>
-        </section>
-
-        <section className="mt-8 rounded-lg border border-[#EADDCD] bg-white p-6 dark:border-[#3D3530] dark:bg-[#1F1B18]">
-          <h2
-            className="text-2xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]"
-            style={{ fontFamily: "Playfair Display, serif" }}
-          >
-            What happens next?
-          </h2>
-          <ol className="mt-6 space-y-5">
-            {nextSteps.map((step, index) => (
-              <li key={step} className="flex items-start gap-4">
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#D4B47A] text-sm font-semibold text-[#2B2B2B]">
-                  {index + 1}
-                </span>
-                <p className="pt-1 text-sm leading-6 text-[#5F524A] dark:text-[#D9C9BD]">
-                  {step}
-                </p>
-              </li>
-            ))}
-          </ol>
         </section>
 
         <section className="mt-6 rounded-lg border border-[#D4B47A] bg-[#FFF8E6] p-6 dark:bg-[#33291C]">

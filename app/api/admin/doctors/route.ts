@@ -136,6 +136,8 @@ export async function GET() {
       bio: true,
       image: true,
       isActive: true,
+      slotDuration: true,
+      slotBuffer: true,
     },
   });
 

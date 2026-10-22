@@ -4,12 +4,14 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import Pagination from "@/components/ui/Pagination";
 import { SkeletonTable } from "@/components/ui/Skeleton";
-import { formatDateOnly } from "@/lib/dateUtils";
+import { formatShortDate } from "@/lib/dateUtils";
+import { formatTimeSlot } from "@/lib/slotGenerator";
 
 type DoctorBooking = {
   id: string;
   token: string;
   appointmentTime: string | null;
+  timeSlot: string | null;
   status: string;
   user: {
     name: string;
@@ -61,10 +63,6 @@ export default function DoctorBookingsPage() {
   const totalPages = Math.max(1, Math.ceil(totalCount / ITEMS_PER_PAGE));
 
   useEffect(() => {
-    setCurrentPage(1);
-  }, [searchQuery, statusFilter]);
-
-  useEffect(() => {
     async function loadBookings() {
       try {
         setError("");
@@ -106,8 +104,13 @@ export default function DoctorBookingsPage() {
   const isInitialLoading = isLoading && !hasLoaded;
   const hasActiveFilters = searchQuery.trim().length > 0 || statusFilter !== "All";
 
-  function formatAppointmentTime(value: string | null) {
-    return value ? formatDateOnly(value) : "Not scheduled";
+  function formatAppointmentTime(value: string | null, timeSlot: string | null) {
+    if (!value) return "Not scheduled";
+
+    const date = formatShortDate(value);
+    return timeSlot
+      ? `${date} at ${formatTimeSlot(timeSlot)}`
+      : `${date} — Time TBD`;
   }
 
   return (
@@ -154,7 +157,10 @@ export default function DoctorBookingsPage() {
                   id="doctor-booking-search"
                   type="search"
                   value={searchQuery}
-                  onChange={(event) => setSearchQuery(event.target.value)}
+                  onChange={(event) => {
+                    setSearchQuery(event.target.value);
+                    setCurrentPage(1);
+                  }}
                   placeholder="Client name, booking token, phone, email, or service"
                   className="mt-2 h-11 w-full rounded-md border border-black/10 bg-background px-3 text-sm text-foreground outline-none transition-colors placeholder:text-foreground/50 focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68] dark:border-white/10"
                 />
@@ -170,11 +176,12 @@ export default function DoctorBookingsPage() {
                 <select
                   id="booking-status-filter"
                   value={statusFilter}
-                  onChange={(event) =>
+                  onChange={(event) => {
                     setStatusFilter(
                       event.target.value as (typeof bookingStatuses)[number],
-                    )
-                  }
+                    );
+                    setCurrentPage(1);
+                  }}
                   className="mt-2 h-11 w-full rounded-md border border-black/10 bg-background px-3 text-sm text-foreground outline-none transition-colors focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68] dark:border-white/10"
                 >
                   {bookingStatuses.map((status) => (
@@ -204,7 +211,7 @@ export default function DoctorBookingsPage() {
                     <th className="px-4 py-3 font-medium">Booking Token</th>
                     <th className="px-4 py-3 font-medium">Client Name</th>
                     {/* <th className="px-4 py-3 font-medium">Service Name</th> */}
-                    <th className="px-4 py-3 font-medium">Preferred Date</th>
+                    <th className="px-4 py-3 font-medium">Date &amp; Time</th>
                     <th className="px-4 py-3 font-medium">Booking Status</th>
                     <th className="px-4 py-3 font-medium">Action</th>
                   </tr>
@@ -232,7 +239,10 @@ export default function DoctorBookingsPage() {
                           {booking.service?.name ?? "No service attached"}
                         </td> */}
                         <td className="px-4 py-4 text-foreground/70">
-                          {formatAppointmentTime(booking.appointmentTime)}
+                          {formatAppointmentTime(
+                            booking.appointmentTime,
+                            booking.timeSlot,
+                          )}
                         </td>
                         <td className="px-4 py-4">
                           <span

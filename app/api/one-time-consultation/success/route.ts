@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { formatAppointmentSchedule } from "@/lib/appointmentSchedule";
 import { db } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
 import { verifyEPSPayment } from "@/lib/eps";
@@ -96,7 +97,7 @@ function buildClientEmailHtml(input: {
           <td style="padding: 10px 12px; border: 1px solid #EADDCD;">${escapeHtml(input.doctorName)}</td>
         </tr>
         <tr>
-          <td style="padding: 10px 12px; border: 1px solid #EADDCD;">Preferred Date</td>
+          <td style="padding: 10px 12px; border: 1px solid #EADDCD;">Appointment Date &amp; Time</td>
           <td style="padding: 10px 12px; border: 1px solid #EADDCD;">${escapeHtml(input.preferredDate)}</td>
         </tr>
       </table>
@@ -153,6 +154,7 @@ export async function GET(request: Request) {
             userId: true,
             token: true,
             appointmentTime: true,
+            timeSlot: true,
             user: {
               select: {
                 name: true,
@@ -233,7 +235,13 @@ export async function GET(request: Request) {
       const booking = consultation.booking;
       const clientName = booking.user.name || "Selenite Care Client";
       const doctorName = booking.doctor?.name || "Selenite Care Doctor";
-      const preferredDate = formatPreferredDate(booking.appointmentTime);
+      const preferredDate =
+        booking.appointmentTime && booking.timeSlot
+          ? formatAppointmentSchedule(
+              booking.appointmentTime,
+              booking.timeSlot,
+            )
+          : formatPreferredDate(booking.appointmentTime);
       const contactPhone = booking.user.phone || "Not provided";
       const staffUsers = await db.user.findMany({
         where: {

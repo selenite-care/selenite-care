@@ -1,4 +1,8 @@
 import bcrypt from "bcryptjs";
+import {
+  formatAppointmentSchedule,
+  parseAppointmentSchedule,
+} from "@/lib/appointmentSchedule";
 import { db } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
 import { generateTransactionId, initializeEPSPayment } from "@/lib/eps";
@@ -6,6 +10,7 @@ import {
   getSetting,
   ONE_TIME_CONSULTATION_PRICE,
 } from "@/lib/settings";
+import { formatTimeSlot, generateTimeSlots } from "@/lib/slotGenerator";
 
 export const runtime = "nodejs";
 
@@ -14,8 +19,11 @@ type LandingConsultationPayload = {
   email?: unknown;
   phone?: unknown;
   preferredDate?: unknown;
+  timeSlot?: unknown;
   doctorId?: unknown;
 };
+
+class SlotUnavailableError extends Error {}
 
 function parsePrice(value: string | null) {
   const price = parseFloat(value ?? "");
@@ -38,15 +46,6 @@ function escapeHtml(value: string) {
         "'": "&#039;",
       })[character] ?? character,
   );
-}
-
-function formatPreferredDate(date: Date) {
-  return new Intl.DateTimeFormat("en-BD", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-    timeZone: "Asia/Dhaka",
-  }).format(date);
 }
 
 function getConsultationEmailHtml({
@@ -106,7 +105,7 @@ function getConsultationEmailHtml({
           <td style="padding: 8px 12px; border: 1px solid #EADDCD;">${escapeHtml(doctorName)}</td>
         </tr>
         <tr>
-          <td style="padding: 8px 12px; border: 1px solid #EADDCD; font-weight: bold;">Preferred Date</td>
+          <td style="padding: 8px 12px; border: 1px solid #EADDCD; font-weight: bold;">Appointment Date &amp; Time</td>
           <td style="padding: 8px 12px; border: 1px solid #EADDCD;">${escapeHtml(preferredDate)}</td>
         </tr>
       </table>
@@ -120,13 +119,6 @@ function getConsultationEmailHtml({
       </p>
     </div>
   `;
-}
-
-function parsePreferredDate(value: unknown) {
-  if (typeof value !== "string" || !value.trim()) return null;
-
-  const preferredDate = new Date(value);
-  return Number.isNaN(preferredDate.getTime()) ? null : preferredDate;
 }
 
 function getAppBaseUrl(request: Request) {
@@ -151,13 +143,16 @@ export async function POST(request: Request) {
     const phoneDigits = phone.replace(/\D/g, "");
     const doctorId =
       typeof body?.doctorId === "string" ? body.doctorId.trim() : "";
-    const preferredDate = parsePreferredDate(body?.preferredDate);
+    const schedule = parseAppointmentSchedule(
+      body?.preferredDate,
+      body?.timeSlot,
+    );
 
-    if (!name || !email || !phone || !doctorId || !preferredDate) {
+    if (!name || !email || !phone || !doctorId || !schedule) {
       return Response.json(
         {
           error:
-            "Name, email, phone, preferred date, and doctor are required.",
+            "Name, email, phone, doctor, preferred date, and time slot are required.",
         },
         { status: 400 },
       );
@@ -177,27 +172,47 @@ export async function POST(request: Request) {
       );
     }
 
-    const [doctor, existingUser, packagePrice] = await Promise.all([
-      db.doctor.findFirst({
-        where: {
-          id: doctorId,
-          isActive: true,
-        },
-        select: {
-          id: true,
-          name: true,
-        },
-      }),
-      db.user.findUnique({
-        where: {
-          email,
-        },
-        select: {
-          id: true,
-        },
-      }),
-      getSetting(ONE_TIME_CONSULTATION_PRICE).then(parsePrice),
-    ]);
+    const [doctor, existingUser, packagePrice, existingSlotBooking] =
+      await Promise.all([
+        db.doctor.findFirst({
+          where: {
+            id: doctorId,
+            isActive: true,
+          },
+          select: {
+            id: true,
+            name: true,
+            availability: true,
+            slotDuration: true,
+            slotBuffer: true,
+          },
+        }),
+        db.user.findUnique({
+          where: {
+            email,
+          },
+          select: {
+            id: true,
+          },
+        }),
+        getSetting(ONE_TIME_CONSULTATION_PRICE).then(parsePrice),
+        db.booking.findFirst({
+          where: {
+            doctorId,
+            timeSlot: schedule.timeSlot,
+            appointmentTime: {
+              gte: schedule.startOfDay,
+              lt: schedule.endOfDay,
+            },
+            status: {
+              notIn: ["CANCELLED"],
+            },
+          },
+          select: {
+            id: true,
+          },
+        }),
+      ]);
 
     if (!doctor) {
       return Response.json(
@@ -210,6 +225,16 @@ export async function POST(request: Request) {
       return Response.json(
         { error: "One-time consultation price is not configured correctly." },
         { status: 500 },
+      );
+    }
+
+    if (existingSlotBooking) {
+      return Response.json(
+        {
+          error:
+            "This time slot is no longer available. Please select another slot.",
+        },
+        { status: 409 },
       );
     }
 
@@ -240,6 +265,58 @@ export async function POST(request: Request) {
 
     const merchantTransactionId = generateTransactionId();
     const booking = await db.$transaction(async (tx) => {
+      const reservedSlot = await tx.booking.findFirst({
+        where: {
+          doctorId: doctor.id,
+          timeSlot: schedule.timeSlot,
+          appointmentTime: {
+            gte: schedule.startOfDay,
+            lt: schedule.endOfDay,
+          },
+          status: {
+            notIn: ["CANCELLED"],
+          },
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      if (reservedSlot) {
+        throw new SlotUnavailableError();
+      }
+
+      const existingSlotBookings = await tx.booking.findMany({
+        where: {
+          doctorId: doctor.id,
+          timeSlot: {
+            not: null,
+          },
+          appointmentTime: {
+            gte: schedule.startOfDay,
+            lt: schedule.endOfDay,
+          },
+          status: {
+            notIn: ["CANCELLED"],
+          },
+        },
+        select: {
+          timeSlot: true,
+          slotDuration: true,
+        },
+      });
+      const requestedSlot = generateTimeSlots(
+        doctor.availability,
+        schedule.requestedDate,
+        existingSlotBookings,
+        doctor.slotDuration,
+        doctor.slotBuffer,
+      ).find((slot) => slot.time === schedule.timeSlot);
+
+      if (!requestedSlot?.available) {
+        throw new SlotUnavailableError();
+      }
+
       const existingBookings = await tx.booking.findMany({
         select: {
           doctorId: true,
@@ -272,7 +349,9 @@ export async function POST(request: Request) {
           doctorId: doctor.id,
           status: "PENDING",
           isOneTimeConsultation: true,
-          appointmentTime: preferredDate,
+          appointmentTime: schedule.appointmentTime,
+          timeSlot: schedule.timeSlot,
+          slotDuration: doctor.slotDuration,
           token,
           oneTimeConsultation: {
             create: {
@@ -286,7 +365,7 @@ export async function POST(request: Request) {
           token: true,
         },
       });
-    });
+    }, { isolationLevel: "Serializable" });
     bookingId = booking.id;
 
     const successUrl = `${appBaseUrl}/api/one-time-consultation/success`;
@@ -308,7 +387,7 @@ export async function POST(request: Request) {
       customerName: name,
       customerEmail: email,
       customerPhone: phone,
-      productName: "One-Time Consultation \u2014 Selenite Care",
+      productName: `Online Video Consultation - ${formatTimeSlot(schedule.timeSlot)} - Selenite Care`,
       valueA: booking.id,
       valueB: userId,
     });
@@ -324,7 +403,10 @@ export async function POST(request: Request) {
           loginUrl: "https://selenitecare.com/login",
           bookingToken: booking.token,
           doctorName: doctor.name,
-          preferredDate: formatPreferredDate(preferredDate),
+          preferredDate: formatAppointmentSchedule(
+            schedule.appointmentTime,
+            schedule.timeSlot,
+          ),
         }),
       });
     } catch (emailError) {
@@ -354,6 +436,22 @@ export async function POST(request: Request) {
             cleanupError,
           );
         });
+    }
+
+    if (
+      error instanceof SlotUnavailableError ||
+      (typeof error === "object" &&
+        error !== null &&
+        "code" in error &&
+        error.code === "P2034")
+    ) {
+      return Response.json(
+        {
+          error:
+            "This time slot is no longer available. Please select another slot.",
+        },
+        { status: 409 },
+      );
     }
 
     console.error("Landing consultation EPS initiation failed:", error);

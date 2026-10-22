@@ -11,16 +11,6 @@ const details = [
     label: "Phone",
     value: "+88 01647-660300",
   },
-  {
-    label: "Location",
-    value: (
-      <>
-        Level-6, Building-1, Golden Shower,
-        <br />
-        Mazar Road, Dhaka-1216, Bangladesh.
-      </>
-    ),
-  },
 ];
 
 export default function ContactIntro() {

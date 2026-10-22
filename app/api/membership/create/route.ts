@@ -25,7 +25,7 @@ const MEMBERSHIP_BENEFITS: Record<MembershipTier, string[]> = {
   SIGNATURE: [
     "90 Days of Unlimited Skincare Support",
     "Skin, Body & Hair Problem Analysis: Self-submitted photo review, Online skin assessment form",
-    "Online and Offline Consultation with Skin Doctor / Aestheticians",
+    "Online Consultation with Skin Doctor / Aestheticians",
     "Personalized Product Recommendation List",
     "Skin Report Card",
     "Personalized Morning & Night Skincare Routine (after purchasing products from Selenite)",

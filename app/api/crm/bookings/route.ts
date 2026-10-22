@@ -55,6 +55,7 @@ export async function GET(request: Request) {
         id: true,
         token: true,
         appointmentTime: true,
+        timeSlot: true,
         status: true,
         user: {
           select: {

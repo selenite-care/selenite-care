@@ -157,7 +157,8 @@ model Doctor {
   availability   String
   image          String?
   specialization DoctorSpecialization @default(AESTHETICIAN)
-  slotDuration   Int                  @default(15)
+  slotDuration   Int                  @default(20)
+  slotBuffer     Int                  @default(5)
   userId         String?              @unique
   user           User?                @relation(fields: [userId], references: [id])
   bookings       Booking[]
@@ -183,6 +184,8 @@ model Booking {
   customerFeedback CustomerFeedback?
   isOneTimeConsultation Boolean              @default(false)
   oneTimeConsultation   OneTimeConsultation?
+  timeSlot      String?   // stored as "10:00" 24hr format
+  slotDuration  Int       @default(20) // minutes
 
   @@index([userId])
   @@index([doctorId])

@@ -2,11 +2,13 @@
 
 import "react-phone-number-input/style.css";
 
-import { Check, Loader2 } from "lucide-react";
+import { ArrowLeft, Check, Loader2 } from "lucide-react";
 import { FormEvent, useEffect, useState } from "react";
 import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
 import DoctorAvailabilityDatePicker from "@/components/consultations/DoctorAvailabilityDatePicker";
+import TimeSlotSelector from "@/components/consultations/TimeSlotSelector";
 import { trackBeginCheckout } from "@/lib/analytics";
+import { formatFullDate } from "@/lib/dateUtils";
 
 type ConsultationDoctor = {
   id: string;
@@ -48,6 +50,8 @@ export default function OneTimeConsultationForm({
   const [email, setEmail] = useState("");
   const [doctorId, setDoctorId] = useState("");
   const [preferredDate, setPreferredDate] = useState("");
+  const [timeSlot, setTimeSlot] = useState("");
+  const [scheduleStep, setScheduleStep] = useState<"date" | "time">("date");
   const [doctors, setDoctors] = useState<ConsultationDoctor[]>([]);
   const [isLoadingDoctors, setIsLoadingDoctors] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -119,7 +123,13 @@ export default function OneTimeConsultationForm({
     event.preventDefault();
     setError("");
 
-    if (!name.trim() || !email.trim() || !doctorId || !preferredDate) {
+    if (
+      !name.trim() ||
+      !email.trim() ||
+      !doctorId ||
+      !preferredDate ||
+      !timeSlot
+    ) {
       setError("Please complete all required fields.");
       return;
     }
@@ -155,6 +165,7 @@ export default function OneTimeConsultationForm({
           email: email.trim(),
           doctorId,
           preferredDate,
+          timeSlot,
         }),
       });
       const data = (await response.json().catch(() => null)) as
@@ -291,6 +302,8 @@ export default function OneTimeConsultationForm({
             onChange={(event) => {
               setDoctorId(event.target.value);
               setPreferredDate("");
+              setTimeSlot("");
+              setScheduleStep("date");
               setError("");
             }}
             required
@@ -312,24 +325,63 @@ export default function OneTimeConsultationForm({
           </select>
         </div>
 
-        <div>
-          <label
-            htmlFor="consultation-date"
-            className="text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]"
-          >
-            Preferred Date
-          </label>
-          <DoctorAvailabilityDatePicker
-            id="consultation-date"
-            availability={selectedDoctor?.availability}
-            value={preferredDate}
-            onChange={(date) => {
-              setPreferredDate(date);
-              setError("");
-            }}
-            className="mt-2"
-          />
-        </div>
+        {scheduleStep === "date" ? (
+          <div className="animate-[fadeIn_0.25s_ease]">
+            <p className="text-xs font-semibold uppercase text-[#B87B68] dark:text-[#D4B47A]">
+              Step 1 of 2 {"\u2014"} Select Your Date
+            </p>
+            <label
+              htmlFor="consultation-date"
+              className="mt-2 block text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]"
+            >
+              Preferred Date
+            </label>
+            <DoctorAvailabilityDatePicker
+              id="consultation-date"
+              availability={selectedDoctor?.availability}
+              value={preferredDate}
+              onChange={(date) => {
+                setPreferredDate(date);
+                setTimeSlot("");
+                setScheduleStep("time");
+                setError("");
+              }}
+              className="mt-2"
+            />
+          </div>
+        ) : (
+          <div className="animate-[fadeIn_0.25s_ease]">
+            <button
+              type="button"
+              onClick={() => {
+                setScheduleStep("date");
+                setPreferredDate("");
+                setTimeSlot("");
+                setError("");
+              }}
+              className="flex items-center gap-3 text-left text-sm font-medium text-[#2B2B2B] hover:text-[#B87B68] dark:text-[#F0EDE8] dark:hover:text-[#D4B47A]"
+            >
+              <span className="flex h-9 w-9 items-center justify-center rounded-full border border-[#EADDCD] bg-white dark:border-[#3D3530] dark:bg-[#1A1814]">
+                <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+              </span>
+              <span>{formatFullDate(preferredDate)}</span>
+            </button>
+            <p className="mt-5 text-xs font-semibold uppercase text-[#B87B68] dark:text-[#D4B47A]">
+              Step 2 of 2 {"\u2014"} Select Your Time
+            </p>
+            <TimeSlotSelector
+              doctorId={doctorId}
+              date={preferredDate}
+              value={timeSlot}
+              onChange={(value) => {
+                setTimeSlot(value);
+                setError("");
+              }}
+              compact
+              showHeading={false}
+            />
+          </div>
+        )}
 
         {error ? (
           <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm leading-6 text-red-700 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-200">
@@ -337,27 +389,29 @@ export default function OneTimeConsultationForm({
           </p>
         ) : null}
 
-        <button
-          type="submit"
-          disabled={
-            isSubmitting ||
-            isPricingLoading ||
-            isLoadingDoctors ||
-            doctors.length === 0
-          }
-          className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-md bg-[#2B2B2B] px-5 text-sm font-semibold text-[#F8F5F0] transition-colors hover:bg-[#884F38] disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#F0EDE8] dark:text-[#141210] dark:hover:bg-[#D4B47A]"
-        >
-          {isSubmitting ? (
-            <>
-              <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-              Starting Payment...
-            </>
-          ) : isPricingLoading ? (
-            <span className="h-4 w-40 animate-pulse rounded bg-white/25" />
-          ) : (
-            `Book Now \u2014 ${price.toLocaleString("en-US")} BDT`
-          )}
-        </button>
+        {scheduleStep === "time" && timeSlot ? (
+          <button
+            type="submit"
+            disabled={
+              isSubmitting ||
+              isPricingLoading ||
+              isLoadingDoctors ||
+              doctors.length === 0
+            }
+            className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-md bg-[#2B2B2B] px-5 text-sm font-semibold text-[#F8F5F0] transition-colors hover:bg-[#884F38] disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#F0EDE8] dark:text-[#141210] dark:hover:bg-[#D4B47A]"
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                Starting Payment...
+              </>
+            ) : isPricingLoading ? (
+              <span className="h-4 w-40 animate-pulse rounded bg-white/25" />
+            ) : (
+              `Book Now \u2014 ${price.toLocaleString("en-US")} BDT`
+            )}
+          </button>
+        ) : null}
 
         <p className="text-center text-xs leading-5 text-[#6E6257] dark:text-[#B8AAA0]">
           Our team will call you to confirm the consultation time. No

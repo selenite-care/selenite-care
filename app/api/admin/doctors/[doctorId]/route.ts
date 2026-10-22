@@ -17,6 +17,8 @@ type DoctorUpdatePayload = {
   availability?: unknown;
   image?: unknown;
   specialization?: unknown;
+  slotDuration?: unknown;
+  slotBuffer?: unknown;
 };
 
 const doctorSpecializations = new Set([
@@ -60,6 +62,8 @@ export async function PATCH(request: Request, context: RouteContext) {
     availability?: string;
     image?: string | null;
     specialization?: "AESTHETICIAN" | "NUTRITIONIST" | "PSYCHIATRIST";
+    slotDuration?: number;
+    slotBuffer?: number;
   } = {};
 
   if (body.name !== undefined) {
@@ -127,6 +131,38 @@ export async function PATCH(request: Request, context: RouteContext) {
       | "PSYCHIATRIST";
   }
 
+  if (body.slotDuration !== undefined) {
+    if (
+      typeof body.slotDuration !== "number" ||
+      !Number.isInteger(body.slotDuration) ||
+      body.slotDuration < 15 ||
+      body.slotDuration > 60
+    ) {
+      return Response.json(
+        { error: "Slot duration must be an integer between 15 and 60." },
+        { status: 400 },
+      );
+    }
+
+    data.slotDuration = body.slotDuration;
+  }
+
+  if (body.slotBuffer !== undefined) {
+    if (
+      typeof body.slotBuffer !== "number" ||
+      !Number.isInteger(body.slotBuffer) ||
+      body.slotBuffer < 0 ||
+      body.slotBuffer > 30
+    ) {
+      return Response.json(
+        { error: "Slot buffer must be an integer between 0 and 30." },
+        { status: 400 },
+      );
+    }
+
+    data.slotBuffer = body.slotBuffer;
+  }
+
   if (Object.keys(data).length === 0) {
     return Response.json(
       { error: "At least one field must be provided to update." },
@@ -154,6 +190,7 @@ export async function PATCH(request: Request, context: RouteContext) {
       availability: true,
       image: true,
       slotDuration: true,
+      slotBuffer: true,
       specialization: true,
       isActive: true,
       userId: true,

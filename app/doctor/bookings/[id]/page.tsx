@@ -2,6 +2,8 @@ import { notFound } from "next/navigation";
 import NextAuth from "next-auth";
 import { authConfig } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { formatLongDate } from "@/lib/dateUtils";
+import { formatTimeSlot } from "@/lib/slotGenerator";
 import BookingStatusButtons from "@/components/doctor/BookingStatusButtons";
 import ClientBookingHistory from "@/components/booking/ClientBookingHistory";
 import DiagnosisEditor from "@/components/diagnosis/DiagnosisEditor";
@@ -80,8 +82,12 @@ export default async function BookingDetailsPage({ params }: BookingDetailsPageP
   });
 
   const preferredDate = booking.appointmentTime
-    ? new Date(booking.appointmentTime).toLocaleDateString()
+    ? formatLongDate(booking.appointmentTime)
     : "Not scheduled";
+  const consultationTime =
+    booking.appointmentTime && booking.timeSlot
+      ? `${preferredDate} at ${formatTimeSlot(booking.timeSlot)}`
+      : "Time TBD — CRM will confirm";
 
   return (
     <section>
@@ -125,6 +131,7 @@ export default async function BookingDetailsPage({ params }: BookingDetailsPageP
           <div className="mt-5 grid gap-5 sm:grid-cols-2">
             <DetailItem label="Booking Token" value={booking.token} />
             <DetailItem label="Preferred Date" value={preferredDate} />
+            <DetailItem label="Consultation Time" value={consultationTime} />
             <DetailItem label="Booking Status" value={booking.status} />
             <DetailItem label="Created At" value={booking.createdAt.toLocaleString()} />
           </div>

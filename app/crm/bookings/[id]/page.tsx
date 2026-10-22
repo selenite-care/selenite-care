@@ -3,9 +3,12 @@ import NextAuth from "next-auth";
 import { notFound, redirect } from "next/navigation";
 import { authConfig } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { formatLongDate } from "@/lib/dateUtils";
+import { formatTimeSlot } from "@/lib/slotGenerator";
 import BookingStatusButtons from "./BookingStatusButtons";
 import ClientBookingHistory from "@/components/booking/ClientBookingHistory";
 import BookingRescheduleControl from "@/components/booking/BookingRescheduleControl";
+import BookingTimeSlotControl from "@/components/booking/BookingTimeSlotControl";
 import DiagnosisEditor from "@/components/diagnosis/DiagnosisEditor";
 import RoutineEditor from "@/components/routine/RoutineEditor";
 import FeedbackEditor from "@/components/feedback/FeedbackEditor";
@@ -97,8 +100,12 @@ export default async function CrmBookingDetailsPage({
   }
 
   const preferredDate = booking.appointmentTime
-    ? new Date(booking.appointmentTime).toLocaleDateString()
+    ? formatLongDate(booking.appointmentTime)
     : "Not scheduled";
+  const consultationTime =
+    booking.appointmentTime && booking.timeSlot
+      ? `${preferredDate} at ${formatTimeSlot(booking.timeSlot)}`
+      : "Time TBD — CRM will confirm";
 
   return (
     <section>
@@ -167,6 +174,26 @@ export default async function CrmBookingDetailsPage({
           <div className="mt-5 grid gap-5 sm:grid-cols-2">
             <DetailItem label="Booking Token" value={booking.token} />
             <DetailItem label="Preferred Date" value={preferredDate} />
+            <DetailItem
+              label="Consultation Time"
+              value={
+                <div className="flex flex-wrap items-center gap-3">
+                  <span>{consultationTime}</span>
+                  <BookingTimeSlotControl
+                    bookingId={booking.id}
+                    doctorId={booking.doctor?.id ?? null}
+                    appointmentTime={
+                      booking.appointmentTime?.toISOString() ?? null
+                    }
+                    currentTimeSlot={booking.timeSlot}
+                    disabled={
+                      booking.status === "COMPLETED" ||
+                      booking.status === "CANCELLED"
+                    }
+                  />
+                </div>
+              }
+            />
             <DetailItem
               label="Booking Status"
               value={
