@@ -16,7 +16,8 @@ export const dynamic = "force-dynamic";
 
 type AdminStats = {
   totalUsers: number;
-  totalBookings: number;
+  membershipBookings: number;
+  directConsultations: number;
   totalRevenue: number;
   pendingBookings: number;
 };
@@ -36,7 +37,8 @@ type SkinAnalysisStats = {
 
 const statLabels = [
   { key: "totalUsers", label: "Total Users" },
-  { key: "totalBookings", label: "Total Bookings" },
+  { key: "membershipBookings", label: "Membership Bookings" },
+  { key: "directConsultations", label: "Direct Consultations" },
   // { key: "totalRevenue", label: "Total Revenue" },
   { key: "pendingBookings", label: "Pending Bookings" },
 ] satisfies Array<{ key: keyof AdminStats; label: string }>;

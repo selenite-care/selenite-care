@@ -14,6 +14,7 @@ export async function GET() {
   const bookings = await db.booking.findMany({
     where: {
       userId: session.user.id,
+      // Client history intentionally includes membership and one-time bookings.
     },
     orderBy: {
       createdAt: "desc",

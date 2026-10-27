@@ -11,6 +11,7 @@ type ClientBooking = {
   token: string;
   appointmentTime: string | null;
   timeSlot: string | null;
+  isOneTimeConsultation: boolean;
   status: string;
   doctor: {
     name: string;
@@ -34,6 +35,20 @@ function getStatusBadgeClasses(status: string) {
     default:
       return "border-black/10 bg-zinc-50 text-foreground/70 dark:border-white/10 dark:bg-white/5";
   }
+}
+
+function BookingTypeBadge({ isOneTime }: { isOneTime: boolean }) {
+  return (
+    <span
+      className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${
+        isOneTime
+          ? "border-[#D4B47A] bg-[#D4B47A] text-[#2B2B2B]"
+          : "border-[#2B2B2B] bg-[#2B2B2B] text-[#F8F5F0] dark:border-[#4A4541]"
+      }`}
+    >
+      {isOneTime ? "Direct Consultation" : "Membership Booking"}
+    </span>
+  );
 }
 
 export default function DashboardBookingsPage() {
@@ -87,7 +102,7 @@ export default function DashboardBookingsPage() {
 
       {isLoading ? (
         <div className="mt-8">
-          <SkeletonTable rows={5} cols={5} />
+          <SkeletonTable rows={5} cols={6} />
         </div>
       ) : null}
 
@@ -107,9 +122,14 @@ export default function DashboardBookingsPage() {
                 key={booking.id}
                 className="bg-card border-themed rounded-xl border p-5"
               >
-                <p className="font-mono text-sm font-semibold text-[#B87B68]">
-                  {booking.token}
-                </p>
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <p className="font-mono text-sm font-semibold text-[#B87B68]">
+                    {booking.token}
+                  </p>
+                  <BookingTypeBadge
+                    isOneTime={booking.isOneTimeConsultation}
+                  />
+                </div>
 
                 <div className="mt-4 space-y-3">
                   <div>
@@ -161,10 +181,11 @@ export default function DashboardBookingsPage() {
 
           <div className="bg-card border-themed mt-8 hidden overflow-hidden rounded-lg border md:block">
             <div className="overflow-x-auto">
-              <table className="table-themed w-full min-w-[860px] text-left text-sm">
+              <table className="table-themed w-full min-w-[980px] text-left text-sm">
                 <thead>
                   <tr>
                     <th className="px-4 py-3 font-medium">Booking Token</th>
+                    <th className="px-4 py-3 font-medium">Booking Type</th>
                     <th className="px-4 py-3 font-medium">Doctor Name</th>
                     <th className="px-4 py-3 font-medium">Date &amp; Time</th>
                     <th className="px-4 py-3 font-medium">Booking Status</th>
@@ -176,6 +197,11 @@ export default function DashboardBookingsPage() {
                     <tr key={booking.id}>
                       <td className="px-4 py-4 font-mono text-xs text-foreground/70">
                         {booking.token}
+                      </td>
+                      <td className="px-4 py-4">
+                        <BookingTypeBadge
+                          isOneTime={booking.isOneTimeConsultation}
+                        />
                       </td>
                       <td className="px-4 py-4 text-foreground/70">
                         {booking.doctor?.name ?? "Not assigned"}
