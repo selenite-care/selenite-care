@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 
 type DoctorStats = {
   doctorName: string;
-  totalAssignedBookings: number;
+  membershipBookings: number;
+  directConsultations: number;
   pendingBookings: number;
   completedBookings: number;
   error?: string;
@@ -73,11 +74,17 @@ export default function DoctorDashboardPage() {
           ) : null}
 
           {stats && !isLoading && !error ? (
-            <div className="mt-8 grid gap-4 sm:grid-cols-3">
+            <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
               <div className="rounded-3xl border border-black/10 bg-white p-6 text-sm text-foreground shadow-sm dark:border-white/10 dark:bg-zinc-950">
-                <p className="text-sm font-medium text-foreground/70">Total Assigned Bookings</p>
+                <p className="text-sm font-medium text-foreground/70">Membership Bookings</p>
                 <p className="mt-4 text-3xl font-semibold text-foreground">
-                  {stats.totalAssignedBookings}
+                  {stats.membershipBookings}
+                </p>
+              </div>
+              <div className="rounded-3xl border border-[#D4B47A] bg-white p-6 text-sm text-foreground shadow-sm dark:bg-zinc-950">
+                <p className="text-sm font-medium text-[#8A641D] dark:text-[#D4B47A]">Direct Consultations</p>
+                <p className="mt-4 text-3xl font-semibold text-foreground">
+                  {stats.directConsultations}
                 </p>
               </div>
               <div className="rounded-3xl border border-black/10 bg-white p-6 text-sm text-foreground shadow-sm dark:border-white/10 dark:bg-zinc-950">

@@ -11,7 +11,7 @@ const adminSections = [
     heading: "Operations",
     links: [
       { href: "/admin", label: "Dashboard Overview" },
-      { href: "/admin/bookings", label: "All Bookings" },
+      { href: "/admin/bookings", label: "Membership Bookings" },
       { href: "/admin/one-time-consultations", label: "One-Time Consultations" },
       { href: "/admin/memberships", label: "Memberships" },
       { href: "/admin/memberships/manual", label: "Add Manual Membership" },

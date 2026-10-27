@@ -15,14 +15,29 @@ export async function GET() {
     return Response.json({ error: "Forbidden." }, { status: 403 });
   }
 
-  const [totalClients, totalBookings, pendingBookings, recentBookings] =
+  const [
+    totalClients,
+    membershipBookings,
+    directConsultations,
+    pendingBookings,
+    recentBookings,
+  ] =
     await Promise.all([
       db.user.count({
         where: {
           role: "CLIENT",
         },
       }),
-      db.booking.count(),
+      db.booking.count({
+        where: {
+          isOneTimeConsultation: false,
+        },
+      }),
+      db.oneTimeConsultation.count({
+        where: {
+          paymentStatus: "PAID",
+        },
+      }),
       db.booking.count({
         where: {
           status: {
@@ -61,7 +76,8 @@ export async function GET() {
 
   return Response.json({
     totalClients,
-    totalBookings,
+    membershipBookings,
+    directConsultations,
     pendingBookings,
     recentBookings,
   });

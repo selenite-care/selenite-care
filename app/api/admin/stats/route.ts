@@ -17,14 +17,24 @@ export async function GET() {
 
   const [
     totalUsers,
-    totalBookings,
+    membershipBookings,
+    directConsultations,
     pendingBookings,
     revenue,
     totalMemberships,
     activeMemberships,
   ] = await db.$transaction([
     db.user.count(),
-    db.booking.count(),
+    db.booking.count({
+      where: {
+        isOneTimeConsultation: false,
+      },
+    }),
+    db.oneTimeConsultation.count({
+      where: {
+        paymentStatus: "PAID",
+      },
+    }),
     db.booking.count({
       where: {
         status: {
@@ -47,7 +57,8 @@ export async function GET() {
 
   return Response.json({
     totalUsers,
-    totalBookings,
+    membershipBookings,
+    directConsultations,
     totalRevenue: revenue._sum.amount ?? 0,
     pendingBookings,
     totalMemberships,

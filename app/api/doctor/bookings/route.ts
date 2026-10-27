@@ -52,6 +52,7 @@ export async function GET(request: Request) {
 
   const where: Prisma.BookingWhereInput = {
     doctorId: doctor.id,
+    isOneTimeConsultation: false,
     ...(search
       ? {
           OR: [

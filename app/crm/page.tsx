@@ -10,7 +10,8 @@ export const dynamic = "force-dynamic";
 
 type CrmStats = {
   totalClients: number;
-  totalBookings: number;
+  membershipBookings: number;
+  directConsultations: number;
   pendingBookings: number;
   recentBookings: Array<{
     id: string;
@@ -67,8 +68,8 @@ export default function CrmPage() {
           </p>
 
           {isLoading ? (
-            <div className="mt-8 grid gap-4 sm:grid-cols-3">
-              {Array.from({ length: 3 }).map((_, index) => (
+            <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              {Array.from({ length: 4 }).map((_, index) => (
                 <SkeletonStat key={index} />
               ))}
             </div>
@@ -81,14 +82,18 @@ export default function CrmPage() {
           ) : null}
 
           {stats && !isLoading && !error ? (
-            <div className="mt-8 grid gap-4 sm:grid-cols-3">
+            <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
               <div className="rounded-2xl border border-black/10 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-zinc-900">
                 <p className="text-sm font-medium uppercase tracking-wide text-foreground/60">Total Clients</p>
                 <p className="mt-4 text-3xl font-semibold text-foreground">{stats.totalClients}</p>
               </div>
               <div className="rounded-2xl border border-black/10 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-zinc-900">
-                <p className="text-sm font-medium uppercase tracking-wide text-foreground/60">Total Bookings</p>
-                <p className="mt-4 text-3xl font-semibold text-foreground">{stats.totalBookings}</p>
+                <p className="text-sm font-medium uppercase tracking-wide text-foreground/60">Membership Bookings</p>
+                <p className="mt-4 text-3xl font-semibold text-foreground">{stats.membershipBookings}</p>
+              </div>
+              <div className="rounded-2xl border border-[#D4B47A] bg-white p-6 shadow-sm dark:bg-zinc-900">
+                <p className="text-sm font-medium uppercase tracking-wide text-[#8A641D] dark:text-[#D4B47A]">Direct Consultations</p>
+                <p className="mt-4 text-3xl font-semibold text-foreground">{stats.directConsultations}</p>
               </div>
               <div className="rounded-2xl border border-black/10 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-zinc-900">
                 <p className="text-sm font-medium uppercase tracking-wide text-foreground/60">Pending Bookings</p>

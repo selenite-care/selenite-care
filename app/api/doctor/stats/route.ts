@@ -38,7 +38,8 @@ export async function GET() {
     return new Response(
       JSON.stringify({
         doctorName: userName || "Doctor",
-        totalAssignedBookings: 0,
+        membershipBookings: 0,
+        directConsultations: 0,
         pendingBookings: 0,
         completedBookings: 0,
       }),
@@ -49,27 +50,46 @@ export async function GET() {
     );
   }
 
-  const totalAssignedBookings = await db.booking.count({
-    where: { doctorId: doctor.id },
-  });
-
-  const pendingBookings = await db.booking.count({
-    where: {
-      doctorId: doctor.id,
-      status: {
-        notIn: ["COMPLETED", "CANCELLED"],
+  const [
+    membershipBookings,
+    directConsultations,
+    pendingBookings,
+    completedBookings,
+  ] = await db.$transaction([
+    db.booking.count({
+      where: {
+        doctorId: doctor.id,
+        isOneTimeConsultation: false,
       },
-    },
-  });
-
-  const completedBookings = await db.booking.count({
-    where: { doctorId: doctor.id, status: "COMPLETED" },
-  });
+    }),
+    db.oneTimeConsultation.count({
+      where: {
+        paymentStatus: "PAID",
+        booking: {
+          is: {
+            doctorId: doctor.id,
+          },
+        },
+      },
+    }),
+    db.booking.count({
+      where: {
+        doctorId: doctor.id,
+        status: {
+          notIn: ["COMPLETED", "CANCELLED"],
+        },
+      },
+    }),
+    db.booking.count({
+      where: { doctorId: doctor.id, status: "COMPLETED" },
+    }),
+  ]);
 
   return new Response(
     JSON.stringify({
       doctorName: doctor.name,
-      totalAssignedBookings,
+      membershipBookings,
+      directConsultations,
       pendingBookings,
       completedBookings,
     }),

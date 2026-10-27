@@ -29,6 +29,7 @@ export async function GET(request: Request) {
       ? statusFilter
       : undefined;
   const where: Prisma.BookingWhereInput = {
+    isOneTimeConsultation: false,
     ...(search
       ? {
           OR: [
