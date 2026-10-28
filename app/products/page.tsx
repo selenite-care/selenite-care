@@ -3,7 +3,13 @@
 import Image from "next/image";
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { ShoppingBag, X } from "lucide-react";
+import {
+  Check,
+  Search,
+  ShoppingBag,
+  SlidersHorizontal,
+  X,
+} from "lucide-react";
 import { useCart } from "@/components/cart/CartProvider";
 import { Skeleton, SkeletonCard } from "@/components/ui/Skeleton";
 import { trackAddToCart, trackViewItem } from "@/lib/analytics";
@@ -123,11 +129,8 @@ function ProductImage({
   initials: string;
   className?: string;
 }) {
-  const [hasImageError, setHasImageError] = useState(false);
-
-  useEffect(() => {
-    setHasImageError(false);
-  }, [src]);
+  const [failedSrc, setFailedSrc] = useState<string | null>(null);
+  const hasImageError = !!src && failedSrc === src;
 
   if (!src || hasImageError) {
     return (
@@ -150,7 +153,7 @@ function ProductImage({
       sizes={sizes}
       className={className}
       unoptimized
-      onError={() => setHasImageError(true)}
+      onError={() => setFailedSrc(src)}
     />
   );
 }
@@ -174,6 +177,7 @@ function ProductsPageContent() {
   const [page, setPage] = useState(initialPage);
   const [products, setProducts] = useState<Product[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
   const [types, setTypes] = useState<string[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
@@ -491,6 +495,22 @@ function ProductsPageContent() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [selectedProduct]);
 
+  useEffect(() => {
+    if (!isCategoryMenuOpen) {
+      return;
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setIsCategoryMenuOpen(false);
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isCategoryMenuOpen]);
+
   const productCountLabel = useMemo(() => {
     if (isLoading) {
       return "";
@@ -644,36 +664,30 @@ function ProductsPageContent() {
             boxShadow: "0 4px 24px rgba(198,165,107,0.08)",
             padding: 20,
           }}
-          className="dark:border-[#3D3530] dark:bg-[#242220]"
+          className="product-filter-panel dark:border-[#3D3530] dark:bg-[#242220]"
         >
-          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_260px_auto_auto] lg:items-end">
-            <div>
+          <div className="product-filter-grid grid grid-cols-[minmax(0,1fr)_42px] gap-2 sm:grid-cols-1 sm:gap-4 lg:grid-cols-[minmax(0,1fr)_260px_auto_auto] lg:items-end">
+            <div className="min-w-0">
               <label
                 htmlFor="product-search"
                 style={{ color: "#2B2B2B" }}
-                className="block text-sm font-medium dark:text-[#F0EDE8]"
+                className="product-filter-label block text-sm font-medium dark:text-[#F0EDE8]"
               >
                 Search
               </label>
-              <div style={{ position: "relative", marginTop: 8 }}>
-                <span
-                  style={{
-                    position: "absolute",
-                    left: 14,
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    color: "#B87B68",
-                    fontSize: 15,
-                    pointerEvents: "none",
-                  }}
-                >
-                  Q
-                </span>
+              <div
+                className="product-search-wrapper"
+                style={{ position: "relative", marginTop: 8 }}
+              >
+                <Search
+                  aria-hidden="true"
+                  className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#B87B68]"
+                />
                 <input
                   id="product-search"
                   value={searchInput}
                   onChange={(event) => setSearchInput(event.target.value)}
-                  placeholder="Search by product name or category"
+                  placeholder="Search products"
                   style={{
                     height: 46,
                     width: "100%",
@@ -696,12 +710,30 @@ function ProductsPageContent() {
                     event.currentTarget.style.borderColor = "#E8DDD0";
                     event.currentTarget.style.boxShadow = "none";
                   }}
-                  className="dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8] dark:placeholder:text-[#8A7D75]"
+                  className="product-search-input dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8] dark:placeholder:text-[#8A7D75]"
                 />
               </div>
             </div>
 
-            <div>
+            <button
+              type="button"
+              onClick={() => setIsCategoryMenuOpen(true)}
+              className={`product-mobile-filter-button relative flex h-[42px] w-[42px] items-center justify-center rounded-lg border sm:hidden ${
+                selectedType || showDoctorRecommended
+                  ? "border-[#B87B68] bg-[#B87B68] text-white"
+                  : "border-[#E8DDD0] bg-[#FBF9F6] text-[#2B2B2B] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
+              }`}
+              aria-label="Filter products by category"
+              aria-haspopup="dialog"
+              aria-expanded={isCategoryMenuOpen}
+            >
+              <SlidersHorizontal className="h-4 w-4" aria-hidden="true" />
+              {selectedType || showDoctorRecommended ? (
+                <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-white" />
+              ) : null}
+            </button>
+
+            <div className="product-category-desktop hidden sm:block">
               <label
                 htmlFor="product-type"
                 style={{ color: "#2B2B2B" }}
@@ -767,7 +799,7 @@ function ProductsPageContent() {
                   whiteSpace: "nowrap",
                   transition: "all 0.2s ease",
                 }}
-                className="dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#F0EDE8]"
+                className="product-recommended-filter hidden dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#F0EDE8] sm:block"
               >
                 Doctor Recommended
               </button>
@@ -785,7 +817,7 @@ function ProductsPageContent() {
                 whiteSpace: "nowrap",
                 textAlign: "center",
               }}
-              className="dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#8A7D75]"
+              className="product-count-desktop hidden dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#8A7D75] sm:block"
             >
               {isLoading ? (
                 <Skeleton className="mx-auto h-4 w-24" />
@@ -794,7 +826,103 @@ function ProductsPageContent() {
               )}
             </div>
           </div>
+
+          <div className="product-count-mobile text-xs text-[#8C7967] dark:text-[#8A7D75] sm:hidden">
+            {isLoading ? (
+              <Skeleton className="h-3.5 w-20" />
+            ) : (
+              productCountLabel
+            )}
+          </div>
         </section>
+
+        {isCategoryMenuOpen ? (
+          <div className="fixed inset-0 z-[90] sm:hidden" role="presentation">
+            <button
+              type="button"
+              aria-label="Close product filters"
+              onClick={() => setIsCategoryMenuOpen(false)}
+              className="absolute inset-0 bg-black/55"
+            />
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="mobile-product-filter-title"
+              className="absolute inset-x-0 bottom-0 max-h-[75vh] overflow-y-auto rounded-t-xl border-t border-[#E8DDD0] bg-white px-4 pb-6 pt-4 shadow-2xl dark:border-[#3D3530] dark:bg-[#242220]"
+            >
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <h2
+                    id="mobile-product-filter-title"
+                    className="text-lg font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]"
+                  >
+                    Product Categories
+                  </h2>
+                  <p className="mt-1 text-xs text-[#8C7967] dark:text-[#8A7D75]">
+                    Choose a category to refine the collection.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsCategoryMenuOpen(false)}
+                  className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#E8DDD0] text-[#2B2B2B] dark:border-[#3D3530] dark:text-[#F0EDE8]"
+                  aria-label="Close product filters"
+                >
+                  <X className="h-4 w-4" aria-hidden="true" />
+                </button>
+              </div>
+
+              <div className="mt-5 grid gap-2">
+                {["", ...types].map((type) => {
+                  const isSelected = selectedType === type;
+                  const label = type || "All Categories";
+
+                  return (
+                    <button
+                      key={type || "all"}
+                      type="button"
+                      onClick={() => {
+                        updateSelectedType(type);
+                        setIsCategoryMenuOpen(false);
+                      }}
+                      className={`flex min-h-11 items-center justify-between rounded-lg border px-4 text-left text-sm font-medium ${
+                        isSelected
+                          ? "border-[#B87B68] bg-[#FFF5F1] text-[#884F38] dark:bg-[#2A211D] dark:text-[#D4B47A]"
+                          : "border-[#E8DDD0] text-[#2B2B2B] dark:border-[#3D3530] dark:text-[#F0EDE8]"
+                      }`}
+                    >
+                      <span>{label}</span>
+                      {isSelected ? (
+                        <Check className="h-4 w-4" aria-hidden="true" />
+                      ) : null}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {recommendedProductIds.size > 0 ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowDoctorRecommended((current) => !current);
+                    updatePage(1);
+                    setIsCategoryMenuOpen(false);
+                  }}
+                  className={`mt-4 flex min-h-11 w-full items-center justify-between rounded-lg border px-4 text-left text-sm font-semibold ${
+                    showDoctorRecommended
+                      ? "border-[#B87B68] bg-[#B87B68] text-white"
+                      : "border-[#E8DDD0] text-[#2B2B2B] dark:border-[#3D3530] dark:text-[#F0EDE8]"
+                  }`}
+                >
+                  <span>Doctor Recommended</span>
+                  {showDoctorRecommended ? (
+                    <Check className="h-4 w-4" aria-hidden="true" />
+                  ) : null}
+                </button>
+              ) : null}
+            </div>
+          </div>
+        ) : null}
 
         {hasProductDiscount ? (
           <div className="mt-6 rounded-2xl border border-[#E8DDD0] border-l-4 border-l-[#B87B68] bg-[#FFF8EE] px-5 py-4 shadow-sm dark:border-[#3D3530] dark:border-l-[#D4B47A] dark:bg-[#242220]">
@@ -829,7 +957,7 @@ function ProductsPageContent() {
         ) : null}
 
         {isLoading ? (
-          <div className="mt-8 grid grid-cols-3 gap-2 sm:gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <div className="mt-8 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-2 xl:grid-cols-4">
             {Array.from({ length: 8 }).map((_, index) => (
               <SkeletonCard key={index} className="min-h-[180px] sm:min-h-[420px]" />
             ))}
@@ -867,7 +995,7 @@ function ProductsPageContent() {
           </div>
         ) : (
           <>
-            <section className="mt-8 grid grid-cols-3 gap-2 sm:gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <section className="mt-8 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-2 xl:grid-cols-4">
               {products.map((product) => {
                 const statusColor = STOCK_STATUS_COLORS.AVAILABLE;
                 const isDoctorRecommended = recommendedProductIds.has(product.id);
@@ -1018,7 +1146,10 @@ function ProductsPageContent() {
                       }}
                       className="product-card-body"
                     >
-                      <div style={{ marginBottom: 10 }}>
+                      <div
+                        className="product-stock-row"
+                        style={{ marginBottom: 10 }}
+                      >
                         <span
                           style={{
                             display: "inline-flex",
@@ -1089,7 +1220,7 @@ function ProductsPageContent() {
                         ) : null}
                       </div>
 
-                      <div style={{ flex: 1 }} />
+                      <div className="product-card-spacer" style={{ flex: 1 }} />
 
                       <div
                         style={{
@@ -1108,9 +1239,10 @@ function ProductsPageContent() {
                           alignItems: "flex-start",
                           marginBottom: 6,
                         }}
+                        className="product-price-group"
                       >
                         {hasGlobalProductDiscount ? (
-                          <span className="text-sm font-semibold text-[#8C7967] line-through decoration-[#8C7967] dark:text-[#8A7D75]">
+                          <span className="product-original-price text-sm font-semibold text-[#8C7967] line-through decoration-[#8C7967] dark:text-[#8A7D75]">
                             {formatBdt(product.price)}
                           </span>
                         ) : null}
@@ -1230,61 +1362,34 @@ function ProductsPageContent() {
 
       {selectedProduct ? (
         <div
-          className="fixed inset-0 z-[80] flex items-center justify-center bg-black/65 px-4 py-6"
+          className="fixed inset-0 z-[80] flex items-center justify-center bg-black/65 py-4 sm:px-4 sm:py-6"
           onClick={() => setSelectedProduct(null)}
           role="presentation"
         >
           <div
-            className="relative max-h-[90vh] w-full max-w-[500px] overflow-y-auto rounded-2xl border border-[#E8DDD0] bg-white shadow-2xl dark:border-[#3D3530] dark:bg-[#242220]"
+            className="relative max-h-[86dvh] w-[calc(100%_-_2rem)] max-w-[350px] overflow-y-auto rounded-xl border border-[#E8DDD0] bg-white shadow-2xl dark:border-[#3D3530] dark:bg-[#242220] sm:max-h-[90vh] sm:w-full sm:max-w-[420px]"
             onClick={(event) => event.stopPropagation()}
             role="dialog"
             aria-modal="true"
             aria-label={`${selectedProduct.name} product details`}
           >
-            <button
-              type="button"
-              onClick={() => setSelectedProduct(null)}
-              className="absolute right-3 top-3 z-10 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/95 text-[#2B2B2B] shadow-md transition-colors hover:bg-[#F8F5F0] dark:bg-[#1A1814]/95 dark:text-[#F0EDE8] dark:hover:bg-[#242220]"
-              aria-label="Close product details"
-            >
-              <X className="h-5 w-5" />
-            </button>
+            <div className="relative aspect-square w-full overflow-hidden bg-[#F8F5F0] dark:bg-[#1A1814]">
+              <button
+                type="button"
+                onClick={() => setSelectedProduct(null)}
+                className="absolute right-2.5 top-2.5 z-10 inline-flex h-9 w-9 items-center justify-center rounded-full border border-black/5 bg-white/95 text-[#2B2B2B] shadow-md transition-colors hover:bg-[#F8F5F0] dark:border-white/10 dark:bg-[#1A1814]/95 dark:text-[#F0EDE8] dark:hover:bg-[#242220] sm:right-3 sm:top-3 sm:h-10 sm:w-10"
+                aria-label="Close product details"
+              >
+                <X className="h-4 w-4 sm:h-5 sm:w-5" />
+              </button>
 
-            <div className="relative h-[320px] w-full overflow-hidden bg-[#F8F5F0] dark:bg-[#1A1814] sm:h-[360px]">
               {selectedProduct.image ? (
-                <>
-                  <div
-                    aria-hidden="true"
-                    className="absolute inset-y-0 left-0 w-1/3 opacity-95 dark:opacity-70"
-                    style={{
-                      background:
-                        "radial-gradient(circle at 50% 50%, rgba(184,123,104,0.20) 0 4px, transparent 5px 18px, rgba(184,123,104,0.42) 19px 21px, transparent 22px 34px, rgba(184,123,104,0.30) 35px 37px, transparent 38px 48px), repeating-conic-gradient(from 0deg at 50% 50%, rgba(184,123,104,0.30) 0deg 7deg, transparent 7deg 15deg), radial-gradient(circle at 50% 50%, transparent 0 56px, rgba(184,123,104,0.22) 57px 58px, transparent 59px)",
-                      backgroundSize: "118px 118px, 118px 118px, 118px 118px",
-                      backgroundPosition: "center",
-                    }}
-                  />
-                  <div
-                    aria-hidden="true"
-                    className="absolute inset-y-0 right-0 w-1/3 opacity-95 dark:opacity-70"
-                    style={{
-                      background:
-                        "radial-gradient(circle at 50% 50%, rgba(184,123,104,0.20) 0 4px, transparent 5px 18px, rgba(184,123,104,0.42) 19px 21px, transparent 22px 34px, rgba(184,123,104,0.30) 35px 37px, transparent 38px 48px), repeating-conic-gradient(from 0deg at 50% 50%, rgba(184,123,104,0.30) 0deg 7deg, transparent 7deg 15deg), radial-gradient(circle at 50% 50%, transparent 0 56px, rgba(184,123,104,0.22) 57px 58px, transparent 59px)",
-                      backgroundSize: "118px 118px, 118px 118px, 118px 118px",
-                      backgroundPosition: "center",
-                    }}
-                  />
-                  <div
-                    aria-hidden="true"
-                    className="absolute inset-0 bg-[linear-gradient(90deg,rgba(248,245,240,0.48),transparent_25%,transparent_75%,rgba(248,245,240,0.48))] dark:bg-[linear-gradient(90deg,rgba(26,24,20,0.52),transparent_25%,transparent_75%,rgba(26,24,20,0.52))]"
-                  />
-                  <ProductImage
-                    src={selectedProduct.image}
-                    alt={selectedProduct.name}
-                    sizes="500px"
-                    initials={getInitials(selectedProduct.name)}
-                    className="relative z-[1] object-contain"
-                  />
-                </>
+                <ProductImage
+                  src={selectedProduct.image}
+                  alt={selectedProduct.name}
+                  sizes="(max-width: 639px) min(350px, calc(100vw - 2rem)), 420px"
+                  initials={getInitials(selectedProduct.name)}
+                />
               ) : (
                 <div className="flex h-full items-center justify-center">
                   <span
@@ -1297,7 +1402,7 @@ function ProductsPageContent() {
               )}
             </div>
 
-            <div className="space-y-5 p-6">
+            <div className="space-y-4 p-4 sm:space-y-5 sm:p-6">
               <div>
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="rounded-full bg-[#EADDCD] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.1em] text-[#8C7355] dark:bg-[#3D3530] dark:text-[#D4B47A]">
@@ -1320,7 +1425,7 @@ function ProductsPageContent() {
                 </div>
 
                 <h2
-                  className="mt-4 text-3xl font-bold leading-tight text-[#2B2B2B] dark:text-[#F0EDE8]"
+                  className="mt-3 text-2xl font-bold leading-tight text-[#2B2B2B] dark:text-[#F0EDE8] sm:mt-4 sm:text-3xl"
                   style={{ fontFamily: "Playfair Display, serif" }}
                 >
                   {selectedProduct.name}
@@ -1338,7 +1443,7 @@ function ProductsPageContent() {
                     </div>
                   ) : null}
                   <p
-                    className="text-3xl font-extrabold text-[#B87B68]"
+                    className="text-2xl font-extrabold text-[#B87B68] sm:text-3xl"
                     style={{ fontFamily: "Playfair Display, serif" }}
                   >
                     {formatBdt(
@@ -1361,7 +1466,7 @@ function ProductsPageContent() {
                   <h3 className="text-sm font-bold uppercase tracking-[0.12em] text-[#2B2B2B] dark:text-[#F0EDE8]">
                     About this Product
                   </h3>
-                  <p className="mt-2 whitespace-pre-line text-sm leading-7 text-[#8C7967] dark:text-[#8A7D75]">
+                  <p className="mt-2 whitespace-pre-line text-sm leading-6 text-[#8C7967] dark:text-[#8A7D75] sm:leading-7">
                     {selectedProduct.description}
                   </p>
                 </section>
@@ -1372,7 +1477,7 @@ function ProductsPageContent() {
                   <h3 className="text-sm font-bold uppercase tracking-[0.12em] text-[#2B2B2B] dark:text-[#F0EDE8]">
                     Ingredients
                   </h3>
-                  <p className="mt-2 whitespace-pre-line text-sm leading-7 text-[#8C7967] dark:text-[#8A7D75]">
+                  <p className="mt-2 whitespace-pre-line text-sm leading-6 text-[#8C7967] dark:text-[#8A7D75] sm:leading-7">
                     {selectedProduct.ingredients}
                   </p>
                 </section>
@@ -1381,7 +1486,7 @@ function ProductsPageContent() {
               <button
                 type="button"
                 onClick={() => handleModalAddToCart(selectedProduct)}
-                className="inline-flex h-12 w-full items-center justify-center rounded-xl bg-[#2B2B2B] px-5 text-sm font-semibold text-[#F8F5F0] transition-colors hover:bg-[#B87B68] dark:bg-[#B87B68] dark:text-[#141210] dark:hover:bg-[#D4B47A]"
+                className="inline-flex h-11 w-full items-center justify-center rounded-lg bg-[#2B2B2B] px-5 text-sm font-semibold text-[#F8F5F0] transition-colors hover:bg-[#B87B68] dark:bg-[#B87B68] dark:text-[#141210] dark:hover:bg-[#D4B47A] sm:h-12 sm:rounded-xl"
               >
                 Order Now
               </button>
@@ -1392,81 +1497,99 @@ function ProductsPageContent() {
 
       <style>{`
         @media (max-width: 639px) {
+          .product-filter-panel {
+            margin-top: 20px !important;
+            padding: 10px !important;
+            border-radius: 12px !important;
+          }
+
+          .product-filter-label {
+            position: absolute !important;
+            width: 1px !important;
+            height: 1px !important;
+            padding: 0 !important;
+            margin: -1px !important;
+            overflow: hidden !important;
+            clip: rect(0, 0, 0, 0) !important;
+            white-space: nowrap !important;
+            border: 0 !important;
+          }
+
+          .product-search-wrapper {
+            margin-top: 0 !important;
+          }
+
+          .product-search-input {
+            height: 42px !important;
+            border-radius: 8px !important;
+            padding-left: 36px !important;
+            font-size: 13px !important;
+          }
+
+          .product-count-mobile {
+            margin-top: 8px;
+            padding-left: 2px;
+          }
+
           .product-card {
-            border-radius: 14px !important;
+            border-radius: 12px !important;
           }
 
           .product-card-body {
-            padding: 8px !important;
+            padding: 10px !important;
           }
 
           .product-doctor-badge {
-            top: 6px !important;
-            left: 6px !important;
-            max-width: calc(100% - 12px);
-            padding: 3px 6px !important;
-            font-size: 7px !important;
-            line-height: 1.1 !important;
-            letter-spacing: 0.04em !important;
-            white-space: normal;
+            display: none !important;
           }
 
           .product-type-badge {
-            top: 6px !important;
-            left: 6px !important;
-            right: auto !important;
-            max-width: calc(100% - 12px);
-            padding: 2px 5px !important;
-            font-size: 7px !important;
-            line-height: 1.1 !important;
-            letter-spacing: 0.04em !important;
-          }
-
-          .product-doctor-badge + .product-card-media .product-type-badge {
-            display: none;
+            display: none !important;
           }
 
           .product-discount-badge {
-            top: 6px !important;
-            right: 6px !important;
-            padding: 3px 6px !important;
-            font-size: 7px !important;
-            line-height: 1.1 !important;
-            letter-spacing: 0.04em !important;
+            display: none !important;
           }
 
           .product-stock-badge {
-            gap: 3px !important;
-            padding: 2px 5px !important;
-            font-size: 7px !important;
-            line-height: 1 !important;
-            letter-spacing: 0.03em !important;
+            display: none !important;
+          }
+
+          .product-stock-row {
+            display: none !important;
           }
 
           .product-card-title {
-            font-size: 11px !important;
-            line-height: 1.2 !important;
-            min-height: calc(1.2em * 2) !important;
-            margin-bottom: 5px !important;
+            font-size: 14px !important;
+            line-height: 1.3 !important;
+            min-height: calc(1.3em * 2) !important;
+            margin-bottom: 8px !important;
           }
 
           .product-skin-type-row {
-            min-height: 0 !important;
-            margin-bottom: 4px !important;
-          }
-
-          .product-skin-type {
-            font-size: 7px !important;
-            letter-spacing: 0.03em !important;
+            display: none !important;
           }
 
           .product-card-divider {
-            margin: 2px 0 7px !important;
+            display: none !important;
+          }
+
+          .product-card-spacer {
+            display: none !important;
+          }
+
+          .product-price-group {
+            margin-bottom: 8px !important;
+          }
+
+          .product-original-price {
+            font-size: 11px !important;
+            line-height: 1.2 !important;
           }
 
           .product-card-price {
-            font-size: 13px !important;
-            line-height: 1.1 !important;
+            font-size: 16px !important;
+            line-height: 1.2 !important;
           }
 
           .product-stock-note-row {
@@ -1474,9 +1597,9 @@ function ProductsPageContent() {
           }
 
           .product-add-button {
-            height: 32px !important;
+            height: 36px !important;
             border-radius: 8px !important;
-            font-size: 10px !important;
+            font-size: 11px !important;
           }
 
           .product-sold-out-badge {
@@ -1505,9 +1628,12 @@ export default function ProductsPage() {
         <main className="min-h-screen bg-[#F8F5F0] px-6 py-12 dark:bg-[#141210]">
           <div className="mx-auto w-full max-w-7xl">
             <Skeleton className="h-10 w-64" />
-            <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="mt-10 grid grid-cols-2 gap-3 sm:gap-6 xl:grid-cols-4">
               {Array.from({ length: 8 }).map((_, index) => (
-                <SkeletonCard key={index} className="h-[420px]" />
+                <SkeletonCard
+                  key={index}
+                  className="h-[280px] sm:h-[420px]"
+                />
               ))}
             </div>
           </div>
