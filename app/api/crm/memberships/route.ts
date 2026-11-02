@@ -3,7 +3,7 @@ import { authConfig } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getPaginationMeta, getPaginationParams } from "@/lib/apiPagination";
 import { expirePastActiveMemberships } from "@/lib/membershipStatus";
-import type { MembershipStatus, Prisma } from "@prisma/client";
+import type { MembershipStatus, MembershipTier, Prisma } from "@prisma/client";
 
 const { auth } = NextAuth(authConfig);
 
@@ -24,12 +24,20 @@ export async function GET(request: Request) {
   const { page, limit, skip, take } = getPaginationParams(searchParams);
   const search = searchParams.get("search")?.trim() || searchParams.get("q")?.trim() || "";
   const statusFilter = searchParams.get("statusFilter")?.trim().toUpperCase() ?? "ALL";
+  const tierFilter = searchParams.get("tierFilter")?.trim().toUpperCase() ?? "ALL";
   const membershipStatus: MembershipStatus | undefined =
     statusFilter === "PENDING" ||
     statusFilter === "ACTIVE" ||
     statusFilter === "EXPIRED" ||
     statusFilter === "CANCELLED"
       ? statusFilter
+      : undefined;
+  const membershipTier: MembershipTier | undefined =
+    tierFilter === "CLASSIC" ||
+    tierFilter === "SIGNATURE" ||
+    tierFilter === "CRYSTAL" ||
+    tierFilter === "PLATINUM"
+      ? tierFilter
       : undefined;
   const where: Prisma.MembershipWhereInput = {
     ...(search
@@ -43,6 +51,7 @@ export async function GET(request: Request) {
         }
       : {}),
     ...(membershipStatus ? { status: membershipStatus } : {}),
+    ...(membershipTier ? { tier: membershipTier } : {}),
   };
 
   const [memberships, totalCount] = await Promise.all([

@@ -5,7 +5,7 @@ import { stripe } from "@/lib/stripe";
 
 export const runtime = "nodejs";
 
-type MembershipTier = "SIGNATURE" | "CRYSTAL" | "PLATINUM";
+type MembershipTier = "CLASSIC" | "SIGNATURE" | "CRYSTAL" | "PLATINUM";
 
 type CreateMembershipIntentPayload = {
   tier?: unknown;
@@ -31,6 +31,7 @@ function parseTier(value: unknown): MembershipTier | null {
   const normalized = value.trim().toUpperCase();
 
   if (
+    normalized === "CLASSIC" ||
     normalized === "SIGNATURE" ||
     normalized === "CRYSTAL" ||
     normalized === "PLATINUM"

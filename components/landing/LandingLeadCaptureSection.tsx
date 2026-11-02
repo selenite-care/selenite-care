@@ -198,6 +198,7 @@ export default function LandingLeadCaptureSection() {
                   onChange={(event) => setInterest(event.target.value)}
                   className="mt-2 h-11 w-full rounded-md border border-[#EADDCD] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
                 >
+                  <option value="Classic">Classic</option>
                   <option value="Signature">Signature</option>
                   <option value="Crystal">Crystal</option>
                   <option value="Platinum">Platinum</option>

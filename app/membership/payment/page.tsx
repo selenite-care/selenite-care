@@ -9,17 +9,21 @@ import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
 import { toast } from "sonner";
 import { trackMembershipCheckout } from "@/lib/analytics";
 import { isMembershipAvailable } from "@/lib/membershipAvailability";
-import { MEMBERSHIP_PRICES } from "@/lib/membershipDiscounts";
+import {
+  CLASSIC_MEMBERSHIP_BENEFITS,
+  MEMBERSHIP_PRICES,
+} from "@/lib/membershipDiscounts";
 import { BRAC_BANK_DETAILS } from "@/lib/bankDetails";
 import FileUploadButton from "@/components/ui/FileUploadButton";
 
-type MembershipTier = "SIGNATURE" | "CRYSTAL" | "PLATINUM";
+type MembershipTier = "CLASSIC" | "SIGNATURE" | "CRYSTAL" | "PLATINUM";
 
 type MembershipTierDetails = {
   name: string;
   price: number;
   originalPrice?: number;
-  benefits: string[];
+  duration?: string;
+  benefits: readonly string[];
 };
 
 type EpsInitiateResponse = {
@@ -56,15 +60,21 @@ type ClientMembershipResponse = {
 };
 
 const MEMBERSHIPS: Record<MembershipTier, MembershipTierDetails> = {
+  CLASSIC: {
+    name: "Classic Membership",
+    price: MEMBERSHIP_PRICES.CLASSIC.price,
+    duration: "1 Month",
+    benefits: CLASSIC_MEMBERSHIP_BENEFITS,
+  },
   SIGNATURE: {
     name: "Signature Membership",
     price: MEMBERSHIP_PRICES.SIGNATURE.price,
     originalPrice: MEMBERSHIP_PRICES.SIGNATURE.originalPrice ?? undefined,
     benefits: [
-      "90 Days of Unlimited Skincare Support",
-      "Skin, Body & Hair Problem Analysis: Self-submitted photo review, Online skin assessment form",
+      "90 Days of Unlimited Skincare Support: General doctor guidance & follow-up for 3 months, 24/7 client support",
+      "Skin, Body & Hair Problem Analysis: Root cause identification, Self-submitted photo review, Online skin assessment form",
       "Online Consultation with Skin Doctor / Aestheticians",
-      "Personalized Product Recommendation List",
+      "Personalized Product Recommendation List with proper benefits explained for every suggested product",
       "Skin Report Card",
       "Personalized Morning & Night Skincare Routine (after purchasing products from Selenite Care)",
       "Before & After Consultation Support",
@@ -189,6 +199,7 @@ function parseTier(value: string | null): MembershipTier | null {
   const normalized = value.trim().toUpperCase();
 
   if (
+    normalized === "CLASSIC" ||
     normalized === "SIGNATURE"
     /* CRYSTAL_MEMBERSHIP_START
     || normalized === "CRYSTAL"
@@ -1409,6 +1420,11 @@ function MembershipPaymentPageContent() {
               <p className="text-base font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]">
                 {membership.name}
               </p>
+              {membership.duration ? (
+                <p className="mt-1 text-sm text-[#8C7967] dark:text-[#8A7D75]">
+                  Valid for {membership.duration}
+                </p>
+              ) : null}
               {tier === "SIGNATURE" && membership.originalPrice ? (
                 <>
                   <div className="mt-3 inline-flex rounded-full bg-[#2B2B2B] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#F8F5F0] dark:bg-[#B87B68] dark:text-[#141210]">

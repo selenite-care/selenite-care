@@ -82,7 +82,9 @@ export async function PATCH(request: Request, context: RouteContext) {
     membership.payment
   ) {
     const tierName =
-      membership.tier === "SIGNATURE"
+      membership.tier === "CLASSIC"
+        ? "Classic"
+        : membership.tier === "SIGNATURE"
         ? "Signature"
         : membership.tier === "CRYSTAL"
           ? "Crystal"

@@ -34,8 +34,10 @@ export async function GET(request: Request) {
   const { page, limit, skip, take } = getPaginationParams(searchParams);
   const search = searchParams.get("search")?.trim() || searchParams.get("q")?.trim() || "";
   const statusFilter = searchParams.get("statusFilter")?.trim().toUpperCase() ?? "ALL";
+  const tierFilter = searchParams.get("tierFilter")?.trim().toUpperCase() ?? "ALL";
   const normalizedSearch = search.toUpperCase();
   const membershipTier: MembershipTier | undefined =
+    normalizedSearch === "CLASSIC" ||
     normalizedSearch === "SIGNATURE" ||
     normalizedSearch === "CRYSTAL" ||
     normalizedSearch === "PLATINUM"
@@ -54,6 +56,13 @@ export async function GET(request: Request) {
     statusFilter === "CANCELLED"
       ? statusFilter
       : undefined;
+  const filteredTier: MembershipTier | undefined =
+    tierFilter === "CLASSIC" ||
+    tierFilter === "SIGNATURE" ||
+    tierFilter === "CRYSTAL" ||
+    tierFilter === "PLATINUM"
+      ? tierFilter
+      : undefined;
   const searchFilters: Prisma.MembershipWhereInput[] = search
     ? [
         { membershipId: { contains: search, mode: "insensitive" as const } },
@@ -67,6 +76,7 @@ export async function GET(request: Request) {
   const where: Prisma.MembershipWhereInput = {
     ...(searchFilters.length > 0 ? { OR: searchFilters } : {}),
     ...(membershipStatus ? { status: membershipStatus } : {}),
+    ...(filteredTier ? { tier: filteredTier } : {}),
     ...(membershipStatus === "PENDING"
       ? {
           NOT: {

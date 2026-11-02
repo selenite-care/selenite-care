@@ -6,7 +6,7 @@ import { formatDateTime } from "@/lib/dateUtils";
 type PendingMembership = {
   id: string;
   membershipId: string;
-  tier: "SIGNATURE" | "CRYSTAL" | "PLATINUM";
+  tier: "CLASSIC" | "SIGNATURE" | "CRYSTAL" | "PLATINUM";
   status: "PENDING" | "ACTIVE" | "EXPIRED" | "CANCELLED";
   createdAt: string;
   user: {
@@ -36,6 +36,11 @@ type PendingPaymentMethod = "BKASH" | "BANK_TRANSFER" | "STRIPE";
 
 function getTierBadgeStyles(tier: PendingMembership["tier"]) {
   switch (tier) {
+    case "CLASSIC":
+      return {
+        backgroundColor: "#B87B68",
+        color: "#F8F5F0",
+      };
     case "PLATINUM":
       return {
         backgroundColor: "#2B2B2B",
@@ -78,6 +83,8 @@ function getPaymentMethodBadgeStyles(
 
 function formatTierLabel(tier: PendingMembership["tier"]) {
   switch (tier) {
+    case "CLASSIC":
+      return "Classic";
     case "SIGNATURE":
       return "Signature";
     case "CRYSTAL":

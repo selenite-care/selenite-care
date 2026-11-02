@@ -27,7 +27,7 @@ type DoctorsResponse = {
 type MembershipResponse = {
   membership?: {
     membershipId: string;
-    tier: "SIGNATURE" | "CRYSTAL" | "PLATINUM";
+    tier: "CLASSIC" | "SIGNATURE" | "CRYSTAL" | "PLATINUM";
     status: "PENDING" | "ACTIVE" | "EXPIRED" | "CANCELLED";
     expiresAt: string | null;
   } | null;

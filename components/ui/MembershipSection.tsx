@@ -13,6 +13,7 @@ import {
 } from "@/lib/membershipDiscounts";
 import TermsAndConditionsModal from "@/components/membership/TermsAndConditionsModal";
 import DirectConsultationCard from "@/components/ui/DirectConsultationCard";
+import ClassicMembershipCard from "@/components/ui/ClassicMembershipCard";
 import ViewportAnimatedSection from "@/components/ui/ViewportAnimatedSection";
 import { MembershipCard } from "@/components/ui/MembershipCards";
 import type { OneTimeConsultationPricing } from "@/lib/oneTimeConsultationPricing";
@@ -77,8 +78,8 @@ type BenefitItem = {
 };
 
 type MembershipTier = {
-  key: "signature" | "crystal" | "platinum";
-  tierValue: "SIGNATURE" | "CRYSTAL" | "PLATINUM";
+  key: "classic" | "signature" | "crystal" | "platinum";
+  tierValue: "CLASSIC" | "SIGNATURE" | "CRYSTAL" | "PLATINUM";
   title: string;
   validity: string;
   cost: string;
@@ -91,7 +92,7 @@ type MembershipTier = {
 };
 
 type ClientMembership = {
-  tier: "SIGNATURE" | "CRYSTAL" | "PLATINUM";
+  tier: "CLASSIC" | "SIGNATURE" | "CRYSTAL" | "PLATINUM";
   status: "PENDING" | "ACTIVE" | "EXPIRED" | "CANCELLED";
   expiresAt: string | null;
 };
@@ -108,6 +109,7 @@ type MembershipActionState = {
 };
 
 const TIER_ORDER = {
+  CLASSIC: 0,
   SIGNATURE: 1,
   CRYSTAL: 2,
   PLATINUM: 3,
@@ -131,16 +133,29 @@ const memberships: MembershipTier[] = [
       "A perfect starting point for individuals seeking professional skincare guidance and routine development.",
     accentColor: "#B87B68",
     benefits: [
-      { heading: "90 Days of Unlimited Skincare Support", points: [] },
+      {
+        heading: "90 Days of Unlimited Skincare Support",
+        points: [
+          "General doctor guidance & follow-up for 3 months",
+          "24/7 client support",
+        ],
+      },
       {
         heading: "Skin, Body & Hair Problem Analysis",
-        points: ["Self-submitted photo review", "Online skin assessment form"],
+        points: [
+          "Root cause identification",
+          "Self-submitted photo review",
+          "Online skin assessment form",
+        ],
       },
       {
         heading: "Online Consultation with Skin Doctor / Aestheticians",
         points: [],
       },
-      { heading: "Personalized Product Recommendation List", points: [] },
+      {
+        heading: "Personalized Product Recommendation List",
+        points: ["Proper benefits explained for every suggested product"],
+      },
       { heading: "Skin Report Card", points: [] },
       {
         heading: "Personalized Morning & Night Skincare Routine (after purchasing products from Selenite)",
@@ -542,8 +557,10 @@ function MembershipModal({
 
 export default function MembershipSection({
   oneTimeConsultation,
+  classicPrice,
 }: {
   oneTimeConsultation: OneTimeConsultationPricing;
+  classicPrice: number;
 }) {
   const { data: session } = useSession();
   const [selectedMembership, setSelectedMembership] = useState<MembershipTier | null>(
@@ -729,6 +746,7 @@ export default function MembershipSection({
 
           <ViewportAnimatedSection className="step-card-trigger mt-10 grid grid-cols-1 gap-6 md:grid-cols-3">
             <DirectConsultationCard pricing={oneTimeConsultation} />
+            <ClassicMembershipCard price={classicPrice} />
             {steps.map((step, index) => {
               const membership = memberships[index];
 

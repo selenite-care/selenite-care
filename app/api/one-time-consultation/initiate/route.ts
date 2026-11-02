@@ -234,6 +234,7 @@ export async function POST(request: Request) {
             create: {
               packagePrice,
               epsMerchantTxnId: merchantTransactionId,
+              includesFollowUp: false,
             },
           },
         },

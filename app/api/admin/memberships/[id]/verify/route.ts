@@ -3,6 +3,7 @@ import { authConfig } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
 import {
+  CLASSIC_MEMBERSHIP_BENEFITS,
   calculateExpiresAt,
   getProductDiscount,
   MEMBERSHIP_PRICES,
@@ -17,8 +18,10 @@ type RouteContext = {
   }>;
 };
 
-function formatTierLabel(tier: "SIGNATURE" | "CRYSTAL" | "PLATINUM") {
+function formatTierLabel(tier: "CLASSIC" | "SIGNATURE" | "CRYSTAL" | "PLATINUM") {
   switch (tier) {
+    case "CLASSIC":
+      return "Classic";
     case "SIGNATURE":
       return "Signature";
     case "CRYSTAL":
@@ -47,9 +50,20 @@ function formatReadableDate(date: Date | null) {
 }
 
 function buildMembershipBenefitParagraph(
-  tier: "SIGNATURE" | "CRYSTAL" | "PLATINUM",
+  tier: "CLASSIC" | "SIGNATURE" | "CRYSTAL" | "PLATINUM",
   expiresAt: Date | null,
 ) {
+  if (tier === "CLASSIC") {
+    return `
+      <div style="margin:20px 0 0;padding:18px 20px;border:1px solid #EADDCD;border-radius:12px;background:#FCFAF7;">
+        <p style="margin:0;font-size:14px;line-height:1.7;color:#4B4037;"><strong>Classic Membership</strong> is valid for 1 month and includes:</p>
+        <ul style="margin:12px 0 0;padding-left:20px;font-size:14px;line-height:1.8;color:#4B4037;">
+          ${CLASSIC_MEMBERSHIP_BENEFITS.map((benefit) => `<li>${benefit}</li>`).join("")}
+        </ul>
+      </div>
+    `;
+  }
+
   if (tier === "SIGNATURE") {
     const price = formatBdtWithCommas(MEMBERSHIP_PRICES.SIGNATURE.price);
     const regularPrice = formatBdtWithCommas(

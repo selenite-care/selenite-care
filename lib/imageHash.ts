@@ -11,12 +11,14 @@ type AnalysisAccess = {
 };
 
 const FREE_LIMIT_SETTING_KEYS: Record<MembershipTier, string> = {
+  CLASSIC: "skin_analysis_free_classic",
   SIGNATURE: "skin_analysis_free_signature",
   CRYSTAL: "skin_analysis_free_crystal",
   PLATINUM: "skin_analysis_free_platinum",
 };
 
 const DEFAULT_FREE_LIMITS: Record<MembershipTier, number> = {
+  CLASSIC: 0,
   SIGNATURE: 1,
   CRYSTAL: 2,
   PLATINUM: 3,
@@ -49,7 +51,14 @@ export async function checkAnalysisAccess(
   }
 
   const now = new Date();
-  const [membership, creditRecord, signatureLimit, crystalLimit, platinumLimit] =
+  const [
+    membership,
+    creditRecord,
+    classicLimit,
+    signatureLimit,
+    crystalLimit,
+    platinumLimit,
+  ] =
     await Promise.all([
       db.membership.findFirst({
         where: {
@@ -77,12 +86,14 @@ export async function checkAnalysisAccess(
           lastMembershipId: true,
         },
       }),
+      getSetting(FREE_LIMIT_SETTING_KEYS.CLASSIC),
       getSetting(FREE_LIMIT_SETTING_KEYS.SIGNATURE),
       getSetting(FREE_LIMIT_SETTING_KEYS.CRYSTAL),
       getSetting(FREE_LIMIT_SETTING_KEYS.PLATINUM),
     ]);
 
   const freeLimits: Record<MembershipTier, number> = {
+    CLASSIC: parseFreeLimit(classicLimit, DEFAULT_FREE_LIMITS.CLASSIC),
     SIGNATURE: parseFreeLimit(signatureLimit, DEFAULT_FREE_LIMITS.SIGNATURE),
     CRYSTAL: parseFreeLimit(crystalLimit, DEFAULT_FREE_LIMITS.CRYSTAL),
     PLATINUM: parseFreeLimit(platinumLimit, DEFAULT_FREE_LIMITS.PLATINUM),

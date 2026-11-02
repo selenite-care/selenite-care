@@ -514,7 +514,7 @@ model OneTimeConsultation {
   epsMerchantTxnId  String?       @unique
   paymentStatus     PaymentStatus @default(UNPAID)
   paidAt            DateTime?
-  includesFollowUp  Boolean       @default(true)
+  includesFollowUp  Boolean       @default(false)
   followUpUsed      Boolean       @default(false)
   followUpBookingId String?
   createdAt         DateTime      @default(now())
@@ -551,6 +551,7 @@ enum MembershipTier {
   SIGNATURE
   CRYSTAL
   PLATINUM
+  CLASSIC
 }
 
 enum MembershipStatus {

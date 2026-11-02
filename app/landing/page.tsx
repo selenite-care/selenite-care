@@ -82,7 +82,7 @@ const CONTENT = {
       ],
       stats: [
         { number: "2000+", label: "Happy Clients" },
-        { number: "3", label: "Membership Plans" },
+        { number: "4", label: "Membership Plans" },
         { number: "100%", label: "Personalized" },
         { number: "24/7", label: "Online Support" },
       ],
@@ -90,6 +90,21 @@ const CONTENT = {
     membership: {
       heading: "Our Membership Plans",
       subtext: "Choose the plan that fits your skin transformation goals.",
+      classic: {
+        tier: "CLASSIC",
+        title: "Classic",
+        duration: "1 Month",
+        price: "490 BDT",
+        benefits: [
+          "Online Doctor Video Consultation",
+          "Root cause identification and guidance",
+          "Right product suggestion for your skin",
+          "One month doctor guidance & follow up",
+          "Personalized day-night skincare routine",
+        ],
+        button: "Get Classic Membership",
+        link: "/membership/payment?tier=CLASSIC",
+      },
       signature: {
         tier: "SIGNATURE",
         title: "Signature",
@@ -103,9 +118,11 @@ const CONTENT = {
           ? "For limited time"
           : undefined,
         benefits: [
-          "90 Days Skincare Support",
-          "Skin, Body & Hair Analysis",
-          "Expert Consultation",
+          "3 Months General Doctor Guidance & Follow-up",
+          "24/7 Client Support",
+          "Skin, Body & Hair Analysis with Root Cause Identification",
+          "Online Doctor Video Consultation",
+          "Right Product Suggestions with Proper Benefits",
           "Personalized Routine",
         ],
         button: "Get Signature Membership",
@@ -177,7 +194,6 @@ const CONTENT = {
         "Online video doctor consultation",
         "Root cause identification and guidance",
         "Personalized product recommendations",
-        "One complimentary follow-up session",
       ],
     },
     quiz: {
@@ -352,6 +368,21 @@ const CONTENT = {
         "\u0986\u09ae\u09be\u09a6\u09c7\u09b0 \u09ae\u09c7\u09ae\u09cd\u09ac\u09be\u09b0\u09b6\u09bf\u09aa \u09aa\u09cd\u09b2\u09cd\u09af\u09be\u09a8",
       subtext:
         "\u0986\u09aa\u09a8\u09be\u09b0 \u09a4\u09cd\u09ac\u0995\u09c7\u09b0 \u09b0\u09c2\u09aa\u09be\u09a8\u09cd\u09a4\u09b0\u09c7\u09b0 \u09b2\u0995\u09cd\u09b7\u09cd\u09af \u0985\u09a8\u09c1\u09af\u09be\u09af\u09bc\u09c0 \u09aa\u09cd\u09b2\u09cd\u09af\u09be\u09a8 \u09ac\u09c7\u099b\u09c7 \u09a8\u09bf\u09a8\u0964",
+      classic: {
+        tier: "CLASSIC",
+        title: "ক্লাসিক",
+        duration: "১ মাস",
+        price: "৪৯০ টাকা",
+        benefits: [
+          "ডাক্তারের সঙ্গে অনলাইন ভিডিও কনসালটেশন",
+          "সমস্যার মূল কারণ শনাক্তকরণ ও প্রয়োজনীয় দিকনির্দেশনা",
+          "আপনার ত্বকের জন্য সঠিক পণ্যের পরামর্শ",
+          "এক মাস ডাক্তারের গাইডেন্স ও ফলো-আপ",
+          "ব্যক্তিগতকৃত দিন ও রাতের স্কিনকেয়ার রুটিন",
+        ],
+        button: "ক্লাসিক মেম্বারশিপ নিন",
+        link: "/membership/payment?tier=CLASSIC",
+      },
       signature: {
         tier: "SIGNATURE",
         title:
@@ -371,9 +402,11 @@ const CONTENT = {
           ? "\u09b8\u09c0\u09ae\u09bf\u09a4 \u09b8\u09ae\u09df\u09c7\u09b0 \u099c\u09a8\u09cd\u09af"
           : undefined,
         benefits: [
-          "\u09ef\u09e6 \u09a6\u09bf\u09a8 \u09b8\u09cd\u0995\u09bf\u09a8\u0995\u09c7\u09df\u09be\u09b0 \u09b8\u09be\u09aa\u09cb\u09b0\u09cd\u099f",
-          "\u09a4\u09cd\u09ac\u0995, \u099a\u09c1\u09b2 \u0993 \u09b6\u09b0\u09c0\u09b0 \u09ac\u09bf\u09b6\u09cd\u09b2\u09c7\u09b7\u09a3",
-          "\u09ac\u09bf\u09b6\u09c7\u09b7\u099c\u09cd\u099e \u0995\u09a8\u09b8\u09be\u09b2\u099f\u09c7\u09b6\u09a8",
+          "\u09e9 \u09ae\u09be\u09b8 \u09b8\u09be\u09a7\u09be\u09b0\u09a3 \u09a1\u09be\u0995\u09cd\u09a4\u09be\u09b0\u09c7\u09b0 \u0997\u09be\u0987\u09a1\u09c7\u09a8\u09cd\u09b8 \u0993 \u09ab\u09b2\u09cb-\u0986\u09aa",
+          "\u09e8\u09ea/\u09ed \u0995\u09cd\u09b2\u09be\u09af\u09bc\u09c7\u09a8\u09cd\u099f \u09b8\u09be\u09aa\u09cb\u09b0\u09cd\u099f",
+          "\u09a4\u09cd\u09ac\u0995, \u099a\u09c1\u09b2 \u0993 \u09b6\u09b0\u09c0\u09b0\u09c7\u09b0 \u09b8\u09ae\u09b8\u09cd\u09af\u09be \u09ac\u09bf\u09b6\u09cd\u09b2\u09c7\u09b7\u09a3 \u0993 \u09ae\u09c2\u09b2 \u0995\u09be\u09b0\u09a3 \u09b6\u09a8\u09be\u0995\u09cd\u09a4\u0995\u09b0\u09a3",
+          "\u0985\u09a8\u09b2\u09be\u0987\u09a8 \u09a1\u09be\u0995\u09cd\u09a4\u09be\u09b0 \u09ad\u09bf\u09a1\u09bf\u0993 \u0995\u09a8\u09b8\u09be\u09b2\u099f\u09c7\u09b6\u09a8",
+          "\u09b8\u09a0\u09bf\u0995 \u09aa\u09a3\u09cd\u09af\u09c7\u09b0 \u09aa\u09b0\u09be\u09ae\u09b0\u09cd\u09b6 \u0993 \u09aa\u09a3\u09cd\u09af\u09c7\u09b0 \u09b8\u09a0\u09bf\u0995 \u0989\u09aa\u0995\u09be\u09b0\u09bf\u09a4\u09be",
           "\u09ac\u09cd\u09af\u0995\u09cd\u09a4\u09bf\u0997\u09a4\u0995\u09c3\u09a4 \u09b0\u09c1\u099f\u09bf\u09a8",
         ],
         button:
@@ -465,7 +498,6 @@ const CONTENT = {
         "\u09a1\u09be\u0995\u09cd\u09a4\u09be\u09b0\u09c7\u09b0 \u09b8\u0999\u09cd\u0997\u09c7 \u09b8\u09b0\u09be\u09b8\u09b0\u09bf \u0985\u09a8\u09b2\u09be\u0987\u09a8 \u0995\u09a8\u09b8\u09be\u09b2\u099f\u09c7\u09b6\u09a8",
         "\u09b8\u09ae\u09b8\u09cd\u09af\u09be\u09b0 \u09ae\u09c2\u09b2 \u0995\u09be\u09b0\u09a3 \u09b6\u09a8\u09be\u0995\u09cd\u09a4\u0995\u09b0\u09a3 \u0993 \u09a8\u09bf\u09b0\u09cd\u09a6\u09c7\u09b6\u09a8\u09be",
         "\u09ac\u09cd\u09af\u0995\u09cd\u09a4\u09bf\u0997\u09a4 \u09aa\u09cd\u09b0\u09df\u09cb\u099c\u09a8 \u0985\u09a8\u09c1\u09af\u09be\u09df\u09c0 \u09aa\u09a3\u09cd\u09af\u09c7\u09b0 \u09aa\u09b0\u09be\u09ae\u09b0\u09cd\u09b6",
-        "\u098f\u0995\u099f\u09bf \u09ab\u09cd\u09b0\u09bf \u09ab\u09b2\u09cb-\u0986\u09aa \u09b8\u09c7\u09b6\u09a8",
       ],
     },
     quiz: {
@@ -823,6 +855,7 @@ function LandingPageContent() {
   const [isConsultationPricingLoading, setIsConsultationPricingLoading] =
     useState(true);
   const membershipPlans = [
+    membershipContent.classic,
     membershipContent.signature,
     /* CRYSTAL_MEMBERSHIP_START
     membershipContent.crystal,
@@ -1612,12 +1645,78 @@ function LandingPageContent() {
               </p>
             </div>
 
-            <div className="mt-10 grid gap-6 md:grid-cols-3">
+            <div className="mt-10 grid gap-6 md:grid-cols-2">
               {membershipPlans.map((plan) => {
                 const isPlanAvailable = isMembershipAvailable(plan.tier);
                 const planButtonLabel = isPlanAvailable
                   ? plan.button
                   : getMembershipAvailabilityLabel(plan.tier);
+
+                if (plan.tier === "CLASSIC") {
+                  return (
+                    <article
+                      key={plan.title}
+                      className="flex h-full flex-col overflow-hidden rounded-lg border-2 border-[#B87B68] bg-white shadow-[0_18px_45px_rgba(184,123,104,0.16)] dark:bg-[#242220]"
+                    >
+                      <div className="bg-[linear-gradient(135deg,#B87B68_0%,#C98F7D_55%,#8F5D50_100%)] px-6 py-5">
+                        <span className="inline-flex rounded-full border border-white/40 bg-[#2B2B2B]/20 px-3 py-1 text-[11px] font-bold uppercase text-white">
+                          {language === "en" ? "1 Month Guidance" : "১ মাস গাইডেন্স"}
+                        </span>
+                        <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+                          <h3
+                            className="text-3xl font-semibold text-white"
+                            style={{ fontFamily: "Playfair Display, serif" }}
+                          >
+                            {plan.title}
+                          </h3>
+                          <span className="rounded-full border border-white/40 bg-white/15 px-3 py-1 text-xs font-semibold text-white">
+                            {plan.duration}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-1 flex-col p-6">
+                        <p
+                          className="text-4xl font-bold text-[#2B2B2B] dark:text-[#F0EDE8]"
+                          style={{ fontFamily: "Playfair Display, serif" }}
+                        >
+                          {plan.price}
+                        </p>
+
+                        <ul className="mt-6 space-y-3">
+                          {plan.benefits.map((benefit) => (
+                            <li
+                              key={benefit}
+                              className="flex items-start gap-3 text-sm leading-6 text-[#5F524A] dark:text-[#D9C9BD]"
+                            >
+                              <Check className="mt-1 h-4 w-4 shrink-0 text-[#B87B68]" />
+                              <span>{benefit}</span>
+                            </li>
+                          ))}
+                        </ul>
+
+                        <div className="mt-auto pt-8">
+                          {isPlanAvailable ? (
+                            <Link
+                              href={plan.link}
+                              className="inline-flex h-12 w-full items-center justify-center rounded-md bg-[#B87B68] px-5 text-sm font-semibold text-[#211E1A] transition-colors hover:bg-[#C98F7D] dark:text-[#141210]"
+                            >
+                              {planButtonLabel}
+                            </Link>
+                          ) : (
+                            <button
+                              type="button"
+                              disabled
+                              className="inline-flex h-12 w-full cursor-not-allowed items-center justify-center rounded-md border border-[#EADDCD] bg-[#F4EFE8] px-5 text-sm font-medium text-[#8C7967] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#8A7D75]"
+                            >
+                              {planButtonLabel}
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </article>
+                  );
+                }
 
                 return (
                   <article

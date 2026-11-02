@@ -2,8 +2,12 @@ import { randomBytes } from "node:crypto";
 import bcrypt from "bcryptjs";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
-import { calculateExpiresAt } from "@/lib/membershipDiscounts";
+import {
+  calculateExpiresAt,
+  MEMBERSHIP_PRICES,
+} from "@/lib/membershipDiscounts";
 import { sanitizeEmail, sanitizeName, sanitizePhone, sanitizeText } from "@/lib/sanitize";
+import { getSetting, MEMBERSHIP_CLASSIC_PRICE } from "@/lib/settings";
 import type { MembershipStatus, MembershipTier, PaymentMethod } from "@prisma/client";
 
 export const runtime = "nodejs";
@@ -40,6 +44,14 @@ function parseString(value: unknown) {
   return typeof value === "string" ? sanitizeText(value) : "";
 }
 
+async function getClassicMembershipPrice() {
+  const configuredPrice = Number(await getSetting(MEMBERSHIP_CLASSIC_PRICE));
+
+  return Number.isFinite(configuredPrice) && configuredPrice > 0
+    ? configuredPrice
+    : MEMBERSHIP_PRICES.CLASSIC.price;
+}
+
 function parseTier(value: unknown): MembershipTier | null {
   if (typeof value !== "string") {
     return null;
@@ -48,6 +60,7 @@ function parseTier(value: unknown): MembershipTier | null {
   const normalized = value.trim().toUpperCase();
 
   if (
+    normalized === "CLASSIC" ||
     normalized === "SIGNATURE" ||
     normalized === "CRYSTAL" ||
     normalized === "PLATINUM"
@@ -129,7 +142,7 @@ export async function POST(request: Request) {
   const address = parseString(body.address);
   const tier = parseTier(body.tier);
   const paymentMethod = parsePaymentMethod(body.paymentMethod);
-  const amountPaid =
+  const submittedAmountPaid =
     typeof body.amountPaid === "number"
       ? body.amountPaid
       : typeof body.amountPaid === "string"
@@ -138,6 +151,11 @@ export async function POST(request: Request) {
   const purchaseDateValue = parseString(body.purchaseDate);
   const purchaseDate = purchaseDateValue ? new Date(purchaseDateValue) : null;
   const dateOfBirth = dateOfBirthValue ? new Date(dateOfBirthValue) : null;
+
+  const amountPaid =
+    tier === "CLASSIC"
+      ? await getClassicMembershipPrice()
+      : submittedAmountPaid;
 
   if (!name || !email || !phone || !tier || !paymentMethod || !purchaseDate) {
     return Response.json(

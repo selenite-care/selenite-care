@@ -6,12 +6,15 @@ import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { trackMembershipPurchase } from "@/lib/analytics";
 import { formatDateOnly } from "@/lib/dateUtils";
-import { MEMBERSHIP_PRICES } from "@/lib/membershipDiscounts";
+import {
+  CLASSIC_MEMBERSHIP_BENEFITS,
+  MEMBERSHIP_PRICES,
+} from "@/lib/membershipDiscounts";
 
 type MembershipResponse = {
   membership?: {
     membershipId: string;
-    tier: "SIGNATURE" | "CRYSTAL" | "PLATINUM";
+    tier: "CLASSIC" | "SIGNATURE" | "CRYSTAL" | "PLATINUM";
     status: "PENDING" | "ACTIVE" | "EXPIRED" | "CANCELLED";
     createdAt: string;
     expiresAt: string | null;
@@ -22,14 +25,27 @@ type MembershipResponse = {
   error?: string;
 };
 
-const MEMBERSHIP_AMOUNTS: Record<"SIGNATURE" | "CRYSTAL" | "PLATINUM", number> = {
+const MEMBERSHIP_AMOUNTS: Record<"CLASSIC" | "SIGNATURE" | "CRYSTAL" | "PLATINUM", number> = {
+  CLASSIC: MEMBERSHIP_PRICES.CLASSIC.price,
   SIGNATURE: MEMBERSHIP_PRICES.SIGNATURE.price,
   CRYSTAL: MEMBERSHIP_PRICES.CRYSTAL.price,
   PLATINUM: MEMBERSHIP_PRICES.PLATINUM.price,
 };
 
-function getTierBadgeStyles(tier: "SIGNATURE" | "CRYSTAL" | "PLATINUM") {
+const CLASSIC_MEMBERSHIP_DETAILS = {
+  name: "Classic Membership",
+  price: MEMBERSHIP_PRICES.CLASSIC.price,
+  duration: "1 Month",
+  benefits: CLASSIC_MEMBERSHIP_BENEFITS,
+} as const;
+
+function getTierBadgeStyles(tier: "CLASSIC" | "SIGNATURE" | "CRYSTAL" | "PLATINUM") {
   switch (tier) {
+    case "CLASSIC":
+      return {
+        backgroundColor: "#B87B68",
+        color: "#F8F5F0",
+      };
     case "PLATINUM":
       return {
         backgroundColor: "#2B2B2B",
@@ -49,8 +65,10 @@ function getTierBadgeStyles(tier: "SIGNATURE" | "CRYSTAL" | "PLATINUM") {
   }
 }
 
-function getTierSummary(tier: "SIGNATURE" | "CRYSTAL" | "PLATINUM") {
+function getTierSummary(tier: "CLASSIC" | "SIGNATURE" | "CRYSTAL" | "PLATINUM") {
   switch (tier) {
+    case "CLASSIC":
+      return "Your Classic Membership includes one month of focused online skincare guidance and follow-up.";
     case "CRYSTAL":
       return "1 Year Specialist Support with advanced skin assessment and customized care plan.";
     case "PLATINUM":
@@ -204,6 +222,41 @@ function MembershipWelcomePageContent() {
             </p>
           ) : membership ? (
             <>
+              {membership.tier === "CLASSIC" ? (
+                <div className="mx-auto mt-8 max-w-2xl rounded-2xl border border-[#B87B68] bg-[#FCFAF7] p-6 text-left dark:bg-[#1A1814]">
+                  <div className="flex flex-wrap items-start justify-between gap-4">
+                    <div>
+                      <h2
+                        className="text-2xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]"
+                        style={{ fontFamily: "Playfair Display, serif" }}
+                      >
+                        {CLASSIC_MEMBERSHIP_DETAILS.name}
+                      </h2>
+                      <p className="mt-1 text-sm text-[#8C7967] dark:text-[#8A7D75]">
+                        Validity: {CLASSIC_MEMBERSHIP_DETAILS.duration}
+                      </p>
+                    </div>
+                    <p
+                      className="text-2xl font-semibold text-[#B87B68]"
+                      style={{ fontFamily: "Playfair Display, serif" }}
+                    >
+                      {CLASSIC_MEMBERSHIP_DETAILS.price} BDT
+                    </p>
+                  </div>
+                  <ul className="mt-5 space-y-3 border-t border-[#EADDCD] pt-5 dark:border-[#3D3530]">
+                    {CLASSIC_MEMBERSHIP_DETAILS.benefits.map((benefit) => (
+                      <li
+                        key={benefit}
+                        className="flex gap-2 text-sm leading-6 text-[#6E6257] dark:text-[#8A7D75]"
+                      >
+                        <span className="text-[#B87B68]">*</span>
+                        <span>{benefit}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+
               <p
                 className="mx-auto mt-6 max-w-2xl text-sm leading-7 text-[#6E6257] dark:text-[#8A7D75] sm:text-base"
               >

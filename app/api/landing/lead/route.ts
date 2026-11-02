@@ -35,6 +35,8 @@ const BLOCKED_EMAIL_DOMAINS = new Set([
   "mytravelinbox.com",
 ]);
 const RECOGNIZED_INTERESTS = new Set([
+  "classic",
+  "classic membership",
   "signature",
   "signature membership",
   "crystal",

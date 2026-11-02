@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import Pagination from "@/components/ui/Pagination";
 
 type ReferralStatus = "PENDING" | "PAID" | "CANCELLED";
-type MembershipTier = "SIGNATURE" | "CRYSTAL" | "PLATINUM";
+type MembershipTier = "CLASSIC" | "SIGNATURE" | "CRYSTAL" | "PLATINUM";
 type DateFilter = "week" | "month" | "last-month" | "all";
 
 type InfluencerReferral = {
@@ -101,6 +101,8 @@ function isInDateFilter(value: string, filter: DateFilter) {
 
 function getTierClasses(tier: MembershipTier) {
   switch (tier) {
+    case "CLASSIC":
+      return "bg-[#B87B68] text-[#F8F5F0]";
     case "PLATINUM":
       return "bg-zinc-200 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-200";
     case "CRYSTAL":

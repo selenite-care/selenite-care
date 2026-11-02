@@ -7,6 +7,7 @@ import {
   sendGA4Event,
 } from "@/lib/serverAnalytics";
 import {
+  CLASSIC_MEMBERSHIP_BENEFITS,
   calculateExpiresAt,
   getProductDiscount,
   MEMBERSHIP_PRICES,
@@ -15,9 +16,33 @@ import {
   createNotification,
   NOTIFICATION_TYPES,
 } from "@/lib/notifications";
+import {
+  getSettings,
+  MEMBERSHIP_CLASSIC_PRICE,
+  MEMBERSHIP_CRYSTAL_PRICE,
+  MEMBERSHIP_PLATINUM_PRICE,
+  MEMBERSHIP_SIGNATURE_PRICE,
+} from "@/lib/settings";
 import type { MembershipTier } from "@prisma/client";
 
 export const runtime = "nodejs";
+
+const MEMBERSHIP_PRICE_SETTING_KEYS: Record<MembershipTier, string> = {
+  CLASSIC: MEMBERSHIP_CLASSIC_PRICE,
+  SIGNATURE: MEMBERSHIP_SIGNATURE_PRICE,
+  CRYSTAL: MEMBERSHIP_CRYSTAL_PRICE,
+  PLATINUM: MEMBERSHIP_PLATINUM_PRICE,
+};
+
+async function getCurrentMembershipPrice(tier: MembershipTier) {
+  const settingKey = MEMBERSHIP_PRICE_SETTING_KEYS[tier];
+  const settings = await getSettings(Object.values(MEMBERSHIP_PRICE_SETTING_KEYS));
+  const configuredPrice = Number(settings[settingKey]);
+
+  return Number.isFinite(configuredPrice) && configuredPrice > 0
+    ? configuredPrice
+    : MEMBERSHIP_PRICES[tier].price;
+}
 
 function formatBdt(amount: number) {
   return `${Math.round(amount)} BDT`;
@@ -37,6 +62,8 @@ function formatReadableDate(date: Date) {
 
 function formatTierLabel(tier: MembershipTier) {
   switch (tier) {
+    case "CLASSIC":
+      return "Classic";
     case "SIGNATURE":
       return "Signature";
     case "CRYSTAL":
@@ -52,6 +79,17 @@ function buildMembershipBenefitParagraph(
   tier: MembershipTier,
   expiresAt: Date,
 ) {
+  if (tier === "CLASSIC") {
+    return `
+      <div style="margin:20px 0 0;padding:18px 20px;border:1px solid #EADDCD;border-radius:12px;background:#FCFAF7;">
+        <p style="margin:0;font-size:14px;line-height:1.7;color:#4B4037;"><strong>Classic Membership</strong> is valid for 1 month and includes:</p>
+        <ul style="margin:12px 0 0;padding-left:20px;font-size:14px;line-height:1.8;color:#4B4037;">
+          ${CLASSIC_MEMBERSHIP_BENEFITS.map((benefit) => `<li>${benefit}</li>`).join("")}
+        </ul>
+      </div>
+    `;
+  }
+
   if (tier === "SIGNATURE") {
     const price = formatBdtWithCommas(MEMBERSHIP_PRICES.SIGNATURE.price);
     const regularPrice = formatBdtWithCommas(
@@ -139,7 +177,7 @@ function buildClientEmailHtml(input: {
         </div>
         <div style="padding:28px;">
           <p>Hi ${input.name},</p>
-          <p>Your ${input.tier} membership payment has been confirmed and your membership is now active.</p>
+          <p>Your ${formatTierLabel(input.tier)} Membership payment has been confirmed and your membership is now active.</p>
           <table style="width:100%;border-collapse:collapse;font-size:14px;">
             <tbody>
               <tr><td style="padding:10px;border-bottom:1px solid #EADDCD;">Membership ID</td><td style="padding:10px;border-bottom:1px solid #EADDCD;"><strong>${input.membershipId}</strong></td></tr>
@@ -217,7 +255,7 @@ async function recordReferralSale(input: {
       return;
     }
 
-    const originalAmount = MEMBERSHIP_PRICES[input.tier].price;
+    const originalAmount = await getCurrentMembershipPrice(input.tier);
     const discountAmount = originalAmount * 0.1;
     const clientPaid = originalAmount - discountAmount;
     const commissionAmount = originalAmount * 0.1;

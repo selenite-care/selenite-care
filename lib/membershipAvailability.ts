@@ -1,4 +1,5 @@
 export const MEMBERSHIP_AVAILABILITY = {
+  CLASSIC: true,
   SIGNATURE: true,
   CRYSTAL: true,
   PLATINUM: true,

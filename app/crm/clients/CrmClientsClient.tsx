@@ -13,7 +13,7 @@ export type CrmClientListItem = {
   createdAt: string;
   memberships: Array<{
     id: string;
-    tier: "SIGNATURE" | "CRYSTAL" | "PLATINUM";
+    tier: "CLASSIC" | "SIGNATURE" | "CRYSTAL" | "PLATINUM";
     status: "PENDING" | "ACTIVE" | "EXPIRED" | "CANCELLED";
     createdAt: string;
   }>;
@@ -41,8 +41,10 @@ const MEMBERSHIP_FILTERS = [
 ] as const;
 const ITEMS_PER_PAGE = 20;
 
-function getTierLabel(tier: "SIGNATURE" | "CRYSTAL" | "PLATINUM") {
+function getTierLabel(tier: "CLASSIC" | "SIGNATURE" | "CRYSTAL" | "PLATINUM") {
   switch (tier) {
+    case "CLASSIC":
+      return "Classic";
     case "SIGNATURE":
       return "Signature";
     case "CRYSTAL":

@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 export const PRODUCT_DISCOUNT_PERCENT = "product_discount_percent";
 export const PRODUCT_DISCOUNT_ENABLED = "product_discount_enabled";
 export const PRODUCT_DISCOUNT_LABEL = "product_discount_label";
+export const MEMBERSHIP_CLASSIC_PRICE = "membership_classic_price";
 export const MEMBERSHIP_SIGNATURE_PRICE = "membership_signature_price";
 export const MEMBERSHIP_SIGNATURE_ORIGINAL = "membership_signature_original";
 export const MEMBERSHIP_CRYSTAL_PRICE = "membership_crystal_price";

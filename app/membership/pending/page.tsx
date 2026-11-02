@@ -5,10 +5,12 @@ import { Clock3 } from "lucide-react";
 import { Suspense, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 
-type MembershipTier = "SIGNATURE" | "CRYSTAL" | "PLATINUM";
+type MembershipTier = "CLASSIC" | "SIGNATURE" | "CRYSTAL" | "PLATINUM";
 
 function formatTierLabel(tier: MembershipTier | null) {
   switch (tier) {
+    case "CLASSIC":
+      return "Classic Membership";
     case "SIGNATURE":
       return "Signature Membership";
     case "CRYSTAL":
@@ -27,6 +29,7 @@ function PendingMembershipContent() {
 
   const tier = useMemo(() => {
     if (
+      tierParam === "CLASSIC" ||
       tierParam === "SIGNATURE" ||
       tierParam === "CRYSTAL" ||
       tierParam === "PLATINUM"

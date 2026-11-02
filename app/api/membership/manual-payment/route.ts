@@ -2,8 +2,13 @@ import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
 import { isMembershipAvailable } from "@/lib/membershipAvailability";
-import { getMembershipPrice } from "@/lib/membershipDiscounts";
+import {
+  calculateExpiresAt,
+  getMembershipPrice,
+  MEMBERSHIP_PRICES,
+} from "@/lib/membershipDiscounts";
 import { createNotification, NOTIFICATION_TYPES } from "@/lib/notifications";
+import { getSetting, MEMBERSHIP_CLASSIC_PRICE } from "@/lib/settings";
 import type { MembershipTier, PaymentMethod } from "@prisma/client";
 
 export const runtime = "nodejs";
@@ -24,6 +29,7 @@ function parseTier(value: unknown): MembershipTier | null {
   const normalized = value.trim().toUpperCase();
 
   if (
+    normalized === "CLASSIC" ||
     normalized === "SIGNATURE" ||
     normalized === "CRYSTAL" ||
     normalized === "PLATINUM"
@@ -73,12 +79,22 @@ async function generateMembershipId() {
   return `${prefix}${String(latestSerial + 1).padStart(4, "0")}`;
 }
 
-function resolveMembershipAmount(tier: MembershipTier) {
+async function resolveMembershipAmount(tier: MembershipTier) {
+  if (tier === "CLASSIC") {
+    const configuredPrice = Number(await getSetting(MEMBERSHIP_CLASSIC_PRICE));
+
+    return Number.isFinite(configuredPrice) && configuredPrice > 0
+      ? configuredPrice
+      : MEMBERSHIP_PRICES.CLASSIC.price;
+  }
+
   return getMembershipPrice(tier);
 }
 
 function formatTierLabel(tier: MembershipTier) {
   switch (tier) {
+    case "CLASSIC":
+      return "Classic";
     case "SIGNATURE":
       return "Signature";
     case "CRYSTAL":
@@ -190,7 +206,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const amount = resolveMembershipAmount(tier);
+    const amount = await resolveMembershipAmount(tier);
     const membershipId = await generateMembershipId();
     const bankTransactionRef = transactionRef
       ? senderNumber.length > 0
@@ -207,6 +223,7 @@ export async function POST(request: Request) {
           userId: user.id,
           tier,
           status: "PENDING",
+          expiresAt: calculateExpiresAt(tier),
         },
         select: {
           id: true,

@@ -56,7 +56,7 @@ type ClientBooking = {
 };
 
 type ClientMembership = {
-  tier: "SIGNATURE" | "CRYSTAL" | "PLATINUM";
+  tier: "CLASSIC" | "SIGNATURE" | "CRYSTAL" | "PLATINUM";
   status: "PENDING" | "ACTIVE" | "EXPIRED" | "CANCELLED";
   expiresAt: string | null;
 };

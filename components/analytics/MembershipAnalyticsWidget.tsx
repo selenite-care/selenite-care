@@ -15,6 +15,7 @@ import {
 
 type AnalyticsPeriod = "today" | "week" | "month" | "year" | "all" | "custom";
 type ChartType = "bar" | "line";
+type TierFilter = "ALL" | "CLASSIC" | "SIGNATURE" | "CRYSTAL" | "PLATINUM";
 
 type ChartDataPoint = {
   label: string;
@@ -86,6 +87,7 @@ function ChartTypeIcon({ type }: { type: ChartType }) {
 export default function MembershipAnalyticsWidget() {
   const [activePeriod, setActivePeriod] = useState<AnalyticsPeriod>("today");
   const [chartType, setChartType] = useState<ChartType>("bar");
+  const [tierFilter, setTierFilter] = useState<TierFilter>("ALL");
   const [customStart, setCustomStart] = useState(getInitialCustomStart);
   const [customEnd, setCustomEnd] = useState(() => getDateInputValue(new Date()));
   const [appliedCustomStart, setAppliedCustomStart] = useState(customStart);
@@ -105,6 +107,10 @@ export default function MembershipAnalyticsWidget() {
 
       try {
         const params = new URLSearchParams({ period: activePeriod });
+
+        if (tierFilter !== "ALL") {
+          params.set("tier", tierFilter);
+        }
 
         if (activePeriod === "custom") {
           params.set("start", appliedCustomStart);
@@ -149,7 +155,7 @@ export default function MembershipAnalyticsWidget() {
     void loadAnalytics();
 
     return () => controller.abort();
-  }, [activePeriod, appliedCustomEnd, appliedCustomStart]);
+  }, [activePeriod, appliedCustomEnd, appliedCustomStart, tierFilter]);
 
   function handleApplyCustomDates() {
     setAppliedCustomStart(customStart);
@@ -199,28 +205,46 @@ export default function MembershipAnalyticsWidget() {
           </h2>
         </div>
 
-        <div className="inline-flex w-fit rounded-full border border-[#EADDCD] bg-[#F8F5F0] p-1 dark:border-[#3D3530] dark:bg-[#1A1814]">
-          {(["bar", "line"] as const).map((type) => {
-            const isActive = chartType === type;
+        <div className="flex flex-wrap items-center gap-3">
+          <label className="sr-only" htmlFor="membership-analytics-tier">
+            Filter membership analytics by tier
+          </label>
+          <select
+            id="membership-analytics-tier"
+            value={tierFilter}
+            onChange={(event) => setTierFilter(event.target.value as TierFilter)}
+            className="h-11 rounded-md border border-[#EADDCD] bg-[#F8F5F0] px-3 text-sm font-medium text-[#2B2B2B] outline-none focus:border-[#B87B68] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#F0EDE8]"
+          >
+            <option value="ALL">All tiers</option>
+            <option value="CLASSIC">Classic</option>
+            <option value="SIGNATURE">Signature</option>
+            <option value="CRYSTAL">Crystal</option>
+            <option value="PLATINUM">Platinum</option>
+          </select>
 
-            return (
-              <button
-                key={type}
-                type="button"
-                onClick={() => setChartType(type)}
-                className={`inline-flex h-9 items-center justify-center gap-2 rounded-full px-3 text-sm font-medium transition-colors ${
-                  isActive
-                    ? "bg-[#2B2B2B] text-[#F8F5F0] dark:bg-[#8B6914] dark:text-[#F8F5F0]"
-                    : "text-[#8C7967] hover:bg-white dark:text-[#8A7D75] dark:hover:bg-[#242220]"
-                }`}
-                aria-label={`Show ${type} chart`}
-                title={`Show ${type} chart`}
-              >
-                <ChartTypeIcon type={type} />
-                <span>{type === "bar" ? "Bar" : "Line"}</span>
-              </button>
-            );
-          })}
+          <div className="inline-flex w-fit rounded-full border border-[#EADDCD] bg-[#F8F5F0] p-1 dark:border-[#3D3530] dark:bg-[#1A1814]">
+            {(["bar", "line"] as const).map((type) => {
+              const isActive = chartType === type;
+
+              return (
+                <button
+                  key={type}
+                  type="button"
+                  onClick={() => setChartType(type)}
+                  className={`inline-flex h-9 items-center justify-center gap-2 rounded-full px-3 text-sm font-medium transition-colors ${
+                    isActive
+                      ? "bg-[#2B2B2B] text-[#F8F5F0] dark:bg-[#8B6914] dark:text-[#F8F5F0]"
+                      : "text-[#8C7967] hover:bg-white dark:text-[#8A7D75] dark:hover:bg-[#242220]"
+                  }`}
+                  aria-label={`Show ${type} chart`}
+                  title={`Show ${type} chart`}
+                >
+                  <ChartTypeIcon type={type} />
+                  <span>{type === "bar" ? "Bar" : "Line"}</span>
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
 

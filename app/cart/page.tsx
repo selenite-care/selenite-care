@@ -13,7 +13,7 @@ import {
 } from "@/lib/membershipDiscounts";
 
 type DeliveryArea = "INSIDE_DHAKA" | "SUB_DHAKA" | "OUTSIDE_DHAKA";
-type MembershipTier = "SIGNATURE" | "CRYSTAL" | "PLATINUM";
+type MembershipTier = "CLASSIC" | "SIGNATURE" | "CRYSTAL" | "PLATINUM";
 
 const DELIVERY_OPTIONS: Array<{
   value: DeliveryArea;

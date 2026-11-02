@@ -11,6 +11,7 @@ export const revalidate = 3600;
 
 type PublicSettingsResponse = {
   membershipPrices?: {
+    classicPrice?: number | null;
     signaturePrice?: number | null;
     signatureOriginal?: number | null;
     crystalPrice?: number | null;
@@ -20,6 +21,10 @@ type PublicSettingsResponse = {
 };
 
 const fallbackMembershipPrices = {
+  CLASSIC: {
+    price: MEMBERSHIP_PRICES.CLASSIC.price,
+    originalPrice: MEMBERSHIP_PRICES.CLASSIC.originalPrice,
+  },
   SIGNATURE: {
     price: MEMBERSHIP_PRICES.SIGNATURE.price,
     originalPrice: MEMBERSHIP_PRICES.SIGNATURE.originalPrice,
@@ -71,6 +76,10 @@ async function getServiceSettings() {
 
     return {
       membershipPrices: {
+        CLASSIC: {
+          price: prices?.classicPrice ?? fallbackMembershipPrices.CLASSIC.price,
+          originalPrice: fallbackMembershipPrices.CLASSIC.originalPrice,
+        },
         SIGNATURE: {
           price:
             prices?.signaturePrice ?? fallbackMembershipPrices.SIGNATURE.price,

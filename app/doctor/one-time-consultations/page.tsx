@@ -147,7 +147,7 @@ export default function DoctorOneTimeConsultationsPage() {
           One-Time Consultations
         </h1>
         <p className="mt-3 text-sm leading-6 text-foreground/70">
-          View online video consultation clients, preferred dates, and follow-up
+          View online video consultation clients, preferred dates, and payment
           status.
         </p>
       </div>
@@ -260,16 +260,16 @@ export default function DoctorOneTimeConsultationsPage() {
                       <td className="px-4 py-4">
                         <span
                           className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${
-                            consultation.followUpUsed
+                            !consultation.includesFollowUp || consultation.followUpUsed
                               ? "border-zinc-200 bg-zinc-50 text-zinc-700 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300"
                               : "border-green-200 bg-green-50 text-green-700 dark:border-green-900/50 dark:bg-green-950/30 dark:text-green-300"
                           }`}
                         >
-                          {consultation.followUpUsed
-                            ? "Used"
-                            : consultation.includesFollowUp
-                              ? "Available"
-                              : "Not included"}
+                          {!consultation.includesFollowUp
+                            ? "Not included"
+                            : consultation.followUpUsed
+                              ? "Used"
+                              : "Available"}
                         </span>
                       </td>
                       <td className="px-4 py-4">

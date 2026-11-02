@@ -6,7 +6,7 @@ import Pagination from "@/components/ui/Pagination";
 import { formatDateTime } from "@/lib/dateUtils";
 import { getMembershipPrice } from "@/lib/membershipDiscounts";
 
-type MembershipTier = "SIGNATURE" | "CRYSTAL" | "PLATINUM";
+type MembershipTier = "CLASSIC" | "SIGNATURE" | "CRYSTAL" | "PLATINUM";
 const ITEMS_PER_PAGE = 20;
 
 type AdminMembershipPayment = {
@@ -30,6 +30,11 @@ type AdminMembershipPayment = {
 
 function getTierBadgeClasses(tier: MembershipTier) {
   switch (tier) {
+    case "CLASSIC":
+      return {
+        backgroundColor: "#B87B68",
+        color: "#F8F5F0",
+      };
     case "SIGNATURE":
       return {
         backgroundColor: "#B87B68",
@@ -55,6 +60,8 @@ function getTierBadgeClasses(tier: MembershipTier) {
 
 function formatTierLabel(tier: MembershipTier) {
   switch (tier) {
+    case "CLASSIC":
+      return "Classic";
     case "SIGNATURE":
       return "Signature";
     case "CRYSTAL":

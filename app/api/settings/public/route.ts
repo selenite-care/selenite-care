@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import {
   getProductDiscount,
   getSettings,
+  MEMBERSHIP_CLASSIC_PRICE,
   MEMBERSHIP_CRYSTAL_PRICE,
   MEMBERSHIP_PLATINUM_PRICE,
   MEMBERSHIP_SIGNATURE_ORIGINAL,
@@ -18,16 +19,18 @@ export const revalidate = 300;
 
 export async function GET() {
   const session = await auth();
-  const [{ enabled, percent, label }, consultationSettings] = await Promise.all([
-    getProductDiscount(),
-    getSettings([
-      ONE_TIME_CONSULTATION_PRICE,
-      ONE_TIME_CONSULTATION_ORIGINAL_PRICE,
-      ONE_TIME_CONSULTATION_OFFER_LABEL,
-      ONE_TIME_CONSULTATION_OFFER_ENABLED,
-      ONE_TIME_CONSULTATION_OFFER_EXPIRY,
-    ]),
-  ]);
+  const [{ enabled, percent, label }, consultationSettings, classicSettings] =
+    await Promise.all([
+      getProductDiscount(),
+      getSettings([
+        ONE_TIME_CONSULTATION_PRICE,
+        ONE_TIME_CONSULTATION_ORIGINAL_PRICE,
+        ONE_TIME_CONSULTATION_OFFER_LABEL,
+        ONE_TIME_CONSULTATION_OFFER_ENABLED,
+        ONE_TIME_CONSULTATION_OFFER_EXPIRY,
+      ]),
+      getSettings([MEMBERSHIP_CLASSIC_PRICE]),
+    ]);
   const currentPrice =
     parseSettingNumber(consultationSettings[ONE_TIME_CONSULTATION_PRICE]) ?? 99;
   const originalPrice =
@@ -58,10 +61,11 @@ export async function GET() {
       isOfferActive: boolean;
     };
     membershipPrices?: {
-      signaturePrice: number | null;
-      signatureOriginal: number | null;
-      crystalPrice: number | null;
-      platinumPrice: number | null;
+      classicPrice?: number | null;
+      signaturePrice?: number | null;
+      signatureOriginal?: number | null;
+      crystalPrice?: number | null;
+      platinumPrice?: number | null;
     };
   } = {
     discountEnabled: enabled,
@@ -75,6 +79,11 @@ export async function GET() {
       offerExpiry,
       isOfferActive,
     },
+    membershipPrices: {
+      classicPrice: parseSettingNumber(
+        classicSettings[MEMBERSHIP_CLASSIC_PRICE],
+      ),
+    },
   };
 
   if (session?.user) {
@@ -86,6 +95,7 @@ export async function GET() {
     ]);
 
     response.membershipPrices = {
+      ...response.membershipPrices,
       signaturePrice: parseSettingNumber(settings[MEMBERSHIP_SIGNATURE_PRICE]),
       signatureOriginal: parseSettingNumber(
         settings[MEMBERSHIP_SIGNATURE_ORIGINAL],

@@ -9,7 +9,7 @@ import { getProductDiscount } from "@/lib/membershipDiscounts";
 type CrmMembership = {
   id: string;
   membershipId: string;
-  tier: "SIGNATURE" | "CRYSTAL" | "PLATINUM";
+  tier: "CLASSIC" | "SIGNATURE" | "CRYSTAL" | "PLATINUM";
   status: "PENDING" | "ACTIVE" | "EXPIRED" | "CANCELLED";
   createdAt: string;
   expiresAt: string | null;
@@ -33,10 +33,22 @@ const membershipStatuses = [
   "EXPIRED",
   "CANCELLED",
 ] as const;
+const membershipTiers = [
+  "All",
+  "CLASSIC",
+  "SIGNATURE",
+  "CRYSTAL",
+  "PLATINUM",
+] as const;
 const ITEMS_PER_PAGE = 20;
 
 function getTierBadgeStyles(tier: CrmMembership["tier"]) {
   switch (tier) {
+    case "CLASSIC":
+      return {
+        backgroundColor: "#B87B68",
+        color: "#F8F5F0",
+      };
     case "PLATINUM":
       return {
         backgroundColor: "#2B2B2B",
@@ -113,16 +125,14 @@ export default function CrmMembershipsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] =
     useState<(typeof membershipStatuses)[number]>("All");
+  const [tierFilter, setTierFilter] =
+    useState<(typeof membershipTiers)[number]>("All");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [hasLoaded, setHasLoaded] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const totalPages = Math.max(1, Math.ceil(totalCount / ITEMS_PER_PAGE));
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchQuery, statusFilter]);
 
   useEffect(() => {
     async function loadMemberships() {
@@ -138,6 +148,9 @@ export default function CrmMembershipsPage() {
         }
         if (statusFilter !== "All") {
           searchParams.set("statusFilter", statusFilter);
+        }
+        if (tierFilter !== "All") {
+          searchParams.set("tierFilter", tierFilter);
         }
 
         const response = await fetch(`/api/crm/memberships?${searchParams.toString()}`);
@@ -164,7 +177,7 @@ export default function CrmMembershipsPage() {
     }
 
     loadMemberships();
-  }, [currentPage, searchQuery, statusFilter]);
+  }, [currentPage, searchQuery, statusFilter, tierFilter]);
 
   const filteredMemberships = memberships;
   const isInitialLoading = isLoading && !hasLoaded;
@@ -236,7 +249,7 @@ export default function CrmMembershipsPage() {
         {!isInitialLoading && !error ? (
           <>
             <div className="mb-6 rounded-3xl border border-[#EADDCD] bg-white p-5 shadow-sm dark:border-[#3D3530] dark:bg-[#242220]">
-              <div className="grid gap-4 md:grid-cols-[1fr_220px_auto] md:items-end">
+              <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_180px_180px_auto] md:items-end">
                 <div>
                   <label
                     htmlFor="crm-membership-search"
@@ -248,10 +261,39 @@ export default function CrmMembershipsPage() {
                     id="crm-membership-search"
                     type="search"
                     value={searchQuery}
-                    onChange={(event) => setSearchQuery(event.target.value)}
+                    onChange={(event) => {
+                      setCurrentPage(1);
+                      setSearchQuery(event.target.value);
+                    }}
                     placeholder="Membership ID, client name, email, phone, or tier"
                     className="mt-2 h-11 w-full rounded-md border border-[#EADDCD] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors placeholder:text-[#884F38] focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68]"
                   />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="crm-membership-tier-filter"
+                    className="text-sm font-medium text-[#2B2B2B]"
+                  >
+                    Tier
+                  </label>
+                  <select
+                    id="crm-membership-tier-filter"
+                    value={tierFilter}
+                    onChange={(event) => {
+                      setCurrentPage(1);
+                      setTierFilter(
+                        event.target.value as (typeof membershipTiers)[number],
+                      );
+                    }}
+                    className="mt-2 h-11 w-full rounded-md border border-[#EADDCD] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68]"
+                  >
+                    {membershipTiers.map((tier) => (
+                      <option key={tier} value={tier}>
+                        {tier === "All" ? "All tiers" : tier}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 <div>
@@ -264,11 +306,12 @@ export default function CrmMembershipsPage() {
                   <select
                     id="crm-membership-status-filter"
                     value={statusFilter}
-                    onChange={(event) =>
+                    onChange={(event) => {
+                      setCurrentPage(1);
                       setStatusFilter(
                         event.target.value as (typeof membershipStatuses)[number],
-                      )
-                    }
+                      );
+                    }}
                     className="mt-2 h-11 w-full rounded-md border border-[#EADDCD] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68]"
                   >
                     {membershipStatuses.map((status) => (
