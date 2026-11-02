@@ -1,6 +1,7 @@
 import NextAuth from "next-auth";
 import { authConfig } from "@/lib/auth";
 import { db } from "@/lib/db";
+import type { MembershipTier } from "@prisma/client";
 
 const { auth } = NextAuth(authConfig);
 
@@ -89,6 +90,21 @@ function parsePeriod(value: string | null): AnalyticsPeriod {
   }
 
   return "month";
+}
+
+function parseTier(value: string | null): MembershipTier | undefined {
+  const normalized = value?.trim().toUpperCase();
+
+  if (
+    normalized === "CLASSIC" ||
+    normalized === "SIGNATURE" ||
+    normalized === "CRYSTAL" ||
+    normalized === "PLATINUM"
+  ) {
+    return normalized;
+  }
+
+  return undefined;
 }
 
 function parseDateParam(value: string | null) {
@@ -273,6 +289,7 @@ export async function GET(request: Request) {
 
   const { searchParams } = new URL(request.url);
   const period = parsePeriod(searchParams.get("period"));
+  const tier = parseTier(searchParams.get("tier"));
   const rangeResult = await resolveRangeAndBuckets(period, request);
 
   if ("error" in rangeResult) {
@@ -282,6 +299,7 @@ export async function GET(request: Request) {
   const { start, end, buckets, periodLabel } = rangeResult;
   const memberships = await db.membership.findMany({
     where: {
+      ...(tier ? { tier } : {}),
       createdAt: {
         gte: start,
         lte: end,

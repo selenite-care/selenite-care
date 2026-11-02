@@ -12,7 +12,7 @@ type ClientPayment = {
   stripePaymentId: string;
   membership: {
     membershipId: string;
-    tier: "SIGNATURE" | "CRYSTAL" | "PLATINUM";
+    tier: "CLASSIC" | "SIGNATURE" | "CRYSTAL" | "PLATINUM";
     status: "PENDING" | "ACTIVE" | "EXPIRED" | "CANCELLED";
     createdAt: string;
     expiresAt: string | null;
@@ -21,6 +21,8 @@ type ClientPayment = {
 
 function getTierBadgeClasses(tier: ClientPayment["membership"]["tier"]) {
   switch (tier) {
+    case "CLASSIC":
+      return "bg-[#B87B68] text-[#F8F5F0]";
     case "PLATINUM":
       return "bg-[var(--sidebar)] text-[var(--sidebar-text)]";
     case "CRYSTAL":

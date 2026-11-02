@@ -11,6 +11,7 @@ type Consultation = {
   id: string;
   createdAt: string;
   paymentStatus: "UNPAID" | "PAID" | "REFUNDED";
+  includesFollowUp: boolean;
   followUpUsed: boolean;
   booking: {
     id: string;
@@ -124,9 +125,9 @@ export default function OneTimeConsultationsPage({
         case "Paid":
           return consultation.paymentStatus === "PAID";
         case "Follow-up Used":
-          return consultation.followUpUsed;
+          return consultation.includesFollowUp && consultation.followUpUsed;
         case "Follow-up Available":
-          return !consultation.followUpUsed;
+          return consultation.includesFollowUp && !consultation.followUpUsed;
         default:
           return true;
       }
@@ -231,7 +232,7 @@ export default function OneTimeConsultationsPage({
       "Doctor ID",
       "Booking Token",
       "Payment Status",
-      "Follow-up Used",
+      "Follow-up",
     ];
     const rows = filteredConsultations.map((consultation) => [
       consultation.booking.user.name ?? "N/A",
@@ -242,7 +243,11 @@ export default function OneTimeConsultationsPage({
       consultation.booking.doctorId ?? "",
       consultation.booking.token,
       consultation.paymentStatus,
-      consultation.followUpUsed ? "Yes" : "No",
+      !consultation.includesFollowUp
+        ? "Not included"
+        : consultation.followUpUsed
+          ? "Used"
+          : "Available",
     ]);
     const csv = [headers, ...rows]
       .map((row) => row.map(csvEscape).join(","))
@@ -405,12 +410,16 @@ export default function OneTimeConsultationsPage({
                       <td className="px-4 py-4">
                         <span
                           className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${
-                            consultation.followUpUsed
+                            !consultation.includesFollowUp || consultation.followUpUsed
                               ? "border-zinc-200 bg-zinc-50 text-zinc-700 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300"
                               : "border-green-200 bg-green-50 text-green-700 dark:border-green-900/50 dark:bg-green-950/30 dark:text-green-300"
                           }`}
                         >
-                          {consultation.followUpUsed ? "Used" : "Available"}
+                          {!consultation.includesFollowUp
+                            ? "Not included"
+                            : consultation.followUpUsed
+                              ? "Used"
+                              : "Available"}
                         </span>
                       </td>
                       <td className="px-4 py-4">
@@ -435,6 +444,7 @@ export default function OneTimeConsultationsPage({
                               : "Send Message"}
                           </button>
                           {followUpEndpointBase &&
+                          consultation.includesFollowUp &&
                           consultation.paymentStatus === "PAID" &&
                           !consultation.followUpUsed ? (
                             <button

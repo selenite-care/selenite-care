@@ -6,7 +6,7 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
 import { MEMBERSHIP_PRICES } from "@/lib/membershipDiscounts";
 
-type MembershipTier = "SIGNATURE" | "CRYSTAL" | "PLATINUM";
+type MembershipTier = "CLASSIC" | "SIGNATURE" | "CRYSTAL" | "PLATINUM";
 type PaymentMethod = "CASH" | "BKASH" | "BANK_TRANSFER";
 
 type ManualMembershipFormState = {
@@ -41,7 +41,17 @@ type ManualMembershipResponse = {
   error?: string;
 };
 
+type PublicSettingsResponse = {
+  membershipPrices?: {
+    classicPrice?: number | null;
+    signaturePrice?: number | null;
+    crystalPrice?: number | null;
+    platinumPrice?: number | null;
+  };
+};
+
 const TIER_PRICES: Record<MembershipTier, number> = {
+  CLASSIC: MEMBERSHIP_PRICES.CLASSIC.price,
   SIGNATURE: MEMBERSHIP_PRICES.SIGNATURE.price,
   CRYSTAL: MEMBERSHIP_PRICES.CRYSTAL.price,
   PLATINUM: MEMBERSHIP_PRICES.PLATINUM.price,
@@ -70,18 +80,54 @@ export default function AdminManualMembershipPage() {
   const [credentialsModal, setCredentialsModal] =
     useState<CredentialsModalState | null>(null);
   const [isPasswordCopied, setIsPasswordCopied] = useState(false);
+  const [tierPrices, setTierPrices] =
+    useState<Record<MembershipTier, number>>(TIER_PRICES);
 
   const suggestedAmount = useMemo(
-    () => TIER_PRICES[form.tier],
-    [form.tier],
+    () => tierPrices[form.tier],
+    [form.tier, tierPrices],
   );
 
   useEffect(() => {
-    setForm((current) => ({
-      ...current,
-      amountPaid: String(TIER_PRICES[current.tier]),
-    }));
-  }, [form.tier]);
+    const controller = new AbortController();
+
+    async function loadMembershipPrices() {
+      try {
+        const response = await fetch("/api/settings/public", {
+          cache: "no-store",
+          signal: controller.signal,
+        });
+        const data = (await response.json()) as PublicSettingsResponse;
+
+        if (!response.ok) {
+          return;
+        }
+
+        const prices: Record<MembershipTier, number> = {
+          CLASSIC: data.membershipPrices?.classicPrice ?? TIER_PRICES.CLASSIC,
+          SIGNATURE:
+            data.membershipPrices?.signaturePrice ?? TIER_PRICES.SIGNATURE,
+          CRYSTAL: data.membershipPrices?.crystalPrice ?? TIER_PRICES.CRYSTAL,
+          PLATINUM:
+            data.membershipPrices?.platinumPrice ?? TIER_PRICES.PLATINUM,
+        };
+
+        setTierPrices(prices);
+        setForm((current) => ({
+          ...current,
+          amountPaid: String(prices[current.tier]),
+        }));
+      } catch (loadError) {
+        if (!controller.signal.aborted) {
+          console.error("Unable to load membership prices", loadError);
+        }
+      }
+    }
+
+    void loadMembershipPrices();
+
+    return () => controller.abort();
+  }, []);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -454,13 +500,19 @@ export default function AdminManualMembershipPage() {
                 id="tier"
                 value={form.tier}
                 onChange={(event) =>
-                  setForm((current) => ({
-                    ...current,
-                    tier: event.target.value as MembershipTier,
-                  }))
+                  setForm((current) => {
+                    const tier = event.target.value as MembershipTier;
+
+                    return {
+                      ...current,
+                      tier,
+                      amountPaid: String(tierPrices[tier]),
+                    };
+                  })
                 }
                 className="mt-2 h-11 w-full rounded-md border border-[#EADDCD] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68]"
               >
+                <option value="CLASSIC">Classic</option>
                 <option value="SIGNATURE">Signature</option>
                 <option value="CRYSTAL">Crystal</option>
                 <option value="PLATINUM">Platinum</option>

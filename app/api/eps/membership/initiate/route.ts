@@ -5,10 +5,14 @@ import {
   initializeEPSPayment,
 } from "@/lib/eps";
 import { db } from "@/lib/db";
-import { getMembershipPrice } from "@/lib/membershipDiscounts";
+import {
+  calculateExpiresAt,
+  MEMBERSHIP_PRICES,
+} from "@/lib/membershipDiscounts";
 import { getReferralDiscount, validateReferralCode } from "@/lib/referralCode";
 import {
   getSettings,
+  MEMBERSHIP_CLASSIC_PRICE,
   MEMBERSHIP_CRYSTAL_PRICE,
   MEMBERSHIP_PLATINUM_PRICE,
   MEMBERSHIP_SIGNATURE_PRICE,
@@ -30,6 +34,7 @@ function parseTier(value: unknown): MembershipTier | null {
   const normalized = value.trim().toUpperCase();
 
   if (
+    normalized === "CLASSIC" ||
     normalized === "SIGNATURE" ||
     normalized === "CRYSTAL" ||
     normalized === "PLATINUM"
@@ -71,6 +76,7 @@ function normalizeCustomerPhone(phone: string | null) {
 }
 
 const MEMBERSHIP_PRICE_SETTING_KEYS: Record<MembershipTier, string> = {
+  CLASSIC: MEMBERSHIP_CLASSIC_PRICE,
   SIGNATURE: MEMBERSHIP_SIGNATURE_PRICE,
   CRYSTAL: MEMBERSHIP_CRYSTAL_PRICE,
   PLATINUM: MEMBERSHIP_PLATINUM_PRICE,
@@ -85,7 +91,7 @@ async function getCurrentMembershipPrice(tier: MembershipTier) {
     return settingPrice;
   }
 
-  return getMembershipPrice(tier);
+  return MEMBERSHIP_PRICES[tier].price;
 }
 
 export async function POST(request: Request) {
@@ -146,7 +152,6 @@ export async function POST(request: Request) {
       0,
       Math.round(originalAmount * (1 - discountPercent / 100)),
     );
-    const discountAmount = originalAmount - amount;
     const membershipId = await generateMembershipId();
     const merchantTransactionId = generateTransactionId();
 
@@ -218,6 +223,7 @@ export async function POST(request: Request) {
           userId: user.id,
           tier,
           status: "PENDING",
+          expiresAt: calculateExpiresAt(tier),
           referralCode: referralDiscount ? requestedReferralCode : null,
         },
         select: {

@@ -20,6 +20,7 @@ type SettingsResponse = {
 const PRODUCT_DISCOUNT_PERCENT = "product_discount_percent";
 const PRODUCT_DISCOUNT_ENABLED = "product_discount_enabled";
 const PRODUCT_DISCOUNT_LABEL = "product_discount_label";
+const MEMBERSHIP_CLASSIC_PRICE = "membership_classic_price";
 const MEMBERSHIP_SIGNATURE_PRICE = "membership_signature_price";
 const MEMBERSHIP_SIGNATURE_ORIGINAL = "membership_signature_original";
 const MEMBERSHIP_CRYSTAL_PRICE = "membership_crystal_price";
@@ -38,6 +39,7 @@ const DEFAULT_VALUES: Record<string, string> = {
   [PRODUCT_DISCOUNT_PERCENT]: "0",
   [PRODUCT_DISCOUNT_ENABLED]: "false",
   [PRODUCT_DISCOUNT_LABEL]: "Member Discount",
+  [MEMBERSHIP_CLASSIC_PRICE]: "490",
   [MEMBERSHIP_SIGNATURE_PRICE]: "990",
   [MEMBERSHIP_SIGNATURE_ORIGINAL]: "2190",
   [MEMBERSHIP_CRYSTAL_PRICE]: "4500",
@@ -313,6 +315,17 @@ export default function AdminSettingsPage() {
           </div>
 
           <div className="mt-6 space-y-5">
+            <SettingInput
+              label="Classic Price (BDT)"
+              type="number"
+              min={0}
+              value={values[MEMBERSHIP_CLASSIC_PRICE] ?? ""}
+              onChange={(value) => updateValue(MEMBERSHIP_CLASSIC_PRICE, value)}
+              updatedAt={formatUpdatedAt(
+                getUpdatedAt(settings, MEMBERSHIP_CLASSIC_PRICE),
+              )}
+            />
+
             <SettingInput
               label="Signature Offered Price"
               type="number"

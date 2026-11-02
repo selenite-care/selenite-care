@@ -7,7 +7,7 @@ export const runtime = "nodejs";
 type ReminderMembership = {
   id: string;
   membershipId: string;
-  tier: "SIGNATURE" | "CRYSTAL" | "PLATINUM";
+  tier: "CLASSIC" | "SIGNATURE" | "CRYSTAL" | "PLATINUM";
   expiresAt: Date | null;
   user: {
     name: string | null;
@@ -25,6 +25,8 @@ function getServicesUrl() {
 
 function formatTierLabel(tier: ReminderMembership["tier"]) {
   switch (tier) {
+    case "CLASSIC":
+      return "Classic";
     case "SIGNATURE":
       return "Signature";
     case "CRYSTAL":

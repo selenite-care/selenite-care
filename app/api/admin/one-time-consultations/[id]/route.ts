@@ -38,6 +38,7 @@ export async function PATCH(request: Request, context: RouteContext) {
       select: {
         id: true,
         paymentStatus: true,
+        includesFollowUp: true,
         followUpUsed: true,
         booking: {
           select: {
@@ -58,6 +59,13 @@ export async function PATCH(request: Request, context: RouteContext) {
     if (existing.paymentStatus !== "PAID") {
       return Response.json(
         { error: "Only paid consultations can use a follow-up session." },
+        { status: 400 },
+      );
+    }
+
+    if (!existing.includesFollowUp) {
+      return Response.json(
+        { error: "This consultation does not include a follow-up session." },
         { status: 400 },
       );
     }

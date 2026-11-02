@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
-type MembershipTier = "SIGNATURE" | "CRYSTAL" | "PLATINUM" | string;
+type MembershipTier = "CLASSIC" | "SIGNATURE" | "CRYSTAL" | "PLATINUM" | string;
 
 type MembershipCountdownProps = {
   createdAt: Date;
@@ -14,6 +14,11 @@ type MembershipCountdownProps = {
 
 function getTierStyles(tier: MembershipTier) {
   switch (tier) {
+    case "CLASSIC":
+      return {
+        backgroundColor: "#B87B68",
+        color: "#F8F5F0",
+      };
     case "PLATINUM":
       return {
         backgroundColor: "#2B2B2B",
@@ -88,13 +93,14 @@ export default function MembershipCountdown({
   const [now, setNow] = useState<number | null>(null);
 
   useEffect(() => {
-    setNow(Date.now());
+    const initialTick = window.setTimeout(() => setNow(Date.now()), 0);
 
     const interval = window.setInterval(() => {
       setNow(Date.now());
     }, 1000);
 
     return () => {
+      window.clearTimeout(initialTick);
       window.clearInterval(interval);
     };
   }, []);

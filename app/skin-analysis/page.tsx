@@ -21,7 +21,7 @@ import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 type AccessStatus = {
   freeRemaining: number;
   paidCredits: number;
-  membershipTier: "SIGNATURE" | "CRYSTAL" | "PLATINUM" | null;
+  membershipTier: "CLASSIC" | "SIGNATURE" | "CRYSTAL" | "PLATINUM" | null;
   pricePerAnalysis: number;
 };
 

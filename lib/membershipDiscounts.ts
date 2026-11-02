@@ -1,4 +1,9 @@
 export const MEMBERSHIP_PRICES = {
+  CLASSIC: {
+    price: 490,
+    originalPrice: null,
+    offerValidTill: null,
+  },
   SIGNATURE: { 
     price: 990,           // offered price
     originalPrice: 2190,  // regular price
@@ -16,7 +21,16 @@ export const MEMBERSHIP_PRICES = {
   },
 } as const
 
+export const CLASSIC_MEMBERSHIP_BENEFITS = [
+  "Online Doctor Video Consultation",
+  "Root cause identification and guidance",
+  "Right product suggestion for your skin",
+  "One month doctor guidance & follow up",
+  "Personalized day-night skincare routine",
+] as const
+
 export const PRODUCT_DISCOUNTS = {
+  CLASSIC: 0,
   SIGNATURE: 0,   // no product discount
   CRYSTAL: 7,     // 7% off all products
   PLATINUM: 10,   // 10% off all products
@@ -24,6 +38,7 @@ export const PRODUCT_DISCOUNTS = {
 
 // Duration in days for NEW purchases only
 export const MEMBERSHIP_DURATIONS = {
+  CLASSIC: 30,
   SIGNATURE: 90,   // 3 months (UPDATED — was 60 days)
   CRYSTAL: 365,    // 12 months
   PLATINUM: 1095,  // 36 months

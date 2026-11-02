@@ -32,7 +32,6 @@ const BENEFITS = [
   "Online video doctor consultation",
   "Root cause identification and guidance",
   "Personalized product recommendations",
-  "One complimentary follow-up session",
 ];
 type OneTimeConsultationFormProps = {
   showPackageSummary?: boolean;

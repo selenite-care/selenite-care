@@ -16,17 +16,19 @@ type CreateMembershipPayload = {
 };
 
 const MEMBERSHIP_TIER_ORDER: Record<MembershipTier, number> = {
-  SIGNATURE: 1,
-  CRYSTAL: 2,
-  PLATINUM: 3,
+  CLASSIC: 1,
+  SIGNATURE: 2,
+  CRYSTAL: 3,
+  PLATINUM: 4,
 };
 
 const MEMBERSHIP_BENEFITS: Record<MembershipTier, string[]> = {
+  CLASSIC: ["30 Days of Classic Membership Access"],
   SIGNATURE: [
-    "90 Days of Unlimited Skincare Support",
-    "Skin, Body & Hair Problem Analysis: Self-submitted photo review, Online skin assessment form",
+    "90 Days of Unlimited Skincare Support: General doctor guidance & follow-up for 3 months, 24/7 client support",
+    "Skin, Body & Hair Problem Analysis: Root cause identification, Self-submitted photo review, Online skin assessment form",
     "Online Consultation with Skin Doctor / Aestheticians",
-    "Personalized Product Recommendation List",
+    "Personalized Product Recommendation List with proper benefits explained for every suggested product",
     "Skin Report Card",
     "Personalized Morning & Night Skincare Routine (after purchasing products from Selenite)",
     "Before & After Consultation Support",
@@ -75,6 +77,7 @@ function parseTier(value: unknown): MembershipTier | null {
   const normalized = value.trim().toUpperCase();
 
   if (
+    normalized === "CLASSIC" ||
     normalized === "SIGNATURE" ||
     normalized === "CRYSTAL" ||
     normalized === "PLATINUM"

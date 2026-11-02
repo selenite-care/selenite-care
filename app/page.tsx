@@ -20,6 +20,7 @@ import {
   normalizeOneTimeConsultationPricing,
   type OneTimeConsultationPricing,
 } from "@/lib/oneTimeConsultationPricing";
+import { MEMBERSHIP_PRICES } from "@/lib/membershipDiscounts";
 
 export const revalidate = 3600;
 
@@ -28,6 +29,7 @@ type PublicDiscountSettings = {
   discountPercent: number;
   discountLabel: string;
   oneTimeConsultation: OneTimeConsultationPricing;
+  classicMembershipPrice: number;
 };
 
 const DEFAULT_DISCOUNT_SETTINGS: PublicDiscountSettings = {
@@ -35,6 +37,7 @@ const DEFAULT_DISCOUNT_SETTINGS: PublicDiscountSettings = {
   discountPercent: 0,
   discountLabel: "",
   oneTimeConsultation: DEFAULT_ONE_TIME_CONSULTATION_PRICING,
+  classicMembershipPrice: MEMBERSHIP_PRICES.CLASSIC.price,
 };
 
 async function getFeaturedProducts() {
@@ -116,7 +119,11 @@ async function getPublicDiscountSettings(): Promise<PublicDiscountSettings> {
       return DEFAULT_DISCOUNT_SETTINGS;
     }
 
-    const data = (await response.json()) as Partial<PublicDiscountSettings>;
+    const data = (await response.json()) as Partial<PublicDiscountSettings> & {
+      membershipPrices?: {
+        classicPrice?: number | null;
+      };
+    };
     const discountPercent =
       typeof data.discountPercent === "number" &&
       Number.isFinite(data.discountPercent)
@@ -131,6 +138,12 @@ async function getPublicDiscountSettings(): Promise<PublicDiscountSettings> {
       oneTimeConsultation: normalizeOneTimeConsultationPricing(
         data.oneTimeConsultation,
       ),
+      classicMembershipPrice:
+        typeof data.membershipPrices?.classicPrice === "number" &&
+        Number.isFinite(data.membershipPrices.classicPrice) &&
+        data.membershipPrices.classicPrice > 0
+          ? data.membershipPrices.classicPrice
+          : MEMBERSHIP_PRICES.CLASSIC.price,
     };
   } catch {
     return DEFAULT_DISCOUNT_SETTINGS;
@@ -414,6 +427,7 @@ export default async function Home() {
 
       <MembershipSection
         oneTimeConsultation={discountSettings.oneTimeConsultation}
+        classicPrice={discountSettings.classicMembershipPrice}
       />
             {/* <section className="bg-[#F8F5F0] px-6 py-20 text-center dark:bg-[#1A1814] lg:py-24">
         <div className="mx-auto flex max-w-4xl flex-col items-center">

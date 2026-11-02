@@ -19,7 +19,7 @@ type PendingReferral = {
     name: string | null;
   };
   membership: {
-    tier: "SIGNATURE" | "CRYSTAL" | "PLATINUM";
+    tier: "CLASSIC" | "SIGNATURE" | "CRYSTAL" | "PLATINUM";
   };
 };
 

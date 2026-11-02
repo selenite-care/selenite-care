@@ -1,6 +1,22 @@
 "use client";
 
 const tierConfig = {
+  classic: {
+    bg: "linear-gradient(145deg, #FFF9F7 0%, #F4E3DE 100%)",
+    border: "1.5px solid rgba(184,123,104,0.55)",
+    badgeBg: "#B87B68",
+    badgeText: "#F8F5F0",
+    titleColor: "#2B2B2B",
+    validityColor: "#884F38",
+    costColor: "#B87B68",
+    descColor: "#6E6257",
+    shadow: "0 4px 28px rgba(184,123,104,0.16)",
+    hoverShadow: "0 12px 42px rgba(184,123,104,0.28)",
+    label: "Classic",
+    decoration: null,
+    shimmer: false,
+    dark: false,
+  },
   signature: {
     bg: "linear-gradient(145deg, #fdf8f0 0%, #f5ede0 100%)",
     border: "1.5px solid rgba(198,165,107,0.55)",

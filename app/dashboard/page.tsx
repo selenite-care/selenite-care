@@ -16,6 +16,7 @@ import { expirePastActiveMemberships } from "@/lib/membershipStatus";
 const { auth } = NextAuth(authConfig);
 
 const MEMBERSHIP_AMOUNTS = {
+  CLASSIC: MEMBERSHIP_PRICES.CLASSIC.price,
   SIGNATURE: MEMBERSHIP_PRICES.SIGNATURE.price,
   CRYSTAL: MEMBERSHIP_PRICES.CRYSTAL.price,
   PLATINUM: MEMBERSHIP_PRICES.PLATINUM.price,
@@ -25,8 +26,10 @@ function formatBdt(amount: number) {
   return `${amount.toLocaleString("en-US")} BDT`;
 }
 
-function getTierClasses(tier: "SIGNATURE" | "CRYSTAL" | "PLATINUM" | string) {
+function getTierClasses(tier: "CLASSIC" | "SIGNATURE" | "CRYSTAL" | "PLATINUM" | string) {
   switch (tier) {
+    case "CLASSIC":
+      return "bg-[#B87B68] text-[#F8F5F0]";
     case "PLATINUM":
       return "bg-[#2B2B2B] text-[#F8F5F0] dark:bg-[#B87B68] dark:text-[#141210]";
     case "CRYSTAL":
@@ -37,7 +40,24 @@ function getTierClasses(tier: "SIGNATURE" | "CRYSTAL" | "PLATINUM" | string) {
   }
 }
 
-function getUpgradeOptions(tier: "SIGNATURE" | "CRYSTAL" | "PLATINUM") {
+function getUpgradeOptions(tier: "CLASSIC" | "SIGNATURE" | "CRYSTAL" | "PLATINUM") {
+  if (tier === "CLASSIC") {
+    return [
+      {
+        tier: "SIGNATURE" as const,
+        label: `Upgrade to Signature - ${formatBdt(MEMBERSHIP_AMOUNTS.SIGNATURE)}`,
+      },
+      {
+        tier: "CRYSTAL" as const,
+        label: `Upgrade to Crystal - ${formatBdt(MEMBERSHIP_AMOUNTS.CRYSTAL)}`,
+      },
+      {
+        tier: "PLATINUM" as const,
+        label: `Upgrade to Platinum - ${formatBdt(MEMBERSHIP_AMOUNTS.PLATINUM)}`,
+      },
+    ].filter((option) => isMembershipAvailable(option.tier));
+  }
+
   if (tier === "SIGNATURE") {
     return [
       {

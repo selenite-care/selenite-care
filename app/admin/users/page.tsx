@@ -20,7 +20,7 @@ type AdminUser = {
   }>;
   memberships: Array<{
     id: string;
-    tier: "SIGNATURE" | "CRYSTAL" | "PLATINUM";
+    tier: "CLASSIC" | "SIGNATURE" | "CRYSTAL" | "PLATINUM";
     status: "PENDING" | "ACTIVE" | "EXPIRED" | "CANCELLED";
     createdAt: string;
   }>;
@@ -118,8 +118,10 @@ function getMembershipStatusStyles(
   }
 }
 
-function getTierLabel(tier: "SIGNATURE" | "CRYSTAL" | "PLATINUM") {
+function getTierLabel(tier: "CLASSIC" | "SIGNATURE" | "CRYSTAL" | "PLATINUM") {
   switch (tier) {
+    case "CLASSIC":
+      return "Classic";
     case "SIGNATURE":
       return "Signature";
     case "CRYSTAL":

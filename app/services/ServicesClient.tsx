@@ -14,6 +14,7 @@ import { isSignatureOfferValid } from "@/lib/membershipDiscounts";
 import TermsAndConditionsModal from "@/components/membership/TermsAndConditionsModal";
 import DoctorMascot from "@/components/ui/DoctorMascot";
 import DirectConsultationCard from "@/components/ui/DirectConsultationCard";
+import ClassicMembershipCard from "@/components/ui/ClassicMembershipCard";
 import { MembershipCard } from "@/components/ui/MembershipCards";
 import type { OneTimeConsultationPricing } from "@/lib/oneTimeConsultationPricing";
 
@@ -23,8 +24,8 @@ type BenefitItem = {
 };
 
 type MembershipTier = {
-  key: "signature" | "crystal" | "platinum";
-  tierValue: "SIGNATURE" | "CRYSTAL" | "PLATINUM";
+  key: "classic" | "signature" | "crystal" | "platinum";
+  tierValue: "CLASSIC" | "SIGNATURE" | "CRYSTAL" | "PLATINUM";
   title: string;
   validity: string;
   cost: string;
@@ -37,7 +38,7 @@ type MembershipTier = {
 };
 
 type ClientMembership = {
-  tier: "SIGNATURE" | "CRYSTAL" | "PLATINUM";
+  tier: "CLASSIC" | "SIGNATURE" | "CRYSTAL" | "PLATINUM";
   status: "PENDING" | "ACTIVE" | "EXPIRED" | "CANCELLED";
   expiresAt: string | null;
 };
@@ -66,6 +67,7 @@ function formatBdt(amount: number) {
 }
 
 const TIER_ORDER = {
+  CLASSIC: 0,
   SIGNATURE: 1,
   CRYSTAL: 2,
   PLATINUM: 3,
@@ -101,16 +103,29 @@ function buildMemberships(
       "A perfect starting point for individuals seeking professional skincare guidance and routine development.",
     accentColor: "#B87B68",
     benefits: [
-      { heading: "90 Days of Unlimited Skincare Support", points: [] },
+      {
+        heading: "90 Days of Unlimited Skincare Support",
+        points: [
+          "General doctor guidance & follow-up for 3 months",
+          "24/7 client support",
+        ],
+      },
       {
         heading: "Skin, Body & Hair Problem Analysis",
-        points: ["Self-submitted photo review", "Online skin assessment form"],
+        points: [
+          "Root cause identification",
+          "Self-submitted photo review",
+          "Online skin assessment form",
+        ],
       },
       {
         heading: "Online Consultation with Skin Doctor / Aestheticians",
         points: [],
       },
-      { heading: "Personalized Product Recommendation List", points: [] },
+      {
+        heading: "Personalized Product Recommendation List",
+        points: ["Proper benefits explained for every suggested product"],
+      },
       { heading: "Skin Report Card", points: [] },
       {
         heading: "Personalized Morning & Night Skincare Routine (after purchasing products from Selenite)",
@@ -526,6 +541,7 @@ export default function ServicesClient({
   );
   const membershipAmounts = useMemo<Record<ClientMembership["tier"], number>>(
     () => ({
+      CLASSIC: membershipPrices.CLASSIC.price,
       SIGNATURE: membershipPrices.SIGNATURE.price,
       CRYSTAL: membershipPrices.CRYSTAL.price,
       PLATINUM: membershipPrices.PLATINUM.price,
@@ -542,6 +558,7 @@ export default function ServicesClient({
   const [currentTime, setCurrentTime] = useState(0);
 
   useEffect(() => {
+    trackViewMembership("CLASSIC", membershipPrices.CLASSIC.price);
     const signaturePrice = isSignatureOfferValid()
       ? membershipPrices.SIGNATURE.price
       : (membershipPrices.SIGNATURE.originalPrice ??
@@ -771,6 +788,7 @@ export default function ServicesClient({
           <div>
             <div className="grid grid-cols-1 gap-6">
               <DirectConsultationCard pricing={oneTimeConsultation} />
+              <ClassicMembershipCard price={membershipPrices.CLASSIC.price} />
               {memberships.map((membership, index) => (
                 <button
                   key={membership.key}
