@@ -21,6 +21,8 @@ import DoctorPhoto from "@/components/ui/DoctorPhoto";
 import LandingLeadCaptureSection from "@/components/landing/LandingLeadCaptureSection";
 import OneTimeConsultationForm from "@/components/landing/OneTimeConsultationForm";
 import SkinQuiz from "@/components/landing/SkinQuiz";
+import ProgramDetailsModal from "@/components/ui/ProgramDetailsModal";
+import ProgramOptionCard from "@/components/ui/ProgramOptionCard";
 import { FAQS } from "@/lib/faq";
 import {
   getMembershipAvailabilityLabel,
@@ -854,6 +856,9 @@ function LandingPageContent() {
     );
   const [isConsultationPricingLoading, setIsConsultationPricingLoading] =
     useState(true);
+  const [selectedMembershipTier, setSelectedMembershipTier] = useState<
+    string | null
+  >(null);
   const membershipPlans = [
     membershipContent.classic,
     membershipContent.signature,
@@ -864,6 +869,9 @@ function LandingPageContent() {
     membershipContent.platinum,
     PLATINUM_MEMBERSHIP_END */
   ];
+  const selectedMembershipPlan = membershipPlans.find(
+    (plan) => plan.tier === selectedMembershipTier,
+  );
   const faqItems = FAQS.filter((item) =>
     ["1", "2", "3", "6", "11", "14"].includes(item.id),
   ).map((item) => {
@@ -1631,7 +1639,7 @@ function LandingPageContent() {
           </div>
         </section>
 
-        <section className="bg-[#EADDCD] px-6 py-12 dark:bg-[#221d1a]">
+        <section className="bg-page px-6 py-12">
           <div className="mx-auto w-full max-w-6xl">
             <div className="mx-auto max-w-3xl text-center">
               <h2
@@ -1651,163 +1659,75 @@ function LandingPageContent() {
                 const planButtonLabel = isPlanAvailable
                   ? plan.button
                   : getMembershipAvailabilityLabel(plan.tier);
-
-                if (plan.tier === "CLASSIC") {
-                  return (
-                    <article
-                      key={plan.title}
-                      className="flex h-full flex-col overflow-hidden rounded-lg border-2 border-[#B87B68] bg-white shadow-[0_18px_45px_rgba(184,123,104,0.16)] dark:bg-[#242220]"
-                    >
-                      <div className="bg-[linear-gradient(135deg,#B87B68_0%,#C98F7D_55%,#8F5D50_100%)] px-6 py-5">
-                        <span className="inline-flex rounded-full border border-white/40 bg-[#2B2B2B]/20 px-3 py-1 text-[11px] font-bold uppercase text-white">
-                          {language === "en" ? "1 Month Guidance" : "১ মাস গাইডেন্স"}
-                        </span>
-                        <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-                          <h3
-                            className="text-3xl font-semibold text-white"
-                            style={{ fontFamily: "Playfair Display, serif" }}
-                          >
-                            {plan.title}
-                          </h3>
-                          <span className="rounded-full border border-white/40 bg-white/15 px-3 py-1 text-xs font-semibold text-white">
-                            {plan.duration}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="flex flex-1 flex-col p-6">
-                        <p
-                          className="text-4xl font-bold text-[#2B2B2B] dark:text-[#F0EDE8]"
-                          style={{ fontFamily: "Playfair Display, serif" }}
-                        >
-                          {plan.price}
-                        </p>
-
-                        <ul className="mt-6 space-y-3">
-                          {plan.benefits.map((benefit) => (
-                            <li
-                              key={benefit}
-                              className="flex items-start gap-3 text-sm leading-6 text-[#5F524A] dark:text-[#D9C9BD]"
-                            >
-                              <Check className="mt-1 h-4 w-4 shrink-0 text-[#B87B68]" />
-                              <span>{benefit}</span>
-                            </li>
-                          ))}
-                        </ul>
-
-                        <div className="mt-auto pt-8">
-                          {isPlanAvailable ? (
-                            <Link
-                              href={plan.link}
-                              className="inline-flex h-12 w-full items-center justify-center rounded-md bg-[#B87B68] px-5 text-sm font-semibold text-[#211E1A] transition-colors hover:bg-[#C98F7D] dark:text-[#141210]"
-                            >
-                              {planButtonLabel}
-                            </Link>
-                          ) : (
-                            <button
-                              type="button"
-                              disabled
-                              className="inline-flex h-12 w-full cursor-not-allowed items-center justify-center rounded-md border border-[#EADDCD] bg-[#F4EFE8] px-5 text-sm font-medium text-[#8C7967] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#8A7D75]"
-                            >
-                              {planButtonLabel}
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    </article>
-                  );
-                }
+                const tone =
+                  plan.tier === "CLASSIC" ? "classic" : "signature";
+                const planBadge =
+                  plan.tier === "CLASSIC"
+                    ? language === "en"
+                      ? "1 Month Guidance"
+                      : "১ মাস গাইডেন্স"
+                    : language === "en"
+                      ? "3 Months Guidance"
+                      : "৩ মাস গাইডেন্স";
 
                 return (
-                  <article
+                  <ProgramOptionCard
                     key={plan.title}
-                    className="flex h-full flex-col rounded-2xl border border-[#EADDCD] bg-white p-6 shadow-sm dark:border-[#3D3530] dark:bg-[#242220]"
-                  >
-                    <div className="flex flex-wrap items-start justify-between gap-3">
-                      <h3
-                        className="text-2xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]"
-                        style={{ fontFamily: "Playfair Display, serif" }}
-                      >
-                        {plan.title}
-                      </h3>
-
-                      <span className="rounded-full border border-[#EADDCD] bg-[#F8F5F0] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#8C7967] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#8A7D75]">
-                        {plan.duration}
-                      </span>
-                    </div>
-
-                    <div className="mt-5 flex flex-wrap items-baseline gap-3">
-                      {"price" in plan ? (
-                        <p
-                          className="text-3xl font-bold text-[#B87B68]"
-                          style={{ fontFamily: "Playfair Display, serif" }}
-                        >
-                          {plan.price}
-                        </p>
-                      ) : null}
-
-                      {"original" in plan && plan.original ? (
-                        <span className="text-sm font-semibold text-[#884F38] line-through decoration-[1.5px] dark:text-[#8A7D75]">
-                          {plan.original}
-                        </span>
-                      ) : null}
-                    </div>
-
-                    <div className="mt-3 space-y-2">
-                      {"badge" in plan && plan.badge ? (
-                        <span
-                          className={`inline-flex rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] ${
-                            String(plan.badge).includes("OFF on All Products")
-                              ? "bg-green-100 text-green-700 dark:bg-green-950/30 dark:text-green-300"
-                              : "bg-red-100 text-red-600 dark:bg-red-950/30 dark:text-red-300"
-                          }`}
-                        >
-                          {plan.badge}
-                        </span>
-                      ) : null}
-                      {"priceNote" in plan && plan.priceNote ? (
-                        <p className="text-xs leading-6 text-[#884F38] dark:text-[#8A7D75]">
-                          {plan.priceNote}
-                        </p>
-                      ) : null}
-                    </div>
-
-                    <ul className="mt-6 space-y-3">
-                      {plan.benefits.map((benefit) => (
-                        <li
-                          key={benefit}
-                          className="flex items-start gap-3 text-sm leading-6 text-[#6E6257] dark:text-[#8A7D75]"
-                        >
-                          <Check className="mt-1 h-4 w-4 shrink-0 text-[#B87B68]" />
-                          <span>{benefit}</span>
-                        </li>
-                      ))}
-                    </ul>
-
-                    <div className="mt-8 flex-1" />
-
-                    {isPlanAvailable ? (
-                      <Link
-                        href={plan.link}
-                        className="inline-flex h-12 w-full items-center justify-center rounded-md bg-[#2B2B2B] px-5 text-sm font-medium text-[#F8F5F0] transition-colors hover:bg-[#3A3734] dark:bg-[#B87B68] dark:text-[#141210] dark:hover:bg-[#D4B47A]"
-                      >
-                        {planButtonLabel}
-                      </Link>
-                    ) : (
-                      <button
-                        type="button"
-                        disabled
-                        className="inline-flex h-12 w-full cursor-not-allowed items-center justify-center rounded-md border border-[#EADDCD] bg-[#F4EFE8] px-5 text-sm font-medium text-[#8C7967] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#8A7D75]"
-                      >
-                        {planButtonLabel}
-                      </button>
-                    )}
-                  </article>
+                    tone={tone}
+                    badge={planBadge}
+                    title={plan.title}
+                    price={plan.price}
+                    originalPrice={
+                      "original" in plan ? plan.original : undefined
+                    }
+                    duration={plan.duration}
+                    paymentNote={
+                      "priceNote" in plan ? plan.priceNote : undefined
+                    }
+                    offerBadge={"badge" in plan ? plan.badge : undefined}
+                    statusBadge={
+                      isPlanAvailable ? undefined : planButtonLabel
+                    }
+                    benefits={plan.benefits}
+                    detailsLabel={
+                      language === "en"
+                        ? "View all benefits"
+                        : "সব সুবিধা দেখুন"
+                    }
+                    onViewDetails={() =>
+                      setSelectedMembershipTier(plan.tier)
+                    }
+                    primaryAction={{
+                      label: planButtonLabel,
+                      href: isPlanAvailable ? plan.link : undefined,
+                      disabled: !isPlanAvailable,
+                    }}
+                  />
                 );
               })}
             </div>
           </div>
         </section>
+
+        {selectedMembershipPlan ? (
+          <ProgramDetailsModal
+            title={selectedMembershipPlan.title}
+            subtitle={membershipContent.subtext}
+            benefits={selectedMembershipPlan.benefits}
+            actionLabel={
+              isMembershipAvailable(selectedMembershipPlan.tier)
+                ? selectedMembershipPlan.button
+                : getMembershipAvailabilityLabel(selectedMembershipPlan.tier)
+            }
+            actionHref={
+              isMembershipAvailable(selectedMembershipPlan.tier)
+                ? selectedMembershipPlan.link
+                : undefined
+            }
+            actionDisabled={!isMembershipAvailable(selectedMembershipPlan.tier)}
+            onClose={() => setSelectedMembershipTier(null)}
+          />
+        ) : null}
 
         <section className="bg-[#2B2B2B] px-6 py-12 dark:bg-[#0F0D0C]">
           <div className="mx-auto w-full max-w-6xl">

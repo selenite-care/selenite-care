@@ -71,13 +71,13 @@ const MEMBERSHIPS: Record<MembershipTier, MembershipTierDetails> = {
     price: MEMBERSHIP_PRICES.SIGNATURE.price,
     originalPrice: MEMBERSHIP_PRICES.SIGNATURE.originalPrice ?? undefined,
     benefits: [
-      "90 Days of Unlimited Skincare Support: General doctor guidance & follow-up for 3 months, 24/7 client support",
-      "Skin, Body & Hair Problem Analysis: Root cause identification, Self-submitted photo review, Online skin assessment form",
-      "Online Consultation with Skin Doctor / Aestheticians",
-      "Personalized Product Recommendation List with proper benefits explained for every suggested product",
+      "Online Doctor Video Consultation",
+      "Skin, Body & Hair Problem Analysis & Root Cause Identification: Self-submitted photo review and online skin assessment form",
+      "Right Product Suggestions for Your Skin with proper benefits explained for every suggested product",
+      "3 Months General Doctor Guidance & Follow-up",
+      "24/7 Client Support",
       "Skin Report Card",
       "Personalized Morning & Night Skincare Routine (after purchasing products from Selenite Care)",
-      "Before & After Consultation Support",
     ],
   },
   CRYSTAL: {

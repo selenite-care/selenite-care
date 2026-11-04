@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import {
@@ -11,9 +10,9 @@ import {
   isSignatureOfferValid,
   MEMBERSHIP_PRICES,
 } from "@/lib/membershipDiscounts";
-import TermsAndConditionsModal from "@/components/membership/TermsAndConditionsModal";
 import DirectConsultationCard from "@/components/ui/DirectConsultationCard";
 import ClassicMembershipCard from "@/components/ui/ClassicMembershipCard";
+import ProgramDetailsModal from "@/components/ui/ProgramDetailsModal";
 import ViewportAnimatedSection from "@/components/ui/ViewportAnimatedSection";
 import { MembershipCard } from "@/components/ui/MembershipCards";
 import type { OneTimeConsultationPricing } from "@/lib/oneTimeConsultationPricing";
@@ -134,34 +133,30 @@ const memberships: MembershipTier[] = [
     accentColor: "#B87B68",
     benefits: [
       {
-        heading: "90 Days of Unlimited Skincare Support",
-        points: [
-          "General doctor guidance & follow-up for 3 months",
-          "24/7 client support",
-        ],
+        heading: "Online Doctor Video Consultation",
+        points: [],
       },
       {
-        heading: "Skin, Body & Hair Problem Analysis",
+        heading: "Skin, Body & Hair Problem Analysis & Root Cause Identification",
         points: [
-          "Root cause identification",
           "Self-submitted photo review",
           "Online skin assessment form",
         ],
       },
       {
-        heading: "Online Consultation with Skin Doctor / Aestheticians",
-        points: [],
-      },
-      {
-        heading: "Personalized Product Recommendation List",
+        heading: "Right Product Suggestions for Your Skin",
         points: ["Proper benefits explained for every suggested product"],
       },
+      {
+        heading: "3 Months General Doctor Guidance & Follow-up",
+        points: [],
+      },
+      { heading: "24/7 Client Support", points: [] },
       { heading: "Skin Report Card", points: [] },
       {
         heading: "Personalized Morning & Night Skincare Routine (after purchasing products from Selenite)",
         points: [],
       },
-      { heading: "Before & After Consultation Support", points: [] },
     ],
   },
   /* CRYSTAL_MEMBERSHIP_START
@@ -295,263 +290,21 @@ function MembershipModal({
   onClose: () => void;
   actionState: MembershipActionState;
 }) {
-  const [hasAcceptedTerms, setHasAcceptedTerms] = useState(false);
-  const [isTermsOpen, setIsTermsOpen] = useState(false);
-
-  useEffect(() => {
-    function handleEscape(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        onClose();
-      }
-    }
-
-    window.addEventListener("keydown", handleEscape);
-    document.body.style.overflow = "hidden";
-
-    return () => {
-      window.removeEventListener("keydown", handleEscape);
-      document.body.style.overflow = "";
-    };
-  }, [onClose]);
+  const benefits = membership.benefits.flatMap((benefit) => [
+    benefit.heading,
+    ...benefit.points,
+  ]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center px-4 py-6">
-      <button
-        type="button"
-        aria-label="Close membership details"
-        onClick={onClose}
-        className="modal-overlay absolute inset-0"
-        style={{ backgroundColor: "rgba(43, 43, 43, 0.76)" }}
-      />
-
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby={`membership-modal-${membership.key}`}
-        className="modal-card relative z-10 flex h-[80vh] w-full max-w-2xl flex-col overflow-hidden rounded-[20px] border border-[#EADDCD] bg-[#F8F5F0] dark:border-[#3D3530] dark:bg-[#242220]"
-        style={{
-          boxShadow: "0 32px 90px rgba(43, 43, 43, 0.28)",
-        }}
-      >
-        <div
-          className="border-b px-6 pb-5 pt-6 sm:px-8"
-          style={{
-            borderColor: "#EADDCD",
-            background:
-              membership.key === "platinum"
-                ? "linear-gradient(135deg, #111111 0%, #1E1A15 100%)"
-                : membership.key === "crystal"
-                  ? "linear-gradient(135deg, rgba(224,244,255,0.95) 0%, rgba(200,235,255,0.92) 100%)"
-                  : "linear-gradient(135deg, #FDF8F0 0%, #F2E7D6 100%)",
-          }}
-        >
-          <button
-            type="button"
-            onClick={onClose}
-            className="absolute right-5 top-5 inline-flex h-10 w-10 items-center justify-center rounded-full border text-lg transition-colors hover:bg-white/60 dark:border-[#3D3530] dark:hover:bg-[#2A2724]"
-            style={{
-              borderColor: "#EADDCD",
-              color: membership.key === "platinum" ? "#F8F5F0" : "#2B2B2B",
-              backgroundColor:
-                membership.key === "platinum"
-                  ? "rgba(255,255,255,0.08)"
-                  : "rgba(255,255,255,0.85)",
-            }}
-          >
-            ×
-          </button>
-
-          <div
-            className="inline-flex rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em]"
-            style={{
-              background:
-                membership.key === "crystal"
-                  ? "linear-gradient(135deg, #5BB8F5 0%, #2A8FD4 100%)"
-                  : "linear-gradient(135deg, #B87B68 0%, #A8864D 100%)",
-              color: membership.key === "platinum" ? "#111111" : "#FFF8EE",
-            }}
-          >
-            {membership.key}
-          </div>
-
-          <h2
-            id={`membership-modal-${membership.key}`}
-            className="mt-4 text-2xl font-bold dark:text-[#F0EDE8] sm:text-3xl"
-            style={{
-              color: membership.key === "platinum" ? "#F8F5F0" : "#2B2B2B",
-              fontFamily: "Playfair Display, serif",
-            }}
-          >
-            {membership.title}
-          </h2>
-
-          <p
-            className="mt-3 max-w-xl text-sm leading-6 dark:text-[#8A7D75] sm:text-base"
-            style={{
-              color: membership.key === "platinum" ? "#EADDCD" : "#6E6257",
-            }}
-          >
-            {membership.description}
-          </p>
-
-          <div className="mt-5 flex flex-wrap items-center gap-3">
-            <div className="flex flex-wrap items-center gap-3">
-              <span
-                className="text-3xl font-semibold"
-                style={{
-                  color:
-                    membership.key === "platinum"
-                      ? "#F3E0B5"
-                      : "#B87B68",
-                  fontFamily: "Playfair Display, serif",
-                }}
-              >
-                {membership.cost}
-              </span>
-              {membership.originalCost ? (
-                <span
-                  className="text-sm font-semibold"
-                  style={{
-                    color: "#8C7967",
-                    textDecoration: "line-through",
-                    textDecorationThickness: "1.5px",
-                  }}
-                >
-                  {membership.originalCost}
-                </span>
-              ) : null}
-            </div>
-            <span
-              className="text-xs font-semibold uppercase tracking-[0.14em]"
-              style={{
-                color: membership.key === "platinum" ? "#EADDCD" : "#8C7967",
-              }}
-            >
-              {membership.validity}
-            </span>
-          </div>
-          {membership.discountBadge ? (
-            <span
-              className="mt-3 inline-flex rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em]"
-              style={{
-                backgroundColor: membership.discountBadge.includes("OFF on All Products")
-                  ? "#DCFCE7"
-                  : "#FEE2E2",
-                color: membership.discountBadge.includes("OFF on All Products")
-                  ? "#15803D"
-                  : "#B91C1C",
-              }}
-            >
-              {membership.discountBadge}
-            </span>
-          ) : null}
-          {membership.priceNote ? (
-            <p
-              className="mt-3 text-xs leading-6 dark:text-[#8A7D75]"
-              style={{ color: "#8C7967" }}
-            >
-              {membership.priceNote}
-            </p>
-          ) : null}
-        </div>
-
-        <div className="min-h-0 flex-1 overflow-y-auto px-6 py-6 sm:px-8">
-          <div className="space-y-5 pb-2">
-            {membership.benefits.map((benefit, index) => (
-              <div key={`${membership.key}-${benefit.heading}`}>
-                <div className="flex gap-3">
-                  <div
-                    className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold"
-                    style={{
-                      background: "linear-gradient(135deg, #B87B68 0%, #A8864D 100%)",
-                      color: "#FFF8EE",
-                    }}
-                  >
-                    {index + 1}
-                  </div>
-                  <div>
-                    <p
-                      className="text-sm font-semibold leading-6 text-[#2B2B2B] dark:text-[#F0EDE8] sm:text-base"
-                    >
-                      {benefit.heading}
-                    </p>
-                    {benefit.points.length > 0 ? (
-                      <ul className="mt-2 space-y-1.5">
-                        {benefit.points.map((point) => (
-                          <li
-                            key={point}
-                            className="flex gap-2 text-sm leading-6 text-[#6E6257] dark:text-[#8A7D75]"
-                          >
-                            <span className="text-[#B87B68] dark:text-[#D4B47A]">•</span>
-                            <span>{point}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    ) : null}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div
-          className="shrink-0 border-t border-[#EADDCD] bg-[#F8F5F0] px-6 py-5 dark:border-[#3D3530] dark:bg-[#242220] sm:px-8"
-          style={{
-          }}
-        >
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-            <div className="max-w-lg">
-              <label className="flex items-start gap-3 text-sm leading-6 text-[#6E6257] dark:text-[#8A7D75]">
-                <input
-                  type="checkbox"
-                  checked={hasAcceptedTerms}
-                  onChange={(event) => setHasAcceptedTerms(event.target.checked)}
-                  className="mt-1 h-4 w-4 shrink-0 rounded border border-[#EADDCD] dark:border-[#3D3530]"
-                  style={{ accentColor: "#B87B68" }}
-                />
-                <span>
-                  <span style={{ color: "#C84B4B" }}>*</span>{" "}
-                  I agree to the{" "}
-                  <button
-                    type="button"
-                    onClick={() => setIsTermsOpen(true)}
-                    className="font-semibold text-[#2B2B2B] underline underline-offset-2 dark:text-[#F0EDE8]"
-                  >
-                    Terms & Conditions
-                  </button>
-                </span>
-              </label>
-            </div>
-
-            {actionState.disabled || !actionState.href || !hasAcceptedTerms ? (
-              <button
-                type="button"
-                disabled
-                className="inline-flex h-12 w-full cursor-not-allowed items-center justify-center rounded-md bg-[#CFC5BA] px-5 text-sm font-medium text-[#6E6257] opacity-60 dark:bg-[#3D3530] dark:text-[#8A7D75] sm:w-auto"
-                style={{
-                }}
-              >
-                {actionState.label}
-              </button>
-            ) : (
-              <Link
-                href={actionState.href}
-                className="inline-flex h-12 w-full items-center justify-center rounded-md bg-[#2B2B2B] px-5 text-sm font-medium text-[#F8F5F0] transition-colors hover:bg-[#884F38] dark:bg-[#B87B68] dark:text-[#141210] dark:hover:bg-[#D4B47A] sm:w-auto"
-                style={{
-                }}
-              >
-                {actionState.label}
-              </Link>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {isTermsOpen ? (
-        <TermsAndConditionsModal onClose={() => setIsTermsOpen(false)} />
-      ) : null}
-    </div>
+    <ProgramDetailsModal
+      title={membership.title}
+      subtitle={membership.description}
+      benefits={benefits}
+      actionLabel={actionState.label}
+      actionHref={actionState.href ?? undefined}
+      actionDisabled={actionState.disabled}
+      onClose={onClose}
+    />
   );
 }
 
@@ -637,7 +390,7 @@ export default function MembershipSection({
       return {
         disabled: false,
         href: "/login?callbackUrl=/services",
-        label: "Get this Membership",
+        label: `Get ${membership.title}`,
       };
     }
 
@@ -666,7 +419,7 @@ export default function MembershipSection({
       return {
         disabled: false,
         href: `/membership/payment?tier=${membership.tierValue}`,
-        label: "Get this Membership",
+        label: `Get ${membership.title}`,
       };
     }
 
@@ -749,26 +502,23 @@ export default function MembershipSection({
             <ClassicMembershipCard price={classicPrice} />
             {steps.map((step, index) => {
               const membership = memberships[index];
+              const actionState = getMembershipActionState(membership);
 
               return (
-                <button
+                <MembershipCard
                   key={step.title}
-                  type="button"
-                  onClick={() => setSelectedMembership(membership)}
-                  className="block w-full cursor-pointer border-0 bg-transparent p-0 text-left"
-                  style={{ borderRadius: 20 }}
-                >
-                  <MembershipCard
-                    step={{
-                      ...step,
-                      statusBadge: !isMembershipAvailable(membership.tierValue)
-                        ? getMembershipAvailabilityLabel(membership.tierValue)
-                        : undefined,
-                    }}
-                    index={index}
-                    footerText="View details ->"
-                  />
-                </button>
+                  step={{
+                    ...step,
+                    statusBadge: !isMembershipAvailable(membership.tierValue)
+                      ? getMembershipAvailabilityLabel(membership.tierValue)
+                      : undefined,
+                  }}
+                  benefits={membership.benefits.map((benefit) => benefit.heading)}
+                  actionLabel={actionState.label}
+                  actionHref={actionState.href ?? undefined}
+                  actionDisabled={actionState.disabled}
+                  onViewDetails={() => setSelectedMembership(membership)}
+                />
               );
             })}
           </ViewportAnimatedSection>
