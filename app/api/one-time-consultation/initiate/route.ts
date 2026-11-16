@@ -1,11 +1,17 @@
 import { auth } from "@/auth";
 import { parseAppointmentSchedule } from "@/lib/appointmentSchedule";
 import { db } from "@/lib/db";
-import { generateTransactionId, initializeEPSPayment } from "@/lib/eps";
+import {
+  EPSInitializationError,
+  EPS_INITIATION_ERROR_MESSAGE,
+  generateTransactionId,
+  initializeEPSPayment,
+} from "@/lib/eps";
 import {
   getSetting,
   ONE_TIME_CONSULTATION_PRICE,
 } from "@/lib/settings";
+import { getSlotBlockingBookingWhere } from "@/lib/oneTimeConsultation";
 import { formatTimeSlot, generateTimeSlots } from "@/lib/slotGenerator";
 
 export const runtime = "nodejs";
@@ -144,6 +150,7 @@ export async function POST(request: Request) {
 
       const existingSlotBooking = await tx.booking.findFirst({
         where: {
+          ...getSlotBlockingBookingWhere(),
           doctorId: doctor.id,
           timeSlot: schedule.timeSlot,
           appointmentTime: {
@@ -165,6 +172,7 @@ export async function POST(request: Request) {
 
       const existingSlotBookings = await tx.booking.findMany({
         where: {
+          ...getSlotBlockingBookingWhere(),
           doctorId: doctor.id,
           timeSlot: {
             not: null,
@@ -270,7 +278,10 @@ export async function POST(request: Request) {
       valueB: user.id,
     });
 
-    return Response.json({ redirectUrl: payment.redirectUrl });
+    return Response.json({
+      redirectUrl: payment.redirectUrl,
+      amount: packagePrice,
+    });
   } catch (error) {
     if (
       error instanceof SlotUnavailableError ||
@@ -309,7 +320,12 @@ export async function POST(request: Request) {
 
     console.error("One-time consultation EPS initiation failed:", error);
     return Response.json(
-      { error: "Unable to initiate one-time consultation payment." },
+      {
+        error:
+          error instanceof EPSInitializationError
+            ? EPS_INITIATION_ERROR_MESSAGE
+            : "Unable to initiate one-time consultation payment.",
+      },
       { status: 500 },
     );
   }

@@ -16,6 +16,7 @@ const crmSections = [
       { href: "/crm/bookings", label: "Membership Bookings" },
       { href: "/crm/one-time-consultations", label: "One-Time Consultations" },
       { href: "/crm/memberships", label: "Memberships" },
+      { href: "/crm/orders", label: "Product Orders" },
       { href: "/crm/products", label: "Products" },
       { href: "/crm/messages", label: "Messages" },
       { href: "/crm/blog", label: "Blog Posts" },

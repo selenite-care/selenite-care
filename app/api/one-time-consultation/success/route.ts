@@ -2,8 +2,9 @@ import { NextResponse } from "next/server";
 import { formatAppointmentSchedule } from "@/lib/appointmentSchedule";
 import { db } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
-import { verifyEPSPayment } from "@/lib/eps";
+import { isVerifiedEPSPayment, verifyEPSPayment } from "@/lib/eps";
 import { createNotification, NOTIFICATION_TYPES } from "@/lib/notifications";
+import { getSlotBlockingBookingWhere } from "@/lib/oneTimeConsultation";
 import {
   sendFacebookCAPIEvent,
   sendGA4Event,
@@ -13,6 +14,21 @@ export const runtime = "nodejs";
 
 function buildRedirect(request: Request, path: string) {
   return NextResponse.redirect(new URL(path, request.url));
+}
+
+function buildPaymentErrorRedirect(
+  request: Request,
+  error: "payment_failed" | "payment_conflict" | "payment_pending",
+) {
+  const source = new URL(request.url).searchParams.get("source");
+  if (source === "landing") {
+    const url = new URL("/landing", request.url);
+    url.searchParams.set("consultationPayment", error);
+    url.hash = "online-video-consultation";
+    return NextResponse.redirect(url);
+  }
+
+  return buildRedirect(request, `/one-time-consultation?error=${error}`);
 }
 
 function getSearchValue(request: Request, keys: string[]) {
@@ -38,19 +54,6 @@ function getMerchantTransactionId(request: Request) {
   ]);
 }
 
-function isEPSSuccess(data: Record<string, unknown>) {
-  const status = String(
-    data.status ?? data.Status ?? data.transactionStatus ?? data.TransactionStatus ?? "",
-  ).toLowerCase();
-
-  return (
-    status === "success" ||
-    data.statusCode === "200" ||
-    data.statusCode === 200 ||
-    data.isSuccess === true
-  );
-}
-
 function formatPreferredDate(date: Date | null) {
   if (!date) return "Not specified";
 
@@ -60,6 +63,21 @@ function formatPreferredDate(date: Date | null) {
     year: "numeric",
     timeZone: "Asia/Dhaka",
   }).format(date);
+}
+
+function getDhakaDayRange(date: Date) {
+  const dateKey = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Dhaka",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(date);
+  const start = new Date(`${dateKey}T00:00:00+06:00`);
+
+  return {
+    start,
+    end: new Date(start.getTime() + 24 * 60 * 60 * 1000),
+  };
 }
 
 function escapeHtml(value: string) {
@@ -81,7 +99,14 @@ function buildClientEmailHtml(input: {
   bookingToken: string;
   doctorName: string;
   preferredDate: string;
+  amountPaid: number;
+  email: string;
+  temporaryPassword: string | null;
 }) {
+  const accountDetails = input.temporaryPassword
+    ? `<p><strong>Your account:</strong> ${escapeHtml(input.email)}<br /><strong>Temporary password:</strong> ${escapeHtml(input.temporaryPassword)}<br />Please change your password after logging in at selenitecare.com/login.</p>`
+    : "";
+
   return `
     <div style="font-family: Arial, sans-serif; color: #2B2B2B; line-height: 1.6;">
       <h1 style="color: #2B2B2B;">One-Time Consultation Booked</h1>
@@ -100,7 +125,12 @@ function buildClientEmailHtml(input: {
           <td style="padding: 10px 12px; border: 1px solid #EADDCD;">Appointment Date &amp; Time</td>
           <td style="padding: 10px 12px; border: 1px solid #EADDCD;">${escapeHtml(input.preferredDate)}</td>
         </tr>
+        <tr>
+          <td style="padding: 10px 12px; border: 1px solid #EADDCD;">Amount Paid</td>
+          <td style="padding: 10px 12px; border: 1px solid #EADDCD;">${escapeHtml(input.amountPaid.toLocaleString("en-US"))} BDT</td>
+        </tr>
       </table>
+      ${accountDetails}
       <p>Our team will contact you within 24 hours to confirm your exact consultation time. Contact: +8801647660300</p>
     </div>
   `;
@@ -119,24 +149,10 @@ export async function GET(request: Request) {
   });
 
   if (!merchantTransactionId) {
-    return buildRedirect(
-      request,
-      "/one-time-consultation?error=payment_failed",
-    );
+    return buildPaymentErrorRedirect(request, "payment_failed");
   }
 
   try {
-    const verification = (await verifyEPSPayment(
-      merchantTransactionId,
-    )) as Record<string, unknown>;
-
-    if (!isEPSSuccess(verification)) {
-      return buildRedirect(
-        request,
-        "/one-time-consultation?error=payment_failed",
-      );
-    }
-
     const consultation = await db.oneTimeConsultation.findFirst({
       where: {
         epsMerchantTxnId: merchantTransactionId,
@@ -148,6 +164,8 @@ export async function GET(request: Request) {
       },
       select: {
         paymentStatus: true,
+        paymentConflict: true,
+        packagePrice: true,
         booking: {
           select: {
             id: true,
@@ -155,11 +173,13 @@ export async function GET(request: Request) {
             token: true,
             appointmentTime: true,
             timeSlot: true,
+            doctorId: true,
             user: {
               select: {
                 name: true,
                 email: true,
                 phone: true,
+                isTemporaryPassword: true,
               },
             },
             doctor: {
@@ -173,118 +193,233 @@ export async function GET(request: Request) {
     });
 
     if (!consultation) {
+      return buildPaymentErrorRedirect(request, "payment_failed");
+    }
+
+    if (consultation.paymentStatus === "PAID") {
+      if (consultation.paymentConflict) {
+        return buildPaymentErrorRedirect(request, "payment_conflict");
+      }
+
       return buildRedirect(
         request,
-        "/one-time-consultation?error=payment_failed",
+        `/one-time-consultation/confirmation?bookingId=${encodeURIComponent(consultation.booking.id)}`,
       );
     }
 
-    if (consultation.paymentStatus !== "PAID") {
-      await db.oneTimeConsultation.update({
+    let verification: Record<string, unknown>;
+    try {
+      verification = (await verifyEPSPayment(
+        merchantTransactionId,
+      )) as Record<string, unknown>;
+    } catch (verificationError) {
+      console.error(
+        "One-time consultation success verification was inconclusive:",
+        verificationError,
+      );
+      return buildPaymentErrorRedirect(request, "payment_pending");
+    }
+
+    if (!isVerifiedEPSPayment(verification, consultation.packagePrice)) {
+      await db.booking.updateMany({
+        where: {
+          id: consultation.booking.id,
+          status: "PENDING",
+          oneTimeConsultation: {
+            is: { paymentStatus: "UNPAID" },
+          },
+        },
+        data: { status: "CANCELLED" },
+      });
+      return buildPaymentErrorRedirect(request, "payment_failed");
+    }
+
+    const paymentOutcome = await db.$transaction(async (tx) => {
+      const appointmentTime = consultation.booking.appointmentTime;
+      const timeSlot = consultation.booking.timeSlot;
+      const doctorId = consultation.booking.doctorId;
+      let conflictingBookingId: string | null = null;
+
+      if (appointmentTime && timeSlot && doctorId) {
+        const { start, end } = getDhakaDayRange(appointmentTime);
+        const conflictingBooking = await tx.booking.findFirst({
+          where: {
+            ...getSlotBlockingBookingWhere(),
+            id: { not: consultation.booking.id },
+            doctorId,
+            timeSlot,
+            appointmentTime: { gte: start, lt: end },
+            status: { not: "CANCELLED" },
+          },
+          select: { id: true },
+        });
+        conflictingBookingId = conflictingBooking?.id ?? null;
+      }
+
+      const conflictNote = conflictingBookingId
+        ? `Payment succeeded after the 15-minute hold expired, but booking ${conflictingBookingId} now occupies the selected slot.`
+        : null;
+      const claimedPayment = await tx.oneTimeConsultation.updateMany({
         where: {
           bookingId: consultation.booking.id,
+          paymentStatus: "UNPAID",
         },
         data: {
           paymentStatus: "PAID",
           paidAt: new Date(),
+          paymentConflict: Boolean(conflictingBookingId),
+          paymentConflictNote: conflictNote,
         },
       });
 
-      try {
-        const analyticsUser = await db.user.findUnique({
-          where: {
-            id: consultation.booking.userId,
-          },
-          select: {
-            name: true,
-            email: true,
-            phone: true,
-          },
+      if (claimedPayment.count === 0) {
+        const current = await tx.oneTimeConsultation.findUnique({
+          where: { bookingId: consultation.booking.id },
+          select: { paymentConflict: true },
         });
-
-        await Promise.allSettled([
-          sendFacebookCAPIEvent({
-            eventName: "Purchase",
-            value: 99,
-            currency: "BDT",
-            transactionId: consultation.booking.id,
-            email: analyticsUser?.email ?? undefined,
-            phone: analyticsUser?.phone ?? undefined,
-            name: analyticsUser?.name ?? undefined,
-          }),
-          sendGA4Event({
-            eventName: "purchase",
-            value: 99,
-            currency: "BDT",
-            transactionId: consultation.booking.id,
-            items: [
-              {
-                item_id: "ONE_TIME_CONSULTATION",
-                item_name: "Online Video Consultation - Selenite Care",
-                price: 99,
-                item_category: "Consultation",
-                quantity: 1,
-              },
-            ],
-          }),
-        ]);
-      } catch (error) {
-        console.error("One-time consultation analytics dispatch failed:", error);
+        return current?.paymentConflict ? "conflict" : "already-processed";
       }
 
-      const booking = consultation.booking;
-      const clientName = booking.user.name || "Selenite Care Client";
-      const doctorName = booking.doctor?.name || "Selenite Care Doctor";
-      const preferredDate =
-        booking.appointmentTime && booking.timeSlot
-          ? formatAppointmentSchedule(
-              booking.appointmentTime,
-              booking.timeSlot,
-            )
-          : formatPreferredDate(booking.appointmentTime);
-      const contactPhone = booking.user.phone || "Not provided";
-      const staffUsers = await db.user.findMany({
-        where: {
-          role: {
-            in: ["ADMIN", "CRM"],
-          },
-        },
-        select: {
-          id: true,
+      await tx.booking.update({
+        where: { id: consultation.booking.id },
+        data: {
+          status: conflictingBookingId ? "CANCELLED" : "PENDING",
         },
       });
-      const staffMessage = `${clientName} has booked a one-time consultation with ${doctorName}. Preferred date: ${preferredDate}. Contact: ${contactPhone}. Confirm time via phone.`;
-      const communicationResults = await Promise.allSettled([
-        sendEmail({
-          to: booking.user.email,
-          subject: "One-Time Consultation Booked \u2014 Selenite Care",
-          html: buildClientEmailHtml({
-            clientName,
-            bookingToken: booking.token,
-            doctorName,
-            preferredDate,
-          }),
+
+      return conflictingBookingId ? "conflict" : "confirmed";
+    }, { isolationLevel: "Serializable" });
+
+    if (paymentOutcome === "already-processed") {
+      return buildRedirect(
+        request,
+        `/one-time-consultation/confirmation?bookingId=${encodeURIComponent(consultation.booking.id)}`,
+      );
+    }
+
+    try {
+      const analyticsUser = await db.user.findUnique({
+        where: {
+          id: consultation.booking.userId,
+        },
+        select: {
+          name: true,
+          email: true,
+          phone: true,
+        },
+      });
+
+      await Promise.allSettled([
+        sendFacebookCAPIEvent({
+          eventName: "Purchase",
+          value: consultation.packagePrice,
+          currency: "BDT",
+          transactionId: consultation.booking.id,
+          email: analyticsUser?.email ?? undefined,
+          phone: analyticsUser?.phone ?? undefined,
+          name: analyticsUser?.name ?? undefined,
         }),
-        ...staffUsers.map((staffUser) =>
+        sendGA4Event({
+          eventName: "purchase",
+          value: consultation.packagePrice,
+          currency: "BDT",
+          transactionId: consultation.booking.id,
+          items: [
+            {
+              item_id: "ONE_TIME_CONSULTATION",
+              item_name: "Online Video Consultation - Selenite Care",
+              price: consultation.packagePrice,
+              item_category: "Consultation",
+              quantity: 1,
+            },
+          ],
+        }),
+      ]);
+    } catch (error) {
+      console.error("One-time consultation analytics dispatch failed:", error);
+    }
+
+    const booking = consultation.booking;
+    const clientName = booking.user.name || "Selenite Care Client";
+    const doctorName = booking.doctor?.name || "Selenite Care Doctor";
+    const preferredDate =
+      booking.appointmentTime && booking.timeSlot
+        ? formatAppointmentSchedule(
+            booking.appointmentTime,
+            booking.timeSlot,
+          )
+        : formatPreferredDate(booking.appointmentTime);
+    const contactPhone = booking.user.phone || "Not provided";
+    const staffUsers = await db.user.findMany({
+      where: {
+        role: {
+          in: ["ADMIN", "CRM"],
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (paymentOutcome === "conflict") {
+      const conflictMessage = `${clientName}'s payment was received after the 15-minute slot hold expired, and the selected slot is now occupied. Booking ${booking.token} requires manual review. Contact: ${contactPhone}.`;
+      const adminUsers = await db.user.findMany({
+        where: { role: "ADMIN", isActive: true },
+        select: { id: true },
+      });
+
+      await Promise.allSettled(
+        adminUsers.map((admin) =>
           createNotification(
-            staffUser.id,
-            "New One-Time Consultation Payment",
-            staffMessage,
+            admin.id,
+            "Paid Consultation Slot Conflict",
+            conflictMessage,
             NOTIFICATION_TYPES.BOOKING,
             "/admin/one-time-consultations",
           ),
         ),
-      ]);
+      );
 
-      communicationResults.forEach((result) => {
-        if (result.status === "rejected") {
-          console.error(
-            "One-time consultation communication failed:",
-            result.reason,
-          );
-        }
-      });
+      return buildPaymentErrorRedirect(request, "payment_conflict");
     }
+
+    const staffMessage = `${clientName} has booked a one-time consultation with ${doctorName}. Preferred date: ${preferredDate}. Contact: ${contactPhone}. Confirm time via phone.`;
+    const communicationResults = await Promise.allSettled([
+      sendEmail({
+        to: booking.user.email,
+        subject: "One-Time Consultation Booked \u2014 Selenite Care",
+        html: buildClientEmailHtml({
+          clientName,
+          bookingToken: booking.token,
+          doctorName,
+          preferredDate,
+          amountPaid: consultation.packagePrice,
+          email: booking.user.email,
+          temporaryPassword:
+            booking.user.isTemporaryPassword && booking.user.phone
+              ? `SC${booking.user.phone.replace(/\D/g, "")}`
+              : null,
+        }),
+      }),
+      ...staffUsers.map((staffUser) =>
+        createNotification(
+          staffUser.id,
+          "New One-Time Consultation Payment",
+          staffMessage,
+          NOTIFICATION_TYPES.BOOKING,
+          "/admin/one-time-consultations",
+        ),
+      ),
+    ]);
+
+    communicationResults.forEach((result) => {
+      if (result.status === "rejected") {
+        console.error(
+          "One-time consultation communication failed:",
+          result.reason,
+        );
+      }
+    });
 
     return buildRedirect(
       request,
@@ -292,9 +427,6 @@ export async function GET(request: Request) {
     );
   } catch (error) {
     console.error("One-time consultation success callback failed:", error);
-    return buildRedirect(
-      request,
-      "/one-time-consultation?error=payment_failed",
-    );
+    return buildPaymentErrorRedirect(request, "payment_pending");
   }
 }

@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import { formatLongDate } from "@/lib/dateUtils";
 import { formatTimeSlot } from "@/lib/slotGenerator";
+import { getStaffVisibleBookingWhere } from "@/lib/oneTimeConsultation";
 import BookingStatusControls from "./BookingStatusControls";
 import ClientBookingHistory from "@/components/booking/ClientBookingHistory";
 import BookingRescheduleControl from "@/components/booking/BookingRescheduleControl";
@@ -39,8 +40,8 @@ export default async function BookingDetailsPage({
   params,
 }: BookingDetailsPageProps) {
   const { id } = await params;
-  const booking = await db.booking.findUnique({
-    where: { id },
+  const booking = await db.booking.findFirst({
+    where: { id, ...getStaffVisibleBookingWhere() },
     include: {
       user: {
         select: {

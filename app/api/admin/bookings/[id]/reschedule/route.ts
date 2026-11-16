@@ -3,6 +3,7 @@ import { authConfig } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { formatDate } from "@/lib/dateUtils";
 import { notifyBookingChange } from "@/lib/notifications";
+import { getStaffVisibleBookingWhere } from "@/lib/oneTimeConsultation";
 
 const { auth } = NextAuth(authConfig);
 
@@ -222,8 +223,8 @@ export async function PATCH(request: Request, context: RouteContext) {
     );
   }
 
-  const booking = await db.booking.findUnique({
-    where: { id },
+  const booking = await db.booking.findFirst({
+    where: { id, ...getStaffVisibleBookingWhere() },
     select: {
       id: true,
       token: true,

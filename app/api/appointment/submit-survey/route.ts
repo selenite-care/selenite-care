@@ -3,6 +3,7 @@ import { authConfig } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
 import { createNotification, NOTIFICATION_TYPES } from "@/lib/notifications";
+import { getSlotBlockingBookingWhere } from "@/lib/oneTimeConsultation";
 import { sanitizeText } from "@/lib/sanitize";
 import { formatTimeSlot, generateTimeSlots } from "@/lib/slotGenerator";
 
@@ -359,6 +360,7 @@ export async function POST(request: Request) {
       await Promise.all([
         db.booking.findFirst({
           where: {
+            ...getSlotBlockingBookingWhere(),
             userId: session.user.id,
             status: {
               notIn: ["COMPLETED", "CANCELLED"],
@@ -370,6 +372,7 @@ export async function POST(request: Request) {
         }),
         db.booking.findFirst({
           where: {
+            ...getSlotBlockingBookingWhere(),
             doctorId,
             timeSlot,
             appointmentTime: {
@@ -494,6 +497,7 @@ export async function POST(request: Request) {
     const { booking, survey } = await db.$transaction(async (tx) => {
       const existingSlotBookings = await tx.booking.findMany({
         where: {
+          ...getSlotBlockingBookingWhere(),
           doctorId: doctor.id,
           status: {
             notIn: ["CANCELLED"],

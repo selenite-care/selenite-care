@@ -57,6 +57,8 @@ export async function GET(request: Request) {
         id: true,
         createdAt: true,
         paymentStatus: true,
+        paymentConflict: true,
+        paymentConflictNote: true,
         includesFollowUp: true,
         followUpUsed: true,
         booking: {

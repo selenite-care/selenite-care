@@ -1,5 +1,7 @@
 import { auth } from "@/auth";
 import {
+  EPSInitializationError,
+  EPS_INITIATION_ERROR_MESSAGE,
   generateTransactionId,
   getEPSCallbackUrls,
   initializeEPSPayment,
@@ -250,7 +252,12 @@ export async function POST(request: Request) {
     console.error("EPS membership initiate failed:", error);
 
     return Response.json(
-      { error: "Unable to initiate EPS membership payment." },
+      {
+        error:
+          error instanceof EPSInitializationError
+            ? EPS_INITIATION_ERROR_MESSAGE
+            : "Unable to initiate EPS membership payment.",
+      },
       { status: 500 },
     );
   }

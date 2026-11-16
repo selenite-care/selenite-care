@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Copy, Download, MessageCircle } from "lucide-react";
+import { Copy, Download, MessageCircle, RefreshCw } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { SkeletonTable } from "@/components/ui/Skeleton";
@@ -11,6 +11,9 @@ type Consultation = {
   id: string;
   createdAt: string;
   paymentStatus: "UNPAID" | "PAID" | "REFUNDED";
+  epsMerchantTxnId: string | null;
+  paymentConflict: boolean;
+  paymentConflictNote: string | null;
   includesFollowUp: boolean;
   followUpUsed: boolean;
   booking: {
@@ -37,6 +40,7 @@ type ConsultationsResponse = {
 const FILTERS = [
   "All",
   "Paid",
+  "Unpaid EPS",
   "Follow-up Used",
   "Follow-up Available",
 ] as const;
@@ -64,6 +68,7 @@ type OneTimeConsultationsPageProps = {
   bookingBasePath: string;
   messagesBasePath: string;
   followUpEndpointBase?: string;
+  enableEpsRecheck?: boolean;
 };
 
 export default function OneTimeConsultationsPage({
@@ -71,6 +76,7 @@ export default function OneTimeConsultationsPage({
   bookingBasePath,
   messagesBasePath,
   followUpEndpointBase,
+  enableEpsRecheck = false,
 }: OneTimeConsultationsPageProps) {
   const router = useRouter();
   const [consultations, setConsultations] = useState<Consultation[]>([]);
@@ -80,6 +86,7 @@ export default function OneTimeConsultationsPage({
   const [error, setError] = useState("");
   const [actionError, setActionError] = useState("");
   const [updatingConsultationId, setUpdatingConsultationId] = useState("");
+  const [recheckingConsultationId, setRecheckingConsultationId] = useState("");
   const [openingConversationClientId, setOpeningConversationClientId] =
     useState("");
 
@@ -89,7 +96,11 @@ export default function OneTimeConsultationsPage({
     async function loadConsultations() {
       try {
         setError("");
-        const response = await fetch(apiPath, {
+        const url = new URL(apiPath, window.location.origin);
+        if (enableEpsRecheck && filter === "Unpaid EPS") {
+          url.searchParams.set("includeUnpaid", "true");
+        }
+        const response = await fetch(`${url.pathname}${url.search}`, {
           cache: "no-store",
           signal: controller.signal,
         });
@@ -117,13 +128,15 @@ export default function OneTimeConsultationsPage({
 
     void loadConsultations();
     return () => controller.abort();
-  }, [apiPath]);
+  }, [apiPath, enableEpsRecheck, filter]);
 
   const filteredConsultations = useMemo(() => {
     return consultations.filter((consultation) => {
       switch (filter) {
         case "Paid":
           return consultation.paymentStatus === "PAID";
+        case "Unpaid EPS":
+          return consultation.paymentStatus === "UNPAID";
         case "Follow-up Used":
           return consultation.includesFollowUp && consultation.followUpUsed;
         case "Follow-up Available":
@@ -184,6 +197,61 @@ export default function OneTimeConsultationsPage({
       );
     } finally {
       setUpdatingConsultationId("");
+    }
+  }
+
+  async function recheckEPSPayment(consultationId: string) {
+    if (!enableEpsRecheck || recheckingConsultationId) return;
+
+    setActionError("");
+    setRecheckingConsultationId(consultationId);
+
+    try {
+      const response = await fetch("/api/admin/eps/recheck", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ type: "consultation", id: consultationId }),
+      });
+      const data = (await response.json().catch(() => null)) as
+        | {
+            error?: string;
+            consultation?: Pick<
+              Consultation,
+              | "id"
+              | "paymentStatus"
+              | "paymentConflict"
+              | "paymentConflictNote"
+            >;
+          }
+        | null;
+
+      if (!response.ok || !data?.consultation) {
+        throw new Error(data?.error ?? "Unable to verify this EPS payment.");
+      }
+
+      setConsultations((current) =>
+        current.map((consultation) =>
+          consultation.id === consultationId
+            ? {
+                ...consultation,
+                paymentStatus: data.consultation!.paymentStatus,
+                paymentConflict: data.consultation!.paymentConflict,
+                paymentConflictNote:
+                  data.consultation!.paymentConflictNote,
+              }
+            : consultation,
+        ),
+      );
+    } catch (recheckError) {
+      setActionError(
+        recheckError instanceof Error
+          ? recheckError.message
+          : "Unable to verify this EPS payment.",
+      );
+    } finally {
+      setRecheckingConsultationId("");
     }
   }
 
@@ -292,7 +360,9 @@ export default function OneTimeConsultationsPage({
             onChange={(event) => setFilter(event.target.value as Filter)}
             className="mt-2 h-11 w-full rounded-md border border-black/10 bg-background px-3 text-sm text-foreground outline-none focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68] dark:border-white/10"
           >
-            {FILTERS.map((option) => (
+            {FILTERS.filter(
+              (option) => option !== "Unpaid EPS" || enableEpsRecheck,
+            ).map((option) => (
               <option key={option} value={option}>
                 {option}
               </option>
@@ -401,11 +471,21 @@ export default function OneTimeConsultationsPage({
                         {consultation.booking.token}
                       </td>
                       <td className="px-4 py-4">
-                        <span
-                          className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${paymentBadgeClasses(consultation.paymentStatus)}`}
-                        >
-                          {consultation.paymentStatus}
-                        </span>
+                        <div className="flex flex-col items-start gap-1">
+                          <span
+                            className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${paymentBadgeClasses(consultation.paymentStatus)}`}
+                          >
+                            {consultation.paymentStatus}
+                          </span>
+                          {consultation.paymentConflict ? (
+                            <span
+                              title={consultation.paymentConflictNote ?? undefined}
+                              className="inline-flex rounded-full border border-red-300 bg-red-50 px-2 py-1 text-[11px] font-semibold text-red-700 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-200"
+                            >
+                              Slot conflict - review required
+                            </span>
+                          ) : null}
+                        </div>
                       </td>
                       <td className="px-4 py-4">
                         <span
@@ -424,6 +504,30 @@ export default function OneTimeConsultationsPage({
                       </td>
                       <td className="px-4 py-4">
                         <div className="flex items-center gap-2">
+                          {enableEpsRecheck &&
+                          consultation.paymentStatus === "UNPAID" &&
+                          consultation.epsMerchantTxnId ? (
+                            <button
+                              type="button"
+                              onClick={() =>
+                                void recheckEPSPayment(consultation.id)
+                              }
+                              disabled={Boolean(recheckingConsultationId)}
+                              className="inline-flex h-9 items-center justify-center gap-2 rounded-md border border-[#B87B68] px-3 text-sm font-medium text-[#884F38] transition-colors hover:bg-[#B87B68]/10 disabled:cursor-not-allowed disabled:opacity-60 dark:text-[#D9A694]"
+                            >
+                              <RefreshCw
+                                className={`h-4 w-4 ${
+                                  recheckingConsultationId === consultation.id
+                                    ? "animate-spin"
+                                    : ""
+                                }`}
+                                aria-hidden="true"
+                              />
+                              {recheckingConsultationId === consultation.id
+                                ? "Checking EPS..."
+                                : "Re-check with EPS"}
+                            </button>
+                          ) : null}
                           <button
                             type="button"
                             onClick={() =>

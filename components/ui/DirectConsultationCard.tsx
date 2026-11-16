@@ -19,9 +19,12 @@ export default function DirectConsultationCard({
   isLoading?: boolean;
 }) {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const isPriceAvailable = pricing.currentPrice > 0;
   const displayedPrice = isLoading
     ? "Loading..."
-    : `${pricing.currentPrice.toLocaleString("en-US")} BDT`;
+    : isPriceAvailable
+      ? `${pricing.currentPrice.toLocaleString("en-US")} BDT`
+      : "Price unavailable";
 
   return (
     <>
@@ -47,9 +50,14 @@ export default function DirectConsultationCard({
         primaryAction={{
           label: isLoading
             ? "Loading price..."
-            : `Book Now - ${pricing.currentPrice.toLocaleString("en-US")} BDT`,
-          href: isLoading ? undefined : "/one-time-consultation",
-          disabled: isLoading,
+            : isPriceAvailable
+              ? `Book Now - ${pricing.currentPrice.toLocaleString("en-US")} BDT`
+              : "Price unavailable",
+          href:
+            isLoading || !isPriceAvailable
+              ? undefined
+              : "/one-time-consultation",
+          disabled: isLoading || !isPriceAvailable,
         }}
       />
 
@@ -58,8 +66,13 @@ export default function DirectConsultationCard({
           title="Online Video Consultation"
           subtitle="A focused one-time consultation with a skincare professional."
           benefits={BENEFITS}
-          actionLabel={`Book Now - ${pricing.currentPrice.toLocaleString("en-US")} BDT`}
-          actionHref="/one-time-consultation"
+          actionLabel={
+            isPriceAvailable
+              ? `Book Now - ${pricing.currentPrice.toLocaleString("en-US")} BDT`
+              : "Price unavailable"
+          }
+          actionHref={isPriceAvailable ? "/one-time-consultation" : undefined}
+          actionDisabled={!isPriceAvailable}
           onClose={() => setIsDetailsOpen(false)}
         />
       ) : null}

@@ -2,17 +2,26 @@ import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
 import {
+  getDeliveryAreaLabel,
+  getDeliveryCharges,
+  isCheckoutDeliveryArea,
+  type CheckoutDeliveryArea,
+} from "@/lib/deliveryCharges";
+import {
   calculateOrderTotal,
   getProductDiscount,
 } from "@/lib/membershipDiscounts";
 import { createNotification, NOTIFICATION_TYPES } from "@/lib/notifications";
 import {
+  COD_ENABLED,
+  COD_INSIDE_DHAKA_ONLY,
   getSetting,
+  getSettings,
   PRODUCT_DISCOUNT_ENABLED,
   PRODUCT_DISCOUNT_LABEL,
   PRODUCT_DISCOUNT_PERCENT,
 } from "@/lib/settings";
-import type { DeliveryArea, PaymentMethod } from "@prisma/client";
+import type { PaymentMethod } from "@prisma/client";
 
 export const runtime = "nodejs";
 
@@ -29,17 +38,7 @@ type CreateOrderPayload = {
   proofImageUrl?: unknown;
   note?: unknown;
   deliveryArea?: unknown;
-  deliveryCharge?: unknown;
   deliveryAddress?: unknown;
-  discountPercent?: unknown;
-  discountAmount?: unknown;
-  subtotalAmount?: unknown;
-};
-
-const DELIVERY_CHARGES: Record<DeliveryArea, number> = {
-  INSIDE_DHAKA: 80,
-  SUB_DHAKA: 100,
-  OUTSIDE_DHAKA: 150,
 };
 
 function parsePaymentMethod(value: unknown): PaymentMethod | null {
@@ -85,35 +84,13 @@ function normalizeItems(value: unknown): Array<{ productId: string; quantity: nu
     .filter((item) => item.productId && Number.isFinite(item.quantity));
 }
 
-function parseDeliveryArea(value: unknown): DeliveryArea {
+function parseDeliveryArea(value: unknown): CheckoutDeliveryArea | null {
   if (typeof value !== "string") {
-    return "INSIDE_DHAKA";
+    return null;
   }
 
   const normalized = value.trim().toUpperCase();
-
-  if (
-    normalized === "INSIDE_DHAKA" ||
-    normalized === "SUB_DHAKA" ||
-    normalized === "OUTSIDE_DHAKA"
-  ) {
-    return normalized;
-  }
-
-  return "INSIDE_DHAKA";
-}
-
-function getDeliveryAreaLabel(deliveryArea: DeliveryArea) {
-  switch (deliveryArea) {
-    case "INSIDE_DHAKA":
-      return "Inside Dhaka";
-    case "SUB_DHAKA":
-      return "Sub Dhaka";
-    case "OUTSIDE_DHAKA":
-      return "Outside Dhaka";
-    default:
-      return deliveryArea;
-  }
+  return isCheckoutDeliveryArea(normalized) ? normalized : null;
 }
 
 function buildOrderNote({
@@ -127,7 +104,7 @@ function buildOrderNote({
   customNote: string;
   paymentMethod: PaymentMethod;
   senderNumber: string;
-  deliveryArea: DeliveryArea;
+  deliveryArea: CheckoutDeliveryArea;
   deliveryAddress: string;
   appliedDiscountNote: string | null;
 }) {
@@ -175,8 +152,6 @@ export async function POST(request: Request) {
   }
 
   const body = (await request.json().catch(() => ({}))) as CreateOrderPayload;
-  // Client-sent subtotal/discount values are accepted for UI compatibility,
-  // but never trusted. Prices, membership discount, and total are recalculated below.
   const items = normalizeItems(body.items);
   const paymentMethod = parsePaymentMethod(body.paymentMethod);
   const transactionRef =
@@ -187,13 +162,9 @@ export async function POST(request: Request) {
     typeof body.proofImageUrl === "string" ? body.proofImageUrl.trim() : "";
   const customNote = typeof body.note === "string" ? body.note.trim() : "";
   const deliveryArea = parseDeliveryArea(body.deliveryArea);
-  const deliveryCharge = DELIVERY_CHARGES[deliveryArea];
   const deliveryAddress =
     typeof body.deliveryAddress === "string" ? body.deliveryAddress.trim() : "";
-  const isEpsPendingOrder =
-    paymentMethod === "BKASH" &&
-    transactionRef === "EPS_PENDING" &&
-    senderNumber === "EPS";
+  const isCashOnDelivery = paymentMethod === "CASH";
 
   if (items.length === 0) {
     return Response.json(
@@ -208,6 +179,21 @@ export async function POST(request: Request) {
       { status: 400 },
     );
   }
+
+  if (!deliveryArea) {
+    return Response.json(
+      {
+        error:
+          body.deliveryArea === "SUB_DHAKA"
+            ? "Sub Dhaka is no longer a delivery option. Please choose Inside Dhaka or Outside Dhaka."
+            : "Please choose a valid delivery area.",
+      },
+      { status: 400 },
+    );
+  }
+
+  const deliveryCharges = await getDeliveryCharges();
+  const deliveryCharge = deliveryCharges[deliveryArea];
 
   if (paymentMethod === "BKASH") {
     if (!senderNumber) {
@@ -243,6 +229,34 @@ export async function POST(request: Request) {
       { error: "Please enter your delivery address." },
       { status: 400 },
     );
+  }
+
+  if (isCashOnDelivery) {
+    const codSettings = await getSettings([
+      COD_ENABLED,
+      COD_INSIDE_DHAKA_ONLY,
+    ]);
+    const codEnabled = parseBooleanSetting(codSettings[COD_ENABLED] ?? null);
+    const codInsideDhakaOnly = parseBooleanSetting(
+      codSettings[COD_INSIDE_DHAKA_ONLY] ?? "false",
+    );
+
+    if (!codEnabled) {
+      return Response.json(
+        { error: "Cash on Delivery is currently unavailable." },
+        { status: 403 },
+      );
+    }
+
+    if (codInsideDhakaOnly && deliveryArea !== "INSIDE_DHAKA") {
+      return Response.json(
+        {
+          error:
+            "Cash on Delivery is currently restricted to Inside Dhaka by store settings.",
+        },
+        { status: 400 },
+      );
+    }
   }
 
   const productIds = items.map((item) => item.productId);
@@ -360,6 +374,8 @@ export async function POST(request: Request) {
     data: {
       userId: user.id,
       paymentMethod,
+      paymentStatus: "UNPAID",
+      status: "PENDING",
       totalAmount,
       transactionRef: transactionRef || null,
       proofImageUrl: proofImageUrl || null,
@@ -391,9 +407,9 @@ export async function POST(request: Request) {
 
   const adminEmail = process.env.ADMIN_EMAIL?.trim();
 
-  if (!isEpsPendingOrder && !adminEmail) {
+  if (isCashOnDelivery && !adminEmail) {
     console.error("ADMIN_EMAIL is not configured for product order notifications.");
-  } else if (!isEpsPendingOrder && adminEmail) {
+  } else if (isCashOnDelivery && adminEmail) {
     const itemsHtml = items
       .map((item) => {
         const product = productMap.get(item.productId)!;
@@ -410,12 +426,7 @@ export async function POST(request: Request) {
       })
       .join("");
 
-    const paymentMethodLabel =
-      paymentMethod === "BKASH"
-        ? "bKash"
-        : paymentMethod === "BANK_TRANSFER"
-          ? "Bank Transfer"
-          : "Cash on Delivery";
+    const paymentMethodLabel = "Cash on Delivery";
 
     const discountHtml =
       orderBreakdown.discountAmount > 0
@@ -534,11 +545,12 @@ export async function POST(request: Request) {
     }
   }
 
-  if (!isEpsPendingOrder) {
+  if (isCashOnDelivery) {
     try {
       const admins = await db.user.findMany({
         where: {
           role: "ADMIN",
+          isActive: true,
         },
         select: {
           id: true,
@@ -550,8 +562,8 @@ export async function POST(request: Request) {
         admins.map((admin) =>
           createNotification(
             admin.id,
-            "New Order",
-            `A new product order has been placed by ${clientName}`,
+            "New COD Order",
+            `${clientName} placed a Cash on Delivery order for ${Math.round(totalAmount)} BDT.`,
             NOTIFICATION_TYPES.ORDER,
             "/admin/orders",
           ),

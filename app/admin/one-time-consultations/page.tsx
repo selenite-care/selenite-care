@@ -9,6 +9,7 @@ export default function AdminOneTimeConsultationsPage() {
       bookingBasePath="/admin/bookings"
       messagesBasePath="/admin/messages"
       followUpEndpointBase="/api/admin/one-time-consultations"
+      enableEpsRecheck
     />
   );
 }

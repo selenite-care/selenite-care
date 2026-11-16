@@ -6,6 +6,10 @@ import {
 import { db } from "@/lib/db";
 import { formatLongDate } from "@/lib/dateUtils";
 import { createNotification, NOTIFICATION_TYPES } from "@/lib/notifications";
+import {
+  getSlotBlockingBookingWhere,
+  getStaffVisibleBookingWhere,
+} from "@/lib/oneTimeConsultation";
 import { formatTimeSlot, generateTimeSlots } from "@/lib/slotGenerator";
 
 export const runtime = "nodejs";
@@ -44,8 +48,8 @@ export async function PATCH(request: Request, context: RouteContext) {
     return Response.json({ error: "Time slot is required." }, { status: 400 });
   }
 
-  const booking = await db.booking.findUnique({
-    where: { id },
+  const booking = await db.booking.findFirst({
+    where: { id, ...getStaffVisibleBookingWhere() },
     select: {
       id: true,
       userId: true,
@@ -94,6 +98,7 @@ export async function PATCH(request: Request, context: RouteContext) {
 
   const existingSlotBooking = await db.booking.findFirst({
     where: {
+      ...getSlotBlockingBookingWhere(),
       id: {
         not: booking.id,
       },
@@ -126,6 +131,7 @@ export async function PATCH(request: Request, context: RouteContext) {
     const updatedBooking = await db.$transaction(async (transaction) => {
       const conflictingBooking = await transaction.booking.findFirst({
         where: {
+          ...getSlotBlockingBookingWhere(),
           id: {
             not: booking.id,
           },
@@ -150,6 +156,7 @@ export async function PATCH(request: Request, context: RouteContext) {
 
       const existingBookings = await transaction.booking.findMany({
         where: {
+          ...getSlotBlockingBookingWhere(),
           id: {
             not: booking.id,
           },

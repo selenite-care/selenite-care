@@ -7,23 +7,14 @@ import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 import { useCart } from "@/components/cart/CartProvider";
 import { trackBeginCheckout } from "@/lib/analytics";
+import { EPS_INITIATION_ERROR_MESSAGE } from "@/lib/paymentMessages";
 import {
   calculateOrderTotal,
   getProductDiscount,
 } from "@/lib/membershipDiscounts";
 
-type DeliveryArea = "INSIDE_DHAKA" | "SUB_DHAKA" | "OUTSIDE_DHAKA";
+type DeliveryArea = "INSIDE_DHAKA" | "OUTSIDE_DHAKA";
 type MembershipTier = "CLASSIC" | "SIGNATURE" | "CRYSTAL" | "PLATINUM";
-
-const DELIVERY_OPTIONS: Array<{
-  value: DeliveryArea;
-  label: string;
-  charge: number;
-}> = [
-  { value: "INSIDE_DHAKA", label: "Inside Dhaka", charge: 80 },
-  { value: "SUB_DHAKA", label: "Sub Dhaka", charge: 100 },
-  { value: "OUTSIDE_DHAKA", label: "Outside Dhaka", charge: 150 },
-];
 
 type CreateOrderResponse = {
   orderId?: string;
@@ -44,6 +35,17 @@ type ClientMembershipResponse = {
   error?: string;
 };
 
+type PublicSettingsResponse = {
+  cashOnDelivery?: {
+    enabled: boolean;
+    insideDhakaOnly: boolean;
+  };
+  deliveryCharges?: {
+    insideDhaka: number;
+    outsideDhaka: number;
+  };
+};
+
 function formatBdt(amount: number) {
   return `${Math.round(amount)} BDT`;
 }
@@ -59,6 +61,10 @@ function getPaymentErrorMessage(error: string | null, message: string | null) {
 
   if (error === "payment_cancelled") {
     return "Payment was cancelled. Your order has not been placed.";
+  }
+
+  if (error === "payment_pending") {
+    return "We could not confirm the payment status yet. Your order has been kept for re-checking; please do not pay a second time right now.";
   }
 
   return message || "Payment could not be completed. Please try again.";
@@ -114,19 +120,45 @@ function CartPageContent() {
     null,
   );
   const [error, setError] = useState("");
-  const [dismissedPaymentError, setDismissedPaymentError] = useState(false);
+  const [dismissedPaymentErrorKey, setDismissedPaymentErrorKey] = useState<
+    string | null
+  >(null);
   const [discountMembershipTier, setDiscountMembershipTier] =
     useState<MembershipTier | null>(null);
+  const [cashOnDelivery, setCashOnDelivery] = useState({
+    enabled: false,
+    insideDhakaOnly: false,
+  });
+  const [deliveryCharges, setDeliveryCharges] = useState({
+    insideDhaka: 100,
+    outsideDhaka: 150,
+  });
+  const [isLoadingPaymentSettings, setIsLoadingPaymentSettings] =
+    useState(true);
   const hasTrackedCheckout = useRef(false);
   const paymentError = searchParams.get("error");
   const paymentMessage = searchParams.get("message");
+  const paymentErrorKey = `${paymentError ?? ""}:${paymentMessage ?? ""}`;
 
-  const deliveryCharge = useMemo(
-    () =>
-      DELIVERY_OPTIONS.find((option) => option.value === deliveryArea)?.charge ??
-      80,
-    [deliveryArea],
+  const deliveryOptions = useMemo(
+    () => [
+      {
+        value: "INSIDE_DHAKA" as const,
+        label: "Inside Dhaka",
+        charge: deliveryCharges.insideDhaka,
+      },
+      {
+        value: "OUTSIDE_DHAKA" as const,
+        label: "Outside Dhaka",
+        charge: deliveryCharges.outsideDhaka,
+      },
+    ],
+    [deliveryCharges],
   );
+  const deliveryCharge =
+    deliveryArea === "INSIDE_DHAKA"
+      ? deliveryCharges.insideDhaka
+      : deliveryCharges.outsideDhaka;
   const membershipTierForDiscount =
     discountMembershipTier && getProductDiscount(discountMembershipTier) > 0
       ? discountMembershipTier
@@ -164,10 +196,6 @@ function CartPageContent() {
       router.replace("/login?callbackUrl=%2Fcart");
     }
   }, [router, status]);
-
-  useEffect(() => {
-    setDismissedPaymentError(false);
-  }, [paymentError, paymentMessage]);
 
   useEffect(() => {
     let isMounted = true;
@@ -217,6 +245,46 @@ function CartPageContent() {
   }, [status, session?.user?.id]);
 
   useEffect(() => {
+    let isMounted = true;
+
+    async function loadPaymentSettings() {
+      try {
+        const response = await fetch("/api/settings/public", {
+          cache: "no-store",
+        });
+        const data = (await response.json().catch(() => null)) as
+          | PublicSettingsResponse
+          | null;
+
+        if (!response.ok) {
+          throw new Error("Unable to load payment settings.");
+        }
+
+        if (isMounted && data?.cashOnDelivery) {
+          setCashOnDelivery(data.cashOnDelivery);
+        }
+        if (isMounted && data?.deliveryCharges) {
+          setDeliveryCharges(data.deliveryCharges);
+        }
+      } catch {
+        if (isMounted) {
+          setCashOnDelivery({ enabled: false, insideDhakaOnly: false });
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoadingPaymentSettings(false);
+        }
+      }
+    }
+
+    void loadPaymentSettings();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
     function resetEpsRedirectingState() {
       setSubmittingMethod((current) => (current === "EPS" ? null : current));
     }
@@ -236,7 +304,7 @@ function CartPageContent() {
     };
   }, []);
 
-  const paymentErrorMessage = dismissedPaymentError
+  const paymentErrorMessage = dismissedPaymentErrorKey === paymentErrorKey
     ? ""
     : getPaymentErrorMessage(paymentError, paymentMessage);
 
@@ -277,11 +345,7 @@ function CartPageContent() {
         proofImageUrl: "",
         note: isEpsPlaceholder ? "EPS payment pending" : "",
         deliveryArea,
-        deliveryCharge,
         deliveryAddress: deliveryAddress.trim(),
-        subtotalAmount: orderBreakdown.subtotal,
-        discountPercent: orderBreakdown.discountPercent,
-        discountAmount: orderBreakdown.discountAmount,
       }),
     });
 
@@ -318,7 +382,7 @@ function CartPageContent() {
         | null;
 
       if (!response.ok || !data?.redirectUrl) {
-        throw new Error(data?.error ?? "Unable to start EPS payment.");
+        throw new Error(data?.error ?? EPS_INITIATION_ERROR_MESSAGE);
       }
 
       toast.success("Opening EPS secure payment...", { id: toastId });
@@ -327,7 +391,7 @@ function CartPageContent() {
       const message =
         submitError instanceof Error
           ? submitError.message
-          : "Unable to start EPS payment.";
+          : EPS_INITIATION_ERROR_MESSAGE;
 
       setError(message);
       toast.error("Unable to start EPS payment.", {
@@ -349,7 +413,9 @@ function CartPageContent() {
       const orderId = await createOrder("CASH");
       clearCart();
       toast.success("Order placed successfully.");
-      router.push(`/orders/confirmation?id=${encodeURIComponent(orderId)}`);
+      router.push(
+        `/orders/confirmation?id=${encodeURIComponent(orderId)}&payment=cod`,
+      );
     } catch (submitError) {
       const message =
         submitError instanceof Error
@@ -391,12 +457,13 @@ function CartPageContent() {
             Your Cart
           </h1>
           <p className="mt-4 text-base leading-7 text-[#6E6257] dark:text-[#8A7D75]">
-            Review your selected products and pay securely through EPS.
+            Review your selected products and choose secure online payment or
+            Cash on Delivery.
           </p>
           {paymentErrorMessage ? (
             <PaymentErrorNotice
               message={paymentErrorMessage}
-              onDismiss={() => setDismissedPaymentError(true)}
+              onDismiss={() => setDismissedPaymentErrorKey(paymentErrorKey)}
             />
           ) : null}
         </div>
@@ -496,8 +563,8 @@ function CartPageContent() {
                     Delivery Information
                   </h2>
 
-                  <div className="mt-5 grid gap-3 sm:grid-cols-3">
-                    {DELIVERY_OPTIONS.map((option) => (
+                  <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                    {deliveryOptions.map((option) => (
                       <label
                         key={option.value}
                         className={`flex cursor-pointer items-start gap-3 rounded-xl border bg-white p-4 transition-colors dark:bg-[#242220] ${
@@ -628,6 +695,40 @@ function CartPageContent() {
                     Secured by EPS Payment Gateway - supports bKash, Nagad,
                     Card & more.
                   </p>
+
+                  {cashOnDelivery.enabled ? (
+                    <div className="mt-6 border-t border-[#EADDCD] pt-6 dark:border-[#3D3530]">
+                      <div className="flex items-center gap-3">
+                        <div className="h-px flex-1 bg-[#EADDCD] dark:bg-[#3D3530]" />
+                        <span className="text-xs font-semibold uppercase text-[#8C7967] dark:text-[#8A7D75]">
+                          Or
+                        </span>
+                        <div className="h-px flex-1 bg-[#EADDCD] dark:bg-[#3D3530]" />
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => void handleCashCheckout()}
+                        disabled={
+                          submittingMethod !== null ||
+                          isLoadingPaymentSettings ||
+                          (cashOnDelivery.insideDhakaOnly &&
+                            deliveryArea !== "INSIDE_DHAKA")
+                        }
+                        className="mt-5 inline-flex h-14 w-full items-center justify-center rounded-xl border border-[#B87B68] bg-white px-5 text-base font-semibold text-[#2B2B2B] transition-colors hover:bg-[#B87B68]/10 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-[#242220] dark:text-[#F0EDE8]"
+                      >
+                        {submittingMethod === "CASH"
+                          ? "Placing your order..."
+                          : "Cash on Delivery"}
+                      </button>
+                      <p className="mt-3 text-center text-sm leading-6 text-[#6E6257] dark:text-[#8A7D75]">
+                        {cashOnDelivery.insideDhakaOnly &&
+                        deliveryArea !== "INSIDE_DHAKA"
+                          ? "COD is currently restricted to Inside Dhaka by store settings."
+                          : "COD is available for both delivery areas. Pay when your order is delivered."}
+                      </p>
+                    </div>
+                  ) : null}
                 </section>
 
                 {error ? (

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { verifyEPSPayment } from "@/lib/eps";
+import { isVerifiedEPSPayment, verifyEPSPayment } from "@/lib/eps";
 import { db } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
 import {
@@ -46,19 +46,12 @@ function readEPSField(data: Record<string, unknown>, keys: string[]) {
   };
 }
 
-function isEPSSuccess(data: Record<string, unknown>) {
-  return (
-    data.status === "Success" ||
-    data.Status === "Success" ||
-    data.transactionStatus === "Success" ||
-    data.TransactionStatus === "Success" ||
-    data.statusCode === "200" ||
-    data.isSuccess === true
-  );
-}
-
 function formatBdt(amount: number) {
   return `${Math.round(amount)} BDT`;
+}
+
+function toMinorUnits(amount: number) {
+  return Math.round(amount * 100);
 }
 
 function formatDeliveryArea(value: string) {
@@ -156,49 +149,6 @@ export async function GET(request: Request) {
   }
 
   try {
-    const verification = (await verifyEPSPayment(
-      merchantTransactionId,
-    )) as Record<string, unknown>;
-    console.log("EPS order verify full response:", JSON.stringify(verification));
-
-    const statusField = readEPSField(verification, [
-      "status",
-      "Status",
-      "transactionStatus",
-      "TransactionStatus",
-      "statusCode",
-    ]);
-    const epsTransactionField = readEPSField(verification, [
-      "epsTransactionId",
-      "EpsTransactionId",
-      "transactionId",
-      "TransactionId",
-    ]);
-    const paymentMethodField = readEPSField(verification, [
-      "financialEntity",
-      "FinancialEntity",
-      "paymentMethod",
-    ]);
-    const verificationStatus =
-      statusField.value || (isEPSSuccess(verification) ? "Success" : "");
-    const epsTransactionId = epsTransactionField.value;
-    const financialEntity = paymentMethodField.value;
-
-    console.log("EPS order verify fields found:", {
-      statusField: statusField.key || "none",
-      statusValue: statusField.value || null,
-      statusCode: verification.statusCode ?? null,
-      isSuccess: verification.isSuccess ?? null,
-      epsTransactionIdField: epsTransactionField.key || "none",
-      epsTransactionId: epsTransactionId || null,
-      paymentMethodField: paymentMethodField.key || "none",
-      paymentMethod: financialEntity || null,
-    });
-
-    if (!isEPSSuccess(verification)) {
-      return buildRedirect(request, "/cart?error=payment_failed");
-    }
-
     const existingOrder = await db.order.findUnique({
       where: {
         epsMerchantTxnId: merchantTransactionId,
@@ -230,14 +180,106 @@ export async function GET(request: Request) {
       return buildRedirect(request, "/cart?error=payment_failed");
     }
 
-    const order = await db.order.update({
+    if (existingOrder.paymentStatus === "PAID") {
+      return buildRedirect(
+        request,
+        `/orders/confirmation?orderId=${encodeURIComponent(existingOrder.id)}`,
+      );
+    }
+
+    const verification = (await verifyEPSPayment(
+      merchantTransactionId,
+    )) as Record<string, unknown>;
+    console.log("EPS order verify full response:", JSON.stringify(verification));
+
+    const epsTransactionField = readEPSField(verification, [
+      "epsTransactionId",
+      "EpsTransactionId",
+      "transactionId",
+      "TransactionId",
+    ]);
+    const paymentMethodField = readEPSField(verification, [
+      "financialEntity",
+      "FinancialEntity",
+      "paymentMethod",
+    ]);
+    const epsTransactionId = epsTransactionField.value;
+    const financialEntity = paymentMethodField.value;
+
+    console.log("EPS order verify fields found:", {
+      statusValue: verification.Status ?? null,
+      totalAmount: verification.TotalAmount ?? null,
+      epsTransactionIdField: epsTransactionField.key || "none",
+      epsTransactionId: epsTransactionId || null,
+      paymentMethodField: paymentMethodField.key || "none",
+      paymentMethod: financialEntity || null,
+    });
+
+    const serverSubtotal = existingOrder.items.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0,
+    );
+    const expectedAmount =
+      serverSubtotal -
+      existingOrder.discountAmount +
+      existingOrder.deliveryCharge;
+    const storedAmountsAreConsistent =
+      toMinorUnits(serverSubtotal) ===
+        toMinorUnits(existingOrder.subtotalAmount) &&
+      toMinorUnits(expectedAmount) ===
+        toMinorUnits(existingOrder.totalAmount);
+
+    if (
+      !storedAmountsAreConsistent ||
+      !isVerifiedEPSPayment(verification, expectedAmount)
+    ) {
+      console.error("EPS order amount verification failed:", {
+        orderId: existingOrder.id,
+        serverSubtotal,
+        storedSubtotal: existingOrder.subtotalAmount,
+        discountAmount: existingOrder.discountAmount,
+        deliveryCharge: existingOrder.deliveryCharge,
+        expectedAmount,
+        storedTotal: existingOrder.totalAmount,
+        epsTotal: verification.TotalAmount ?? null,
+      });
+      await db.order.updateMany({
+        where: {
+          id: existingOrder.id,
+          paymentStatus: "UNPAID",
+        },
+        data: {
+          status: "CANCELLED",
+          paymentStatus: "UNPAID",
+          transactionRef: "EPS_AMOUNT_MISMATCH",
+        },
+      });
+      return buildRedirect(request, "/cart?error=payment_failed");
+    }
+
+    const claimedPayment = await db.order.updateMany({
       where: {
         id: existingOrder.id,
+        paymentStatus: "UNPAID",
       },
       data: {
-        status: "VERIFIED",
+        status: "PENDING",
+        paymentStatus: "PAID",
         epsTransactionId,
         epsPaymentMethod: financialEntity,
+      },
+    });
+
+    if (claimedPayment.count === 0) {
+      return buildRedirect(
+        request,
+        `/orders/confirmation?orderId=${encodeURIComponent(existingOrder.id)}`,
+      );
+    }
+
+    const order = await db.order.findUniqueOrThrow({
+      where: {
+        id: existingOrder.id,
       },
       include: {
         user: {
@@ -293,6 +335,10 @@ export async function GET(request: Request) {
 
     const adminEmail = process.env.ADMIN_EMAIL?.trim();
     const clientName = order.user.name || "Selenite Care Client";
+    const admins = await db.user.findMany({
+      where: { role: "ADMIN", isActive: true },
+      select: { id: true },
+    });
 
     await Promise.allSettled([
       adminEmail
@@ -319,6 +365,15 @@ export async function GET(request: Request) {
         "Your order payment was successful. We will process your order shortly.",
         NOTIFICATION_TYPES.ORDER,
         `/dashboard/orders/${order.id}`,
+      ),
+      ...admins.map((admin) =>
+        createNotification(
+          admin.id,
+          "New Paid Product Order",
+          `${clientName} completed EPS payment for order ${order.id}. Amount: ${formatBdt(order.totalAmount)}.`,
+          NOTIFICATION_TYPES.ORDER,
+          `/admin/orders/${order.id}`,
+        ),
       ),
     ]);
 

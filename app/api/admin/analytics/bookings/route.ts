@@ -1,6 +1,7 @@
 import NextAuth from "next-auth";
 import { authConfig } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { getClientVisibleBookingWhere } from "@/lib/oneTimeConsultation";
 
 const { auth } = NextAuth(authConfig);
 
@@ -233,6 +234,7 @@ async function resolveRangeAndBuckets(period: AnalyticsPeriod, request: Request)
   }
 
   const earliestBooking = await db.booking.findFirst({
+    where: getClientVisibleBookingWhere(),
     orderBy: {
       createdAt: "asc",
     },
@@ -282,6 +284,7 @@ export async function GET(request: Request) {
   const { start, end, buckets, periodLabel } = rangeResult;
   const bookings = await db.booking.findMany({
     where: {
+      ...getClientVisibleBookingWhere(),
       createdAt: {
         gte: start,
         lte: end,

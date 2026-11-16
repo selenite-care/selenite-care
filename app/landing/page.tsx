@@ -821,6 +821,16 @@ function LandingPageContent() {
   const [openFaqId, setOpenFaqId] = useState<string | null>("1");
   const referralCode = searchParams.get("ref")?.trim().toUpperCase() ?? "";
   const invitedBy = searchParams.get("invitedBy")?.trim() ?? "";
+  const consultationPayment = searchParams.get("consultationPayment");
+  const consultationPaymentError =
+    consultationPayment === "payment_failed" ||
+    consultationPayment === "payment_cancelled"
+      ? "Payment not completed, no booking was made. Please pay again"
+      : consultationPayment === "payment_conflict"
+        ? "Your payment was received, but the selected time slot is no longer available. Our team will contact you to arrange a new time."
+      : consultationPayment === "payment_pending"
+        ? "We could not confirm the payment status yet. Please wait before trying another payment."
+        : "";
   const [showReferralBanner, setShowReferralBanner] = useState(
     Boolean(referralCode && invitedBy),
   );
@@ -1538,7 +1548,10 @@ function LandingPageContent() {
           </div>
         </section>
 
-        <section className="border-y border-[#EADDCD] bg-[#FFFDF8] px-6 py-14 dark:border-[#3D3530] dark:bg-[#181512]">
+        <section
+          id="online-video-consultation"
+          className="border-y border-[#EADDCD] bg-[#FFFDF8] px-6 py-14 dark:border-[#3D3530] dark:bg-[#181512]"
+        >
           <div className="mx-auto w-full max-w-6xl">
             <div className="mx-auto max-w-4xl text-center">
               <h2
@@ -1577,9 +1590,9 @@ function LandingPageContent() {
                           className="text-5xl font-semibold leading-none text-[#D4B47A] sm:text-6xl"
                           style={{ fontFamily: "Playfair Display, serif" }}
                         >
-                          {oneTimeConsultationPricing.currentPrice.toLocaleString(
-                            "en-US",
-                          )} BDT
+                          {oneTimeConsultationPricing.currentPrice > 0
+                            ? `${oneTimeConsultationPricing.currentPrice.toLocaleString("en-US")} BDT`
+                            : "Price unavailable"}
                         </p>
                         {oneTimeConsultationPricing.isOfferActive ? (
                           <span className="pb-1 text-sm font-semibold text-[#8C7967] line-through dark:text-[#B8AAA0]">
@@ -1613,6 +1626,7 @@ function LandingPageContent() {
                   showPackageSummary={false}
                   price={oneTimeConsultationPricing.currentPrice}
                   isPricingLoading={isConsultationPricingLoading}
+                  initialError={consultationPaymentError}
                 />
               </div>
             </div>

@@ -11,8 +11,6 @@
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.2",
     "@prisma/client": "^6.19.3",
-    "@stripe/react-stripe-js": "^6.3.0",
-    "@stripe/stripe-js": "^9.5.0",
     "@supabase/supabase-js": "^2.109.0",
     "@tanstack/react-table": "^8.21.3",
     "@tiptap/extension-character-count": "^3.27.1",
@@ -51,8 +49,7 @@
     "react-phone-number-input": "^3.4.17",
     "recharts": "^3.8.1",
     "resend": "^6.12.3",
-    "sonner": "^2.0.7",
-    "stripe": "^22.1.1"
+    "sonner": "^2.0.7"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

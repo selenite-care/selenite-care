@@ -5,6 +5,7 @@ import { authConfig } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { formatLongDate } from "@/lib/dateUtils";
 import { formatTimeSlot } from "@/lib/slotGenerator";
+import { getClientVisibleBookingWhere } from "@/lib/oneTimeConsultation";
 import DiagnosisEditor from "@/components/diagnosis/DiagnosisEditor";
 import RoutineEditor from "@/components/routine/RoutineEditor";
 import FeedbackEditor from "@/components/feedback/FeedbackEditor";
@@ -58,6 +59,7 @@ export default async function BookingDetailsPage({ params }: BookingDetailsPageP
 
   const booking = await db.booking.findFirst({
     where: {
+      ...getClientVisibleBookingWhere(),
       id: id,
       userId: session.user?.id,
     },

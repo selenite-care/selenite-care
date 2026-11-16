@@ -4,6 +4,7 @@ import type { BookingStatus } from "@prisma/client";
 import { authConfig } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { notifyBookingChange } from "@/lib/notifications";
+import { getClientVisibleBookingWhere } from "@/lib/oneTimeConsultation";
 
 const { auth } = NextAuth(authConfig);
 
@@ -56,8 +57,8 @@ export async function GET(_request: NextRequest, { params }: BookingRouteContext
   }
 
   const { id } = await params;
-  const booking = await db.booking.findUnique({
-    where: { id },
+  const booking = await db.booking.findFirst({
+    where: { id, ...getClientVisibleBookingWhere() },
     include: {
       user: { select: { id: true, name: true, email: true, role: true, createdAt: true } },
       service: { select: { id: true, name: true, description: true, price: true } },
@@ -92,7 +93,10 @@ export async function PATCH(request: NextRequest, { params }: BookingRouteContex
     return new Response(JSON.stringify({ error: "Invalid status" }), { status: 400, headers: { "Content-Type": "application/json" } });
   }
 
-  const existing = await db.booking.findUnique({ where: { id }, select: { id: true, doctorId: true } });
+  const existing = await db.booking.findFirst({
+    where: { id, ...getClientVisibleBookingWhere() },
+    select: { id: true, doctorId: true },
+  });
   if (!existing || existing.doctorId !== doctor.id) {
     return new Response(JSON.stringify({ error: "Booking not found or not assigned to you" }), { status: 404, headers: { "Content-Type": "application/json" } });
   }

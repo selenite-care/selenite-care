@@ -30,6 +30,7 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const summaryOnly = searchParams.get("summaryOnly") === "true";
+    const includeUnpaid = searchParams.get("includeUnpaid") === "true";
     const { start, end } = getDhakaTodayRange();
 
     const todayCount = await db.oneTimeConsultation.count({
@@ -47,9 +48,20 @@ export async function GET(request: Request) {
     }
 
     const consultations = await db.oneTimeConsultation.findMany({
-      where: {
-        paymentStatus: "PAID",
-      },
+      where: includeUnpaid
+        ? {
+            OR: [
+              { paymentStatus: "PAID" },
+              {
+                paymentStatus: "UNPAID",
+                epsMerchantTxnId: { not: null },
+                createdAt: {
+                  gte: new Date(Date.now() - 48 * 60 * 60 * 1000),
+                },
+              },
+            ],
+          }
+        : { paymentStatus: "PAID" },
       orderBy: {
         createdAt: "desc",
       },
@@ -57,6 +69,9 @@ export async function GET(request: Request) {
         id: true,
         createdAt: true,
         paymentStatus: true,
+        epsMerchantTxnId: true,
+        paymentConflict: true,
+        paymentConflictNote: true,
         includesFollowUp: true,
         followUpUsed: true,
         booking: {

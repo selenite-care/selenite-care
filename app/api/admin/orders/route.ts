@@ -13,7 +13,7 @@ export async function GET(request: Request) {
     return Response.json({ error: "Unauthorized." }, { status: 401 });
   }
 
-  if (session.user.role !== "ADMIN") {
+  if (session.user.role !== "ADMIN" && session.user.role !== "CRM") {
     return Response.json({ error: "Forbidden." }, { status: 403 });
   }
 
@@ -21,6 +21,7 @@ export async function GET(request: Request) {
   const { page, limit, skip, take } = getPaginationParams(searchParams);
   const search = searchParams.get("search")?.trim() || searchParams.get("q")?.trim() || "";
   const statusFilter = searchParams.get("statusFilter")?.trim().toUpperCase() ?? "ALL";
+  const showFailedPayments = statusFilter === "FAILED_ABANDONED";
   const orderStatus: OrderStatus | undefined =
     statusFilter === "PENDING" ||
     statusFilter === "VERIFIED" ||
@@ -31,9 +32,22 @@ export async function GET(request: Request) {
       ? statusFilter
       : undefined;
 
+  const visibilityFilter: Prisma.OrderWhereInput = showFailedPayments
+    ? {
+        paymentStatus: "UNPAID",
+        epsMerchantTxnId: { not: null },
+        createdAt: {
+          gte: new Date(Date.now() - 48 * 60 * 60 * 1000),
+        },
+      }
+    : {
+        OR: [{ paymentStatus: "PAID" }, { paymentMethod: "CASH" }],
+      };
   const where: Prisma.OrderWhereInput = {
-    ...(search
-      ? {
+    AND: [
+      visibilityFilter,
+      ...(search
+        ? [{
           OR: [
             { id: { contains: search, mode: "insensitive" as const } },
             { transactionRef: { contains: search, mode: "insensitive" as const } },
@@ -42,17 +56,10 @@ export async function GET(request: Request) {
             { user: { is: { phone: { contains: search, mode: "insensitive" as const } } } },
             { items: { some: { product: { is: { name: { contains: search, mode: "insensitive" as const } } } } } },
           ],
-        }
-      : {}),
-    ...(orderStatus ? { status: orderStatus } : {}),
-    ...(!orderStatus || orderStatus === "PENDING"
-      ? {
-          NOT: {
-            status: "PENDING",
-            transactionRef: "EPS_PENDING",
-          },
-        }
-      : {}),
+        }]
+        : []),
+      ...(orderStatus ? [{ status: orderStatus }] : []),
+    ],
   };
 
   const [orders, totalCount] = await db.$transaction([
@@ -68,6 +75,8 @@ export async function GET(request: Request) {
         createdAt: true,
         totalAmount: true,
         paymentMethod: true,
+        paymentStatus: true,
+        epsMerchantTxnId: true,
         status: true,
         deliveryArea: true,
         deliveryAddress: true,

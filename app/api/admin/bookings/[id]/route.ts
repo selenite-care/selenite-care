@@ -3,6 +3,7 @@ import type { BookingStatus } from "@prisma/client";
 import { authConfig } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { notifyBookingChange } from "@/lib/notifications";
+import { getStaffVisibleBookingWhere } from "@/lib/oneTimeConsultation";
 
 const { auth } = NextAuth(authConfig);
 
@@ -40,8 +41,8 @@ export async function GET(_request: Request, context: RouteContext) {
     return Response.json({ error: "Booking ID is required." }, { status: 400 });
   }
 
-  const booking = await db.booking.findUnique({
-    where: { id },
+  const booking = await db.booking.findFirst({
+    where: { id, ...getStaffVisibleBookingWhere() },
     include: {
       user: {
         select: {
@@ -111,6 +112,15 @@ export async function PATCH(request: Request, context: RouteContext) {
 
   if (!validStatuses.has(status as BookingStatus)) {
     return Response.json({ error: "Invalid booking status." }, { status: 400 });
+  }
+
+  const visibleBooking = await db.booking.findFirst({
+    where: { id, ...getStaffVisibleBookingWhere() },
+    select: { id: true },
+  });
+
+  if (!visibleBooking) {
+    return Response.json({ error: "Booking not found." }, { status: 404 });
   }
 
   const booking = await db.booking.update({

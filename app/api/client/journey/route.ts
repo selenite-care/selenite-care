@@ -1,6 +1,7 @@
 import NextAuth from "next-auth";
 import { authConfig } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { getClientVisibleBookingWhere } from "@/lib/oneTimeConsultation";
 
 const { auth } = NextAuth(authConfig);
 
@@ -17,6 +18,7 @@ export async function GET() {
 
   const bookings = await db.booking.findMany({
     where: {
+      ...getClientVisibleBookingWhere(),
       userId: session.user.id,
     },
     orderBy: {

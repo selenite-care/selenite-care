@@ -1,6 +1,7 @@
 import NextAuth from "next-auth";
 import { authConfig } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { getClientVisibleBookingWhere } from "@/lib/oneTimeConsultation";
 
 const { auth } = NextAuth(authConfig);
 
@@ -65,6 +66,7 @@ export async function GET() {
     db.oneTimeConsultation.count({
       where: {
         paymentStatus: "PAID",
+        paymentConflict: false,
         booking: {
           is: {
             doctorId: doctor.id,
@@ -74,6 +76,7 @@ export async function GET() {
     }),
     db.booking.count({
       where: {
+        ...getClientVisibleBookingWhere(),
         doctorId: doctor.id,
         status: {
           notIn: ["COMPLETED", "CANCELLED"],
@@ -81,7 +84,11 @@ export async function GET() {
       },
     }),
     db.booking.count({
-      where: { doctorId: doctor.id, status: "COMPLETED" },
+      where: {
+        ...getClientVisibleBookingWhere(),
+        doctorId: doctor.id,
+        status: "COMPLETED",
+      },
     }),
   ]);
 

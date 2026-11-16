@@ -8,6 +8,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
 import { toast } from "sonner";
 import { trackMembershipCheckout } from "@/lib/analytics";
+import { EPS_INITIATION_ERROR_MESSAGE } from "@/lib/paymentMessages";
 import { isMembershipAvailable } from "@/lib/membershipAvailability";
 import {
   CLASSIC_MEMBERSHIP_BENEFITS,
@@ -146,6 +147,10 @@ function getPaymentErrorMessage(error: string | null, message: string | null) {
 
   if (error === "payment_cancelled") {
     return "Payment was cancelled. Your order has not been placed.";
+  }
+
+  if (error === "payment_pending") {
+    return "We could not confirm the payment status yet. Your payment record has been preserved for re-checking; please do not pay a second time right now.";
   }
 
   return message || "Payment could not be completed. Please try again.";
@@ -299,7 +304,7 @@ function EpsPaymentSection({
         | null;
 
       if (!response.ok || !data?.redirectUrl) {
-        throw new Error(data?.error ?? "Unable to start EPS payment.");
+        throw new Error(data?.error ?? EPS_INITIATION_ERROR_MESSAGE);
       }
 
       toast.success("Opening EPS secure payment...", { id: toastId });
@@ -308,7 +313,7 @@ function EpsPaymentSection({
       const message =
         paymentError instanceof Error
           ? paymentError.message
-          : "Unable to start EPS payment.";
+          : EPS_INITIATION_ERROR_MESSAGE;
 
       setError(message);
       toast.error("Unable to start EPS payment.", {

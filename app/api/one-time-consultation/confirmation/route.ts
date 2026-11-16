@@ -15,6 +15,7 @@ export async function GET(request: Request) {
       isOneTimeConsultation: true,
       oneTimeConsultation: {
         paymentStatus: "PAID",
+        paymentConflict: false,
       },
     },
     select: {
@@ -22,6 +23,11 @@ export async function GET(request: Request) {
       token: true,
       appointmentTime: true,
       timeSlot: true,
+      oneTimeConsultation: {
+        select: {
+          packagePrice: true,
+        },
+      },
       doctor: {
         select: {
           name: true,
@@ -50,6 +56,7 @@ export async function GET(request: Request) {
     doctorName: booking.doctor?.name ?? "Selenite Care Doctor",
     preferredDate: booking.appointmentTime,
     timeSlot: booking.timeSlot,
+    packagePrice: booking.oneTimeConsultation?.packagePrice ?? 0,
     email: booking.user.email,
     hasTemporaryCredentials: booking.user.isTemporaryPassword,
     temporaryPassword:

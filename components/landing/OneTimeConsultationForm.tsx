@@ -9,6 +9,7 @@ import DoctorAvailabilityDatePicker from "@/components/consultations/DoctorAvail
 import TimeSlotSelector from "@/components/consultations/TimeSlotSelector";
 import { trackBeginCheckout } from "@/lib/analytics";
 import { formatFullDate } from "@/lib/dateUtils";
+import { EPS_INITIATION_ERROR_MESSAGE } from "@/lib/paymentMessages";
 
 type ConsultationDoctor = {
   id: string;
@@ -25,6 +26,7 @@ type DoctorsResponse = {
 
 type BookingResponse = {
   redirectUrl?: string;
+  amount?: number;
   error?: string;
 };
 
@@ -37,12 +39,14 @@ type OneTimeConsultationFormProps = {
   showPackageSummary?: boolean;
   price: number;
   isPricingLoading?: boolean;
+  initialError?: string;
 };
 
 export default function OneTimeConsultationForm({
   showPackageSummary = true,
   price,
   isPricingLoading = false,
+  initialError = "",
 }: OneTimeConsultationFormProps) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState<string | undefined>();
@@ -54,7 +58,7 @@ export default function OneTimeConsultationForm({
   const [doctors, setDoctors] = useState<ConsultationDoctor[]>([]);
   const [isLoadingDoctors, setIsLoadingDoctors] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(initialError);
   const selectedDoctor = doctors.find((doctor) => doctor.id === doctorId);
 
   useEffect(() => {
@@ -138,18 +142,6 @@ export default function OneTimeConsultationForm({
       return;
     }
 
-    trackBeginCheckout(
-      [
-        {
-          id: "ONE_TIME_CONSULTATION",
-          name: "Online Video Consultation \u2014 Selenite Care",
-          price,
-          category: "Consultation",
-          quantity: 1,
-        },
-      ],
-      price,
-    );
     setIsSubmitting(true);
 
     try {
@@ -172,15 +164,32 @@ export default function OneTimeConsultationForm({
         | null;
 
       if (!response.ok || !data?.redirectUrl) {
-        throw new Error(data?.error ?? "Unable to start payment.");
+        throw new Error(data?.error ?? EPS_INITIATION_ERROR_MESSAGE);
       }
+
+      if (typeof data.amount !== "number" || data.amount <= 0) {
+        throw new Error("Unable to confirm the consultation price.");
+      }
+
+      trackBeginCheckout(
+        [
+          {
+            id: "ONE_TIME_CONSULTATION",
+            name: "Online Video Consultation \u2014 Selenite Care",
+            price: data.amount,
+            category: "Consultation",
+            quantity: 1,
+          },
+        ],
+        data.amount,
+      );
 
       window.location.href = data.redirectUrl;
     } catch (submitError) {
       setError(
         submitError instanceof Error
           ? submitError.message
-          : "Unable to start payment.",
+          : EPS_INITIATION_ERROR_MESSAGE,
       );
       setIsSubmitting(false);
     }
@@ -196,7 +205,9 @@ export default function OneTimeConsultationForm({
             style={{ fontFamily: "Playfair Display, serif" }}
           >
             Online Video Consultation {"\u2014"}{" "}
-            {price.toLocaleString("en-US")} BDT
+            {price > 0
+              ? `${price.toLocaleString("en-US")} BDT`
+              : "Price unavailable"}
           </h2>
           <ul className="mt-4 grid gap-2 sm:grid-cols-2">
             {BENEFITS.map((benefit) => (
@@ -394,6 +405,7 @@ export default function OneTimeConsultationForm({
             disabled={
               isSubmitting ||
               isPricingLoading ||
+              price <= 0 ||
               isLoadingDoctors ||
               doctors.length === 0
             }
@@ -406,8 +418,10 @@ export default function OneTimeConsultationForm({
               </>
             ) : isPricingLoading ? (
               <span className="h-4 w-40 animate-pulse rounded bg-white/25" />
-            ) : (
+            ) : price > 0 ? (
               `Book Now \u2014 ${price.toLocaleString("en-US")} BDT`
+            ) : (
+              "Price unavailable"
             )}
           </button>
         ) : null}

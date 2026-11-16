@@ -4,6 +4,7 @@ import { authConfig } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { formatLongDate } from "@/lib/dateUtils";
 import { formatTimeSlot } from "@/lib/slotGenerator";
+import { getClientVisibleBookingWhere } from "@/lib/oneTimeConsultation";
 import BookingStatusButtons from "@/components/doctor/BookingStatusButtons";
 import ClientBookingHistory from "@/components/booking/ClientBookingHistory";
 import DiagnosisEditor from "@/components/diagnosis/DiagnosisEditor";
@@ -52,8 +53,8 @@ export default async function BookingDetailsPage({ params }: BookingDetailsPageP
     notFound();
   }
 
-  const booking = await db.booking.findUnique({
-    where: { id },
+  const booking = await db.booking.findFirst({
+    where: { id, ...getClientVisibleBookingWhere() },
     include: {
       user: {
         select: {
