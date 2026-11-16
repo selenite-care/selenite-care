@@ -22,7 +22,7 @@ import {
 } from "@/lib/oneTimeConsultationPricing";
 import { MEMBERSHIP_PRICES } from "@/lib/membershipDiscounts";
 
-export const revalidate = 3600;
+export const revalidate = 60;
 
 type PublicDiscountSettings = {
   discountEnabled: boolean;
@@ -111,7 +111,7 @@ async function getPublicDiscountSettings(): Promise<PublicDiscountSettings> {
   try {
     const response = await fetch(`${baseUrl}/api/settings/public`, {
       next: {
-        revalidate: 300,
+        revalidate: 60,
       },
     });
 

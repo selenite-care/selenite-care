@@ -16,14 +16,13 @@ import { trackPurchase } from "@/lib/analytics";
 import { formatDateOnly } from "@/lib/dateUtils";
 import { formatTimeSlot } from "@/lib/slotGenerator";
 
-const PACKAGE_PRICE = 99;
-
 type ConfirmationDetails = {
   bookingId: string;
   token: string;
   doctorName: string;
   preferredDate: string | null;
   timeSlot: string | null;
+  packagePrice: number;
   email: string;
   hasTemporaryCredentials: boolean;
   temporaryPassword: string | null;
@@ -51,25 +50,29 @@ function ConfirmationContent() {
   }
 
   useEffect(() => {
-    if (!bookingId || hasTrackedPurchase.current) {
+    if (
+      !details ||
+      details.packagePrice <= 0 ||
+      hasTrackedPurchase.current
+    ) {
       return;
     }
 
     trackPurchase(
-      bookingId,
+      details.bookingId,
       [
         {
           id: "ONE_TIME_CONSULTATION",
           name: "Online Video Consultation \u2014 Selenite Care",
-          price: PACKAGE_PRICE,
+          price: details.packagePrice,
           category: "Consultation",
           quantity: 1,
         },
       ],
-      PACKAGE_PRICE,
+      details.packagePrice,
     );
     hasTrackedPurchase.current = true;
-  }, [bookingId]);
+  }, [details]);
 
   useEffect(() => {
     let isMounted = true;
@@ -170,7 +173,7 @@ function ConfirmationContent() {
         </header>
 
         <section className="mt-8 border-y border-[#D4B47A]/60 py-6">
-          <div className="grid gap-6 text-center sm:grid-cols-2 sm:text-left lg:grid-cols-4">
+          <div className="grid gap-6 text-center sm:grid-cols-2 sm:text-left lg:grid-cols-5">
             <div>
               <p className="text-xs font-semibold uppercase text-[#8C7967] dark:text-[#8A7D75]">
                 Booking Token
@@ -203,6 +206,14 @@ function ConfirmationContent() {
                 {details.timeSlot
                   ? formatTimeSlot(details.timeSlot)
                   : "Time TBD"}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs font-semibold uppercase text-[#8C7967] dark:text-[#8A7D75]">
+                Amount Paid
+              </p>
+              <p className="mt-2 text-base font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]">
+                {details.packagePrice.toLocaleString("en-US")} BDT
               </p>
             </div>
           </div>

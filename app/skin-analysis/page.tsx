@@ -85,6 +85,15 @@ function splitParagraphs(text: string) {
 }
 
 function getPurchaseIssueFromParams(searchParams: URLSearchParams) {
+  if (searchParams.get("purchase_pending") === "true") {
+    return {
+      title: "Payment verification pending",
+      message:
+        "We could not confirm the EPS status yet. Your purchase record has been kept for re-checking; please do not pay a second time right now.",
+      tone: "amber",
+    } as const;
+  }
+
   if (searchParams.get("purchase_cancelled") === "true") {
     return {
       title: "Payment cancelled",

@@ -9,6 +9,7 @@ import QuickActions from "./QuickActions";
 import MembershipCountdown from "@/components/membership/MembershipCountdown";
 import { authConfig } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { getClientVisibleBookingWhere } from "@/lib/oneTimeConsultation";
 import { isMembershipAvailable } from "@/lib/membershipAvailability";
 import { MEMBERSHIP_PRICES } from "@/lib/membershipDiscounts";
 import { expirePastActiveMemberships } from "@/lib/membershipStatus";
@@ -96,11 +97,13 @@ export default async function DashboardPage() {
     await Promise.all([
       db.booking.count({
         where: {
+          ...getClientVisibleBookingWhere(),
           userId: session.user.id,
         },
       }),
       db.booking.findFirst({
         where: {
+          ...getClientVisibleBookingWhere(),
           userId: session.user.id,
         },
         orderBy: {
@@ -127,6 +130,7 @@ export default async function DashboardPage() {
       }),
       db.booking.findMany({
         where: {
+          ...getClientVisibleBookingWhere(),
           userId: session.user.id,
           status: "COMPLETED",
           diagnosis: {

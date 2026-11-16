@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { verifyEPSPayment } from "@/lib/eps";
+import { isVerifiedEPSPayment, verifyEPSPayment } from "@/lib/eps";
 import { createNotification, NOTIFICATION_TYPES } from "@/lib/notifications";
-import { updateSetting } from "@/lib/settings";
 
 export const runtime = "nodejs";
 
@@ -45,37 +44,6 @@ function getMerchantTransactionId(request: Request) {
   ]);
 }
 
-function getUserId(request: Request) {
-  return getSearchValue(request, ["valueA", "ValueA", "userId", "UserId"]);
-}
-
-function getQuantity(request: Request) {
-  const rawQuantity = getSearchValue(request, [
-    "valueB",
-    "ValueB",
-    "quantity",
-    "Quantity",
-  ]);
-  const quantity = Number.parseInt(rawQuantity, 10);
-
-  if (!Number.isFinite(quantity) || quantity <= 0) {
-    return 1;
-  }
-
-  return Math.min(10, quantity);
-}
-
-function isEPSSuccess(data: Record<string, unknown>) {
-  return (
-    data.status === "Success" ||
-    data.Status === "Success" ||
-    data.transactionStatus === "Success" ||
-    data.TransactionStatus === "Success" ||
-    data.statusCode === "200" ||
-    data.isSuccess === true
-  );
-}
-
 function parsePendingPurchase(value: string | null) {
   if (!value) {
     return null;
@@ -90,8 +58,6 @@ function parsePendingPurchase(value: string | null) {
 
 export async function GET(request: Request) {
   const merchantTransactionId = getMerchantTransactionId(request);
-  const queryUserId = getUserId(request);
-  const queryQuantity = getQuantity(request);
 
   if (!merchantTransactionId) {
     return buildRedirect(request, "/skin-analysis?purchase_failed=true");
@@ -109,65 +75,93 @@ export async function GET(request: Request) {
       },
     });
     const pendingPurchase = parsePendingPurchase(pendingSetting?.value ?? null);
-    const userId = pendingPurchase?.userId || queryUserId;
+    const userId = pendingPurchase?.userId;
+    const expectedAmount = pendingPurchase?.amount;
 
-    if (!userId) {
+    if (
+      !pendingSetting ||
+      !pendingPurchase ||
+      !userId ||
+      typeof expectedAmount !== "number" ||
+      !Number.isFinite(expectedAmount) ||
+      expectedAmount <= 0
+    ) {
       return buildRedirect(request, "/skin-analysis?purchase_failed=true");
+    }
+
+    if (pendingPurchase.status === "SUCCESS") {
+      return buildRedirect(request, "/skin-analysis?purchased=true");
     }
 
     const verification = (await verifyEPSPayment(
       merchantTransactionId,
     )) as Record<string, unknown>;
 
-    if (!isEPSSuccess(verification)) {
+    if (!isVerifiedEPSPayment(verification, expectedAmount)) {
       return buildRedirect(request, "/skin-analysis?purchase_failed=true");
     }
 
     const quantity = Math.min(
       10,
-      Math.max(1, Math.floor(pendingPurchase?.quantity ?? queryQuantity)),
+      Math.max(1, Math.floor(pendingPurchase.quantity ?? 0)),
     );
 
-    if (pendingPurchase?.status === "SUCCESS") {
+    const completedPurchase = JSON.stringify({
+      ...pendingPurchase,
+      merchantTransactionId,
+      userId,
+      quantity,
+      amount: expectedAmount,
+      status: "SUCCESS",
+      completedAt: new Date().toISOString(),
+    });
+    const wasProcessed = await db.$transaction(async (tx) => {
+      const claimedPurchase = await tx.appSetting.updateMany({
+        where: {
+          key: pendingKey,
+          value: pendingSetting.value,
+        },
+        data: {
+          value: completedPurchase,
+          updatedBy: userId,
+        },
+      });
+
+      if (claimedPurchase.count === 0) {
+        return false;
+      }
+
+      await tx.skinAnalysisCredit.upsert({
+        where: {
+          userId,
+        },
+        update: {
+          paidCredits: {
+            increment: quantity,
+          },
+        },
+        create: {
+          userId,
+          paidCredits: quantity,
+        },
+      });
+
+      return true;
+    });
+
+    if (!wasProcessed) {
       return buildRedirect(request, "/skin-analysis?purchased=true");
     }
 
-    await db.skinAnalysisCredit.upsert({
-      where: {
-        userId,
-      },
-      update: {
-        paidCredits: {
-          increment: quantity,
-        },
-      },
-      create: {
-        userId,
-        paidCredits: quantity,
-      },
+    await createNotification(
+      userId,
+      "Analysis Credits Added!",
+      `${quantity} skin analysis credits added to your account. Go analyze your skin!`,
+      NOTIFICATION_TYPES.SUCCESS,
+      "/skin-analysis",
+    ).catch((error) => {
+      console.error("Skin analysis credit notification failed:", error);
     });
-
-    await Promise.allSettled([
-      createNotification(
-        userId,
-        "Analysis Credits Added!",
-        `${quantity} skin analysis credits added to your account. Go analyze your skin!`,
-        NOTIFICATION_TYPES.SUCCESS,
-        "/skin-analysis",
-      ),
-      updateSetting(
-        pendingKey,
-        JSON.stringify({
-          ...pendingPurchase,
-          merchantTransactionId,
-          userId,
-          quantity,
-          status: "SUCCESS",
-          completedAt: new Date().toISOString(),
-        }),
-        userId,
-      ),
-    ]);
 
     return buildRedirect(request, "/skin-analysis?purchased=true");
   } catch (error) {

@@ -1,10 +1,13 @@
 import { auth } from "@/auth";
 import {
+  EPSInitializationError,
+  EPS_INITIATION_ERROR_MESSAGE,
   generateTransactionId,
   getEPSCallbackUrls,
   initializeEPSPayment,
 } from "@/lib/eps";
 import { db } from "@/lib/db";
+import { getDeliveryCharges } from "@/lib/deliveryCharges";
 import { PRODUCT_DISCOUNTS } from "@/lib/membershipDiscounts";
 
 export const runtime = "nodejs";
@@ -96,6 +99,18 @@ export async function POST(request: Request) {
       );
     }
 
+    const configuredDeliveryCharges = await getDeliveryCharges();
+    const deliveryCharge =
+      order.deliveryArea === "SUB_DHAKA"
+        ? order.deliveryCharge
+        : configuredDeliveryCharges[order.deliveryArea];
+    const subtotalAmount = order.items.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0,
+    );
+    const totalAmount =
+      subtotalAmount - order.discountAmount + deliveryCharge;
+
     const user = await db.user.findUnique({
       where: {
         id: session.user.id,
@@ -119,10 +134,22 @@ export async function POST(request: Request) {
       order.id,
     );
 
+    await db.order.update({
+      where: {
+        id: order.id,
+      },
+      data: {
+        epsMerchantTxnId: merchantTransactionId,
+        subtotalAmount,
+        deliveryCharge,
+        totalAmount,
+      },
+    });
+
     const payment = await initializeEPSPayment({
       customerOrderId: order.id,
       merchantTransactionId,
-      totalAmount: order.totalAmount,
+      totalAmount,
       successUrl,
       failUrl,
       cancelUrl,
@@ -146,15 +173,6 @@ export async function POST(request: Request) {
       throw new Error("EPS did not return a payment redirect URL.");
     }
 
-    await db.order.update({
-      where: {
-        id: order.id,
-      },
-      data: {
-        epsMerchantTxnId: merchantTransactionId,
-      },
-    });
-
     return Response.json({
       redirectUrl: payment.redirectUrl,
     });
@@ -162,25 +180,51 @@ export async function POST(request: Request) {
     console.error("EPS order initiate failed:", error);
 
     if (orderId) {
-      await db.order
-        .updateMany({
-          where: {
-            id: orderId,
-            userId: session.user.id,
-            status: "PENDING",
-            transactionRef: "EPS_PENDING",
-          },
-          data: {
-            status: "CANCELLED",
-          },
+      await db
+        .$transaction(async (tx) => {
+          const temporaryOrder = await tx.order.findFirst({
+            where: {
+              id: orderId,
+              userId: session.user.id,
+              status: "PENDING",
+              paymentStatus: "UNPAID",
+              transactionRef: "EPS_PENDING",
+            },
+            select: {
+              id: true,
+            },
+          });
+
+          if (!temporaryOrder) {
+            return;
+          }
+
+          await tx.orderItem.deleteMany({
+            where: {
+              orderId: temporaryOrder.id,
+            },
+          });
+          await tx.order.delete({
+            where: {
+              id: temporaryOrder.id,
+            },
+          });
         })
-        .catch((updateError) => {
-          console.error("Failed to cancel EPS order after initiate error:", updateError);
+        .catch((cleanupError) => {
+          console.error(
+            "Failed to remove EPS order after initiate error:",
+            cleanupError,
+          );
         });
     }
 
     return Response.json(
-      { error: "Unable to initiate EPS order payment." },
+      {
+        error:
+          error instanceof EPSInitializationError
+            ? EPS_INITIATION_ERROR_MESSAGE
+            : "Unable to initiate EPS order payment.",
+      },
       { status: 500 },
     );
   }

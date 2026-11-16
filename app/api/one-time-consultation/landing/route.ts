@@ -4,12 +4,17 @@ import {
   parseAppointmentSchedule,
 } from "@/lib/appointmentSchedule";
 import { db } from "@/lib/db";
-import { sendEmail } from "@/lib/email";
-import { generateTransactionId, initializeEPSPayment } from "@/lib/eps";
+import {
+  EPSInitializationError,
+  EPS_INITIATION_ERROR_MESSAGE,
+  generateTransactionId,
+  initializeEPSPayment,
+} from "@/lib/eps";
 import {
   getSetting,
   ONE_TIME_CONSULTATION_PRICE,
 } from "@/lib/settings";
+import { getSlotBlockingBookingWhere } from "@/lib/oneTimeConsultation";
 import { formatTimeSlot, generateTimeSlots } from "@/lib/slotGenerator";
 
 export const runtime = "nodejs";
@@ -56,6 +61,7 @@ function getConsultationEmailHtml({
   bookingToken,
   doctorName,
   preferredDate,
+  packagePrice,
 }: {
   name: string;
   email: string;
@@ -64,6 +70,7 @@ function getConsultationEmailHtml({
   bookingToken: string;
   doctorName: string;
   preferredDate: string;
+  packagePrice: number;
 }) {
   const credentialsHtml = temporaryPassword
     ? `
@@ -107,6 +114,10 @@ function getConsultationEmailHtml({
         <tr>
           <td style="padding: 8px 12px; border: 1px solid #EADDCD; font-weight: bold;">Appointment Date &amp; Time</td>
           <td style="padding: 8px 12px; border: 1px solid #EADDCD;">${escapeHtml(preferredDate)}</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 12px; border: 1px solid #EADDCD; font-weight: bold;">Consultation Fee</td>
+          <td style="padding: 8px 12px; border: 1px solid #EADDCD;">${escapeHtml(packagePrice.toLocaleString("en-US"))} BDT</td>
         </tr>
       </table>
       ${credentialsHtml}
@@ -198,6 +209,7 @@ export async function POST(request: Request) {
         getSetting(ONE_TIME_CONSULTATION_PRICE).then(parsePrice),
         db.booking.findFirst({
           where: {
+            ...getSlotBlockingBookingWhere(),
             doctorId,
             timeSlot: schedule.timeSlot,
             appointmentTime: {
@@ -267,6 +279,7 @@ export async function POST(request: Request) {
     const booking = await db.$transaction(async (tx) => {
       const reservedSlot = await tx.booking.findFirst({
         where: {
+          ...getSlotBlockingBookingWhere(),
           doctorId: doctor.id,
           timeSlot: schedule.timeSlot,
           appointmentTime: {
@@ -288,6 +301,7 @@ export async function POST(request: Request) {
 
       const existingSlotBookings = await tx.booking.findMany({
         where: {
+          ...getSlotBlockingBookingWhere(),
           doctorId: doctor.id,
           timeSlot: {
             not: null,
@@ -369,9 +383,9 @@ export async function POST(request: Request) {
     }, { isolationLevel: "Serializable" });
     bookingId = booking.id;
 
-    const successUrl = `${appBaseUrl}/api/one-time-consultation/success`;
-    const failUrl = `${appBaseUrl}/api/one-time-consultation/fail`;
-    const cancelUrl = `${appBaseUrl}/api/one-time-consultation/cancel`;
+    const successUrl = `${appBaseUrl}/api/one-time-consultation/success?source=landing`;
+    const failUrl = `${appBaseUrl}/api/one-time-consultation/fail?source=landing`;
+    const cancelUrl = `${appBaseUrl}/api/one-time-consultation/cancel?source=landing`;
     console.log("EPS callback URLs:", {
       successUrl,
       failUrl,
@@ -394,7 +408,8 @@ export async function POST(request: Request) {
     });
 
     try {
-      await sendEmail({
+      // Payment confirmation owns all client communication for this booking.
+      void ({
         to: email,
         subject: "আপনার কনসালটেশন নিশ্চিত হয়েছে — Selenite Care",
         html: getConsultationEmailHtml({
@@ -408,6 +423,7 @@ export async function POST(request: Request) {
             schedule.appointmentTime,
             schedule.timeSlot,
           ),
+          packagePrice,
         }),
       });
     } catch (emailError) {
@@ -417,7 +433,10 @@ export async function POST(request: Request) {
       );
     }
 
-    return Response.json({ redirectUrl: payment.redirectUrl });
+    return Response.json({
+      redirectUrl: payment.redirectUrl,
+      amount: packagePrice,
+    });
   } catch (error) {
     if (bookingId) {
       await db.booking.delete({ where: { id: bookingId } }).catch((cleanupError) => {
@@ -457,7 +476,12 @@ export async function POST(request: Request) {
 
     console.error("Landing consultation EPS initiation failed:", error);
     return Response.json(
-      { error: "Unable to initiate one-time consultation payment." },
+      {
+        error:
+          error instanceof EPSInitializationError
+            ? EPS_INITIATION_ERROR_MESSAGE
+            : "Unable to initiate one-time consultation payment.",
+      },
       { status: 500 },
     );
   }

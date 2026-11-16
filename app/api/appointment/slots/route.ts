@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { getSlotBlockingBookingWhere } from "@/lib/oneTimeConsultation";
 import { generateTimeSlots } from "@/lib/slotGenerator";
 
 export const runtime = "nodejs";
@@ -76,6 +77,7 @@ export async function GET(request: Request) {
 
     const existingBookings = await db.booking.findMany({
       where: {
+        ...getSlotBlockingBookingWhere(),
         doctorId,
         status: {
           not: "CANCELLED",

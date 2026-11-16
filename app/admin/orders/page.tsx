@@ -13,6 +13,8 @@ type AdminOrder = {
   createdAt: string;
   totalAmount: number;
   paymentMethod: "BKASH" | "BANK_TRANSFER" | "CASH" | "STRIPE";
+  paymentStatus: "UNPAID" | "PAID" | "REFUNDED";
+  epsMerchantTxnId: string | null;
   deliveryArea: "INSIDE_DHAKA" | "SUB_DHAKA" | "OUTSIDE_DHAKA";
   deliveryAddress: string | null;
   deliveryCharge: number;
@@ -69,6 +71,12 @@ function getStatusBadgeClasses(status: AdminOrder["status"]) {
   }
 }
 
+function getPaymentStatusBadgeClasses(status: AdminOrder["paymentStatus"]) {
+  return status === "PAID"
+    ? "border-green-200 bg-green-50 text-green-700 dark:border-green-900/50 dark:bg-green-950/20 dark:text-green-300"
+    : "border-red-200 bg-red-50 text-red-700 dark:border-red-900/50 dark:bg-red-950/20 dark:text-red-300";
+}
+
 function getPaymentMethodBadgeClasses(paymentMethod: AdminOrder["paymentMethod"]) {
   switch (paymentMethod) {
     case "BKASH":
@@ -91,7 +99,7 @@ function getPaymentMethodLabel(paymentMethod: AdminOrder["paymentMethod"]) {
     case "BANK_TRANSFER":
       return "Bank Transfer";
     case "CASH":
-      return "Cash on Delivery";
+      return "COD";
     case "STRIPE":
       return "Card";
     default:
@@ -125,7 +133,7 @@ function getDeliveryAreaBadgeClasses(deliveryArea: AdminOrder["deliveryArea"]) {
   }
 }
 
-export default function AdminOrdersPage() {
+export function StaffOrdersPage({ portal }: { portal: "admin" | "crm" }) {
   const [orders, setOrders] = useState<AdminOrder[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
@@ -134,6 +142,7 @@ export default function AdminOrdersPage() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [updatingOrderId, setUpdatingOrderId] = useState<string | null>(null);
+  const [recheckingOrderId, setRecheckingOrderId] = useState<string | null>(null);
   const totalPages = Math.max(1, Math.ceil(totalCount / ITEMS_PER_PAGE));
 
   useEffect(() => {
@@ -158,7 +167,7 @@ export default function AdminOrdersPage() {
           params.set("statusFilter", statusFilter);
         }
 
-        const response = await fetch(`/api/admin/orders?${params.toString()}`, {
+        const response = await fetch(`/api/${portal}/orders?${params.toString()}`, {
           cache: "no-store",
           signal: controller.signal,
         });
@@ -189,18 +198,14 @@ export default function AdminOrdersPage() {
     void loadOrders();
 
     return () => controller.abort();
-  }, [currentPage, searchQuery, statusFilter]);
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchQuery, statusFilter]);
+  }, [currentPage, portal, searchQuery, statusFilter]);
 
   async function handleStatusUpdate(orderId: string, status: AdminOrder["status"]) {
     setUpdatingOrderId(orderId);
     setError("");
 
     try {
-      const response = await fetch(`/api/admin/orders/${orderId}`, {
+      const response = await fetch(`/api/${portal}/orders/${orderId}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -232,6 +237,98 @@ export default function AdminOrdersPage() {
     }
   }
 
+  async function handleCashCollected(orderId: string) {
+    setUpdatingOrderId(orderId);
+    setError("");
+
+    try {
+      const response = await fetch(`/api/${portal}/orders/${orderId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ paymentStatus: "PAID" }),
+      });
+      const data = (await response.json().catch(() => null)) as
+        | {
+            error?: string;
+            order?: { id: string; paymentStatus: AdminOrder["paymentStatus"] };
+          }
+        | null;
+
+      if (!response.ok || !data?.order) {
+        throw new Error(data?.error ?? "Unable to record cash collection.");
+      }
+
+      setOrders((current) =>
+        current.map((order) =>
+          order.id === orderId
+            ? { ...order, paymentStatus: data.order!.paymentStatus }
+            : order,
+        ),
+      );
+    } catch (updateError) {
+      setError(
+        updateError instanceof Error
+          ? updateError.message
+          : "Unable to record cash collection.",
+      );
+    } finally {
+      setUpdatingOrderId(null);
+    }
+  }
+
+  async function handleEPSRecheck(orderId: string) {
+    if (recheckingOrderId) return;
+
+    setRecheckingOrderId(orderId);
+    setError("");
+
+    try {
+      const response = await fetch("/api/admin/eps/recheck", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ type: "order", id: orderId }),
+      });
+      const data = (await response.json().catch(() => null)) as
+        | {
+            error?: string;
+            order?: {
+              id: string;
+              status: AdminOrder["status"];
+              paymentStatus: AdminOrder["paymentStatus"];
+            };
+          }
+        | null;
+
+      if (!response.ok || !data?.order) {
+        throw new Error(data?.error ?? "Unable to verify this EPS payment.");
+      }
+
+      setOrders((current) =>
+        current.map((order) =>
+          order.id === orderId
+            ? {
+                ...order,
+                status: data.order!.status,
+                paymentStatus: data.order!.paymentStatus,
+              }
+            : order,
+        ),
+      );
+    } catch (recheckError) {
+      setError(
+        recheckError instanceof Error
+          ? recheckError.message
+          : "Unable to verify this EPS payment.",
+      );
+    } finally {
+      setRecheckingOrderId(null);
+    }
+  }
+
   function handleExportCsv() {
     const csv = Papa.unparse(
       orders.map((order) => ({
@@ -245,6 +342,7 @@ export default function AdminOrdersPage() {
         "Estimated Delivery": order.estimatedDelivery ?? "",
         "Total Amount": formatBdt(order.totalAmount),
         "Payment Method": getPaymentMethodLabel(order.paymentMethod),
+        "Payment Status": order.paymentStatus,
         "Transaction Reference": order.transactionRef ?? "",
         Status: order.status,
         Date: formatDateTime(order.createdAt),
@@ -279,7 +377,7 @@ export default function AdminOrdersPage() {
 
       {isLoading ? (
         <div className="mt-8">
-          <SkeletonTable rows={8} cols={11} />
+          <SkeletonTable rows={8} cols={12} />
         </div>
       ) : null}
 
@@ -300,7 +398,10 @@ export default function AdminOrdersPage() {
                   id="orders-search"
                   type="search"
                   value={searchQuery}
-                  onChange={(event) => setSearchQuery(event.target.value)}
+                  onChange={(event) => {
+                    setCurrentPage(1);
+                    setSearchQuery(event.target.value);
+                  }}
                   placeholder="Order ID or client name"
                   className="mt-2 h-11 w-full rounded-md border border-[#EADDCD] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors placeholder:text-[#884F38] focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8] dark:placeholder-[#8A7D75]"
                 />
@@ -316,10 +417,16 @@ export default function AdminOrdersPage() {
                 <select
                   id="orders-status-filter"
                   value={statusFilter}
-                  onChange={(event) => setStatusFilter(event.target.value)}
+                  onChange={(event) => {
+                    setCurrentPage(1);
+                    setStatusFilter(event.target.value);
+                  }}
                   className="mt-2 h-11 w-full rounded-md border border-[#EADDCD] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68] dark:border-[#3D3530] dark:bg-[#1E1C1A] dark:text-[#F0EDE8]"
                 >
                   <option value="ALL">All Statuses</option>
+                  <option value="FAILED_ABANDONED">
+                    Failed/abandoned payments
+                  </option>
                   {ORDER_STATUS_OPTIONS.map((status) => (
                     <option key={status} value={status}>
                       {status}
@@ -345,7 +452,7 @@ export default function AdminOrdersPage() {
 
           <div className="mt-6 overflow-hidden rounded-lg border border-themed bg-card">
             <div className="overflow-x-auto">
-              <table className="table-themed w-full min-w-[1460px] text-left text-sm">
+              <table className="table-themed w-full min-w-[1540px] text-left text-sm">
                 <thead>
                   <tr>
                     <th className="px-4 py-3 font-medium">Order ID</th>
@@ -355,6 +462,7 @@ export default function AdminOrdersPage() {
                     <th className="px-4 py-3 font-medium">Delivery Area</th>
                     <th className="px-4 py-3 font-medium">Total Amount</th>
                     <th className="px-4 py-3 font-medium">Payment Method</th>
+                    <th className="px-4 py-3 font-medium">Payment Status</th>
                     <th className="px-4 py-3 font-medium">Proof</th>
                     <th className="px-4 py-3 font-medium">Transaction Ref</th>
                     <th className="px-4 py-3 font-medium">Order Status</th>
@@ -364,7 +472,7 @@ export default function AdminOrdersPage() {
                 <tbody>
                   {orders.length === 0 ? (
                     <tr>
-                      <td colSpan={11} className="cell-muted px-4 py-8 text-center text-sm">
+                      <td colSpan={12} className="cell-muted px-4 py-8 text-center text-sm">
                         No orders match the current filters.
                       </td>
                     </tr>
@@ -402,6 +510,13 @@ export default function AdminOrdersPage() {
                             )}`}
                           >
                             {getPaymentMethodLabel(order.paymentMethod)}
+                          </span>
+                        </td>
+                        <td className="px-4 py-4">
+                          <span
+                            className={`inline-flex rounded-full border px-3 py-1 text-xs font-medium ${getPaymentStatusBadgeClasses(order.paymentStatus)}`}
+                          >
+                            {order.paymentStatus}
                           </span>
                         </td>
                         <td className="px-4 py-4">
@@ -458,12 +573,43 @@ export default function AdminOrdersPage() {
                           </div>
                         </td>
                         <td className="px-4 py-4">
-                          <Link
-                            href={`/admin/orders/${order.id}`}
-                            className="border-themed text-page inline-flex h-9 items-center justify-center rounded-md border px-3 text-sm font-medium transition-colors hover:bg-black/5 dark:hover:bg-white/5"
-                          >
-                            View Details
-                          </Link>
+                          <div className="flex min-w-[160px] flex-col gap-2">
+                            {portal === "admin" &&
+                            order.paymentStatus === "UNPAID" &&
+                            order.epsMerchantTxnId ? (
+                              <button
+                                type="button"
+                                disabled={recheckingOrderId === order.id}
+                                onClick={() => void handleEPSRecheck(order.id)}
+                                className="inline-flex h-9 items-center justify-center rounded-md border border-[#B87B68] px-3 text-sm font-semibold text-[#884F38] transition-colors hover:bg-[#B87B68]/10 disabled:cursor-not-allowed disabled:opacity-60 dark:text-[#D9A694]"
+                              >
+                                {recheckingOrderId === order.id
+                                  ? "Checking EPS..."
+                                  : "Re-check with EPS"}
+                              </button>
+                            ) : null}
+                            {order.paymentMethod === "CASH" &&
+                            order.paymentStatus === "UNPAID" ? (
+                              <button
+                                type="button"
+                                disabled={updatingOrderId === order.id}
+                                onClick={() => void handleCashCollected(order.id)}
+                                className="inline-flex h-9 items-center justify-center rounded-md bg-[#B87B68] px-3 text-sm font-semibold text-[#141210] transition-colors hover:bg-[#D4B47A] disabled:cursor-not-allowed disabled:opacity-60"
+                              >
+                                {updatingOrderId === order.id
+                                  ? "Updating..."
+                                  : "Mark cash collected"}
+                              </button>
+                            ) : null}
+                            {portal === "admin" ? (
+                              <Link
+                                href={`/admin/orders/${order.id}`}
+                                className="border-themed text-page inline-flex h-9 items-center justify-center rounded-md border px-3 text-sm font-medium transition-colors hover:bg-black/5 dark:hover:bg-white/5"
+                              >
+                                View Details
+                              </Link>
+                            ) : null}
+                          </div>
                         </td>
                       </tr>
                     ))
@@ -489,4 +635,8 @@ export default function AdminOrdersPage() {
       ) : null}
     </section>
   );
+}
+
+export default function AdminOrdersPage() {
+  return <StaffOrdersPage portal="admin" />;
 }

@@ -41,15 +41,8 @@ export async function GET(request: Request) {
   const status = parseStatus(searchParams.get("status"));
   const where: Prisma.OrderWhereInput = {
     userId: session.user.id,
+    OR: [{ paymentStatus: "PAID" }, { paymentMethod: "CASH" }],
     ...(status ? { status } : {}),
-    ...(!status || status === "PENDING"
-      ? {
-          NOT: {
-            status: "PENDING",
-            transactionRef: "EPS_PENDING",
-          },
-        }
-      : {}),
   };
 
   const [orders, totalCount] = await db.$transaction([
@@ -67,6 +60,7 @@ export async function GET(request: Request) {
         createdAt: true,
         totalAmount: true,
         paymentMethod: true,
+        paymentStatus: true,
         status: true,
         deliveryArea: true,
         deliveryCharge: true,

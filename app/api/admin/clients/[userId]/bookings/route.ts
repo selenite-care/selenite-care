@@ -1,6 +1,7 @@
 import NextAuth from "next-auth";
 import { authConfig } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { getClientVisibleBookingWhere } from "@/lib/oneTimeConsultation";
 
 const { auth } = NextAuth(authConfig);
 
@@ -29,10 +30,8 @@ export async function GET(_request: Request, context: RouteContext) {
     return Response.json({ error: "User ID is required." }, { status: 400 });
   }
 
-  const where: {
-    userId: string;
-    doctorId?: string;
-  } = {
+  const where = {
+    ...getClientVisibleBookingWhere(),
     userId,
   };
 
@@ -58,7 +57,7 @@ export async function GET(_request: Request, context: RouteContext) {
       return Response.json({ error: "Doctor profile not found." }, { status: 404 });
     }
 
-    where.doctorId = doctor.id;
+    Object.assign(where, { doctorId: doctor.id });
   }
 
   const bookings = await db.booking.findMany({

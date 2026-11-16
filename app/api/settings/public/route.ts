@@ -1,5 +1,9 @@
 import { auth } from "@/auth";
 import {
+  COD_ENABLED,
+  COD_INSIDE_DHAKA_ONLY,
+  DELIVERY_CHARGE_INSIDE_DHAKA,
+  DELIVERY_CHARGE_OUTSIDE_DHAKA,
   getProductDiscount,
   getSettings,
   MEMBERSHIP_CLASSIC_PRICE,
@@ -15,11 +19,17 @@ import {
 } from "@/lib/settings";
 
 export const runtime = "nodejs";
-export const revalidate = 300;
+export const revalidate = 60;
 
 export async function GET() {
   const session = await auth();
-  const [{ enabled, percent, label }, consultationSettings, classicSettings] =
+  const [
+    { enabled, percent, label },
+    consultationSettings,
+    classicSettings,
+    codSettings,
+    deliverySettings,
+  ] =
     await Promise.all([
       getProductDiscount(),
       getSettings([
@@ -30,13 +40,18 @@ export async function GET() {
         ONE_TIME_CONSULTATION_OFFER_EXPIRY,
       ]),
       getSettings([MEMBERSHIP_CLASSIC_PRICE]),
+      getSettings([COD_ENABLED, COD_INSIDE_DHAKA_ONLY]),
+      getSettings([
+        DELIVERY_CHARGE_INSIDE_DHAKA,
+        DELIVERY_CHARGE_OUTSIDE_DHAKA,
+      ]),
     ]);
   const currentPrice =
-    parseSettingNumber(consultationSettings[ONE_TIME_CONSULTATION_PRICE]) ?? 99;
+    parseSettingNumber(consultationSettings[ONE_TIME_CONSULTATION_PRICE]) ?? 0;
   const originalPrice =
     parseSettingNumber(
       consultationSettings[ONE_TIME_CONSULTATION_ORIGINAL_PRICE],
-    ) ?? 500;
+    ) ?? 0;
   const offerLabel =
     consultationSettings[ONE_TIME_CONSULTATION_OFFER_LABEL]?.trim() ?? "";
   const offerEnabled = parseSettingBoolean(
@@ -46,6 +61,8 @@ export async function GET() {
     consultationSettings[ONE_TIME_CONSULTATION_OFFER_EXPIRY]?.trim() ?? "";
   const isOfferActive =
     offerEnabled &&
+    currentPrice > 0 &&
+    originalPrice > currentPrice &&
     /^\d{4}-\d{2}-\d{2}$/.test(offerExpiry) &&
     getTodayDateString() <= offerExpiry;
   const response: {
@@ -59,6 +76,14 @@ export async function GET() {
       offerEnabled: boolean;
       offerExpiry: string;
       isOfferActive: boolean;
+    };
+    cashOnDelivery: {
+      enabled: boolean;
+      insideDhakaOnly: boolean;
+    };
+    deliveryCharges: {
+      insideDhaka: number;
+      outsideDhaka: number;
     };
     membershipPrices?: {
       classicPrice?: number | null;
@@ -78,6 +103,22 @@ export async function GET() {
       offerEnabled,
       offerExpiry,
       isOfferActive,
+    },
+    cashOnDelivery: {
+      enabled: parseSettingBoolean(codSettings[COD_ENABLED]),
+      insideDhakaOnly: parseSettingBoolean(
+        codSettings[COD_INSIDE_DHAKA_ONLY] ?? "false",
+      ),
+    },
+    deliveryCharges: {
+      insideDhaka: parseNonNegativeSettingNumber(
+        deliverySettings[DELIVERY_CHARGE_INSIDE_DHAKA],
+        100,
+      ),
+      outsideDhaka: parseNonNegativeSettingNumber(
+        deliverySettings[DELIVERY_CHARGE_OUTSIDE_DHAKA],
+        150,
+      ),
     },
     membershipPrices: {
       classicPrice: parseSettingNumber(
@@ -118,6 +159,20 @@ function parseSettingBoolean(value: string | undefined) {
   return ["true", "1", "yes", "on"].includes(
     value?.trim().toLowerCase() ?? "",
   );
+}
+
+function parseNonNegativeSettingNumber(
+  value: string | undefined,
+  fallback: number,
+) {
+  if (!value?.trim()) {
+    return fallback;
+  }
+
+  const numberValue = Number(value);
+  return Number.isFinite(numberValue) && numberValue >= 0
+    ? numberValue
+    : fallback;
 }
 
 function getTodayDateString() {

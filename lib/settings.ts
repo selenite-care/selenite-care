@@ -3,6 +3,12 @@ import { db } from "@/lib/db";
 export const PRODUCT_DISCOUNT_PERCENT = "product_discount_percent";
 export const PRODUCT_DISCOUNT_ENABLED = "product_discount_enabled";
 export const PRODUCT_DISCOUNT_LABEL = "product_discount_label";
+export const COD_ENABLED = "cod_enabled";
+export const COD_INSIDE_DHAKA_ONLY = "cod_inside_dhaka_only";
+export const DELIVERY_CHARGE_INSIDE_DHAKA =
+  "delivery_charge_inside_dhaka";
+export const DELIVERY_CHARGE_OUTSIDE_DHAKA =
+  "delivery_charge_outside_dhaka";
 export const MEMBERSHIP_CLASSIC_PRICE = "membership_classic_price";
 export const MEMBERSHIP_SIGNATURE_PRICE = "membership_signature_price";
 export const MEMBERSHIP_SIGNATURE_ORIGINAL = "membership_signature_original";

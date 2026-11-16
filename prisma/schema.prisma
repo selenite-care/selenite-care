@@ -269,7 +269,7 @@ model Order {
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
   deliveryArea      DeliveryArea @default(INSIDE_DHAKA)
-  deliveryCharge    Float        @default(80)
+  deliveryCharge    Float        @default(100)
   deliveryAddress   String?
   estimatedDelivery String?
   epsTransactionId  String?
@@ -278,6 +278,7 @@ model Order {
   discountPercent   Float @default(0)
   discountAmount    Float @default(0)
   subtotalAmount    Float @default(0)
+  paymentStatus     PaymentStatus @default(UNPAID)
 
   @@index([createdAt(sort: Desc)])
   @@index([status])
@@ -514,6 +515,8 @@ model OneTimeConsultation {
   epsMerchantTxnId  String?       @unique
   paymentStatus     PaymentStatus @default(UNPAID)
   paidAt            DateTime?
+    paymentConflict   Boolean       @default(false)
+    paymentConflictNote String?
   includesFollowUp  Boolean       @default(false)
   followUpUsed      Boolean       @default(false)
   followUpBookingId String?

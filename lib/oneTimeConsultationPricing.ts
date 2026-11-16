@@ -8,8 +8,8 @@ export type OneTimeConsultationPricing = {
 };
 
 export const DEFAULT_ONE_TIME_CONSULTATION_PRICING: OneTimeConsultationPricing = {
-  currentPrice: 99,
-  originalPrice: 500,
+  currentPrice: 0,
+  originalPrice: 0,
   offerLabel: "",
   offerEnabled: false,
   offerExpiry: "",
@@ -23,13 +23,13 @@ export function normalizeOneTimeConsultationPricing(
     currentPrice:
       typeof value?.currentPrice === "number" &&
       Number.isFinite(value.currentPrice) &&
-      value.currentPrice > 0
+      value.currentPrice >= 0
         ? value.currentPrice
         : DEFAULT_ONE_TIME_CONSULTATION_PRICING.currentPrice,
     originalPrice:
       typeof value?.originalPrice === "number" &&
       Number.isFinite(value.originalPrice) &&
-      value.originalPrice > 0
+      value.originalPrice >= 0
         ? value.originalPrice
         : DEFAULT_ONE_TIME_CONSULTATION_PRICING.originalPrice,
     offerLabel:

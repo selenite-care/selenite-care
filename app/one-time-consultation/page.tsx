@@ -16,6 +16,8 @@ import TimeSlotSelector from "@/components/consultations/TimeSlotSelector";
 import DoctorPhoto from "@/components/ui/DoctorPhoto";
 import { trackBeginCheckout } from "@/lib/analytics";
 import { formatFullDate } from "@/lib/dateUtils";
+import { normalizeOneTimeConsultationPricing } from "@/lib/oneTimeConsultationPricing";
+import { EPS_INITIATION_ERROR_MESSAGE } from "@/lib/paymentMessages";
 
 type ConsultationDoctor = {
   id: string;
@@ -34,10 +36,10 @@ type DoctorsResponse = {
 
 type InitiateResponse = {
   redirectUrl?: string;
+  amount?: number;
   error?: string;
 };
 
-const PACKAGE_PRICE = 99;
 const PACKAGE_BENEFITS = [
   "Online video doctor consultation",
   "Root cause identification and guidance",
@@ -72,12 +74,28 @@ function OneTimeConsultationContent() {
   const [timeSlot, setTimeSlot] = useState("");
   const [scheduleStep, setScheduleStep] = useState<"date" | "time">("date");
   const [isLoadingDoctors, setIsLoadingDoctors] = useState(true);
+  const [packagePrice, setPackagePrice] = useState(0);
+  const [isPricingLoading, setIsPricingLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState(
-    searchParams.get("error") === "payment_failed"
-      ? "Payment was not completed. No booking was created. Please try again when you are ready."
-      : "",
-  );
+  const [error, setError] = useState(() => {
+    const paymentError = searchParams.get("error");
+
+    if (paymentError === "payment_pending") {
+      return "We could not confirm the payment status yet. Your booking has been kept for re-checking; please do not pay a second time right now.";
+    }
+
+    if (paymentError === "payment_cancelled") {
+      return "Payment not completed, no booking was made. Please pay again";
+    }
+
+    if (paymentError === "payment_conflict") {
+      return "Your payment was received, but the selected time slot is no longer available. Our team will contact you to arrange a new time.";
+    }
+
+    return paymentError === "payment_failed"
+      ? "Payment not completed, no booking was made. Please pay again"
+      : "";
+  });
   const selectedDoctor = doctors.find(
     (doctor) => doctor.id === selectedDoctorId,
   );
@@ -138,6 +156,57 @@ function OneTimeConsultationContent() {
   }, [status]);
 
   useEffect(() => {
+    if (status !== "authenticated") return;
+
+    let isMounted = true;
+
+    async function loadPricing() {
+      try {
+        const response = await fetch("/api/settings/public", {
+          cache: "no-store",
+        });
+        const data = (await response.json().catch(() => null)) as
+          | {
+              oneTimeConsultation?: Parameters<
+                typeof normalizeOneTimeConsultationPricing
+              >[0];
+            }
+          | null;
+
+        if (!response.ok) {
+          throw new Error("Unable to load consultation pricing.");
+        }
+
+        const pricing = normalizeOneTimeConsultationPricing(
+          data?.oneTimeConsultation,
+        );
+        if (pricing.currentPrice <= 0) {
+          throw new Error("Consultation pricing is currently unavailable.");
+        }
+
+        if (isMounted) setPackagePrice(pricing.currentPrice);
+      } catch (pricingError) {
+        if (isMounted) {
+          setPackagePrice(0);
+          setError(
+            pricingError instanceof Error
+              ? pricingError.message
+              : "Consultation pricing is currently unavailable.",
+          );
+        }
+      } finally {
+        if (isMounted) setIsPricingLoading(false);
+      }
+    }
+
+    void loadPricing();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [status]);
+
+  useEffect(() => {
     function resetSubmitting() {
       setIsSubmitting(false);
     }
@@ -156,22 +225,15 @@ function OneTimeConsultationContent() {
   }, []);
 
   async function handlePayment() {
-    if (!selectedDoctorId || !preferredDate || !timeSlot || isSubmitting) {
+    if (
+      !selectedDoctorId ||
+      !preferredDate ||
+      !timeSlot ||
+      packagePrice <= 0 ||
+      isSubmitting
+    ) {
       return;
     }
-
-    trackBeginCheckout(
-      [
-        {
-          id: "ONE_TIME_CONSULTATION",
-          name: "Online Video Consultation \u2014 Selenite Care",
-          price: PACKAGE_PRICE,
-          category: "Consultation",
-          quantity: 1,
-        },
-      ],
-      PACKAGE_PRICE,
-    );
     setIsSubmitting(true);
     setError("");
 
@@ -199,15 +261,32 @@ function OneTimeConsultationContent() {
       }
 
       if (!response.ok || !data?.redirectUrl) {
-        throw new Error(data?.error ?? "Unable to start payment.");
+        throw new Error(data?.error ?? EPS_INITIATION_ERROR_MESSAGE);
       }
+
+      if (typeof data.amount !== "number" || data.amount <= 0) {
+        throw new Error("Unable to confirm the consultation price.");
+      }
+
+      trackBeginCheckout(
+        [
+          {
+            id: "ONE_TIME_CONSULTATION",
+            name: "Online Video Consultation \u2014 Selenite Care",
+            price: data.amount,
+            category: "Consultation",
+            quantity: 1,
+          },
+        ],
+        data.amount,
+      );
 
       window.location.href = data.redirectUrl;
     } catch (paymentError) {
       setError(
         paymentError instanceof Error
           ? paymentError.message
-          : "Unable to start payment.",
+          : EPS_INITIATION_ERROR_MESSAGE,
       );
       setIsSubmitting(false);
     }
@@ -246,7 +325,13 @@ function OneTimeConsultationContent() {
                 One-time
               </p>
               <p className="mt-1 text-2xl font-semibold text-[#884F38] dark:text-[#D9A694] sm:text-3xl">
-                {PACKAGE_PRICE} BDT
+                {isPricingLoading ? (
+                  <span className="inline-block h-8 w-24 animate-pulse rounded bg-[#B87B68]/20" />
+                ) : packagePrice > 0 ? (
+                  `${packagePrice.toLocaleString("en-US")} BDT`
+                ) : (
+                  "Unavailable"
+                )}
               </p>
             </div>
           </div>
@@ -447,7 +532,7 @@ function OneTimeConsultationContent() {
           <button
             type="button"
             onClick={() => void handlePayment()}
-            disabled={isSubmitting}
+            disabled={isSubmitting || isPricingLoading || packagePrice <= 0}
             className="mt-8 inline-flex h-13 w-full items-center justify-center gap-2 rounded-md bg-[#2B2B2B] px-6 text-base font-semibold text-[#F8F5F0] hover:bg-[#884F38] disabled:cursor-not-allowed disabled:opacity-50 dark:bg-[#F0EDE8] dark:text-[#141210] dark:hover:bg-[#D4B47A]"
           >
             {isSubmitting ? (
@@ -456,7 +541,11 @@ function OneTimeConsultationContent() {
                 Starting Payment...
               </>
             ) : (
-              `${PACKAGE_PRICE} BDT - Proceed to Payment`
+              isPricingLoading
+                ? "Loading price..."
+                : packagePrice > 0
+                  ? `${packagePrice.toLocaleString("en-US")} BDT - Proceed to Payment`
+                  : "Price unavailable"
             )}
           </button>
         ) : null}

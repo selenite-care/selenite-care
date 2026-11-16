@@ -5,6 +5,7 @@ import { authConfig } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { formatLongDate } from "@/lib/dateUtils";
 import { formatTimeSlot } from "@/lib/slotGenerator";
+import { getStaffVisibleBookingWhere } from "@/lib/oneTimeConsultation";
 import BookingStatusButtons from "./BookingStatusButtons";
 import ClientBookingHistory from "@/components/booking/ClientBookingHistory";
 import BookingRescheduleControl from "@/components/booking/BookingRescheduleControl";
@@ -68,8 +69,8 @@ export default async function CrmBookingDetailsPage({
     redirect("/dashboard");
   }
 
-  const booking = await db.booking.findUnique({
-    where: { id },
+  const booking = await db.booking.findFirst({
+    where: { id, ...getStaffVisibleBookingWhere() },
     include: {
       user: {
         select: {

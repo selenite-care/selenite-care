@@ -1,7 +1,19 @@
 import crypto from "crypto";
+import { EPS_INITIATION_ERROR_MESSAGE } from "@/lib/paymentMessages";
+
+export { EPS_INITIATION_ERROR_MESSAGE } from "@/lib/paymentMessages";
 
 const SANDBOX_BASE = "https://sandboxpgapi.eps.com.bd";
 const LIVE_BASE = "https://pgapi.eps.com.bd";
+const EPS_REQUEST_TIMEOUT_MS = 20_000;
+const EPS_NETWORK_ATTEMPTS = 2;
+
+export class EPSInitializationError extends Error {
+  constructor() {
+    super(EPS_INITIATION_ERROR_MESSAGE);
+    this.name = "EPSInitializationError";
+  }
+}
 
 function getBaseUrl(): string {
   return process.env.EPS_SANDBOX === "true" ? SANDBOX_BASE : LIVE_BASE;
@@ -14,10 +26,90 @@ function generateHash(data: string, hashKey: string): string {
     .digest("base64");
 }
 
+async function fetchEPS(
+  input: string,
+  init: RequestInit,
+): Promise<Response> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), EPS_REQUEST_TIMEOUT_MS);
+
+  try {
+    return await fetch(input, {
+      ...init,
+      signal: controller.signal,
+    });
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+function isNetworkOrTimeoutError(error: unknown) {
+  return (
+    error instanceof TypeError ||
+    (error instanceof Error &&
+      (error.name === "AbortError" || error.name === "TimeoutError"))
+  );
+}
+
+async function retryNetworkFailure<T>(
+  operationName: string,
+  operation: () => Promise<T>,
+): Promise<T> {
+  for (let attempt = 1; attempt <= EPS_NETWORK_ATTEMPTS; attempt += 1) {
+    try {
+      return await operation();
+    } catch (error) {
+      const shouldRetry =
+        attempt < EPS_NETWORK_ATTEMPTS && isNetworkOrTimeoutError(error);
+
+      if (!shouldRetry) {
+        throw error;
+      }
+
+      console.warn(`${operationName} network request failed; retrying once.`, {
+        attempt,
+        error,
+      });
+    }
+  }
+
+  throw new Error(`${operationName} failed unexpectedly.`);
+}
+
 export function generateTransactionId(): string {
   const timestamp = Date.now().toString();
   const random = Math.random().toString(36).substring(2, 8).toUpperCase();
   return `${timestamp}${random}`;
+}
+
+function toMinorUnits(value: unknown): number | null {
+  const amount =
+    typeof value === "number"
+      ? value
+      : typeof value === "string" && value.trim() !== ""
+        ? Number(value)
+        : Number.NaN;
+
+  return Number.isFinite(amount) ? Math.round(amount * 100) : null;
+}
+
+export function isVerifiedEPSPayment(
+  verification: Record<string, unknown>,
+  expectedAmount: number,
+): boolean {
+  const status =
+    typeof verification.Status === "string"
+      ? verification.Status.trim().toLowerCase()
+      : "";
+  const verifiedAmount = toMinorUnits(verification.TotalAmount);
+  const expectedAmountInMinorUnits = toMinorUnits(expectedAmount);
+
+  return (
+    status === "success" &&
+    verifiedAmount !== null &&
+    expectedAmountInMinorUnits !== null &&
+    verifiedAmount === expectedAmountInMinorUnits
+  );
 }
 
 export function getEPSCallbackUrls(type: "membership" | "order", id: string) {
@@ -39,14 +131,16 @@ async function getEPSToken(): Promise<string> {
 
   const xHash = generateHash(userName, hashKey);
 
-  const response = await fetch(`${getBaseUrl()}/v1/Auth/GetToken`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-hash": xHash,
-    },
-    body: JSON.stringify({ userName, password }),
-  });
+  const response = await retryNetworkFailure("EPS GetToken", () =>
+    fetchEPS(`${getBaseUrl()}/v1/Auth/GetToken`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-hash": xHash,
+      },
+      body: JSON.stringify({ userName, password }),
+    }),
+  );
 
   if (!response.ok) {
     const text = await response.text();
@@ -84,13 +178,14 @@ export async function initializeEPSPayment(params: {
     ProductPrice: string;
   }>;
 }) {
-  const token = await getEPSToken();
-  const hashKey = process.env.EPS_HASH_KEY!;
-  const storeId = process.env.EPS_STORE_ID!;
+  try {
+    const token = await getEPSToken();
+    const hashKey = process.env.EPS_HASH_KEY!;
+    const storeId = process.env.EPS_STORE_ID!;
 
-  const xHash = generateHash(params.merchantTransactionId, hashKey);
+    const xHash = generateHash(params.merchantTransactionId, hashKey);
 
-  const body = {
+    const body = {
     storeId,
     merchantTransactionId: params.merchantTransactionId,
     CustomerOrderId: params.customerOrderId,
@@ -137,46 +232,51 @@ export async function initializeEPSPayment(params: {
         ProductPrice: params.totalAmount.toString(),
       },
     ],
-  };
+    };
 
-  const response = await fetch(`${getBaseUrl()}/v1/EPSEngine/InitializeEPS`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-      "x-hash": xHash,
-    },
-    body: JSON.stringify(body),
-  });
+    const response = await retryNetworkFailure("EPS InitializeEPS", () =>
+      fetchEPS(`${getBaseUrl()}/v1/EPSEngine/InitializeEPS`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+          "x-hash": xHash,
+        },
+        body: JSON.stringify(body),
+      }),
+    );
 
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(`EPS InitializeEPS failed: ${response.status} - ${text}`);
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(`EPS InitializeEPS failed: ${response.status} - ${text}`);
+    }
+
+    const data = await response.json();
+    console.log("EPS Initialize response:", JSON.stringify(data));
+
+    const redirectUrl =
+      data.redirectUrl ||
+      data.RedirectUrl ||
+      data.RedirectURL ||
+      data.redirect_url ||
+      data.GatewayUrl ||
+      data.gatewayUrl ||
+      data.paymentUrl;
+
+    if (!redirectUrl) {
+      throw new Error(`EPS returned no redirect URL: ${JSON.stringify(data)}`);
+    }
+
+    return { redirectUrl, data };
+  } catch (error) {
+    console.error("EPS payment initialization failed:", error);
+    throw new EPSInitializationError();
   }
-
-  const data = await response.json();
-  console.log("EPS Initialize response:", JSON.stringify(data));
-
-  const redirectUrl =
-    data.redirectUrl ||
-    data.RedirectUrl ||
-    data.RedirectURL ||
-    data.redirect_url ||
-    data.GatewayUrl ||
-    data.gatewayUrl ||
-    data.paymentUrl;
-
-  if (!redirectUrl) {
-    throw new Error(`EPS returned no redirect URL: ${JSON.stringify(data)}`);
-  }
-
-  return { redirectUrl, data };
 }
 
 export async function verifyEPSPayment(merchantTransactionId: string) {
   const token = await getEPSToken();
   const hashKey = process.env.EPS_HASH_KEY!;
-  const storeId = process.env.EPS_STORE_ID!;
 
   const xHash = generateHash(merchantTransactionId, hashKey);
 
@@ -184,7 +284,7 @@ export async function verifyEPSPayment(merchantTransactionId: string) {
     merchantTransactionId,
   )}`;
 
-  const response = await fetch(url, {
+  const response = await fetchEPS(url, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",

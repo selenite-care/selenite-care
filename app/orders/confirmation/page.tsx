@@ -9,6 +9,7 @@ import { trackPurchase } from "@/lib/analytics";
 type Order = {
   id: string;
   totalAmount: number;
+  paymentStatus: "UNPAID" | "PAID" | "REFUNDED";
   items: Array<{
     quantity: number;
     price: number;
@@ -27,6 +28,7 @@ type OrdersResponse = {
 function OrdersConfirmationContent() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get("orderId") ?? searchParams.get("id") ?? "";
+  const isCashOnDelivery = searchParams.get("payment") === "cod";
   const { clearCart } = useCart();
   const hasTrackedPurchase = useRef(false);
 
@@ -36,6 +38,10 @@ function OrdersConfirmationContent() {
     }
 
     clearCart();
+
+    if (isCashOnDelivery) {
+      return;
+    }
 
     if (typeof window !== "undefined" && typeof gtag !== "undefined") {
       gtag("event", "conversion", {
@@ -60,7 +66,7 @@ function OrdersConfirmationContent() {
 
         const order = data?.orders?.find((candidate) => candidate.id === orderId);
 
-        if (!order) {
+        if (!order || order.paymentStatus !== "PAID") {
           return;
         }
 
@@ -86,7 +92,7 @@ function OrdersConfirmationContent() {
     return () => {
       isCancelled = true;
     };
-  }, [clearCart, orderId]);
+  }, [clearCart, isCashOnDelivery, orderId]);
 
   return (
     <main className="flex min-h-screen items-center bg-[#F8F5F0] px-6 py-16 dark:bg-[#1A1814]">
@@ -102,8 +108,9 @@ function OrdersConfirmationContent() {
           </h1>
 
           <p className="mx-auto mt-6 max-w-2xl text-base leading-8 text-[#6E6257] dark:text-[#8A7D75] sm:text-lg">
-            Our team will verify your payment and process your order. You will
-            receive an update via email.
+            {isCashOnDelivery
+              ? "Pay in cash when your order is delivered. The delivery charge for your selected area is included in the order total."
+              : "Your payment has been confirmed. Our team will process your order and send you delivery updates."}
           </p>
 
           {orderId ? (

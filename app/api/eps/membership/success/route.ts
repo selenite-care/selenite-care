@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { verifyEPSPayment } from "@/lib/eps";
+import { isVerifiedEPSPayment, verifyEPSPayment } from "@/lib/eps";
 import { db } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
 import {
@@ -148,17 +148,6 @@ function readEPSField(data: Record<string, unknown>, keys: string[]) {
     key: "",
     value: "",
   };
-}
-
-function isEPSSuccess(data: Record<string, unknown>) {
-  return (
-    data.status === "Success" ||
-    data.Status === "Success" ||
-    data.transactionStatus === "Success" ||
-    data.TransactionStatus === "Success" ||
-    data.statusCode === "200" ||
-    data.isSuccess === true
-  );
 }
 
 function buildClientEmailHtml(input: {
@@ -321,52 +310,6 @@ export async function GET(request: Request) {
   }
 
   try {
-    const verification = (await verifyEPSPayment(
-      merchantTransactionId,
-    )) as Record<string, unknown>;
-    console.log(
-      "EPS membership verify full response:",
-      JSON.stringify(verification),
-    );
-
-    const statusField = readEPSField(verification, [
-      "status",
-      "Status",
-      "transactionStatus",
-      "TransactionStatus",
-      "statusCode",
-    ]);
-    const epsTransactionField = readEPSField(verification, [
-      "epsTransactionId",
-      "EpsTransactionId",
-      "transactionId",
-      "TransactionId",
-    ]);
-    const paymentMethodField = readEPSField(verification, [
-      "financialEntity",
-      "FinancialEntity",
-      "paymentMethod",
-    ]);
-    const verificationStatus =
-      statusField.value || (isEPSSuccess(verification) ? "Success" : "");
-    const epsTransactionId = epsTransactionField.value;
-    const financialEntity = paymentMethodField.value;
-
-    console.log("EPS membership verify fields found:", {
-      statusField: statusField.key || "none",
-      statusValue: statusField.value || null,
-      statusCode: verification.statusCode ?? null,
-      isSuccess: verification.isSuccess ?? null,
-      epsTransactionIdField: epsTransactionField.key || "none",
-      epsTransactionId: epsTransactionId || null,
-      paymentMethodField: paymentMethodField.key || "none",
-      paymentMethod: financialEntity || null,
-    });
-
-    if (!isEPSSuccess(verification)) {
-      return buildRedirect(request, "/membership/payment?error=payment_failed");
-    }
-
     const existingPayment = await db.membershipPayment.findUnique({
       where: {
         epsMerchantTxnId: merchantTransactionId,
@@ -390,12 +333,56 @@ export async function GET(request: Request) {
       return buildRedirect(request, "/membership/payment?error=payment_failed");
     }
 
+    if (existingPayment.status === "PAID") {
+      return buildRedirect(
+        request,
+        `/membership/welcome?id=${encodeURIComponent(existingPayment.membership.membershipId)}`,
+      );
+    }
+
+    const verification = (await verifyEPSPayment(
+      merchantTransactionId,
+    )) as Record<string, unknown>;
+    console.log(
+      "EPS membership verify full response:",
+      JSON.stringify(verification),
+    );
+
+    const epsTransactionField = readEPSField(verification, [
+      "epsTransactionId",
+      "EpsTransactionId",
+      "transactionId",
+      "TransactionId",
+    ]);
+    const paymentMethodField = readEPSField(verification, [
+      "financialEntity",
+      "FinancialEntity",
+      "paymentMethod",
+    ]);
+    const verificationStatus = String(verification.Status ?? "");
+    const epsTransactionId = epsTransactionField.value;
+    const financialEntity = paymentMethodField.value;
+
+    console.log("EPS membership verify fields found:", {
+      statusValue: verification.Status ?? null,
+      totalAmount: verification.TotalAmount ?? null,
+      epsTransactionIdField: epsTransactionField.key || "none",
+      epsTransactionId: epsTransactionId || null,
+      paymentMethodField: paymentMethodField.key || "none",
+      paymentMethod: financialEntity || null,
+    });
+
+    if (!isVerifiedEPSPayment(verification, existingPayment.amount)) {
+      return buildRedirect(request, "/membership/payment?error=payment_failed");
+    }
+
     const expiresAt = calculateExpiresAt(existingPayment.membership.tier);
 
-    const { payment, membership } = await db.$transaction(async (tx) => {
-      const updatedPayment = await tx.membershipPayment.update({
+    const result = await db.$transaction(async (tx) => {
+      const claimedPayment = await tx.membershipPayment.updateMany({
         where: {
           id: existingPayment.id,
+          status: "UNPAID",
         },
         data: {
           status: "PAID",
@@ -404,6 +391,10 @@ export async function GET(request: Request) {
           epsStatus: verificationStatus,
         },
       });
+
+      if (claimedPayment.count === 0) {
+        return null;
+      }
 
       const updatedMembership = await tx.membership.update({
         where: {
@@ -467,11 +458,26 @@ export async function GET(request: Request) {
         },
       });
 
+      const updatedPayment = await tx.membershipPayment.findUniqueOrThrow({
+        where: {
+          id: existingPayment.id,
+        },
+      });
+
       return {
         payment: updatedPayment,
         membership: updatedMembership,
       };
     });
+
+    if (!result) {
+      return buildRedirect(
+        request,
+        `/membership/welcome?id=${encodeURIComponent(existingPayment.membership.membershipId)}`,
+      );
+    }
+
+    const { payment, membership } = result;
 
     try {
       await Promise.allSettled([

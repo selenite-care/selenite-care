@@ -20,6 +20,10 @@ type SettingsResponse = {
 const PRODUCT_DISCOUNT_PERCENT = "product_discount_percent";
 const PRODUCT_DISCOUNT_ENABLED = "product_discount_enabled";
 const PRODUCT_DISCOUNT_LABEL = "product_discount_label";
+const COD_ENABLED = "cod_enabled";
+const COD_INSIDE_DHAKA_ONLY = "cod_inside_dhaka_only";
+const DELIVERY_CHARGE_INSIDE_DHAKA = "delivery_charge_inside_dhaka";
+const DELIVERY_CHARGE_OUTSIDE_DHAKA = "delivery_charge_outside_dhaka";
 const MEMBERSHIP_CLASSIC_PRICE = "membership_classic_price";
 const MEMBERSHIP_SIGNATURE_PRICE = "membership_signature_price";
 const MEMBERSHIP_SIGNATURE_ORIGINAL = "membership_signature_original";
@@ -39,6 +43,10 @@ const DEFAULT_VALUES: Record<string, string> = {
   [PRODUCT_DISCOUNT_PERCENT]: "0",
   [PRODUCT_DISCOUNT_ENABLED]: "false",
   [PRODUCT_DISCOUNT_LABEL]: "Member Discount",
+  [COD_ENABLED]: "false",
+  [COD_INSIDE_DHAKA_ONLY]: "false",
+  [DELIVERY_CHARGE_INSIDE_DHAKA]: "100",
+  [DELIVERY_CHARGE_OUTSIDE_DHAKA]: "150",
   [MEMBERSHIP_CLASSIC_PRICE]: "490",
   [MEMBERSHIP_SIGNATURE_PRICE]: "990",
   [MEMBERSHIP_SIGNATURE_ORIGINAL]: "2190",
@@ -239,6 +247,67 @@ export default function AdminSettingsPage() {
       ) : null}
 
       <div className="mt-8 grid gap-6 xl:grid-cols-2">
+        <section className="rounded-2xl border border-[#B87B68]/50 bg-white p-6 shadow-sm dark:border-[#B87B68]/40 dark:bg-[#242220] xl:col-span-2">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#B87B68]">
+              Checkout
+            </p>
+            <h2 className="mt-2 text-2xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]">
+              Cash on Delivery
+            </h2>
+          </div>
+
+          <div className="mt-6 grid gap-5 lg:grid-cols-2">
+            <SettingToggle
+              label="Enable Cash on Delivery"
+              note="Shows Cash on Delivery as a checkout option in the cart"
+              checked={values[COD_ENABLED] === "true"}
+              onChange={(checked) =>
+                updateValue(COD_ENABLED, checked ? "true" : "false")
+              }
+              updatedAt={formatUpdatedAt(getUpdatedAt(settings, COD_ENABLED))}
+            />
+            <SettingToggle
+              label="Restrict COD Area"
+              note="Optional: when enabled, COD is restricted to Inside Dhaka. Keep disabled to allow both areas."
+              checked={values[COD_INSIDE_DHAKA_ONLY] === "true"}
+              onChange={(checked) =>
+                updateValue(
+                  COD_INSIDE_DHAKA_ONLY,
+                  checked ? "true" : "false",
+                )
+              }
+              updatedAt={formatUpdatedAt(
+                getUpdatedAt(settings, COD_INSIDE_DHAKA_ONLY),
+              )}
+            />
+            <SettingInput
+              label="Inside Dhaka Delivery Charge (BDT)"
+              type="number"
+              min={0}
+              value={values[DELIVERY_CHARGE_INSIDE_DHAKA] ?? ""}
+              onChange={(value) =>
+                updateValue(DELIVERY_CHARGE_INSIDE_DHAKA, value)
+              }
+              updatedAt={formatUpdatedAt(
+                getUpdatedAt(settings, DELIVERY_CHARGE_INSIDE_DHAKA),
+              )}
+            />
+            <SettingInput
+              label="Outside Dhaka Delivery Charge (BDT)"
+              type="number"
+              min={0}
+              value={values[DELIVERY_CHARGE_OUTSIDE_DHAKA] ?? ""}
+              onChange={(value) =>
+                updateValue(DELIVERY_CHARGE_OUTSIDE_DHAKA, value)
+              }
+              updatedAt={formatUpdatedAt(
+                getUpdatedAt(settings, DELIVERY_CHARGE_OUTSIDE_DHAKA),
+              )}
+            />
+          </div>
+        </section>
+
         <section className="rounded-2xl border border-[#EADDCD] bg-white p-6 shadow-sm dark:border-[#3D3530] dark:bg-[#242220]">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#B87B68]">

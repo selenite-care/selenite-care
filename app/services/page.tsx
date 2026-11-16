@@ -7,7 +7,7 @@ import {
   type OneTimeConsultationPricing,
 } from "@/lib/oneTimeConsultationPricing";
 
-export const revalidate = 3600;
+export const revalidate = 60;
 
 type PublicSettingsResponse = {
   membershipPrices?: {
@@ -60,7 +60,7 @@ async function getServiceSettings() {
     const response = await fetch(`${baseUrl}/api/settings/public`, {
       headers: cookie ? { cookie } : undefined,
       next: {
-        revalidate: 300,
+        revalidate: 60,
       },
     });
 

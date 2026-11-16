@@ -1,6 +1,11 @@
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
-import { generateTransactionId, initializeEPSPayment } from "@/lib/eps";
+import {
+  EPSInitializationError,
+  EPS_INITIATION_ERROR_MESSAGE,
+  generateTransactionId,
+  initializeEPSPayment,
+} from "@/lib/eps";
 import { getSetting, updateSetting } from "@/lib/settings";
 
 export const runtime = "nodejs";
@@ -56,6 +61,8 @@ export async function POST(request: Request) {
     return Response.json({ error: "Unauthorized." }, { status: 401 });
   }
 
+  let pendingKey: string | null = null;
+
   try {
     const body = (await request.json().catch(() => null)) as
       | PurchaseInitiatePayload
@@ -84,7 +91,7 @@ export async function POST(request: Request) {
     const timestamp = Date.now();
     const merchantTransactionId = generateTransactionId();
     const appBaseUrl = getAppBaseUrl(request);
-    const pendingKey = `skin_analysis_purchase_${merchantTransactionId}`;
+    pendingKey = `skin_analysis_purchase_${merchantTransactionId}`;
 
     await updateSetting(
       pendingKey,
@@ -124,8 +131,28 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("EPS skin analysis purchase initiate failed:", error);
 
+    if (pendingKey) {
+      await db.appSetting
+        .deleteMany({
+          where: {
+            key: pendingKey,
+          },
+        })
+        .catch((cleanupError) => {
+          console.error(
+            "Failed to remove pending skin analysis purchase:",
+            cleanupError,
+          );
+        });
+    }
+
     return Response.json(
-      { error: "Unable to initiate skin analysis credit payment." },
+      {
+        error:
+          error instanceof EPSInitializationError
+            ? EPS_INITIATION_ERROR_MESSAGE
+            : "Unable to initiate skin analysis credit payment.",
+      },
       { status: 500 },
     );
   }

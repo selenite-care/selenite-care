@@ -16,6 +16,7 @@ type RouteContext = {
 type OrderPatchPayload = {
   status?: unknown;
   estimatedDelivery?: unknown;
+  paymentStatus?: unknown;
 };
 
 const ORDER_STATUSES: OrderStatus[] = [
@@ -52,7 +53,7 @@ const ORDER_NOTIFICATION_COPY: Partial<
   },
 };
 
-async function requireAdmin() {
+async function requireOrderStaff() {
   const session = await auth();
 
   if (!session?.user) {
@@ -62,7 +63,7 @@ async function requireAdmin() {
     };
   }
 
-  if (session.user.role !== "ADMIN") {
+  if (session.user.role !== "ADMIN" && session.user.role !== "CRM") {
     return {
       error: Response.json({ error: "Forbidden." }, { status: 403 }),
       session: null,
@@ -76,7 +77,7 @@ async function requireAdmin() {
 }
 
 export async function GET(_request: Request, context: RouteContext) {
-  const { error } = await requireAdmin();
+  const { error } = await requireOrderStaff();
 
   if (error) {
     return error;
@@ -96,6 +97,7 @@ export async function GET(_request: Request, context: RouteContext) {
       updatedAt: true,
       totalAmount: true,
       paymentMethod: true,
+      paymentStatus: true,
       status: true,
       deliveryArea: true,
       deliveryCharge: true,
@@ -138,7 +140,7 @@ export async function GET(_request: Request, context: RouteContext) {
 }
 
 export async function PATCH(request: Request, context: RouteContext) {
-  const { error } = await requireAdmin();
+  const { error } = await requireOrderStaff();
 
   if (error) {
     return error;
@@ -151,6 +153,10 @@ export async function PATCH(request: Request, context: RouteContext) {
   }
 
   const body = (await request.json().catch(() => ({}))) as OrderPatchPayload;
+  const hasPaymentStatusUpdate = typeof body.paymentStatus === "string";
+  const requestedPaymentStatus = hasPaymentStatusUpdate
+    ? String(body.paymentStatus).trim().toUpperCase()
+    : "";
   const rawStatus =
     typeof body.status === "string" ? body.status.trim().toUpperCase() : "";
   const hasStatusUpdate = typeof body.status === "string";
@@ -159,6 +165,85 @@ export async function PATCH(request: Request, context: RouteContext) {
   const estimatedDelivery = hasEstimatedDeliveryUpdate
     ? String(body.estimatedDelivery).trim()
     : undefined;
+
+  if (hasPaymentStatusUpdate && requestedPaymentStatus !== "PAID") {
+    return Response.json(
+      { error: "Only cash collection can be recorded here." },
+      { status: 400 },
+    );
+  }
+
+  if (hasPaymentStatusUpdate) {
+    const existingOrder = await db.order.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        paymentMethod: true,
+        paymentStatus: true,
+        userId: true,
+      },
+    });
+
+    if (!existingOrder) {
+      return Response.json({ error: "Order not found." }, { status: 404 });
+    }
+
+    if (existingOrder.paymentMethod !== "CASH") {
+      return Response.json(
+        { error: "Cash collection can only be recorded for COD orders." },
+        { status: 400 },
+      );
+    }
+
+    if (existingOrder.paymentStatus === "PAID") {
+      return Response.json({ order: existingOrder });
+    }
+
+    const updated = await db.order.updateMany({
+      where: {
+        id,
+        paymentMethod: "CASH",
+        paymentStatus: "UNPAID",
+      },
+      data: {
+        paymentStatus: "PAID",
+      },
+    });
+
+    const order = await db.order.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        status: true,
+        paymentStatus: true,
+        paymentMethod: true,
+      },
+    });
+
+    if (!order || updated.count === 0) {
+      return Response.json(
+        { error: "Unable to record cash collection for this order." },
+        { status: 409 },
+      );
+    }
+
+    try {
+      await createNotification(
+        existingOrder.userId,
+        "Cash Payment Collected",
+        "We have received the cash payment for your order. Thank you for shopping with Selenite Care!",
+        NOTIFICATION_TYPES.ORDER,
+        `/dashboard/orders/${id}`,
+      );
+    } catch (notificationError) {
+      console.error(
+        "Failed to create cash collection notification",
+        notificationError,
+      );
+    }
+
+    return Response.json({ order });
+  }
 
   if (
     hasStatusUpdate &&

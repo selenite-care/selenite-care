@@ -11,6 +11,10 @@
     {
       "path": "/api/cron/cleanup-unverified",
       "schedule": "0 3 * * *"
+    },
+    {
+      "path": "/api/cron/recheck-eps",
+      "schedule": "15 3 * * *"
     }
   ]
 }
