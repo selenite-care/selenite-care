@@ -1,7 +1,7 @@
 import NextAuth from "next-auth";
 import { authConfig } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { sanitizeHtml } from "@/lib/sanitize";
+import { sanitizeHtml, sanitizeText } from "@/lib/sanitize";
 
 const { auth } = NextAuth(authConfig);
 
@@ -21,10 +21,55 @@ type RecommendationInput =
 type PutPayload = {
   problemIdentification?: unknown;
   productIds?: unknown;
+  recommendedTests?: unknown;
+  additionalNotes?: unknown;
 };
 
 const getAllowedRoles = new Set(["ADMIN", "DOCTOR", "CRM"]);
-const putAllowedRoles = new Set(["ADMIN", "DOCTOR"]);
+const putAllowedRoles = new Set(["ADMIN", "DOCTOR", "CRM"]);
+const MAX_RECOMMENDED_TESTS = 10;
+const MAX_ADDITIONAL_NOTES_LENGTH = 1500;
+
+type RecommendedTest = {
+  name: string;
+  details: string;
+};
+
+function normalizeRecommendedTests(input: unknown):
+  | { tests: RecommendedTest[]; error?: never }
+  | { tests?: never; error: string } {
+  if (!Array.isArray(input)) {
+    return { error: "Recommended tests must be an array." };
+  }
+
+  if (input.length > MAX_RECOMMENDED_TESTS) {
+    return { error: `You can add up to ${MAX_RECOMMENDED_TESTS} tests.` };
+  }
+
+  const tests: RecommendedTest[] = [];
+
+  for (const [index, item] of input.entries()) {
+    if (!item || typeof item !== "object") {
+      return { error: `Test ${index + 1} is invalid.` };
+    }
+
+    const record = item as { name?: unknown; details?: unknown };
+    const name =
+      typeof record.name === "string" ? sanitizeText(record.name) : "";
+    const details =
+      typeof record.details === "string"
+        ? sanitizeText(record.details)
+        : "";
+
+    if (!name) {
+      return { error: `Test name is required for row ${index + 1}.` };
+    }
+
+    tests.push({ name, details });
+  }
+
+  return { tests };
+}
 
 function normalizeRecommendations(input: unknown) {
   if (!Array.isArray(input)) {
@@ -146,6 +191,44 @@ export async function PUT(request: Request, context: RouteContext) {
   }
 
   const body = (await request.json().catch(() => ({}))) as PutPayload;
+  const hasRecommendedTests = Object.prototype.hasOwnProperty.call(
+    body,
+    "recommendedTests",
+  );
+  const normalizedTests = hasRecommendedTests
+    ? normalizeRecommendedTests(body.recommendedTests)
+    : null;
+
+  if (normalizedTests?.error) {
+    return Response.json({ error: normalizedTests.error }, { status: 400 });
+  }
+
+  const hasAdditionalNotes = Object.prototype.hasOwnProperty.call(
+    body,
+    "additionalNotes",
+  );
+  if (hasAdditionalNotes && typeof body.additionalNotes !== "string") {
+    return Response.json(
+      { error: "Additional notes must be text." },
+      { status: 400 },
+    );
+  }
+  const sanitizedAdditionalNotes = hasAdditionalNotes
+    ? sanitizeText(body.additionalNotes as string)
+    : undefined;
+  if (
+    sanitizedAdditionalNotes !== undefined &&
+    sanitizedAdditionalNotes.length > MAX_ADDITIONAL_NOTES_LENGTH
+  ) {
+    return Response.json(
+      {
+        error: `Additional notes must be ${MAX_ADDITIONAL_NOTES_LENGTH} characters or fewer.`,
+      },
+      { status: 400 },
+    );
+  }
+  const additionalNotes = sanitizedAdditionalNotes || null;
+
   const problemIdentification =
     typeof body.problemIdentification === "string"
       ? sanitizeHtml(body.problemIdentification) || null
@@ -186,10 +269,14 @@ export async function PUT(request: Request, context: RouteContext) {
       },
       update: {
         problemIdentification,
+        ...(normalizedTests ? { recommendedTests: normalizedTests.tests } : {}),
+        ...(hasAdditionalNotes ? { additionalNotes } : {}),
       },
       create: {
         bookingId,
         problemIdentification,
+        ...(normalizedTests ? { recommendedTests: normalizedTests.tests } : {}),
+        ...(hasAdditionalNotes ? { additionalNotes } : {}),
       },
     });
 

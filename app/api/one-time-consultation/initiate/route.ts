@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { parseAppointmentSchedule } from "@/lib/appointmentSchedule";
 import { db } from "@/lib/db";
+import { deleteBookingWithPrescriptionFiles } from "@/lib/bookingDeletion";
 import {
   EPSInitializationError,
   EPS_INITIATION_ERROR_MESSAGE,
@@ -12,6 +13,7 @@ import {
   ONE_TIME_CONSULTATION_PRICE,
 } from "@/lib/settings";
 import { getSlotBlockingBookingWhere } from "@/lib/oneTimeConsultation";
+import { deletePrescriptionFiles } from "@/lib/prescriptionStorage";
 import { formatTimeSlot, generateTimeSlots } from "@/lib/slotGenerator";
 
 export const runtime = "nodejs";
@@ -118,7 +120,23 @@ export async function POST(request: Request) {
     }
 
     const merchantTransactionId = generateTransactionId();
-    const booking = await db.$transaction(async (tx) => {
+    const bookingResult = await db.$transaction(async (tx) => {
+      const abandonedReports = await tx.prescription.findMany({
+        where: {
+          booking: {
+            is: {
+              userId: user.id,
+              status: "PENDING",
+              isOneTimeConsultation: true,
+              oneTimeConsultation: {
+                is: { paymentStatus: "UNPAID" },
+              },
+            },
+          },
+        },
+        select: { pdfPath: true },
+      });
+
       await tx.booking.deleteMany({
         where: {
           userId: user.id,
@@ -228,7 +246,7 @@ export async function POST(request: Request) {
         token = String(nextSerial).padStart(4, "0");
       }
 
-      return tx.booking.create({
+      const booking = await tx.booking.create({
         data: {
           userId: user.id,
           doctorId: doctor.id,
@@ -250,8 +268,23 @@ export async function POST(request: Request) {
           id: true,
         },
       });
+
+      return {
+        booking,
+        abandonedReportPaths: abandonedReports.map((report) => report.pdfPath),
+      };
     }, { isolationLevel: "Serializable" });
+    const booking = bookingResult.booking;
     bookingId = booking.id;
+
+    try {
+      await deletePrescriptionFiles(bookingResult.abandonedReportPaths);
+    } catch (cleanupError) {
+      console.error(
+        "Abandoned consultation report files could not be removed:",
+        cleanupError,
+      );
+    }
 
     const appBaseUrl = getAppBaseUrl(request);
     const successUrl = `${appBaseUrl}/api/one-time-consultation/success`;
@@ -310,7 +343,7 @@ export async function POST(request: Request) {
     }
 
     if (bookingId) {
-      await db.booking.delete({ where: { id: bookingId } }).catch((cleanupError) => {
+      await deleteBookingWithPrescriptionFiles(bookingId).catch((cleanupError) => {
         console.error(
           "Failed to clean up one-time consultation booking:",
           cleanupError,

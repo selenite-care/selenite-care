@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   CalendarCheck,
   CreditCard,
+  FileText,
   LayoutDashboard,
   Map,
   MessageCircle,
@@ -17,6 +18,7 @@ import MessagesBadge from "@/components/ui/MessagesBadge";
 const dashboardLinks = [
   { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
   { href: "/dashboard/bookings", label: "Bookings", icon: CalendarCheck },
+  { href: "/dashboard/reports", label: "Reports", icon: FileText },
   { href: "/dashboard/payments", label: "Payments", icon: CreditCard },
   { href: "/dashboard/orders", label: "Orders", icon: Package },
   { href: "/dashboard/survey", label: "Skin", icon: ScanFace },
@@ -40,6 +42,7 @@ export function DashboardSidebarNav() {
     <nav className="mt-8 space-y-2">
       {dashboardLinks.map((link) => {
         const isActive = isActiveLink(pathname, link.href);
+        const Icon = link.icon;
 
         return (
           <Link
@@ -53,6 +56,7 @@ export function DashboardSidebarNav() {
               color: isActive ? "var(--gold)" : "var(--sidebar-text)",
             }}
           >
+            <Icon aria-hidden="true" className="h-4 w-4 shrink-0" />
             <span className="transition-colors">
               {link.label}
             </span>
@@ -73,7 +77,7 @@ export function DashboardMobileNav() {
 
   return (
     <nav
-      className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-4 border-t px-1 py-2 md:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t px-1 py-2 md:hidden"
       style={{
         backgroundColor: "var(--sidebar)",
         borderColor: "var(--gold)",

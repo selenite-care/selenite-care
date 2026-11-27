@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
-import { Package } from "lucide-react";
+import { Package, Plus, Trash2 } from "lucide-react";
 import { formatDateTime } from "@/lib/dateUtils";
 
 type DiagnosisEditorProps = {
@@ -25,15 +26,22 @@ type RecommendedProduct = ProductSearchResult & {
   note: string;
 };
 
+type RecommendedTest = {
+  name: string;
+  details: string;
+};
+
 type DiagnosisResponse = {
   diagnosis: {
     id: string;
     problemIdentification: string | null;
+    additionalNotes: string | null;
     recommendations: Array<{
       id: string;
       note: string | null;
       product: ProductSearchResult;
     }>;
+    recommendedTests?: unknown;
   } | null;
 };
 
@@ -58,6 +66,26 @@ function mapDiagnosisProducts(diagnosis: DiagnosisResponse["diagnosis"]) {
       }),
     ) ?? []
   );
+}
+
+function mapRecommendedTests(
+  diagnosis: DiagnosisResponse["diagnosis"],
+): RecommendedTest[] {
+  if (!Array.isArray(diagnosis?.recommendedTests)) {
+    return [];
+  }
+
+  return diagnosis.recommendedTests.flatMap((item) => {
+    if (!item || typeof item !== "object") {
+      return [];
+    }
+
+    const record = item as { name?: unknown; details?: unknown };
+    const name = typeof record.name === "string" ? record.name : "";
+    const details = typeof record.details === "string" ? record.details : "";
+
+    return name ? [{ name, details }] : [];
+  });
 }
 
 function formatPrice(price: number) {
@@ -109,9 +137,12 @@ function ProductThumbnail({
 
   if (image) {
     return (
-      <img
+      <Image
         src={image}
         alt={name}
+        width={size}
+        height={size}
+        unoptimized
         className={`${sizeClass} shrink-0 rounded-md border border-[#EADDCD] object-cover dark:border-[#3D3530]`}
       />
     );
@@ -131,9 +162,14 @@ export default function DiagnosisEditor({
   canEdit,
 }: DiagnosisEditorProps) {
   const [problemIdentification, setProblemIdentification] = useState("");
+  const [additionalNotes, setAdditionalNotes] = useState("");
   const [recommendedProducts, setRecommendedProducts] = useState<RecommendedProduct[]>(
     [],
   );
+  const [recommendedTests, setRecommendedTests] = useState<RecommendedTest[]>([]);
+  const [savedRecommendedTests, setSavedRecommendedTests] = useState<
+    RecommendedTest[]
+  >([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<ProductSearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -177,7 +213,11 @@ export default function DiagnosisEditor({
 
         const diagnosis = isDiagnosisResponse(data) ? data.diagnosis : null;
         setProblemIdentification(diagnosis?.problemIdentification ?? "");
+        setAdditionalNotes(diagnosis?.additionalNotes ?? "");
         setRecommendedProducts(mapDiagnosisProducts(diagnosis));
+        const loadedTests = mapRecommendedTests(diagnosis);
+        setRecommendedTests(loadedTests);
+        setSavedRecommendedTests(loadedTests);
         setLastSavedAt(new Date().toString());
         setHasLoadedOnce(true);
       } catch (loadError) {
@@ -206,8 +246,6 @@ export default function DiagnosisEditor({
 
     const trimmed = searchQuery.trim();
     if (!trimmed) {
-      setSearchResults([]);
-      setIsSearching(false);
       return;
     }
 
@@ -261,7 +299,10 @@ export default function DiagnosisEditor({
     };
   }, [canEdit]);
 
-  async function saveDiagnosis(nextProducts?: RecommendedProduct[]) {
+  async function saveDiagnosis(
+    nextProducts?: RecommendedProduct[],
+    nextTests?: RecommendedTest[],
+  ) {
     if (!canEdit) return;
 
     setIsSaving(true);
@@ -279,6 +320,11 @@ export default function DiagnosisEditor({
             productId: product.id,
             note: product.note.trim() || null,
           })),
+          recommendedTests: (nextTests ?? savedRecommendedTests).map((test) => ({
+            name: test.name,
+            details: test.details,
+          })),
+          additionalNotes,
         }),
       });
 
@@ -297,7 +343,13 @@ export default function DiagnosisEditor({
 
       const diagnosis = isDiagnosisResponse(data) ? data.diagnosis : null;
       setProblemIdentification(diagnosis?.problemIdentification ?? "");
+      setAdditionalNotes(diagnosis?.additionalNotes ?? "");
       setRecommendedProducts(mapDiagnosisProducts(diagnosis));
+      const persistedTests = mapRecommendedTests(diagnosis);
+      setSavedRecommendedTests(persistedTests);
+      if (nextTests) {
+        setRecommendedTests(persistedTests);
+      }
       setLastSavedAt(new Date().toString());
     } catch (saveError) {
       setError(
@@ -340,6 +392,49 @@ export default function DiagnosisEditor({
 
   function handleNoteBlur() {
     void saveDiagnosis();
+  }
+
+  function addRecommendedTest() {
+    if (recommendedTests.length >= 10) return;
+    setRecommendedTests((currentTests) => [
+      ...currentTests,
+      { name: "", details: "" },
+    ]);
+    setError("");
+  }
+
+  function updateRecommendedTest(
+    index: number,
+    field: keyof RecommendedTest,
+    value: string,
+  ) {
+    setRecommendedTests((currentTests) =>
+      currentTests.map((test, testIndex) =>
+        testIndex === index ? { ...test, [field]: value } : test,
+      ),
+    );
+  }
+
+  function removeRecommendedTest(index: number) {
+    setRecommendedTests((currentTests) =>
+      currentTests.filter((_, testIndex) => testIndex !== index),
+    );
+    setError("");
+  }
+
+  function saveRecommendedTests() {
+    const normalizedTests = recommendedTests.map((test) => ({
+      name: test.name.trim(),
+      details: test.details.trim(),
+    }));
+    const missingNameIndex = normalizedTests.findIndex((test) => !test.name);
+
+    if (missingNameIndex !== -1) {
+      setError(`Test name is required for row ${missingNameIndex + 1}.`);
+      return;
+    }
+
+    void saveDiagnosis(undefined, normalizedTests);
   }
 
   if (isLoading && !hasLoadedOnce) {
@@ -446,7 +541,12 @@ export default function DiagnosisEditor({
                 type="text"
                 value={searchQuery}
                 onChange={(event) => {
-                  setSearchQuery(event.target.value);
+                  const nextQuery = event.target.value;
+                  setSearchQuery(nextQuery);
+                  if (!nextQuery.trim()) {
+                    setSearchResults([]);
+                    setIsSearching(false);
+                  }
                   setError("");
                 }}
                 placeholder="Search by name, type, or skin type"
@@ -685,6 +785,187 @@ export default function DiagnosisEditor({
           </div>
         )}
       </div>
+
+      <div className="rounded-2xl border border-[#EADDCD] bg-[#F8F5F0] p-4 dark:border-[#3D3530] dark:bg-[#242220] sm:p-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[#B87B68]">
+              Section 3
+            </p>
+            <h2
+              className="mt-2 text-2xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]"
+              style={{ fontFamily: "Playfair Display, serif" }}
+            >
+              Recommended Tests
+            </h2>
+          </div>
+          {canEdit ? (
+            <span className="text-xs font-medium text-[#6E6257] dark:text-[#8A7D75]">
+              {recommendedTests.length}/10 tests
+            </span>
+          ) : null}
+        </div>
+
+        {canEdit ? (
+          <div className="mt-6 space-y-4">
+            {recommendedTests.length === 0 ? (
+              <div className="rounded-lg border border-dashed border-[#D8B6AA] bg-white px-4 py-5 text-sm text-[#6E6257] dark:border-[#5A4139] dark:bg-[#1A1814] dark:text-[#8A7D75]">
+                No tests recommended yet.
+              </div>
+            ) : (
+              recommendedTests.map((test, index) => (
+                <div
+                  key={index}
+                  className="grid gap-4 rounded-lg border border-[#EADDCD] bg-white p-4 dark:border-[#3D3530] dark:bg-[#1A1814] md:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)_40px] md:items-start"
+                >
+                  <label className="block">
+                    <span className="text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
+                      Test Name <span className="text-red-600">*</span>
+                    </span>
+                    <input
+                      type="text"
+                      required
+                      value={test.name}
+                      onChange={(event) =>
+                        updateRecommendedTest(index, "name", event.target.value)
+                      }
+                      placeholder="e.g. Vitamin D"
+                      className="mt-2 h-11 w-full rounded-md border border-[#EADDCD] bg-[#F8F5F0] px-3 text-sm text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68] dark:border-[#3D3530] dark:bg-[#242220] dark:text-[#F0EDE8]"
+                    />
+                  </label>
+
+                  <label className="block">
+                    <span className="text-sm font-medium text-[#2B2B2B] dark:text-[#F0EDE8]">
+                      Details / Instructions
+                    </span>
+                    <textarea
+                      value={test.details}
+                      onChange={(event) =>
+                        updateRecommendedTest(
+                          index,
+                          "details",
+                          event.target.value,
+                        )
+                      }
+                      rows={3}
+                      placeholder="Optional preparation or timing instructions"
+                      className="mt-2 w-full rounded-md border border-[#EADDCD] bg-[#F8F5F0] px-3 py-2.5 text-sm leading-6 text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68] dark:border-[#3D3530] dark:bg-[#242220] dark:text-[#F0EDE8]"
+                    />
+                  </label>
+
+                  <button
+                    type="button"
+                    onClick={() => removeRecommendedTest(index)}
+                    className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-red-200 text-red-600 transition-colors hover:bg-red-50 dark:border-red-900/50 dark:text-red-300 dark:hover:bg-red-950/20 md:mt-7"
+                    aria-label={`Remove test ${index + 1}`}
+                    title="Remove test"
+                  >
+                    <Trash2 className="h-4 w-4" aria-hidden="true" />
+                  </button>
+                </div>
+              ))
+            )}
+
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <button
+                type="button"
+                onClick={addRecommendedTest}
+                disabled={isSaving || recommendedTests.length >= 10}
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-[#B87B68] px-4 text-sm font-semibold text-[#884F38] transition-colors hover:bg-[#F8EFEC] disabled:cursor-not-allowed disabled:opacity-50 dark:text-[#E4B8AA] dark:hover:bg-[#2E211D]"
+              >
+                <Plus className="h-4 w-4" aria-hidden="true" />
+                Add Test
+              </button>
+              <button
+                type="button"
+                onClick={saveRecommendedTests}
+                disabled={isSaving}
+                className="inline-flex h-11 items-center justify-center rounded-md bg-[#2B2B2B] px-5 text-sm font-medium text-[#F8F5F0] transition-colors hover:bg-[#884F38] disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#B87B68] dark:text-[#141210]"
+              >
+                {isSaving ? "Saving..." : "Save Recommended Tests"}
+              </button>
+            </div>
+
+            {error ? (
+              <p className="text-sm text-red-600 dark:text-red-300" role="alert">
+                {error}
+              </p>
+            ) : null}
+          </div>
+        ) : recommendedTests.length === 0 ? (
+          <div className="mt-6 rounded-lg border border-dashed border-[#D8B6AA] bg-white px-4 py-5 text-sm text-[#6E6257] dark:border-[#5A4139] dark:bg-[#1A1814] dark:text-[#8A7D75]">
+            No tests recommended for this consultation.
+          </div>
+        ) : (
+          <ol className="mt-6 divide-y divide-[#EADDCD] overflow-hidden rounded-lg border border-[#EADDCD] bg-white dark:divide-[#3D3530] dark:border-[#3D3530] dark:bg-[#1A1814]">
+            {recommendedTests.map((test, index) => (
+              <li key={`${test.name}-${index}`} className="px-4 py-4">
+                <div className="flex gap-3">
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#B87B68]/15 text-xs font-semibold text-[#884F38] dark:text-[#E4B8AA]">
+                    {index + 1}
+                  </span>
+                  <div className="min-w-0">
+                    <p className="font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]">
+                      {test.name}
+                    </p>
+                    {test.details ? (
+                      <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-[#6E6257] dark:text-[#8A7D75]">
+                        {test.details}
+                      </p>
+                    ) : null}
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ol>
+        )}
+      </div>
+
+      {canEdit || additionalNotes ? (
+        <div className="rounded-2xl border border-[#EADDCD] bg-[#F8F5F0] p-4 dark:border-[#3D3530] dark:bg-[#242220] sm:p-6">
+          <h2
+            className="text-2xl font-semibold text-[#2B2B2B] dark:text-[#F0EDE8]"
+            style={{ fontFamily: "Playfair Display, serif" }}
+          >
+            Additional Notes
+          </h2>
+
+          {canEdit ? (
+            <div className="mt-5 space-y-4">
+              <textarea
+                value={additionalNotes}
+                onChange={(event) => setAdditionalNotes(event.target.value)}
+                maxLength={1500}
+                rows={6}
+                placeholder="Anything else the doctor wants to tell the client (optional)"
+                className="w-full rounded-xl border border-[#EADDCD] bg-white px-4 py-3 text-sm leading-7 text-[#2B2B2B] outline-none transition-colors focus:border-[#B87B68] focus:ring-1 focus:ring-[#B87B68] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#F0EDE8] dark:placeholder-[#8A7D75]"
+              />
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <span className="text-xs text-[#6E6257] dark:text-[#8A7D75]">
+                  {additionalNotes.length}/1500 characters
+                </span>
+                <button
+                  type="button"
+                  onClick={() => void saveDiagnosis()}
+                  disabled={isSaving}
+                  className="inline-flex h-11 items-center justify-center rounded-md bg-[#2B2B2B] px-5 text-sm font-medium text-[#F8F5F0] transition-colors hover:bg-[#884F38] disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#B87B68] dark:text-[#141210]"
+                >
+                  {isSaving ? "Saving..." : "Save Additional Notes"}
+                </button>
+              </div>
+              {error ? (
+                <p className="text-sm text-red-600 dark:text-red-300" role="alert">
+                  {error}
+                </p>
+              ) : null}
+            </div>
+          ) : (
+            <div className="mt-5 whitespace-pre-wrap rounded-xl border border-[#EADDCD] bg-white px-4 py-4 text-sm leading-7 text-[#6E6257] dark:border-[#3D3530] dark:bg-[#1A1814] dark:text-[#8A7D75]">
+              {additionalNotes}
+            </div>
+          )}
+        </div>
+      ) : null}
     </section>
   );
 }

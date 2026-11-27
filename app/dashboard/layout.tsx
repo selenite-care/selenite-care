@@ -50,7 +50,7 @@ export default async function DashboardLayout({
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <main className="bg-page flex-1 px-6 py-8 pb-24 md:pb-8">
+        <main className="bg-page flex-1 px-4 py-8 pb-36 sm:px-6 md:pb-8">
           {children}
         </main>
         <DashboardMobileNav />

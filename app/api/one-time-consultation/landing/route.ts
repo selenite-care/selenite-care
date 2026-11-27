@@ -4,6 +4,7 @@ import {
   parseAppointmentSchedule,
 } from "@/lib/appointmentSchedule";
 import { db } from "@/lib/db";
+import { deleteBookingWithPrescriptionFiles } from "@/lib/bookingDeletion";
 import {
   EPSInitializationError,
   EPS_INITIATION_ERROR_MESSAGE,
@@ -439,7 +440,7 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     if (bookingId) {
-      await db.booking.delete({ where: { id: bookingId } }).catch((cleanupError) => {
+      await deleteBookingWithPrescriptionFiles(bookingId).catch((cleanupError) => {
         console.error(
           "Failed to clean up landing consultation booking:",
           cleanupError,

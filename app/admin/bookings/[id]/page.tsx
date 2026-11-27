@@ -10,6 +10,7 @@ import BookingTimeSlotControl from "@/components/booking/BookingTimeSlotControl"
 import DiagnosisEditor from "@/components/diagnosis/DiagnosisEditor";
 import RoutineEditor from "@/components/routine/RoutineEditor";
 import FeedbackEditor from "@/components/feedback/FeedbackEditor";
+import ReportPanel from "@/components/prescription/ReportPanel";
 import SurveyProfileDetails from "@/components/survey/SurveyProfileDetails";
 import Avatar from "@/components/ui/Avatar";
 import MessageClientButton from "@/components/messages/MessageClientButton";
@@ -259,6 +260,7 @@ export default async function BookingDetailsPage({
           <FeedbackEditor bookingId={booking.id} canEdit={false} />
         </div>
       </section>
+      <ReportPanel bookingId={booking.id} />
       <BookingStatusControls bookingId={booking.id} currentStatus={booking.status} />
     </section>
   );

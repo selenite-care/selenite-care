@@ -184,8 +184,9 @@ model Booking {
   customerFeedback CustomerFeedback?
   isOneTimeConsultation Boolean              @default(false)
   oneTimeConsultation   OneTimeConsultation?
-  timeSlot      String?   // stored as "10:00" 24hr format
-  slotDuration  Int       @default(20) // minutes
+  timeSlot         String?   // stored as "10:00" 24hr format
+  slotDuration     Int               @default(20) // minutes
+  rescriptions     Prescription[]
 
   @@index([userId])
   @@index([doctorId])
@@ -303,6 +304,8 @@ model Diagnosis {
   recommendations       ProductRecommendation[]
   updatedAt             DateTime                @updatedAt
   createdAt             DateTime                @default(now())
+  recommendedTests      Json?
+  additionalNotes       String?
 
   @@index([bookingId])
 }
@@ -521,6 +524,22 @@ model OneTimeConsultation {
   followUpUsed      Boolean       @default(false)
   followUpBookingId String?
   createdAt         DateTime      @default(now())
+}
+
+model Prescription {
+  id            String   @id @default(cuid())
+  bookingId     String
+  booking       Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  version       Int      @default(1)
+  pdfPath       String
+  followUpDays  Int?
+  followUpDate  DateTime?
+  createdById   String?
+  createdByRole String?
+  sentAt        DateTime @default(now())
+
+  @@unique([bookingId, version])
+  @@index([bookingId])
 }
 
 enum Role {

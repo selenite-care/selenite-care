@@ -1,3 +1,4 @@
+import type { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 
 export const NOTIFICATION_TYPES = {
@@ -25,8 +26,9 @@ export async function createNotification(
   message: string,
   type: NotificationType,
   link?: string,
+  database: Pick<Prisma.TransactionClient, "notification"> = db,
 ) {
-  return db.notification.create({
+  return database.notification.create({
     data: {
       userId,
       title,

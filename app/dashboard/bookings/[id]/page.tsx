@@ -9,6 +9,7 @@ import { getClientVisibleBookingWhere } from "@/lib/oneTimeConsultation";
 import DiagnosisEditor from "@/components/diagnosis/DiagnosisEditor";
 import RoutineEditor from "@/components/routine/RoutineEditor";
 import FeedbackEditor from "@/components/feedback/FeedbackEditor";
+import ReportDownloadButton from "@/components/prescription/ReportDownloadButton";
 import SurveyProfileDetails from "@/components/survey/SurveyProfileDetails";
 
 type BookingDetailsPageProps = {
@@ -82,6 +83,12 @@ export default async function BookingDetailsPage({ params }: BookingDetailsPageP
     notFound();
   }
 
+  const latestReport = await db.prescription.findFirst({
+    where: { bookingId: booking.id },
+    select: { id: true, version: true },
+    orderBy: { version: "desc" },
+  });
+
   const preferredDate = booking.appointmentTime
     ? formatLongDate(booking.appointmentTime)
     : "Not scheduled";
@@ -107,6 +114,12 @@ export default async function BookingDetailsPage({ params }: BookingDetailsPageP
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
+          {latestReport ? (
+            <ReportDownloadButton
+              prescriptionId={latestReport.id}
+              label={`Download report (V${latestReport.version})`}
+            />
+          ) : null}
           <Link
             href="/dashboard/bookings"
             className="border-themed bg-card text-page inline-flex h-11 items-center justify-center rounded-md border px-5 text-sm font-medium transition-colors hover:bg-black/5 dark:hover:bg-white/5"

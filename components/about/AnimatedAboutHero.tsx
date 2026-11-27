@@ -188,12 +188,14 @@ export default function AnimatedAboutHero() {
             }}
             className="text-muted mt-6 max-w-2xl text-lg leading-8"
           >
-            Selenite Care is a professional skincare consultation platform
-            dedicated to addressing acne, dark spots, pigmentation, and other
-            skin concerns through personalized guidance from certified
-            aestheticians. Our mission is to help every client achieve
-            healthier, clearer, and more confident skin with expert care and
-            customized solutions.
+            At Selenite Care, our mission is to make professional skincare guidance, dermatologist consultations, and trusted skincare solutions more accessible.
+
+Our vision is to build Selenite Care into a trusted name in the skincare industry through dedication, innovation, and a commitment to quality.
+
+We are not just building a brand; we are building trust, one step at a time.
+
+
+This is just the beginning.
           </motion.p>
 
           {/* DIVIDER */}
