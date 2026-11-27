@@ -13,6 +13,7 @@ import BookingTimeSlotControl from "@/components/booking/BookingTimeSlotControl"
 import DiagnosisEditor from "@/components/diagnosis/DiagnosisEditor";
 import RoutineEditor from "@/components/routine/RoutineEditor";
 import FeedbackEditor from "@/components/feedback/FeedbackEditor";
+import ReportPanel from "@/components/prescription/ReportPanel";
 import SurveyProfileDetails from "@/components/survey/SurveyProfileDetails";
 import Avatar from "@/components/ui/Avatar";
 import MessageClientButton from "@/components/messages/MessageClientButton";
@@ -244,7 +245,7 @@ export default async function CrmBookingDetailsPage({
           Diagnosis
         </h2>
         <div className="mt-5">
-          <DiagnosisEditor bookingId={booking.id} canEdit={false} />
+          <DiagnosisEditor bookingId={booking.id} canEdit={true} />
         </div>
       </section>
 
@@ -271,6 +272,7 @@ export default async function CrmBookingDetailsPage({
           <FeedbackEditor bookingId={booking.id} canEdit={false} />
         </div>
       </section>
+      <ReportPanel bookingId={booking.id} />
     </section>
   );
 }

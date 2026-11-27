@@ -189,6 +189,19 @@ export async function DELETE(request: Request) {
     return Response.json({ deletedCount: 0 });
   }
 
+  /*
+   * Manual user-deletion SQL must include the report step before bookings:
+   *   1. SELECT "pdfPath" FROM "Prescription" WHERE "bookingId" IN
+   *      (SELECT "id" FROM "Booking" WHERE "userId" = '<user-id>');
+   *   2. Delete those paths from the private `selenite-prescriptions` bucket.
+   *   3. DELETE FROM "Prescription" WHERE "bookingId" IN
+   *      (SELECT "id" FROM "Booking" WHERE "userId" = '<user-id>');
+   *   4. DELETE FROM "Booking" WHERE "userId" = '<user-id>';
+   *   5. DELETE FROM "User" WHERE "id" = '<user-id>';
+   * SQL cascades can remove Prescription rows, but they cannot remove Supabase
+   * Storage objects. This endpoint only deletes users with no bookings.
+   */
+
   await db.$transaction([
     db.message.deleteMany({
       where: {

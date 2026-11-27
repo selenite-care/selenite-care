@@ -1,0 +1,1 @@
+ALTER TABLE "Diagnosis" ADD COLUMN IF NOT EXISTS "additionalNotes" TEXT;

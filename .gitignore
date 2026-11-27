@@ -12,6 +12,7 @@
 
 # testing
 /coverage
+/scripts/output/*.pdf
 
 # next.js
 /.next/
